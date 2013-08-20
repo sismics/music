@@ -36,11 +36,14 @@
 				    <a class="navbar-brand" href="#">Sismics Music</a>
 				  </div>
 				  
-	        <div class="collapse navbar-collapse navbar-ex1-collapse">
-				    <ul class="nav navbar-nav">
-				      <li class="active"><a href="#/home">Home</a></li>
-				    </ul>
-				  </div>
+			    <ul class="nav navbar-nav navbar-left">
+			      <li class="active"><a href="#/home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+			      <li><a href="#"><span class="glyphicon glyphicon-play"></span> Now playing</a></li>
+			    </ul>
+			    
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#"><span class="glyphicon glyphicon-wrench"></span> Settings</a></li>
+          </ul>
 	      </div>
 	    </nav>
 	
@@ -131,10 +134,28 @@
 	    
 	  </div>
 	  
-	  <div id="footer">
-      <div class="container">
-        Player
-      </div>
+	  <div id="footer" class="panel panel-default">
+	    <div class="container">
+	      <div class="row">
+	      
+	        <div class="col-md-1 text-right btn-play">
+	          <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-play"></span></button>
+	        </div>
+	        
+	        <div class="col-md-7">
+	          <div class="progress">
+						  <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+						    <span class="sr-only">60% Complete</span>
+						  </div>
+						</div>
+	        </div>
+	        
+	        <div class="col-md-4">
+	          03:30 <span class="glyphicon glyphicon-volume-up"></span>
+          </div>
+	        
+	      </div>
+	    </div>
     </div>
   </body>
 </html>
