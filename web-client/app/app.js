@@ -5,7 +5,7 @@
  */
 var App = angular.module('music',
     // Dependencies
-    ['ui.state', 'ui.route', 'ui.bootstrap', 'ngMobile']
+    ['ui.state', 'ui.route', 'ngMobile']
   )
 
 /**
