@@ -22,9 +22,15 @@
     <script src="lib/angular/angular.js" type="text/javascript"></script>
     <script src="lib/angular/angular-mobile.js" type="text/javascript"></script>
     <script src="lib/angular.ui-router.js" type="text/javascript"></script>
-    <script src="lib/angular.ui-bootstrap.js" type="text/javascript"></script>
     <script src="lib/angular.ui-utils.js" type="text/javascript"></script>
     <script src="app/app.js" type="text/javascript"></script>
+    <script src="app/controller/Player.js" type="text/javascript"></script>
+    <script src="app/controller/Main.js" type="text/javascript"></script>
+    <script src="app/controller/MainDefault.js" type="text/javascript"></script>
+    <script src="app/controller/LatestAlbums.js" type="text/javascript"></script>
+    <script src="app/controller/Playing.js" type="text/javascript"></script>
+    <script src="app/controller/Music.js" type="text/javascript"></script>
+    <script src="app/controller/Album.js" type="text/javascript"></script>
   </head>
   <body>
     
@@ -33,12 +39,10 @@
 	    <nav class="navbar navbar-default" role="navigation">
 	      <div class="container">
 	        <div class="navbar-header">
-				    <a class="navbar-brand" href="#">Sismics Music</a>
+				    <a class="navbar-brand" href="#"><span class="glyphicon glyphicon-volume-up"></span> Sismics Music</a>
 				  </div>
 				  
 			    <ul class="nav navbar-nav navbar-left">
-			      <li class="active"><a href="#/home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-			      <li><a href="#"><span class="glyphicon glyphicon-play"></span> Now playing</a></li>
 			    </ul>
 			    
           <ul class="nav navbar-nav navbar-right">
@@ -48,114 +52,12 @@
 	    </nav>
 	
 	    <div class="container">
-	      <div class="row">
-	        <div class="col-md-4">
-	          <div class="panel panel-default">
-	            <div class="panel-heading">
-		            <form class="form-horizontal form-search-albums" role="form">
-								  <div class="form-group">
-								    <label for="inputAlbums" class="col-lg-2 control-label">Albums</label>
-								    <div class="col-lg-10">
-								      <input type="email" class="form-control" id="inputAlbums" placeholder="Search">
-								    </div>
-								  </div>
-								</form>
-	            </div>
-	            <div class="list-group">
-	              <a class="list-group-item">Album 1</a>
-	              <a class="list-group-item active">Album 2</a>
-	              <a class="list-group-item">Album 3</a>
-	              <a class="list-group-item">Album 4</a>
-	              <a class="list-group-item">Album 5</a>
-	            </div>
-	          </div>
-	        </div>
-	        
-	        <div class="col-md-8">
-	          <div class="panel panel-default">
-	            <div class="panel-body">
-	              <div class="page-header">
-								  <h1>Album 2 <small>Listened 58 times</small></h1>
-								</div>
-								
-							  <ul class="nav nav-pills">
-								  <li><a href="#"><span class="glyphicon glyphicon-play"></span> Play all</a></li>
-								  <li><a href="#"><span class="glyphicon glyphicon-random"></span> Shuffle</a></li>
-								  <li><a href="#"><span class="glyphicon glyphicon-plus"></span> Add all</a></li>
-								  <li><a href="#"><span class="glyphicon glyphicon-download-alt"></span> Download</a></li>
-								</ul>
-								
-							  <div class="row">
-							    <div class="col-md-7">
-										<table class="table table-striped">
-			                <thead>
-			                  <tr>
-			                    <th class="col-md-1"></th>
-			                    <th class="col-md-1"></th>
-			                    <th>#</th>
-			                    <th>Title</th>
-			                    <th>Length</th>
-			                  </tr>
-			                </thead>
-			                <tbody>
-			                  <tr>
-			                    <td><span class="glyphicon glyphicon-play"></span></td>
-			                    <td><span class="glyphicon glyphicon-plus"></span></td>
-			                    <td>Title 1</td>
-			                    <td>3:30</td>
-			                  </tr>
-			                  <tr>
-                          <td><span class="glyphicon glyphicon-play"></span></td>
-                          <td><span class="glyphicon glyphicon-plus"></span></td>
-			                    <td>2</td>
-			                    <td>Title 2</td>
-			                    <td>3:30</td>
-			                  </tr>
-			                  <tr>
-                          <td><span class="glyphicon glyphicon-play"></span></td>
-                          <td><span class="glyphicon glyphicon-plus"></span></td>
-			                    <td>3</td>
-			                    <td>Title 3</td>
-			                    <td>3:30</td>
-			                  </tr>
-			                  <tr>
-                          <td><span class="glyphicon glyphicon-play"></span></td>
-                          <td><span class="glyphicon glyphicon-plus"></span></td>
-			                    <td>4</td>
-			                    <td>Title 4</td>
-			                    <td>3:30</td>
-			                  </tr>
-			                  <tr>
-                          <td><span class="glyphicon glyphicon-play"></span></td>
-                          <td><span class="glyphicon glyphicon-plus"></span></td>
-			                    <td>5</td>
-			                    <td>Title 5</td>
-			                    <td>3:30</td>
-			                  </tr>
-			                  <tr>
-                          <td><span class="glyphicon glyphicon-play"></span></td>
-                          <td><span class="glyphicon glyphicon-plus"></span></td>
-			                    <td>6</td>
-			                    <td>Title 6</td>
-			                    <td>3:30</td>
-			                  </tr>
-			                </tbody>
-			              </table>
-			            </div>
-		              
-		              <div class="col-md-5">
-	                  <img src="http://placehold.it/330x330" style="width: 100%;" />
-		              </div>
-		            </div>
-	            </div>
-	          </div>
-	        </div>
-	      </div>
+	      <div ui-view="page"></div>
 	    </div>
 	    
 	  </div>
 	  
-	  <div id="footer" class="panel panel-default">
+	  <div id="footer" class="panel panel-default" ng-controller="Player">
 	    <div class="container">
 	      <div class="row">
 	      
@@ -164,7 +66,7 @@
 	        </div>
 	        
 	        <div class="col-md-7 now-playing">
-	          <span class="text-muted">Album 1</span> Title 1
+	          <span class="text-muted">Album 1</span> Title 3
 	          <div class="progress">
 						  <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
 						    <span class="sr-only">60% Complete</span>
@@ -172,8 +74,12 @@
 						</div>
 	        </div>
 	        
-	        <div class="col-md-4 info">
+	        <div class="col-md-3 info">
 	          03:30 <span class="glyphicon glyphicon-volume-up"></span>
+          </div>
+
+          <div class="col-md-1 playing">
+            <button type="button" class="btn btn-default" ng-click="openNowPlaying()"><span class="glyphicon glyphicon-list"></span></button>
           </div>
 	        
 	      </div>

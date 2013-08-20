@@ -11,10 +11,64 @@ var App = angular.module('music',
 /**
  * Configuring modules.
  */
-.config(function($stateProvider, $httpProvider) {
-  // Configuring UI Router
-  // TODO
-})
+  .config(function ($stateProvider, $httpProvider) {
+    // Configuring UI Router
+    $stateProvider
+      .state('main', {
+        url: '',
+        abstract: true,
+        views: {
+          'page': {
+            templateUrl: 'partial/main.html',
+            controller: 'Main'
+          }
+        }
+      })
+      .state('main.default', {
+        url: '',
+        views: {
+          'content': {
+            controller: 'MainDefault'
+          }
+        }
+      })
+      .state('main.latestalbums', {
+        url: '/latest',
+        views: {
+          'content': {
+            templateUrl: 'partial/latestalbums.html',
+            controller: 'LatestAlbums'
+          }
+        }
+      })
+      .state('main.playing', {
+        url: '/playing',
+        views: {
+          'content': {
+            templateUrl: 'partial/playing.html',
+            controller: 'Playing'
+          }
+        }
+      })
+      .state('main.music', {
+        url: '/music',
+        views: {
+          'content': {
+            templateUrl: 'partial/music.html',
+            controller: 'Music'
+          }
+        }
+      })
+      .state('main.album', {
+        url: '/album/:id',
+        views: {
+          'content': {
+            templateUrl: 'partial/album.html',
+            controller: 'Album'
+          }
+        }
+      })
+  })
 
 /**
  * Application initialization.
