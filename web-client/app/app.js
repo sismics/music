@@ -5,7 +5,7 @@
  */
 var App = angular.module('music',
     // Dependencies
-    ['ui.state', 'ui.route', 'ngMobile']
+    ['ui.state', 'ui.route', 'ngMobile', 'ngCookies']
   )
 
 /**
@@ -14,6 +14,15 @@ var App = angular.module('music',
   .config(function ($stateProvider, $httpProvider) {
     // Configuring UI Router
     $stateProvider
+      .state('login', {
+        url: '/login',
+        views: {
+          'page': {
+            templateUrl: 'partial/login.html',
+            controller: 'Login'
+          }
+        }
+      })
       .state('main', {
         url: '',
         abstract: true,
@@ -73,7 +82,8 @@ var App = angular.module('music',
 /**
  * Application initialization.
  */
-.run(function($rootScope, $state, $stateParams) {
+.run(function($rootScope, $state, $stateParams, Api) {
   $rootScope.$state = $state;
   $rootScope.$stateParams = $stateParams;
+  $rootScope.baseUrl = Api.getBaseUrl();
 });

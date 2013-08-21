@@ -8,74 +8,11 @@
 
 
   <div class="row">
-    <div class="col-sm-6 col-md-3">
-      <a class="thumbnail" href="#/album/1">
-        <img src="http://placehold.it/200x200" />
+    <div class="col-sm-6 col-md-3" ng-repeat="album in albums">
+      <a class="thumbnail" href="#/album/{{ album.id }}">
+        <img ng-src="{{ baseUrl }}/getCoverArt.view?id={{ album.coverArt }}&size=200&{{ urlParameters }}" />
         <div class="caption">
-          <p class="text-muted">Artist 1</p>
-          <p>Album 1</p>
-        </div>
-      </a>
-    </div>
-
-    <div class="col-sm-6 col-md-3">
-      <a class="thumbnail" href="#/album/1">
-        <img src="http://placehold.it/200x200" />
-        <div class="caption">
-          <p class="text-muted">Artist 1</p>
-          <p>Album 1</p>
-        </div>
-      </a>
-    </div>
-
-    <div class="col-sm-6 col-md-3">
-      <a class="thumbnail" href="#/album/1">
-        <img src="http://placehold.it/200x200" />
-        <div class="caption">
-          <p class="text-muted">Artist 1</p>
-          <p>Album 1</p>
-        </div>
-      </a>
-    </div>
-
-    <div class="col-sm-6 col-md-3">
-      <a class="thumbnail" href="#/album/1">
-        <img src="http://placehold.it/200x200" />
-        <div class="caption">
-          <p class="text-muted">Artist 1</p>
-          <p>Album 1</p>
-        </div>
-      </a>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-sm-6 col-md-3">
-      <a class="thumbnail" href="#/album/1">
-        <img src="http://placehold.it/200x200" />
-        <div class="caption">
-          <p class="text-muted">Artist 1</p>
-          <p>Album 1</p>
-        </div>
-      </a>
-    </div>
-
-    <div class="col-sm-6 col-md-3">
-      <a class="thumbnail" href="#/album/1">
-        <img src="http://placehold.it/200x200" />
-        <div class="caption">
-          <p class="text-muted">Artist 1</p>
-          <p>Album 1</p>
-        </div>
-      </a>
-    </div>
-
-    <div class="col-sm-6 col-md-3">
-      <a class="thumbnail" href="#/album/1">
-        <img src="http://placehold.it/200x200" />
-        <div class="caption">
-          <p class="text-muted">Artist 1</p>
-          <p>Album 1</p>
+          <p style="overflow: hidden; height: 40px">{{ album.title }}</p>
         </div>
       </a>
     </div>
