@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>com.sismics.music</groupId>
+    <artifactId>music-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../music-parent</relativePath>
+  </parent>
+  
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>music-distribution-debian</artifactId>
+  <packaging>jar</packaging>
+  <name>Music Debian Distribution</name>
+
+  <properties>
+    <timestamp>${maven.build.timestamp}</timestamp>
+    <maven.build.timestamp.format>EEE, d MMM yyyy HH:mm:ss Z</maven.build.timestamp.format>
+  </properties>
+  
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/deb</directory>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>src/main/package</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack</id>
+            <phase>package</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.sismics.music</groupId>
+                  <artifactId>music-distribution-standalone</artifactId>
+                  <version>${project.version}</version>
+                  <type>tar.gz</type>
+                  <classifier>dist</classifier>
+                  <overWrite>false</overWrite>
+                  <outputDirectory>${project.build.directory}</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.vafer</groupId>
+        <artifactId>jdeb</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>jdeb</goal>
+            </goals>
+            <configuration>
+              <verbose>true</verbose>
+              <controlDir>${project.build.outputDirectory}/control</controlDir>
+              <deb>${project.build.directory}/music-${project.version}.deb</deb>
+              <dataSet>
+                <data>
+                  <type>template</type>
+                  <paths>
+                    <path>usr/share/music</path>
+                    <path>usr/share/doc/music</path>
+                  </paths>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                  </mapper>
+                </data>
+                
+                <data>
+                  <src>${project.build.outputDirectory}/etc/init.d/music</src>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/etc/init.d</prefix>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>755</filemode>
+                  </mapper>
+                </data>
+      
+                <data>
+                  <src>${project.build.outputDirectory}/etc/default/music</src>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/etc/default</prefix>
+                    <user>root</user>
+                    <group>root</group>
+                  </mapper>
+                </data>
+      
+                <data>
+                  <src>${project.build.outputDirectory}/usr/share/doc/music</src>
+                  <type>directory</type>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/usr/share/doc/music</prefix>
+                    <user>root</user>
+                    <group>root</group>
+                  </mapper>
+                </data>
+
+                <data>
+                  <src>${project.build.directory}/music-distribution-standalone-${project.version}</src>
+                  <type>directory</type>
+                  <excludes>music.sh</excludes>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/usr/share/music</prefix>
+                    <user>root</user>
+                    <group>root</group>
+                  </mapper>
+                </data>
+      
+                <data>
+                  <src>${project.build.directory}/music-distribution-standalone-${project.version}/music.sh</src>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/usr/share/music</prefix>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>755</filemode>
+                  </mapper>
+                </data>
+              </dataSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

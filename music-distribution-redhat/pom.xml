@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>com.sismics.music</groupId>
+    <artifactId>music-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../music-parent</relativePath>
+  </parent>
+  
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>music-distribution-redhat</artifactId>
+  <packaging>jar</packaging>
+  <name>Music Red Hat Distribution</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.sismics.music</groupId>
+      <artifactId>music-distribution-standalone</artifactId>
+    </dependency>
+  </dependencies>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack</id>
+            <phase>package</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.sismics.music</groupId>
+                  <artifactId>music-distribution-standalone</artifactId>
+                  <version>${project.version}</version>
+                  <type>tar.gz</type>
+                  <classifier>dist</classifier>
+                  <overWrite>false</overWrite>
+                  <outputDirectory>${project.build.directory}</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- 
+        Note: The rpm-maven-plugin needs to rpm command to build.
+        See http://crlog.info/2012/09/11/building-rpms-on-windows/ for instructions
+        on how to build RPMs on Windows. -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>rpm-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>rpm</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <name>music</name>
+          <version>${project.version}</version>
+          <targetOS>linux</targetOS> 
+          <copyright>GPLv2</copyright>
+          <group>Application/Internet</group>
+          <packager>Sismics</packager>
+          <vendor>Sismics</vendor>
+          <url>http://www.sismics.com/music/</url>
+          <targetArchitecture>i586</targetArchitecture>
+          <summary>A Web-based aggregator of content served by Web Feeds</summary>
+          <description>Music is a Web-based aggregator of content served by Web Feeds.
+ 
+Java 1.6 or higher is required to run Music.
+ 
+More information can be found at http://www.sismics.com/music/</description>
+          <defineStatements>
+            <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+          </defineStatements>
+          <mappings>
+            <mapping>
+              <directory>/etc/init.d</directory>
+              <directoryIncluded>false</directoryIncluded>
+              <username>root</username>
+              <groupname>root</groupname>
+              <filemode>755</filemode>
+              <sources>
+                <source>
+                  <location>src/main/package/etc/init.d/music</location>
+                </source>
+              </sources>
+            </mapping>
+
+            <mapping>
+              <directory>/etc/sysconfig</directory>
+              <directoryIncluded>false</directoryIncluded>
+              <username>root</username>
+              <groupname>root</groupname>
+              <sources>
+                <source>
+                  <location>src/main/package/etc/sysconfig/music</location>
+                </source>
+              </sources>
+            </mapping>
+
+            <mapping>
+              <directory>/usr/share/music</directory>
+              <username>root</username>
+              <groupname>root</groupname>
+              <sources>
+                <source>
+                  <location>target/music-distribution-standalone-${project.version}</location>
+                  <excludes>
+                    <exclude>music.sh</exclude>
+                    <exclude>music.bat</exclude>
+                  </excludes>
+                </source>
+              </sources>
+            </mapping>
+
+            <mapping>
+              <directory>/usr/share/music</directory>
+              <username>root</username>
+              <groupname>root</groupname>
+              <filemode>755</filemode>
+              <sources>
+                <source>
+                  <location>target/music-distribution-standalone-${project.version}/music.sh</location>
+                </source>
+              </sources>
+            </mapping>
+          </mappings>
+          
+          <preinstallScriptlet>
+            <scriptFile>src/main/rpm/script/preinstall</scriptFile>
+          </preinstallScriptlet>
+          
+          <postinstallScriptlet>
+            <scriptFile>src/main/rpm/script/postinstall</scriptFile>
+          </postinstallScriptlet>
+          
+          <preremoveScriptlet>
+            <scriptFile>src/main/rpm/script/preremove</scriptFile>
+          </preremoveScriptlet>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

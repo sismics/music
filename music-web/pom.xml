@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>com.sismics.music</groupId>
+    <artifactId>music-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../music-parent</relativePath>
+  </parent>
+  
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>music-web</artifactId>
+  <packaging>war</packaging>
+  <name>Music Web</name>
+
+  <dependencies>
+    <!-- Dependencies to Music -->
+    <dependency>
+      <groupId>com.sismics.music</groupId>
+      <artifactId>music-core</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.sismics.music</groupId>
+      <artifactId>music-web-common</artifactId>
+    </dependency>
+    
+    <!-- Dependencies to Jersey -->
+    <dependency>
+      <groupId>com.sun.jersey</groupId>
+      <artifactId>jersey-server</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.sun.jersey</groupId>
+      <artifactId>jersey-bundle</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.sun.jersey</groupId>
+      <artifactId>jersey-json</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.sun.jersey.contribs</groupId>
+      <artifactId>jersey-multipart</artifactId>
+    </dependency>
+      
+    <!-- Other external dependencies -->
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
+  
+    <dependency>
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mortbay.jetty</groupId>
+      <artifactId>servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+    </dependency>
+
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>com.sismics.music</groupId>
+      <artifactId>music-web-common</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.sun.grizzly</groupId>
+      <artifactId>grizzly-servlet-webserver</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.sun.jersey.jersey-test-framework</groupId>
+      <artifactId>jersey-test-framework-grizzly2</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.subethamail</groupId>
+      <artifactId>subethasmtp-wiser</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>jetty-maven-plugin</artifactId>
+        <configuration>
+          <systemProperties>
+            <systemProperty>
+              <name>webapp.root</name>
+              <value>${basedir}/src/main/webapp</value>
+            </systemProperty>
+          </systemProperties>
+          <scanIntervalSeconds>0</scanIntervalSeconds>
+          <webAppConfig>
+            <contextPath>/music-web</contextPath>
+            <extraClasspath>target/classes;../music-core/target/classes</extraClasspath>
+            <overrideDescriptor>src/dev/main/webapp/web-override.xml</overrideDescriptor>
+          </webAppConfig>
+        </configuration>
+      </plugin>
+
+      <!-- Cargo Plugin -->
+      <plugin>
+        <groupId>org.codehaus.cargo</groupId>
+        <artifactId>cargo-maven2-plugin</artifactId>
+        <configuration>
+          <container>
+            <containerId>jetty8x</containerId>
+            <type>remote</type>
+          </container>
+
+          <deployer>
+            <type>remote</type>
+          </deployer>
+
+          <deployables>
+            <deployable>
+              <groupId>com.sismics.music</groupId>
+              <artifactId>music-web</artifactId>
+              <type>war</type>
+              <properties>
+                <context>/music</context>
+              </properties>
+              <pingURL>http://localhost:8080/music/index.html</pingURL>
+            </deployable>
+          </deployables>
+        </configuration>
+      </plugin>
+    </plugins>
+    <pluginManagement>
+      <plugins>
+        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>com.samaxes.maven</groupId>
+                    <artifactId>
+                      minify-maven-plugin
+                    </artifactId>
+                    <versionRange>[1.5,)</versionRange>
+                    <goals>
+                      <goal>minify</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore />
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <profiles>
+    <!-- Development profile (active by default) -->
+    <profile>
+      <id>dev</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+        <property>
+          <name>env</name>
+          <value>dev</value>
+        </property>
+      </activation>
+      
+      <build>
+        <resources>
+          <resource>
+            <directory>src/dev/resources</directory>
+            <filtering>false</filtering>
+            <excludes>
+              <exclude>**/config.properties</exclude>
+            </excludes>
+          </resource>
+          <resource>
+            <directory>src/dev/resources</directory>
+            <filtering>true</filtering>
+            <includes>
+              <include>**/config.properties</include>
+            </includes>
+          </resource>
+        </resources>
+
+        <plugins>
+          <plugin>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-maven-plugin</artifactId>
+            <configuration>
+              <scanIntervalSeconds>0</scanIntervalSeconds>
+              <webAppConfig>
+                <contextPath>/music-web</contextPath>
+                <extraClasspath>target/classes;../music-core/target/classes</extraClasspath>
+                <overrideDescriptor>src/dev/main/webapp/web-override.xml</overrideDescriptor>
+              </webAppConfig>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+    <!-- Production profile -->
+    <profile>
+      <id>prod</id>
+      <activation>
+        <property>
+          <name>env</name>
+          <value>prod</value>
+        </property>
+      </activation>
+      
+      <build>
+        <resources>
+          <resource>
+            <directory>src/prod/resources</directory>
+            <filtering>false</filtering>
+            <excludes>
+              <exclude>**/config.properties</exclude>
+            </excludes>
+          </resource>
+          <resource>
+            <directory>src/prod/resources</directory>
+            <filtering>true</filtering>
+            <includes>
+              <include>**/config.properties</include>
+            </includes>
+          </resource>
+        </resources>
+        
+        <plugins>
+        
+          <!-- Minify -->
+          <plugin>
+            <groupId>com.samaxes.maven</groupId>
+            <artifactId>minify-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>music-minify</id>
+                <phase>process-resources</phase>
+                <configuration>
+                  <jsSourceDir>javascripts</jsSourceDir>
+                  <jsTargetDir>javascripts</jsTargetDir>
+                  <jsSourceFiles>
+                    <jsSourceFile>jquery.less.js</jsSourceFile>
+                    <jsSourceFile>jquery.ui.js</jsSourceFile>
+                    <jsSourceFile>jquery.visible.js</jsSourceFile>
+                    <jsSourceFile>jquery.cookie.js</jsSourceFile>
+                    <jsSourceFile>jquery.history.js</jsSourceFile>
+                    <jsSourceFile>jquery.moment.js</jsSourceFile>
+                    <jsSourceFile>jquery.cookie.js</jsSourceFile>
+                    <jsSourceFile>jquery.qtip.js</jsSourceFile>
+                    <jsSourceFile>jquery.toastmessage.js</jsSourceFile>
+                    <jsSourceFile>jquery.json.js</jsSourceFile>
+                    <jsSourceFile>jquery.throttle.js</jsSourceFile>
+                    <jsSourceFile>jquery.i18next.js</jsSourceFile>
+                    <jsSourceFile>jquery.visible.js</jsSourceFile>
+                    <jsSourceFile>jquery.validate.js</jsSourceFile>
+                    <jsSourceFile>jquery.numeral.js</jsSourceFile>
+                    <jsSourceFile>r.main.js</jsSourceFile>
+                    <jsSourceFile>r.user.js</jsSourceFile>
+                    <jsSourceFile>r.subscription.js</jsSourceFile>
+                    <jsSourceFile>r.article.js</jsSourceFile>
+                    <jsSourceFile>r.category.js</jsSourceFile>
+                    <jsSourceFile>r.feed.js</jsSourceFile>
+                    <jsSourceFile>r.search.js</jsSourceFile>
+                    <jsSourceFile>r.settings.js</jsSourceFile>
+                    <jsSourceFile>r.about.js</jsSourceFile>
+                    <jsSourceFile>r.wizard.js</jsSourceFile>
+                    <jsSourceFile>r.theme.js</jsSourceFile>
+                    <jsSourceFile>r.util.js</jsSourceFile>
+                    <jsSourceFile>r.shortcuts.js</jsSourceFile>
+                  </jsSourceFiles>
+                  <jsFinalFile>music.js</jsFinalFile>
+                </configuration>
+                <goals>
+                  <goal>minify</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <!-- Ant task to modify the JS/CSS imports -->
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>default-antrun</id>
+                <phase>process-resources</phase>
+                <configuration>
+                  <target>
+                    
+                    <property name="webapp.dir" location="${basedir}/src/main/webapp" />
+                    <property name="war.dir" location="${project.build.directory}/${project.artifactId}-${project.version}" />
+                    
+                    <!-- Copy HTML files -->
+                    <copy todir="${war.dir}">
+                      <fileset dir="${webapp.dir}" includes="*.html" />
+                    </copy>
+                    
+                    <!-- Use minified imports -->
+                    <replaceregexp match="&lt;!-- MINIFIED (.*) --&gt;" replace="\1" flags="g">
+                      <fileset dir="${war.dir}" includes="*.html" />
+                    </replaceregexp>
+                    
+                    <!-- Delete unminified imports -->
+                    <replaceregexp match="&lt;!-- BEGIN NON MINIFIED --&gt;(.*?)&lt;!-- END NON MINIFIED --&gt;" replace="" flags="gs">
+                      <fileset dir="${war.dir}" includes="*.html" />
+                    </replaceregexp>
+                    
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <!-- Generation of the war -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+              <warSourceExcludes>
+                **/javascripts/jquery.less.js,
+                **/javascripts/jquery.ui.js,
+                **/javascripts/jquery.cookie.js,
+                **/javascripts/jquery.visible.js,
+                **/javascripts/jquery.history.js,
+                **/javascripts/jquery.moment.js,
+                **/javascripts/jquery.cookie.js,
+                **/javascripts/jquery.qtip.js,
+                **/javascripts/jquery.toastmessage.js,
+                **/javascripts/jquery.json.js,
+                **/javascripts/jquery.throttle.js,
+                **/javascripts/jquery.i18next.js,
+                **/javascripts/jquery.visible.js,
+                **/javascripts/jquery.validate.js,
+                **/javascripts/jquery.numeral.js,
+                **/javascripts/r.main.js,
+                **/javascripts/r.user.js,
+                **/javascripts/r.subscription.js,
+                **/javascripts/r.article.js,
+                **/javascripts/r.category.js,
+                **/javascripts/r.feed.js,
+                **/javascripts/r.search.js,
+                **/javascripts/r.settings.js,
+                **/javascripts/r.about.js,
+                **/javascripts/r.wizard.js,
+                **/javascripts/r.theme.js,
+                **/javascripts/r.util.js,
+                **/javascripts/r.shortcuts.js,
+                test/**,
+                sismicsmusic/**,
+                *.html
+              </warSourceExcludes>
+              <webXml>src\main\webapp\WEB-INF\web.xml</webXml>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+    <!-- Hosted version profile -->
+    <profile>
+      <id>hosted</id>
+      <activation>
+        <property>
+          <name>env</name>
+          <value>hosted</value>
+        </property>
+      </activation>
+      
+      <build>
+        <resources>
+          <resource>
+            <directory>src/hosted/resources</directory>
+            <filtering>false</filtering>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+  </profiles>  
+</project>

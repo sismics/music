@@ -1,2 +1,9 @@
-.project
-.idea
+/*/.classpath
+/*/.project
+/*/.settings
+/*/bin
+/*/gen
+/*/target
+/*/*.iml
+.idea/
+/reader-web/src/main/webapp/sismicsreader
