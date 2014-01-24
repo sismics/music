@@ -1,13 +1,12 @@
 package com.sismics.music.core.model.jpa;
 
-import java.util.Date;
+import com.google.common.base.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import com.google.common.base.Objects;
+import java.util.Date;
 
 /**
  * User entity.
@@ -61,34 +60,28 @@ public class User {
     private String theme;
     
     /**
-     * Display only article titles (web application).
+     * Maximum bitrate in kbps (null if unlimited).
      */
-    @Column(name = "USE_DISPLAYTITLEWEB_B", nullable = false)
-    private boolean displayTitleWeb;
+    @Column(name = "USE_MAXBITRATE_N")
+    private Integer maxBitrate;
 
     /**
-     * Display only article titles (mobile application).
+     * User login on Last.fm.
      */
-    @Column(name = "USE_DISPLAYTITLEMOBILE_B", nullable = false)
-    private boolean displayTitleMobile;
+    @Column(name = "USE_LASTFMLOGIN_C")
+    private String lastFmLogin;
 
     /**
-     * Display only unread articles (web application).
+     * User password on Last.fm.
      */
-    @Column(name = "USE_DISPLAYUNREADWEB_B", nullable = false)
-    private boolean displayUnreadWeb;
+    @Column(name = "USE_LASTFMPASSWORD_C")
+    private String lastFmPassword;
 
     /**
-     * Display only unread articles (mobile application).
+     * Scrobbling on Last.fm active.
      */
-    @Column(name = "USE_DISPLAYUNREADMOBILE_B", nullable = false)
-    private boolean displayUnreadMobile;
-    
-    /**
-     * Show narrow articles on wide screen.
-     */
-    @Column(name = "USE_NARROWARTICLE_B", nullable = false)
-    private boolean narrowArticle;
+    @Column(name = "USE_LASTFMACTIVE_B")
+    private boolean lastFmActive;
 
     /**
      * True if the user hasn't dismissed the first connection screen.
@@ -235,93 +228,75 @@ public class User {
     }
 
     /**
-     * Getter of displayTitleWeb.
+     * Getter of maxBitrate.
      *
-     * @return displayTitleWeb
+     * @return maxBitrate
      */
-    public boolean isDisplayTitleWeb() {
-        return displayTitleWeb;
+    public Integer getMaxBitrate() {
+        return maxBitrate;
     }
 
     /**
-     * Setter of displayTitleWeb.
+     * Setter of maxBitrate.
      *
-     * @param displayTitleWeb displayTitleWeb
+     * @param maxBitrate maxBitrate
      */
-    public void setDisplayTitleWeb(boolean displayTitleWeb) {
-        this.displayTitleWeb = displayTitleWeb;
+    public void setMaxBitrate(Integer maxBitrate) {
+        this.maxBitrate = maxBitrate;
     }
 
     /**
-     * Getter of displayTitleMobile.
+     * Getter of lastFmLogin.
      *
-     * @return displayTitleMobile
+     * @return lastFmLogin
      */
-    public boolean isDisplayTitleMobile() {
-        return displayTitleMobile;
+    public String getLastFmLogin() {
+        return lastFmLogin;
     }
 
     /**
-     * Setter of displayTitleMobile.
+     * Setter of lastFmLogin.
      *
-     * @param displayTitleMobile displayTitleMobile
+     * @param lastFmLogin lastFmLogin
      */
-    public void setDisplayTitleMobile(boolean displayTitleMobile) {
-        this.displayTitleMobile = displayTitleMobile;
+    public void setLastFmLogin(String lastFmLogin) {
+        this.lastFmLogin = lastFmLogin;
     }
 
     /**
-     * Getter of displayUnreadWeb.
+     * Getter of lastFmPassword.
      *
-     * @return displayUnreadWeb
+     * @return lastFmPassword
      */
-    public boolean isDisplayUnreadWeb() {
-        return displayUnreadWeb;
+    public String getLastFmPassword() {
+        return lastFmPassword;
     }
 
     /**
-     * Setter of displayUnreadWeb.
+     * Setter of lastFmPassword.
      *
-     * @param displayUnreadWeb displayUnreadWeb
+     * @param lastFmPassword lastFmPassword
      */
-    public void setDisplayUnreadWeb(boolean displayUnreadWeb) {
-        this.displayUnreadWeb = displayUnreadWeb;
+    public void setLastFmPassword(String lastFmPassword) {
+        this.lastFmPassword = lastFmPassword;
     }
 
     /**
-     * Getter of displayUnreadMobile.
+     * Getter of lastFmActive.
      *
-     * @return displayUnreadMobile
+     * @return lastFmActive
      */
-    public boolean isDisplayUnreadMobile() {
-        return displayUnreadMobile;
+    public boolean isLastFmActive() {
+        return lastFmActive;
     }
 
     /**
-     * Setter of displayUnreadMobile.
+     * Setter of lastFmActive.
      *
-     * @param displayUnreadMobile displayUnreadMobile
+     * @param lastFmActive lastFmActive
      */
-    public void setDisplayUnreadMobile(boolean displayUnreadMobile) {
-        this.displayUnreadMobile = displayUnreadMobile;
-    }
-    
-    /**
-     * Getter of narrowArticle.
-     *
-     * @return narrowArticle
-     */
-    public boolean isNarrowArticle() {
-        return narrowArticle;
-    }
-
-    /**
-     * Setter of narrowArticle.
-     *
-     * @param narrowArticle narrowArticle
-     */
-    public void setNarrowArticle(boolean narrowArticle) {
-        this.narrowArticle = narrowArticle;
+    public void setLastFmActive(boolean lastFmActive) {
+        this.lastFmActive = lastFmActive;
     }
 
     /**

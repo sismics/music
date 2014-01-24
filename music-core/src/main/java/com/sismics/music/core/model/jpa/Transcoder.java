@@ -1,63 +1,68 @@
 package com.sismics.music.core.model.jpa;
 
-import java.util.Date;
+import com.google.common.base.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import com.google.common.base.Objects;
+import java.util.Date;
 
 /**
- * Subscription from a user to an article.
+ * Transcoder entity.
  * 
  * @author jtremeaux
  */
 @Entity
-@Table(name = "T_USER_ARTICLE")
-public class UserArticle {
+@Table(name = "T_TRANSCODER")
+public class Transcoder {
     /**
-     * Subscription ID.
+     * Transcoder ID.
      */
     @Id
-    @Column(name = "USA_ID_C", length = 36)
+    @Column(name = "TRN_ID_C", length = 36)
     private String id;
     
     /**
-     * User ID.
+     * Transcoder name.
      */
-    @Column(name = "USA_IDUSER_C", nullable = false, length = 36)
-    private String userId;
+    @Column(name = "TRN_NAME_C", nullable = false, length = 100)
+    private String name;
     
     /**
-     * Article ID.
+     * Transcoder source formats, space separated.
      */
-    @Column(name = "USA_IDARTICLE_C", nullable = false, length = 36)
-    private String articleId;
+    @Column(name = "TRN_SOURCE_C", nullable = false, length = 1000)
+    private String source;
+    
+    /**
+     * Transcoder destination format.
+     */
+    @Column(name = "TRN_DESTINATION_C", nullable = false)
+    private Date destination;
+    
+    /**
+     * Transcoder command (step 1).
+     */
+    @Column(name = "TRN_READDATE_D")
+    private Date readDate;
+    
+    /**
+     * Transcoder command (step 2).
+     */
+    @Column(name = "TRN_STARREDDATE_D")
+    private Date starredDate;
     
     /**
      * Creation date.
      */
-    @Column(name = "USA_CREATEDATE_D", nullable = false)
+    @Column(name = "TRN_CREATEDATE_D")
     private Date createDate;
-    
-    /**
-     * Read date of the article.
-     */
-    @Column(name = "USA_READDATE_D")
-    private Date readDate;
-    
-    /**
-     * Date the user starred this article.
-     */
-    @Column(name = "USA_STARREDDATE_D")
-    private Date starredDate;
-    
+
     /**
      * Deletion date.
      */
-    @Column(name = "USA_DELETEDATE_D")
+    @Column(name = "TRN_DELETEDATE_D")
     private Date deleteDate;
 
     /**
@@ -79,57 +84,57 @@ public class UserArticle {
     }
 
     /**
-     * Getter of userId.
+     * Getter of name.
      *
-     * @return userId
+     * @return name
      */
-    public String getUserId() {
-        return userId;
+    public String getName() {
+        return name;
     }
 
     /**
-     * Setter of userId.
+     * Setter of name.
      *
-     * @param userId userId
+     * @param name name
      */
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
-     * Getter of articleId.
+     * Getter of source.
      *
-     * @return articleId
+     * @return source
      */
-    public String getArticleId() {
-        return articleId;
+    public String getSource() {
+        return source;
     }
 
     /**
-     * Setter of articleId.
+     * Setter of source.
      *
-     * @param articleId articleId
+     * @param source source
      */
-    public void setArticleId(String articleId) {
-        this.articleId = articleId;
+    public void setSource(String source) {
+        this.source = source;
     }
 
     /**
-     * Getter of createDate.
+     * Getter of destination.
      *
-     * @return createDate
+     * @return destination
      */
-    public Date getCreateDate() {
-        return createDate;
+    public Date getDestination() {
+        return destination;
     }
 
     /**
-     * Setter of createDate.
+     * Setter of destination.
      *
-     * @param createDate createDate
+     * @param destination destination
      */
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
+    public void setDestination(Date destination) {
+        this.destination = destination;
     }
 
     /**
@@ -169,6 +174,24 @@ public class UserArticle {
     }
 
     /**
+     * Getter of createDate.
+     *
+     * @return createDate
+     */
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    /**
+     * Setter of createDate.
+     *
+     * @param createDate createDate
+     */
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    /**
      * Getter of deleteDate.
      *
      * @return deleteDate
@@ -190,8 +213,7 @@ public class UserArticle {
     public String toString() {
         return Objects.toStringHelper(this)
                 .add("id", id)
-                .add("userId", userId)
-                .add("articleId", articleId)
+                .add("name", name)
                 .toString();
     }
 }

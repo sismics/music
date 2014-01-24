@@ -6,18 +6,18 @@
   <persistence-unit name="transactions-optional" transaction-type="RESOURCE_LOCAL">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
   
-    <class>com.sismics.music.core.model.jpa.Article</class>
+    <class>com.sismics.music.core.model.jpa.Album</class>
+    <class>com.sismics.music.core.model.jpa.Artist</class>
     <class>com.sismics.music.core.model.jpa.AuthenticationToken</class>
     <class>com.sismics.music.core.model.jpa.BaseFunction</class>
-    <class>com.sismics.music.core.model.jpa.Category</class>
     <class>com.sismics.music.core.model.jpa.Config</class>
-    <class>com.sismics.music.core.model.jpa.Feed</class>
-    <class>com.sismics.music.core.model.jpa.FeedSubscription</class>
-    <class>com.sismics.music.core.model.jpa.Job</class>
-    <class>com.sismics.music.core.model.jpa.JobEvent</class>
+    <class>com.sismics.music.core.model.jpa.Directory</class>
+    <class>com.sismics.music.core.model.jpa.Track</class>
     <class>com.sismics.music.core.model.jpa.Locale</class>
-    <class>com.sismics.music.core.model.jpa.User</class>
-    <class>com.sismics.music.core.model.jpa.UserArticle</class>
+    <class>com.sismics.music.core.model.jpa.Transcoder</class>
     <class>com.sismics.music.core.model.jpa.RoleBaseFunction</class>
+    <class>com.sismics.music.core.model.jpa.Track</class>
+    <class>com.sismics.music.core.model.jpa.Transcoder</class>
+    <class>com.sismics.music.core.model.jpa.User</class>
   </persistence-unit>
 </persistence>
