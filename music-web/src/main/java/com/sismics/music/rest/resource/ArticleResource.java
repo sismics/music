@@ -1,24 +1,18 @@
 package com.sismics.music.rest.resource;
 
-import java.text.MessageFormat;
-import java.util.Date;
-import java.util.List;
-
-import javax.ws.rs.FormParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import com.sismics.music.core.dao.jpa.UserArticleDao;
+import com.sismics.music.core.model.jpa.Transcoder;
+import com.sismics.rest.exception.ClientException;
+import com.sismics.rest.exception.ForbiddenClientException;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
-import com.sismics.music.core.dao.jpa.UserArticleDao;
-import com.sismics.music.core.model.jpa.UserArticle;
-import com.sismics.rest.exception.ClientException;
-import com.sismics.rest.exception.ForbiddenClientException;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.text.MessageFormat;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Article REST resources.
@@ -45,7 +39,7 @@ public class ArticleResource extends BaseResource {
         
         // Get the article
         UserArticleDao userArticleDao = new UserArticleDao();
-        UserArticle userArticle = userArticleDao.getUserArticle(id, principal.getId());
+        Transcoder userArticle = userArticleDao.getUserArticle(id, principal.getId());
         if (userArticle == null) {
             throw new ClientException("ArticleNotFound", MessageFormat.format("Article not found: {0}", id));
         }
@@ -79,7 +73,7 @@ public class ArticleResource extends BaseResource {
         for (String id : idList) {
             // Get the article
             UserArticleDao userArticleDao = new UserArticleDao();
-            UserArticle userArticle = userArticleDao.getUserArticle(id, principal.getId());
+            Transcoder userArticle = userArticleDao.getUserArticle(id, principal.getId());
             if (userArticle == null) {
                 throw new ClientException("ArticleNotFound", MessageFormat.format("Article not found: {0}", id));
             }
@@ -113,7 +107,7 @@ public class ArticleResource extends BaseResource {
         
         // Get the article
         UserArticleDao userArticleDao = new UserArticleDao();
-        UserArticle userArticle = userArticleDao.getUserArticle(id, principal.getId());
+        Transcoder userArticle = userArticleDao.getUserArticle(id, principal.getId());
         if (userArticle == null) {
             throw new ClientException("ArticleNotFound", MessageFormat.format("Article not found: {0}", id));
         }

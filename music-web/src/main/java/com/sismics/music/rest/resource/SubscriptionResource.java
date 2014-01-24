@@ -11,11 +11,8 @@ import com.sismics.music.core.dao.jpa.dto.FeedSubscriptionDto;
 import com.sismics.music.core.dao.jpa.dto.UserArticleDto;
 import com.sismics.music.core.event.SubscriptionImportedEvent;
 import com.sismics.music.core.model.context.AppContext;
-import com.sismics.music.core.model.jpa.Category;
-import com.sismics.music.core.model.jpa.Feed;
-import com.sismics.music.core.model.jpa.FeedSubscription;
+import com.sismics.music.core.model.jpa.Track;
 import com.sismics.music.core.model.jpa.User;
-import com.sismics.music.core.service.FeedService;
 import com.sismics.music.core.util.DirectoryUtil;
 import com.sismics.music.core.util.EntityManagerUtil;
 import com.sismics.music.core.util.jpa.PaginatedList;
@@ -272,7 +269,7 @@ public class SubscriptionResource extends BaseResource {
         }
         
         // Get feed and articles
-        Feed feed = null;
+        Track feed = null;
         final FeedService feedService = AppContext.getInstance().getFeedService();
         try {
             feed = feedService.synchronize(url);

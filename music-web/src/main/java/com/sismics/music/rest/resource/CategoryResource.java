@@ -5,8 +5,6 @@ import com.sismics.music.core.dao.jpa.FeedSubscriptionDao;
 import com.sismics.music.core.dao.jpa.UserArticleDao;
 import com.sismics.music.core.dao.jpa.criteria.UserArticleCriteria;
 import com.sismics.music.core.dao.jpa.dto.UserArticleDto;
-import com.sismics.music.core.model.jpa.Category;
-import com.sismics.music.core.model.jpa.FeedSubscription;
 import com.sismics.music.core.util.jpa.PaginatedList;
 import com.sismics.music.core.util.jpa.PaginatedLists;
 import com.sismics.music.rest.assembler.ArticleAssembler;

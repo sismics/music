@@ -15,7 +15,7 @@ import javax.persistence.Query;
 import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.jpa.criteria.FeedCriteria;
 import com.sismics.music.core.dao.jpa.dto.FeedDto;
-import com.sismics.music.core.model.jpa.Feed;
+import com.sismics.music.core.model.jpa.Track;
 import com.sismics.util.context.ThreadLocalContext;
 
 /**
@@ -30,7 +30,7 @@ public class FeedDao {
      * @param feed Feed to create
      * @return New ID
      */
-    public String create(Feed feed) {
+    public String create(Track feed) {
         // Create the UUID
         feed.setId(UUID.randomUUID().toString());
         
@@ -53,7 +53,7 @@ public class FeedDao {
         // Get the feed
         Query q = em.createQuery("select f from Feed f where f.id = :id and f.deleteDate is null");
         q.setParameter("id", id);
-        Feed feedFromDb = (Feed) q.getSingleResult();
+        Track feedFromDb = (Track) q.getSingleResult();
 
         // Delete the feed
         feedFromDb.setDeleteDate(new Date());
@@ -64,14 +64,14 @@ public class FeedDao {
      * 
      * @param rssUrl RSS URL
      */
-    public Feed getByRssUrl(String rssUrl) {
+    public Track getByRssUrl(String rssUrl) {
         EntityManager em = ThreadLocalContext.get().getEntityManager();
         
         // Get the feed
         Query q = em.createQuery("select f from Feed f where f.rssUrl = :rssUrl and f.deleteDate is null");
         q.setParameter("rssUrl", rssUrl);
         try {
-            Feed feed = (Feed) q.getSingleResult();
+            Track feed = (Track) q.getSingleResult();
             return feed;
         } catch (NoResultException e) {
             return null;
@@ -143,13 +143,13 @@ public class FeedDao {
      * @param feed Feed to update
      * @return Updated feed
      */
-    public Feed update(Feed feed) {
+    public Track update(Track feed) {
         EntityManager em = ThreadLocalContext.get().getEntityManager();
         
         // Get the feed
         Query q = em.createQuery("select f from Feed f where f.id = :id and f.deleteDate is null");
         q.setParameter("id", feed.getId());
-        Feed feedFromDb = (Feed) q.getSingleResult();
+        Track feedFromDb = (Track) q.getSingleResult();
 
         // Update the feed
         feedFromDb.setUrl(feed.getUrl());

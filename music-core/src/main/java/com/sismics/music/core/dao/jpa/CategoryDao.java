@@ -7,7 +7,6 @@ import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import com.sismics.music.core.model.jpa.Category;
 import com.sismics.util.context.ThreadLocalContext;
 
 /**

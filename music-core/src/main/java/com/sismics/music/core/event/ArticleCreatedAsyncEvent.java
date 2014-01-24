@@ -3,7 +3,6 @@ package com.sismics.music.core.event;
 import java.util.List;
 
 import com.google.common.base.Objects;
-import com.sismics.music.core.model.jpa.Article;
 
 /**
  * New articles created event.

@@ -1,7 +1,6 @@
 package com.sismics.music.core.dao.file.rss;
 
-import com.sismics.music.core.model.jpa.Article;
-import com.sismics.music.core.model.jpa.Feed;
+import com.sismics.music.core.model.jpa.Track;
 import junit.framework.Assert;
 import org.junit.Test;
 
@@ -19,7 +18,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_rss2_gizmodo.gzip");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("Gizmodo", feed.getTitle());
         Assert.assertEquals("http://gizmodo.com", feed.getUrl());
         Assert.assertEquals("en", feed.getLanguage());
@@ -42,7 +41,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_rss2_apod.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("APOD", feed.getTitle());
         Assert.assertEquals("http://antwrp.gsfc.nasa.gov/", feed.getUrl());
         Assert.assertEquals("en-us", feed.getLanguage());
@@ -65,7 +64,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_rss2_korben.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("Korben", feed.getTitle());
         Assert.assertEquals("http://korben.info", feed.getUrl());
         Assert.assertEquals("fr-FR", feed.getLanguage());
@@ -97,7 +96,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_atom_ploum.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("ploum.net", feed.getTitle());
         Assert.assertEquals("http://ploum.net", feed.getUrl());
         Assert.assertEquals("en-US", feed.getLanguage());
@@ -120,7 +119,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_rss2_rottentomatoes.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("Rotten Tomatoes: News", feed.getTitle());
         Assert.assertEquals("http://www.rottentomatoes.com/news/", feed.getUrl());
         Assert.assertEquals("en-us", feed.getLanguage());
@@ -143,7 +142,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_rss2_xkcd.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("xkcd.com", feed.getTitle());
         Assert.assertEquals("http://xkcd.com/", feed.getUrl());
         Assert.assertEquals("en", feed.getLanguage());
@@ -166,7 +165,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_atom_xkcd.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("xkcd.com", feed.getTitle());
         Assert.assertEquals("http://xkcd.com/", feed.getUrl());
         Assert.assertEquals("en", feed.getLanguage());
@@ -189,7 +188,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_atom_whatif.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("What If?", feed.getTitle());
         Assert.assertEquals("http://what-if.xkcd.com", feed.getUrl());
         Assert.assertNull(feed.getLanguage());
@@ -203,7 +202,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_rss2_space.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("SPACE.com", feed.getTitle());
         Assert.assertEquals("http://www.space.com/", feed.getUrl());
         Assert.assertEquals("en-us", feed.getLanguage());
@@ -231,7 +230,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_rss2_esa.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("ESA Top News", feed.getTitle());
         Assert.assertEquals("www.esa.int/", feed.getUrl());
         List<Article> articleList = reader.getArticleList();
@@ -252,7 +251,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_atom_makiko.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("Makiko Furuichi Blog", feed.getTitle());
         Assert.assertEquals("http://makiko-f.blogspot.com/", feed.getUrl());
         List<Article> articleList = reader.getArticleList();
@@ -272,7 +271,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_atom_marijnhaverbeke.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("marijnhaverbeke.nl/blog", feed.getTitle());
         Assert.assertEquals("http://marijnhaverbeke.nl", feed.getBaseUri());
         List<Article> articleList = reader.getArticleList();
@@ -293,7 +292,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_rss2_ploum.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("ploum.net", feed.getTitle());
         Assert.assertEquals("http://ploum.net", feed.getUrl());
         Assert.assertEquals("en-US", feed.getLanguage());
@@ -316,7 +315,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_rss2_developerworks.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("IBM developerWorks : Java technology", feed.getTitle());
         Assert.assertEquals("http://www.ibm.com/developerworks/", feed.getUrl());
         Assert.assertEquals("en", feed.getLanguage());
@@ -339,7 +338,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_rss2_spacedaily.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("Space News From SpaceDaily.Com", feed.getTitle());
         Assert.assertEquals("http://www.spacedaily.com/index.html", feed.getUrl());
         Assert.assertEquals("en-us", feed.getLanguage());
@@ -361,7 +360,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_rss2_developpez.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("Developpez.com Développement Web", feed.getTitle());
         Assert.assertEquals("http://web.developpez.com/index/rss", feed.getUrl());
         Assert.assertEquals("fr-FR", feed.getLanguage());
@@ -383,7 +382,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_atom_haverbeke.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("marijnhaverbeke.nl/blog", feed.getTitle());
         List<Article> articleList = reader.getArticleList();
         Assert.assertEquals(26, articleList.size());
@@ -404,7 +403,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_rdf_autostrip.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("autostrip", feed.getTitle());
         Assert.assertEquals("http://autostrip.fr/index.php", feed.getUrl());
         Assert.assertEquals("fr", feed.getLanguage());
@@ -425,7 +424,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_rdf_lxer.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("LXer Linux News", feed.getTitle());
         Assert.assertEquals("http://lxer.com/", feed.getUrl());
         Assert.assertEquals("en-us", feed.getLanguage());
@@ -446,7 +445,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_rdf_meisalam.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("琥珀色の小箱に恋をして:*:･･:*:･国際結婚生活日記:*:･･:*:･", feed.getTitle());
         Assert.assertEquals("http://meisalam.blog.fc2.com/", feed.getUrl());
         Assert.assertEquals("ja", feed.getLanguage());
@@ -467,7 +466,7 @@ public class TestRssReader {
         InputStream is = getClass().getResourceAsStream("/feed/feed_rdf_oatmeal.xml");
         RssReader reader = new RssReader();
         reader.readRssFeed(is);
-        Feed feed = reader.getFeed();
+        Track feed = reader.getFeed();
         Assert.assertEquals("The Oatmeal - Comics, Quizzes, & Stories", feed.getTitle());
         Assert.assertEquals("http://theoatmeal.com/", feed.getUrl());
         Assert.assertNull(feed.getLanguage());

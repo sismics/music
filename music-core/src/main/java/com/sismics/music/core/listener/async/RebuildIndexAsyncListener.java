@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.Subscribe;
 import com.sismics.music.core.dao.lucene.ArticleDao;
 import com.sismics.music.core.event.RebuildIndexAsyncEvent;
-import com.sismics.music.core.model.jpa.Article;
 import com.sismics.music.core.util.TransactionUtil;
 
 /**

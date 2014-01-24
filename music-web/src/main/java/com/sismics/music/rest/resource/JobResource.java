@@ -1,7 +1,6 @@
 package com.sismics.music.rest.resource;
 
 import com.sismics.music.core.dao.jpa.JobDao;
-import com.sismics.music.core.model.jpa.Job;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import org.codehaus.jettison.json.JSONException;

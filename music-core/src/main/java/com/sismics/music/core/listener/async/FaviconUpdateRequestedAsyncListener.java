@@ -2,13 +2,13 @@ package com.sismics.music.core.listener.async;
 
 import java.text.MessageFormat;
 
+import com.sismics.music.core.model.jpa.Track;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
 import com.sismics.music.core.dao.file.html.FaviconDownloader;
 import com.sismics.music.core.event.FaviconUpdateRequestedEvent;
-import com.sismics.music.core.model.jpa.Feed;
 import com.sismics.music.core.util.DirectoryUtil;
 import com.sismics.music.core.util.TransactionUtil;
 
@@ -35,7 +35,7 @@ public class FaviconUpdateRequestedAsyncListener {
             log.info(MessageFormat.format("Favicon update requested event: {0}", faviconUpdateRequestedEvent.toString()));
         }
         
-        final Feed feed = faviconUpdateRequestedEvent.getFeed();
+        final Track feed = faviconUpdateRequestedEvent.getFeed();
        
         TransactionUtil.handle(new Runnable() {
             @Override

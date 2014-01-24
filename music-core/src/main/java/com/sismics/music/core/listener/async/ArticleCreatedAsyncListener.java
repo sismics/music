@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.Subscribe;
 import com.sismics.music.core.dao.lucene.ArticleDao;
 import com.sismics.music.core.event.ArticleCreatedAsyncEvent;
-import com.sismics.music.core.model.jpa.Article;
 
 /**
  * Listener on newly created articles.

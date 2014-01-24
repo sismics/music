@@ -12,7 +12,6 @@ import com.sismics.music.core.dao.file.json.StarredReader;
 import com.sismics.music.core.dao.file.opml.OpmlFlattener;
 import com.sismics.music.core.dao.file.opml.OpmlReader;
 import com.sismics.music.core.dao.file.opml.Outline;
-import com.sismics.music.core.dao.file.rss.GuidFixer;
 import com.sismics.music.core.dao.jpa.*;
 import com.sismics.music.core.dao.jpa.criteria.ArticleCriteria;
 import com.sismics.music.core.dao.jpa.criteria.FeedSubscriptionCriteria;
@@ -23,7 +22,6 @@ import com.sismics.music.core.dao.jpa.dto.UserArticleDto;
 import com.sismics.music.core.event.SubscriptionImportedEvent;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.jpa.*;
-import com.sismics.music.core.service.FeedService;
 import com.sismics.music.core.util.EntityManagerUtil;
 import com.sismics.music.core.util.TransactionUtil;
 import com.sismics.util.mime.MimeType;
@@ -391,7 +389,7 @@ public class SubscriptionImportAsyncListener {
                 }
 
                 // Synchronize feed and articles
-                Feed feed = null;
+                Track feed = null;
                 final FeedService feedService = AppContext.getInstance().getFeedService();
                 try {
                     feed = feedService.synchronize(feedUrl);
@@ -441,11 +439,11 @@ public class SubscriptionImportAsyncListener {
      * @param user User
      * @param feed Feed to import
      */
-    private void importFeedFromStarred(User user, Feed feed, Article article) {
+    private void importFeedFromStarred(User user, Track feed, Article article) {
         // Synchronize the feed
         String rssUrl = feed.getRssUrl();
         FeedDao feedDao = new FeedDao();
-        Feed feedFromDb = feedDao.getByRssUrl(rssUrl.toString());
+        Track feedFromDb = feedDao.getByRssUrl(rssUrl.toString());
         final FeedService feedService = AppContext.getInstance().getFeedService();
         if (feedFromDb == null) {
             try {
@@ -455,7 +453,7 @@ public class SubscriptionImportAsyncListener {
                 if (log.isInfoEnabled()) {
                     log.info(MessageFormat.format("Error importing the feed at URL {0} for user {1}''s stared articles. Maybe it doens't exist anymore?", rssUrl, user.getId()), e);
                 }
-                feedFromDb = new Feed();
+                feedFromDb = new Track();
                 feedFromDb.setUrl(feed.getUrl());
                 feedFromDb.setRssUrl(rssUrl);
                 feedFromDb.setTitle(StringUtils.abbreviate(feed.getTitle(), 100));
@@ -501,7 +499,7 @@ public class SubscriptionImportAsyncListener {
         }
         if (currentUserArticle == null || currentUserArticle.getId() == null) {
             // Subscribe the user to this article
-            UserArticle userArticle = new UserArticle();
+            Transcoder userArticle = new Transcoder();
             userArticle.setUserId(user.getId());
             userArticle.setArticleId(article.getId());
             userArticle.setStarredDate(article.getPublicationDate());
@@ -509,7 +507,7 @@ public class SubscriptionImportAsyncListener {
             userArticleDao.create(userArticle);
         } else if (currentUserArticle.getId() != null && currentUserArticle.getStarTimestamp() == null) {
             // Mark the user article as starred
-            UserArticle userArticle = new UserArticle();
+            Transcoder userArticle = new Transcoder();
             userArticle.setId(currentUserArticle.getId());
             userArticle.setStarredDate(article.getPublicationDate());
             userArticle.setReadDate(article.getPublicationDate());

@@ -3,7 +3,6 @@ package com.sismics.music.core.dao.jpa;
 import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.jpa.criteria.JobCriteria;
 import com.sismics.music.core.dao.jpa.dto.JobDto;
-import com.sismics.music.core.model.jpa.Job;
 import com.sismics.util.context.ThreadLocalContext;
 
 import javax.persistence.EntityManager;

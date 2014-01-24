@@ -18,8 +18,6 @@ import com.sismics.music.core.listener.async.RebuildIndexAsyncListener;
 import com.sismics.music.core.listener.async.SubscriptionImportAsyncListener;
 import com.sismics.music.core.listener.sync.DeadEventListener;
 import com.sismics.music.core.model.jpa.Config;
-import com.sismics.music.core.service.FeedService;
-import com.sismics.music.core.service.IndexingService;
 import com.sismics.util.EnvironmentUtil;
 
 /**

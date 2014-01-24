@@ -16,7 +16,6 @@ import org.codehaus.jettison.json.JSONObject;
 
 import com.sismics.music.core.dao.jpa.dto.UserArticleDto;
 import com.sismics.music.core.model.context.AppContext;
-import com.sismics.music.core.service.IndexingService;
 import com.sismics.music.core.util.jpa.PaginatedList;
 import com.sismics.music.rest.assembler.ArticleAssembler;
 import com.sismics.rest.exception.ForbiddenClientException;

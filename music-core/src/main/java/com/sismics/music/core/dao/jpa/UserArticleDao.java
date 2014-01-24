@@ -3,7 +3,7 @@ package com.sismics.music.core.dao.jpa;
 import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.jpa.criteria.UserArticleCriteria;
 import com.sismics.music.core.dao.jpa.dto.UserArticleDto;
-import com.sismics.music.core.model.jpa.UserArticle;
+import com.sismics.music.core.model.jpa.Transcoder;
 import com.sismics.music.core.util.jpa.PaginatedList;
 import com.sismics.music.core.util.jpa.PaginatedLists;
 import com.sismics.music.core.util.jpa.QueryParam;
@@ -28,7 +28,7 @@ public class UserArticleDao {
      * @param userArticle User article to create
      * @return New ID
      */
-    public String create(UserArticle userArticle) {
+    public String create(Transcoder userArticle) {
         // Create the UUID
         userArticle.setId(UUID.randomUUID().toString());
         
@@ -46,13 +46,13 @@ public class UserArticleDao {
      * @param userArticle UserArticle
      * @return Updated userArticle
      */
-    public UserArticle update(UserArticle userArticle) {
+    public Transcoder update(Transcoder userArticle) {
         EntityManager em = ThreadLocalContext.get().getEntityManager();
         
         // Get the subscription
         Query q = em.createQuery("select ua from UserArticle ua where ua.id = :id and ua.deleteDate is null");
         q.setParameter("id", userArticle.getId());
-        UserArticle userArticleFromDb = (UserArticle) q.getSingleResult();
+        Transcoder userArticleFromDb = (Transcoder) q.getSingleResult();
 
         // Update the subscription
         userArticleFromDb.setReadDate(userArticle.getReadDate());
@@ -107,7 +107,7 @@ public class UserArticleDao {
         // Get the subscription
         Query q = em.createQuery("select ua from UserArticle ua where ua.id = :id and ua.deleteDate is null");
         q.setParameter("id", id);
-        UserArticle userArticleFromDb = (UserArticle) q.getSingleResult();
+        Transcoder userArticleFromDb = (Transcoder) q.getSingleResult();
 
         // Delete the subscription
         userArticleFromDb.setDeleteDate(new Date());
@@ -120,13 +120,13 @@ public class UserArticleDao {
      * @param userId User ID
      * @return User article
      */
-    public UserArticle getUserArticle(String id, String userId) {
+    public Transcoder getUserArticle(String id, String userId) {
         EntityManager em = ThreadLocalContext.get().getEntityManager();
         Query q = em.createQuery("select ua from UserArticle ua where ua.id = :id and ua.userId = :userId and ua.deleteDate is null");
         q.setParameter("id", id);
         q.setParameter("userId", userId);
         try {
-            return (UserArticle) q.getSingleResult();
+            return (Transcoder) q.getSingleResult();
         } catch (NoResultException e) {
             return null;
         }

@@ -16,7 +16,6 @@ import javax.persistence.Query;
 import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.jpa.criteria.FeedSubscriptionCriteria;
 import com.sismics.music.core.dao.jpa.dto.FeedSubscriptionDto;
-import com.sismics.music.core.model.jpa.FeedSubscription;
 import com.sismics.util.context.ThreadLocalContext;
 
 /**

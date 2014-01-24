@@ -14,7 +14,6 @@ import javax.persistence.Query;
 import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.jpa.criteria.ArticleCriteria;
 import com.sismics.music.core.dao.jpa.dto.ArticleDto;
-import com.sismics.music.core.model.jpa.Article;
 import com.sismics.util.context.ThreadLocalContext;
 
 /**

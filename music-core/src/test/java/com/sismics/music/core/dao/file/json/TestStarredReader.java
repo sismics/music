@@ -4,14 +4,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sismics.music.core.model.jpa.Track;
 import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.io.Closer;
-import com.sismics.music.core.model.jpa.Article;
-import com.sismics.music.core.model.jpa.Feed;
 
 /**
  * Test of the starred JSON music.
@@ -21,12 +20,12 @@ import com.sismics.music.core.model.jpa.Feed;
 public class TestStarredReader implements StarredArticleImportedListener {
     private List<Article> articleList;
     
-    private List<Feed> feedList;
+    private List<Track> feedList;
     
     @Before
     public void init() {
         articleList = new ArrayList<Article>();
-        feedList = new ArrayList<Feed>();
+        feedList = new ArrayList<Track>();
     }
     
     @Test
@@ -40,7 +39,7 @@ public class TestStarredReader implements StarredArticleImportedListener {
             starredReader.read(is);
             
             Assert.assertEquals(3, feedList.size());
-            Feed feed = feedList.get(1);
+            Track feed = feedList.get(1);
             Assert.assertEquals("http://blogs.lmax.com/rss20.xml", feed.getRssUrl());
             Assert.assertEquals("http://blogs.lmax.com/", feed.getUrl());
             Assert.assertEquals("LMAX Blogs", feed.getTitle());

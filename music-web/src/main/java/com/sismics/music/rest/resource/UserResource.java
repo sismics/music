@@ -11,7 +11,6 @@ import com.sismics.music.core.event.PasswordChangedEvent;
 import com.sismics.music.core.event.UserCreatedEvent;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.jpa.AuthenticationToken;
-import com.sismics.music.core.model.jpa.Category;
 import com.sismics.music.core.model.jpa.User;
 import com.sismics.music.core.util.jpa.PaginatedList;
 import com.sismics.music.core.util.jpa.PaginatedLists;

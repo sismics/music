@@ -1,7 +1,7 @@
 package com.sismics.music.core.event;
 
 import com.google.common.base.Objects;
-import com.sismics.music.core.model.jpa.Feed;
+import com.sismics.music.core.model.jpa.Track;
 
 /**
  * Event raised on request to update a feed favicon.
@@ -12,7 +12,7 @@ public class FaviconUpdateRequestedEvent {
     /**
      * Feed to update.
      */
-    private Feed feed;
+    private Track feed;
     
     @Override
     public String toString() {
@@ -26,7 +26,7 @@ public class FaviconUpdateRequestedEvent {
      *
      * @return feed
      */
-    public Feed getFeed() {
+    public Track getFeed() {
         return feed;
     }
 
@@ -35,7 +35,7 @@ public class FaviconUpdateRequestedEvent {
      *
      * @param feed feed
      */
-    public void setFeed(Feed feed) {
+    public void setFeed(Track feed) {
         this.feed = feed;
     }
 }

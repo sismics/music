@@ -3,7 +3,7 @@ package com.sismics.music.rest.resource;
 import com.sismics.music.core.dao.jpa.UserArticleDao;
 import com.sismics.music.core.dao.jpa.criteria.UserArticleCriteria;
 import com.sismics.music.core.dao.jpa.dto.UserArticleDto;
-import com.sismics.music.core.model.jpa.UserArticle;
+import com.sismics.music.core.model.jpa.Transcoder;
 import com.sismics.music.core.util.jpa.PaginatedList;
 import com.sismics.music.core.util.jpa.PaginatedLists;
 import com.sismics.music.rest.assembler.ArticleAssembler;
@@ -98,7 +98,7 @@ public class StarredResource extends BaseResource {
         
         // Get the article
         UserArticleDao userArticleDao = new UserArticleDao();
-        UserArticle userArticle = userArticleDao.getUserArticle(id, principal.getId());
+        Transcoder userArticle = userArticleDao.getUserArticle(id, principal.getId());
         if (userArticle == null) {
             throw new ClientException("ArticleNotFound", MessageFormat.format("Article not found: {0}", id));
         }
@@ -134,7 +134,7 @@ public class StarredResource extends BaseResource {
         
         // Get the article
         UserArticleDao userArticleDao = new UserArticleDao();
-        UserArticle userArticle = userArticleDao.getUserArticle(id, principal.getId());
+        Transcoder userArticle = userArticleDao.getUserArticle(id, principal.getId());
         if (userArticle == null) {
             throw new ClientException("ArticleNotFound", MessageFormat.format("Article not found: {0}", id));
         }

@@ -29,7 +29,6 @@ import org.apache.lucene.util.Version;
 
 import com.sismics.music.core.dao.jpa.dto.UserArticleDto;
 import com.sismics.music.core.model.context.AppContext;
-import com.sismics.music.core.model.jpa.Article;
 import com.sismics.music.core.util.LuceneUtil;
 import com.sismics.music.core.util.LuceneUtil.LuceneRunnable;
 import com.sismics.music.core.util.jpa.PaginatedList;
