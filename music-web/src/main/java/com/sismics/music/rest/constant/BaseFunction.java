@@ -16,9 +16,4 @@ public enum BaseFunction {
      * Allows the user to change his password. 
      */
     PASSWORD,
-
-    /**
-     * Allows the user to import OPML / Takeout data.
-     */
-    IMPORT,
 }

@@ -51,8 +51,6 @@ public class TestUserResource extends BaseJerseyTest {
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
         JSONArray users = json.getJSONArray("users");
         Assert.assertTrue(users.length() > 0);
-        JSONObject user = (JSONObject) users.get(0);
-        Assert.assertEquals("user", user.optString("id"));
         
         // Create a user KO (login length validation)
         userResource = resource().path("/user");
@@ -146,11 +144,6 @@ public class TestUserResource extends BaseJerseyTest {
         json = response.getEntity(JSONObject.class);
         Assert.assertEquals("alice@music.com", json.getString("email"));
         Assert.assertEquals("default.less", json.getString("theme"));
-        Assert.assertFalse(json.getBoolean("display_title_web"));
-        Assert.assertTrue(json.getBoolean("display_title_mobile"));
-        Assert.assertTrue(json.getBoolean("display_unread_web"));
-        Assert.assertTrue(json.getBoolean("display_unread_mobile"));
-        Assert.assertFalse(json.getBoolean("narrow_article"));
         Assert.assertFalse(json.getBoolean("first_connection"));
         Assert.assertFalse(json.getBoolean("is_default_password"));
         
@@ -184,11 +177,6 @@ public class TestUserResource extends BaseJerseyTest {
         postParams.add("email", " alice2@music.com ");
         postParams.add("theme", " highcontrast.less ");
         postParams.add("locale", " en ");
-        postParams.add("display_title_web", true);
-        postParams.add("display_title_mobile", false);
-        postParams.add("display_unread_web", false);
-        postParams.add("display_unread_mobile", false);
-        postParams.add("narrow_article", true);
         response = userResource.post(ClientResponse.class, postParams);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
         json = response.getEntity(JSONObject.class);
@@ -201,11 +189,6 @@ public class TestUserResource extends BaseJerseyTest {
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
         json = response.getEntity(JSONObject.class);
         Assert.assertEquals("highcontrast.less", json.getString("theme"));
-        Assert.assertTrue(json.getBoolean("display_title_web"));
-        Assert.assertFalse(json.getBoolean("display_title_mobile"));
-        Assert.assertFalse(json.getBoolean("display_unread_web"));
-        Assert.assertFalse(json.getBoolean("display_unread_mobile"));
-        Assert.assertTrue(json.getBoolean("narrow_article"));
         
         // Delete user alice
         userResource = resource().path("/user");
@@ -268,11 +251,6 @@ public class TestUserResource extends BaseJerseyTest {
         postParams.add("email", " alice2@music.com ");
         postParams.add("theme", " highcontrast.less");
         postParams.add("locale", " en ");
-        postParams.add("display_title_web", true);
-        postParams.add("display_title_mobile", false);
-        postParams.add("display_unread_web", false);
-        postParams.add("display_unread_mobile", false);
-        postParams.add("narrow_article", true);
         response = userResource.post(ClientResponse.class, postParams);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
         json = response.getEntity(JSONObject.class);

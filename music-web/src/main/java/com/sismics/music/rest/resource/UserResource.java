@@ -1,11 +1,33 @@
 package com.sismics.music.rest.resource;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.http.Cookie;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+
 import com.sismics.music.core.constant.Constants;
-import com.sismics.music.core.dao.jpa.*;
-import com.sismics.music.core.dao.jpa.criteria.JobCriteria;
-import com.sismics.music.core.dao.jpa.criteria.JobEventCriteria;
-import com.sismics.music.core.dao.jpa.dto.JobDto;
-import com.sismics.music.core.dao.jpa.dto.JobEventDto;
+import com.sismics.music.core.dao.jpa.AuthenticationTokenDao;
+import com.sismics.music.core.dao.jpa.RoleBaseFunctionDao;
+import com.sismics.music.core.dao.jpa.UserDao;
 import com.sismics.music.core.dao.jpa.dto.UserDto;
 import com.sismics.music.core.event.PasswordChangedEvent;
 import com.sismics.music.core.event.UserCreatedEvent;
@@ -24,20 +46,6 @@ import com.sismics.security.UserPrincipal;
 import com.sismics.util.EnvironmentUtil;
 import com.sismics.util.LocaleUtil;
 import com.sismics.util.filter.TokenBasedSecurityFilter;
-import org.apache.commons.lang.StringUtils;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
-import javax.servlet.http.Cookie;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.NewCookie;
-import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 /**
  * User REST resources.
@@ -82,10 +90,6 @@ public class UserResource extends BaseResource {
         user.setUsername(username);
         user.setPassword(password);
         user.setEmail(email);
-        user.setDisplayTitleWeb(false);
-        user.setDisplayTitleMobile(true);
-        user.setDisplayUnreadWeb(true);
-        user.setDisplayUnreadMobile(true);
         user.setCreateDate(new Date());
 
         if (localeId == null) {
@@ -106,19 +110,11 @@ public class UserResource extends BaseResource {
                 throw new ServerException("UnknownError", "Unknown Server Error", e);
             }
         }
-        
-        // Create the root category for this user
-        Category category = new Category();
-        category.setUserId(userId);
-        category.setOrder(0);
-        
-        CategoryDao categoryDao = new CategoryDao();
-        categoryDao.create(category);
-        
+
         // Raise a user creation event
         UserCreatedEvent userCreatedEvent = new UserCreatedEvent();
         userCreatedEvent.setUser(user);
-        AppContext.getInstance().getMailEventBus().post(userCreatedEvent);
+        AppContext.getInstance().getAsyncEventBus().post(userCreatedEvent);
 
         // Always return OK
         JSONObject response = new JSONObject();
@@ -177,21 +173,6 @@ public class UserResource extends BaseResource {
         if (localeId != null) {
             user.setLocaleId(localeId);
         }
-        if (displayTitleWeb != null) {
-            user.setDisplayTitleWeb(displayTitleWeb);
-        }
-        if (displayTitleMobile != null) {
-            user.setDisplayTitleMobile(displayTitleMobile);
-        }
-        if (displayUnreadWeb != null) {
-            user.setDisplayUnreadWeb(displayUnreadWeb);
-        }
-        if (displayUnreadMobile != null) {
-            user.setDisplayUnreadMobile(displayUnreadMobile);
-        }
-        if (narrowArticle != null) {
-            user.setNarrowArticle(narrowArticle);
-        }
         if (firstConnection != null && hasBaseFunction(BaseFunction.ADMIN)) {
             user.setFirstConnection(firstConnection);
         }
@@ -207,7 +188,7 @@ public class UserResource extends BaseResource {
             // Raise a password updated event
             PasswordChangedEvent passwordChangedEvent = new PasswordChangedEvent();
             passwordChangedEvent.setUser(user);
-            AppContext.getInstance().getMailEventBus().post(passwordChangedEvent);
+            AppContext.getInstance().getAsyncEventBus().post(passwordChangedEvent);
         }
         
         // Always return "ok"
@@ -274,21 +255,6 @@ public class UserResource extends BaseResource {
         if (localeId != null) {
             user.setLocaleId(localeId);
         }
-        if (displayTitleWeb != null) {
-            user.setDisplayTitleWeb(displayTitleWeb);
-        }
-        if (displayTitleMobile != null) {
-            user.setDisplayTitleMobile(displayTitleMobile);
-        }
-        if (displayUnreadWeb != null) {
-            user.setDisplayUnreadWeb(displayUnreadWeb);
-        }
-        if (displayUnreadMobile != null) {
-            user.setDisplayUnreadMobile(displayUnreadMobile);
-        }
-        if (narrowArticle != null) {
-            user.setNarrowArticle(narrowArticle);
-        }
         
         user = userDao.update(user);
         
@@ -302,7 +268,7 @@ public class UserResource extends BaseResource {
             // Raise a password updated event
             PasswordChangedEvent passwordChangedEvent = new PasswordChangedEvent();
             passwordChangedEvent.setUser(user);
-            AppContext.getInstance().getMailEventBus().post(passwordChangedEvent);
+            AppContext.getInstance().getAsyncEventBus().post(passwordChangedEvent);
         }
         
         // Always return "ok"
@@ -523,59 +489,10 @@ public class UserResource extends BaseResource {
             response.put("email", user.getEmail());
             response.put("theme", user.getTheme());
             response.put("locale", user.getLocaleId());
-            response.put("display_title_web", user.isDisplayTitleWeb());
-            response.put("display_title_mobile", user.isDisplayTitleMobile());
-            response.put("display_unread_web", user.isDisplayUnreadWeb());
-            response.put("display_unread_mobile", user.isDisplayUnreadMobile());
-            response.put("narrow_article", user.isNarrowArticle());
             response.put("first_connection", user.isFirstConnection());
             JSONArray baseFunctions = new JSONArray(((UserPrincipal) principal).getBaseFunctionSet());
             response.put("base_functions", baseFunctions);
             response.put("is_default_password", hasBaseFunction(BaseFunction.ADMIN) && Constants.DEFAULT_ADMIN_PASSWORD.equals(user.getPassword()));
-            
-            JobDao jobDao = new JobDao();
-            JobEventDao jobEventDao = new JobEventDao();
-            JobCriteria jobCriteria = new JobCriteria();
-            jobCriteria.setUserId(user.getId());
-            List<JobDto> jobList = jobDao.findByCriteria(jobCriteria);
-            JSONArray jobs = new JSONArray();
-            for (JobDto job : jobList) {
-                JSONObject jobJson = new JSONObject();
-                jobJson.put("id", job.getId());
-                jobJson.put("name", job.getName());
-                jobJson.put("start_date", job.getStartTimestamp());
-                jobJson.put("end_date", job.getStartTimestamp());
-                
-                JobEventCriteria jobEventCriteria = new JobEventCriteria();
-                jobEventCriteria.setJobId(job.getId());
-                List<JobEventDto> jobEventList = jobEventDao.findByCriteria(jobEventCriteria);
-                int feedSuccess = 0;
-                int feedFailure = 0;
-                int starredSuccess = 0;
-                int starredFailure = 0;
-                for (JobEventDto jobEvent : jobEventList) {
-                    String name = jobEvent.getName();
-                    if (Constants.JOB_EVENT_FEED_COUNT.equals(name)) {
-                        jobJson.put("feed_total", Integer.valueOf(jobEvent.getValue()));
-                    } else if (Constants.JOB_EVENT_STARRED_ARTICLED_COUNT.equals(name)) {
-                        jobJson.put("starred_total", Integer.valueOf(jobEvent.getValue()));
-                    } else if (Constants.JOB_EVENT_FEED_IMPORT_SUCCESS.equals(name)) {
-                        feedSuccess++;
-                    } else if (Constants.JOB_EVENT_FEED_IMPORT_FAILURE.equals(name)) {
-                        feedFailure++;
-                    } else if (Constants.JOB_EVENT_STARRED_ARTICLE_IMPORT_SUCCESS.equals(name)) {
-                        starredSuccess++;
-                    } else if (Constants.JOB_EVENT_STARRED_ARTICLE_IMPORT_FAILURE.equals(name)) {
-                        starredFailure++;
-                    }
-                }
-                jobJson.put("feed_success", Integer.valueOf(feedSuccess));
-                jobJson.put("feed_failure", Integer.valueOf(feedFailure));
-                jobJson.put("starred_success", Integer.valueOf(starredSuccess));
-                jobJson.put("starred_failure", Integer.valueOf(starredFailure));
-                jobs.put(jobJson);
-           }
-            response.put("jobs", jobs);
         }
         
         return Response.ok().entity(response).build();

@@ -9,15 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
-import com.sismics.music.core.constant.ConfigType;
-import com.sismics.music.core.dao.jpa.ConfigDao;
-import com.sismics.music.core.listener.async.ArticleCreatedAsyncListener;
-import com.sismics.music.core.listener.async.ArticleUpdatedAsyncListener;
-import com.sismics.music.core.listener.async.FaviconUpdateRequestedAsyncListener;
-import com.sismics.music.core.listener.async.RebuildIndexAsyncListener;
-import com.sismics.music.core.listener.async.SubscriptionImportAsyncListener;
 import com.sismics.music.core.listener.sync.DeadEventListener;
-import com.sismics.music.core.model.jpa.Config;
 import com.sismics.util.EnvironmentUtil;
 
 /**
@@ -42,26 +34,6 @@ public class AppContext {
     private EventBus asyncEventBus;
 
     /**
-     * Asynchronous event bus for emails.
-     */
-    private EventBus mailEventBus;
-    
-    /**
-     * Asynchronous event bus for mass imports.
-     */
-    private EventBus importEventBus;
-
-    /**
-     * Feed service.
-     */
-    private FeedService feedService;
-    
-    /**
-     * Indexing service.
-     */
-    private IndexingService indexingService;
-
-    /**
      * Asynchronous executors.
      */
     private List<ExecutorService> asyncExecutorList;
@@ -71,14 +43,6 @@ public class AppContext {
      */
     private AppContext() {
         resetEventBus();
-        
-        feedService = new FeedService();
-        feedService.startAndWait();
-        
-        ConfigDao configDao = new ConfigDao();
-        Config luceneStorageConfig = configDao.getById(ConfigType.LUCENE_DIRECTORY_STORAGE);
-        indexingService = new IndexingService(luceneStorageConfig != null ? luceneStorageConfig.getValue() : null);
-        indexingService.startAndWait();
     }
     
     /**
@@ -91,15 +55,6 @@ public class AppContext {
         asyncExecutorList = new ArrayList<ExecutorService>();
         
         asyncEventBus = newAsyncEventBus();
-        asyncEventBus.register(new ArticleCreatedAsyncListener());
-        asyncEventBus.register(new ArticleUpdatedAsyncListener());
-        asyncEventBus.register(new RebuildIndexAsyncListener());
-        asyncEventBus.register(new FaviconUpdateRequestedAsyncListener());
-
-        mailEventBus = newAsyncEventBus();
-
-        importEventBus = newAsyncEventBus();
-        importEventBus.register(new SubscriptionImportAsyncListener());
     }
 
     /**
@@ -170,41 +125,5 @@ public class AppContext {
      */
     public EventBus getAsyncEventBus() {
         return asyncEventBus;
-    }
-
-    /**
-     * Getter of mailEventBus.
-     *
-     * @return mailEventBus
-     */
-    public EventBus getMailEventBus() {
-        return mailEventBus;
-    }
-
-    /**
-     * Getter of importEventBus.
-     *
-     * @return importEventBus
-     */
-    public EventBus getImportEventBus() {
-        return importEventBus;
-    }
-
-    /**
-     * Getter of feedService.
-     *
-     * @return feedService
-     */
-    public FeedService getFeedService() {
-        return feedService;
-    }
-    
-    /**
-     * Getter of indexingService.
-     *
-     * @return indexingService
-     */
-    public IndexingService getIndexingService() {
-        return indexingService;
     }
 }

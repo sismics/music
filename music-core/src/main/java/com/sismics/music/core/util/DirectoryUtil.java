@@ -1,9 +1,10 @@
 package com.sismics.music.core.util;
 
-import com.sismics.util.EnvironmentUtil;
+import java.io.File;
+
 import org.apache.commons.lang.StringUtils;
 
-import java.io.File;
+import com.sismics.util.EnvironmentUtil;
 
 /**
  * Utilities to gain access to the storage directories used by the application.
@@ -31,9 +32,9 @@ public class DirectoryUtil {
             if (EnvironmentUtil.isUnix()) {
                 baseDataDir = new File("/var/music");
             } if (EnvironmentUtil.isWindows()) {
-                baseDataDir = new File(EnvironmentUtil.getWindowsAppData() + "\\Sismics\\Reader");
+                baseDataDir = new File(EnvironmentUtil.getWindowsAppData() + "\\Sismics\\Music");
             } else if (EnvironmentUtil.isMacOs()) {
-                baseDataDir = new File(EnvironmentUtil.getMacOsUserHome() + "/Library/Sismics/Reader");
+                baseDataDir = new File(EnvironmentUtil.getMacOsUserHome() + "/Library/Sismics/Music");
             }
         }
 
@@ -53,24 +54,6 @@ public class DirectoryUtil {
         return getDataSubDirectory("db");
     }
 
-    /**
-     * Returns the favicons directory.
-     * 
-     * @return Favicons directory.
-     */
-    public static File getFaviconDirectory() {
-        return getDataSubDirectory("favicon");
-    }
-
-    /**
-     * Returns the lucene indexes directory.
-     * 
-     * @return Lucene indexes directory.
-     */
-    public static File getLuceneDirectory() {
-        return getDataSubDirectory("lucene");
-    }
-    
     /**
      * Returns the log directory.
      * 

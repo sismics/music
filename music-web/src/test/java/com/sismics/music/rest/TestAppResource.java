@@ -40,16 +40,6 @@ public class TestAppResource extends BaseJerseyTest {
         Assert.assertTrue(freeMemory > 0);
         Long totalMemory = json.getLong("total_memory");
         Assert.assertTrue(totalMemory > 0 && totalMemory > freeMemory);
-        
-        // Login admin
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
-        
-        // Rebuild articles index
-        appResource = resource().path("/app/batch/reindex");
-        appResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = appResource.post(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
     }
 
     /**

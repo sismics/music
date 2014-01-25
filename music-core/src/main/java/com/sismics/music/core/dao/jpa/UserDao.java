@@ -91,10 +91,6 @@ public class UserDao {
         userFromDb.setLocaleId(user.getLocaleId());
         userFromDb.setEmail(user.getEmail());
         userFromDb.setTheme(user.getTheme());
-        userFromDb.setDisplayTitleWeb(user.isDisplayTitleWeb());
-        userFromDb.setDisplayTitleMobile(user.isDisplayTitleMobile());
-        userFromDb.setDisplayUnreadWeb(user.isDisplayUnreadWeb());
-        userFromDb.setDisplayUnreadMobile(user.isDisplayUnreadMobile());
         userFromDb.setFirstConnection(user.isFirstConnection());
         
         return user;
@@ -189,21 +185,6 @@ public class UserDao {
         // Delete linked data
         q = em.createQuery("delete from AuthenticationToken at where at.userId = :userId");
         q.setParameter("userId", userFromDb.getId());
-        q.executeUpdate();
-
-        q = em.createQuery("update UserArticle ua set ua.deleteDate = :dateNow where ua.userId = :userId and ua.deleteDate is null");
-        q.setParameter("userId", userFromDb.getId());
-        q.setParameter("dateNow", dateNow);
-        q.executeUpdate();
-
-        q = em.createQuery("update FeedSubscription fs set fs.deleteDate = :dateNow where fs.userId = :userId and fs.deleteDate is null");
-        q.setParameter("userId", userFromDb.getId());
-        q.setParameter("dateNow", dateNow);
-        q.executeUpdate();
-
-        q = em.createQuery("update Category c set c.deleteDate = :dateNow where c.userId = :userId and c.deleteDate is null");
-        q.setParameter("userId", userFromDb.getId());
-        q.setParameter("dateNow", dateNow);
         q.executeUpdate();
     }
 

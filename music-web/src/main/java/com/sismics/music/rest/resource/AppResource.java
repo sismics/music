@@ -18,7 +18,6 @@ import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
-import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.util.ConfigUtil;
 import com.sismics.music.core.util.jpa.PaginatedList;
 import com.sismics.music.core.util.jpa.PaginatedLists;
@@ -112,31 +111,6 @@ public class AppResource extends BaseResource {
         response.put("total", paginatedList.getResultCount());
         response.put("logs", logs);
         
-        return Response.ok().entity(response).build();
-    }
-    
-    /**
-     * Destroy and rebuild articles index.
-     * 
-     * @return Response
-     * @throws JSONException
-     */
-    @POST
-    @Path("batch/reindex")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response batchReindex() throws JSONException {
-        if (!authenticate()) {
-            throw new ForbiddenClientException();
-        }
-        checkBaseFunction(BaseFunction.ADMIN);
-        
-        JSONObject response = new JSONObject();
-        try {
-            AppContext.getInstance().getIndexingService().rebuildIndex();
-        } catch (Exception e) {
-            throw new ServerException("IndexingError", "Error rebuilding index", e);
-        }
-        response.put("status", "ok");
         return Response.ok().entity(response).build();
     }
     
