@@ -12,6 +12,14 @@ App.factory('AudioPlayer', function($rootScope) {
       $rootScope.$broadcast('audio.set');
     },
 
+    prev: function() {
+      $rootScope.$broadcast('audio.set');
+    },
+
+    next: function() {
+      $rootScope.$broadcast('audio.set');
+    },
+
     currentTrack: function() {
       return tracks[0];
     }

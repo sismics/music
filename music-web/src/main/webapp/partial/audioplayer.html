@@ -14,7 +14,12 @@
   </div>
 
   <div class="col-md-3 info">
-    {{ audio.currentTime | round }}/{{ audio.duration | round }}sec <span class="glyphicon glyphicon-volume-up"></span>
+    <div ng-show="audio.duration">
+      {{ audio.currentTime | round }}/{{ audio.duration | round }}sec
+      <span class="glyphicon glyphicon-volume-up"
+            ng-click="mute()"
+            ng-class="{ 'glyphicon-volume-up': audio.volume == 1, 'glyphicon-volume-off': audio.volume == 0 }"></span>
+    </div>
   </div>
 
   <div class="col-md-1 playing">

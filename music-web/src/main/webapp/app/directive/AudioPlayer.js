@@ -11,11 +11,22 @@ App.directive('audioPlayer', function($rootScope, AudioPlayer) {
       $scope.currentNum = 0;
 
       // Tell others to give me my prev/next track (with audio.set message)
-      $scope.next = function(){ $rootScope.$broadcast('audio.next'); };
-      $scope.prev = function(){ $rootScope.$broadcast('audio.prev'); };
+      $scope.next = function() {
+        AudioPlayer.next();
+      };
+      $scope.prev = function() {
+        AudioPlayer.prev();
+      };
 
       // Tell audio element to play/pause, you can also use $scope.audio.play() or $scope.audio.pause();
-      $scope.playpause = function(){ $scope.audio.paused ? $scope.audio.play() : $scope.audio.pause(); };
+      $scope.playpause = function() {
+        $scope.audio.paused ? $scope.audio.play() : $scope.audio.pause();
+      };
+
+      // Mute/unmute volume
+      $scope.mute = function() {
+        $scope.audio.volume == 0 ? $scope.audio.volume = 1 : $scope.audio.volume = 0;
+      }
 
       // Listen for audio-element events, and broadcast stuff
       $scope.audio.addEventListener('play', function(){ $rootScope.$broadcast('audio.play', this); });
