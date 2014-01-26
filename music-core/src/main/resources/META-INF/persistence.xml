@@ -6,12 +6,12 @@
   <persistence-unit name="transactions-optional" transaction-type="RESOURCE_LOCAL">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
   
-    <!-- <class>com.sismics.music.core.model.jpa.Album</class>
-    <class>com.sismics.music.core.model.jpa.Artist</class>-->
+    <class>com.sismics.music.core.model.jpa.Album</class>
+    <class>com.sismics.music.core.model.jpa.Artist</class>
     <class>com.sismics.music.core.model.jpa.AuthenticationToken</class>
     <class>com.sismics.music.core.model.jpa.BaseFunction</class>
     <class>com.sismics.music.core.model.jpa.Config</class>
-    <!-- <class>com.sismics.music.core.model.jpa.Directory</class>-->
+    <class>com.sismics.music.core.model.jpa.Directory</class>
     <class>com.sismics.music.core.model.jpa.Track</class>
     <class>com.sismics.music.core.model.jpa.Locale</class>
     <class>com.sismics.music.core.model.jpa.Transcoder</class>
