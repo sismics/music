@@ -25,15 +25,23 @@ App.directive('audioPlayer', function($rootScope, AudioPlayer) {
 
       // Current track has changed
       $rootScope.$on('audio.set', function() {
-        console.log('audio.set!!');
         var track = AudioPlayer.currentTrack();
         $scope.audio.src = track.url;
         $scope.audio.play();
         $scope.track = track;
       });
 
+      // Returns current track progression
+      $scope.timeProgress = function() {
+        return $scope.audio.currentTime / $scope.audio.duration * 100;
+      };
+
+      $scope.seek = function(e) {
+        $scope.audio.currentTime = e.offsetX / e.target.clientWidth * $scope.audio.duration;
+      }
+
       // Update display of things - makes time-scrub work
-      setInterval(function(){ $scope.$apply(); }, 500);
+      setInterval(function(){ $scope.$apply(); }, 250);
     },
 
     templateUrl: 'partial/audioplayer.html'
