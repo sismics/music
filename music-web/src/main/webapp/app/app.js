@@ -82,8 +82,7 @@ var App = angular.module('music',
 /**
  * Application initialization.
  */
-.run(function($rootScope, $state, $stateParams, Api) {
+.run(function($rootScope, $state, $stateParams) {
   $rootScope.$state = $state;
   $rootScope.$stateParams = $stateParams;
-  $rootScope.baseUrl = Api.getBaseUrl();
 });

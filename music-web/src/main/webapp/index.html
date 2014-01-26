@@ -26,15 +26,15 @@
     <script src="lib/angular.ui-utils.js" type="text/javascript"></script>
     <script src="app/app.js" type="text/javascript"></script>
     <script src="app/controller/Login.js" type="text/javascript"></script>
-    <script src="app/controller/Player.js" type="text/javascript"></script>
+    <script src="app/controller/AudioPlayer.js" type="text/javascript"></script>
     <script src="app/controller/Main.js" type="text/javascript"></script>
     <script src="app/controller/MainDefault.js" type="text/javascript"></script>
     <script src="app/controller/LatestAlbums.js" type="text/javascript"></script>
     <script src="app/controller/Playing.js" type="text/javascript"></script>
     <script src="app/controller/Music.js" type="text/javascript"></script>
     <script src="app/controller/Album.js" type="text/javascript"></script>
-    <script src="app/service/Base64.js" type="text/javascript"></script>
-    <script src="app/service/Api.js" type="text/javascript"></script>
+    <script src="app/directive/AudioPlayer.js" type="text/javascript"></script>
+    <script src="app/service/AudioPlayer.js" type="text/javascript"></script>
   </head>
   <body>
     
@@ -61,33 +61,11 @@
 	    
 	  </div>
 	  
-	  <div id="footer" class="panel panel-default" ng-controller="Player">
+	  <div id="footer" class="panel panel-default" ng-controller="AudioPlayer">
 	    <div class="container">
-	      <div class="row">
-	      
-	        <div class="col-md-1 text-right btn-play">
-	          <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-play"></span></button>
-	        </div>
-	        
-	        <div class="col-md-7 now-playing">
-	          <span class="text-muted">Album 1</span> Title 3
-	          <div class="progress">
-						  <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
-						    <span class="sr-only">60% Complete</span>
-						  </div>
-						</div>
-	        </div>
-	        
-	        <div class="col-md-3 info">
-	          03:30 <span class="glyphicon glyphicon-volume-up"></span>
-          </div>
-
-          <div class="col-md-1 playing">
-            <button type="button" class="btn btn-default" ng-click="openNowPlaying()"><span class="glyphicon glyphicon-list"></span></button>
-          </div>
-	        
-	      </div>
+        <audio-player />
 	    </div>
     </div>
+
   </body>
 </html>
