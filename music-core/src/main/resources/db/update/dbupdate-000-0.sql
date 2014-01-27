@@ -17,7 +17,7 @@ alter table T_ALBUM add constraint FK_ALB_IDDIRECTORY_C foreign key (ALB_IDDIREC
 alter table T_AUTHENTICATION_TOKEN add constraint FK_AUT_IDUSER_C foreign key (AUT_IDUSER_C) references T_USER (USE_ID_C) on delete restrict on update restrict;
 alter table T_PLAYLIST add constraint FK_PLL_IDUSER_C foreign key (PLL_IDUSER_C) references T_USER (USE_ID_C) on delete restrict on update restrict;
 alter table T_PLAYLIST_TRACK add constraint FK_PLT_IDTRACK_C foreign key (PLT_IDTRACK_C) references T_TRACK (TRK_ID_C) on delete restrict on update restrict;
-alter table T_PLAYLIST_TRACK add constraint FK_PLT_IDUSER_C foreign key (PLT_IDUSER_C) references T_PLAYLIST (PLL_ID_C) on delete restrict on update restrict;
+alter table T_PLAYLIST_TRACK add constraint FK_PLT_IDPLAYLIST_C foreign key (PLT_IDPLAYLIST_C) references T_PLAYLIST (PLL_ID_C) on delete restrict on update restrict;
 alter table T_ROLE_BASE_FUNCTION add constraint FK_RBF_IDBASEFUNCTION_C foreign key (RBF_IDBASEFUNCTION_C) references T_BASE_FUNCTION (BAF_ID_C) on delete restrict on update restrict;
 alter table T_ROLE_BASE_FUNCTION add constraint FK_RBF_IDROLE_C foreign key (RBF_IDROLE_C) references T_ROLE (ROL_ID_C) on delete restrict on update restrict;
 alter table T_TRACK add constraint FK_TRK_IDALBUM_C foreign key (TRK_IDALBUM_C) references T_ALBUM (ALB_ID_C) on delete restrict on update restrict;
