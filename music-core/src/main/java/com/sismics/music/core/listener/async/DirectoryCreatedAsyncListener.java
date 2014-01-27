@@ -5,6 +5,8 @@ import com.sismics.music.core.event.async.DirectoryCreatedAsyncEvent;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.jpa.Directory;
 import com.sismics.music.core.service.CollectionService;
+import com.sismics.music.core.util.TransactionUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,9 +38,14 @@ public class DirectoryCreatedAsyncListener {
 
         final Directory directory = directoryCreatedAsyncEvent.getDirectory();
 
-        // Index new directory
-        CollectionService collectionService = AppContext.getInstance().getCollectionService();
-        collectionService.addDirectoryToIndex(directory);
+        TransactionUtil.handle(new Runnable() {
+            @Override
+            public void run() {
+             // Index new directory
+                CollectionService collectionService = AppContext.getInstance().getCollectionService();
+                collectionService.addDirectoryToIndex(directory);
+            }
+        });
 
         long endTime = System.currentTimeMillis();
         if (log.isInfoEnabled()) {

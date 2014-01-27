@@ -1,18 +1,17 @@
 package com.sismics.music.rest;
 
-import com.sismics.music.core.model.context.AppContext;
-import com.sismics.music.rest.filter.CookieAuthenticationFilter;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 import junit.framework.Assert;
+
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Test;
 
-import java.io.File;
+import com.sismics.music.rest.filter.CookieAuthenticationFilter;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.ClientResponse.Status;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 /**
  * Exhaustive test of the directory resource.
@@ -62,8 +61,6 @@ public class TestDirectoryResource extends BaseJerseyTest {
         json = response.getEntity(JSONObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
-        AppContext.getInstance().waitForAsync();
-
         // Admin creates a directory without name : OK, the name is inferred from the directory location
         directoryResource = resource().path("/directory");
         directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
@@ -73,8 +70,6 @@ public class TestDirectoryResource extends BaseJerseyTest {
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
         json = response.getEntity(JSONObject.class);
         Assert.assertEquals("ok", json.getString("status"));
-
-        AppContext.getInstance().waitForAsync();
 
         // Admin lists all directories
         directoryResource = resource().path("/directory");
@@ -105,8 +100,6 @@ public class TestDirectoryResource extends BaseJerseyTest {
         json = response.getEntity(JSONObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
-        AppContext.getInstance().waitForAsync();
-
         // Check the update
         directoryResource = resource().path("/directory");
         directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
@@ -127,8 +120,6 @@ public class TestDirectoryResource extends BaseJerseyTest {
         directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         response = directoryResource.delete(ClientResponse.class);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-
-        AppContext.getInstance().waitForAsync();
 
         // Check the deletion
         directoryResource = resource().path("/directory");
@@ -160,8 +151,6 @@ public class TestDirectoryResource extends BaseJerseyTest {
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
         JSONObject json = response.getEntity(JSONObject.class);
         Assert.assertEquals("ok", json.getString("status"));
-
-        AppContext.getInstance().waitForAsync();
 
         // Check that the albums are correctly added
         WebResource albumResource = resource().path("/album");
