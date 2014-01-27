@@ -125,10 +125,9 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(track1Id, tracks.getJSONObject(1).getString("id"));
 
         // Admin reverses the order of the 2 tracks
-        playlistResource = resource().path("/playlist/move");
+        playlistResource = resource().path("/playlist/1/move");
         playlistResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         postParams = new MultivaluedMapImpl();
-        postParams.putSingle("order", 1);
         postParams.putSingle("neworder", 0);
         response = playlistResource.post(ClientResponse.class, postParams);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
@@ -144,7 +143,26 @@ public class TestPlaylistResource extends BaseJerseyTest {
         tracks = json.optJSONArray("tracks");
         Assert.assertNotNull(tracks);
         Assert.assertEquals(2, tracks.length());
-        Assert.assertEquals(track0Id, tracks.getJSONObject(1).getString("id"));
         Assert.assertEquals(track1Id, tracks.getJSONObject(0).getString("id"));
+        Assert.assertEquals(track0Id, tracks.getJSONObject(1).getString("id"));
+
+        // Admin removes the 1st track from the playlist
+        playlistResource = resource().path("/playlist/0");
+        playlistResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        response = playlistResource.delete(ClientResponse.class);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        json = response.getEntity(JSONObject.class);
+        Assert.assertEquals("ok", json.getString("status"));
+
+        // Admin checks that his playlist contains 1 track.
+        playlistResource = resource().path("/playlist");
+        playlistResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        response = playlistResource.get(ClientResponse.class);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        json = response.getEntity(JSONObject.class);
+        tracks = json.optJSONArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(1, tracks.length());
+        Assert.assertEquals(track0Id, tracks.getJSONObject(0).getString("id"));
     }
 }

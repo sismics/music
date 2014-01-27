@@ -1,17 +1,12 @@
 package com.sismics.music.rest.resource;
 
-import com.sismics.music.core.dao.jpa.*;
-import com.sismics.music.core.dao.jpa.criteria.AlbumCriteria;
+import com.sismics.music.core.dao.jpa.PlaylistDao;
+import com.sismics.music.core.dao.jpa.PlaylistTrackDao;
+import com.sismics.music.core.dao.jpa.TrackDao;
 import com.sismics.music.core.dao.jpa.criteria.TrackCriteria;
-import com.sismics.music.core.dao.jpa.dto.AlbumDto;
 import com.sismics.music.core.dao.jpa.dto.TrackDto;
-import com.sismics.music.core.event.async.DirectoryCreatedAsyncEvent;
-import com.sismics.music.core.event.async.DirectoryDeletedAsyncEvent;
-import com.sismics.music.core.model.context.AppContext;
-import com.sismics.music.core.model.jpa.Directory;
 import com.sismics.music.core.model.jpa.Playlist;
 import com.sismics.music.core.model.jpa.Track;
-import com.sismics.music.rest.constant.BaseFunction;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
@@ -22,7 +17,6 @@ import org.codehaus.jettison.json.JSONObject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,10 +84,10 @@ public class PlaylistResource extends BaseResource {
      * @throws JSONException
      */
     @POST
-    @Path("move")
+    @Path("{order: [0-9]+}/move")
     @Produces(MediaType.APPLICATION_JSON)
     public Response moveTrack(
-            @FormParam("order") Integer order,
+            @PathParam("order") Integer order,
             @FormParam("neworder") Integer newOrder) throws JSONException {
 
         if (!authenticate()) {
@@ -119,6 +113,45 @@ public class PlaylistResource extends BaseResource {
 
         // Insert the track at the new order into the playlist
         playlistTrackDao.insertPlaylistTrack(playlist.getId(), trackId, newOrder);
+
+        // Always return OK
+        JSONObject response = new JSONObject();
+        response.put("status", "ok");
+        return Response.ok().entity(response).build();
+    }
+
+    /**
+     * Remove a track from the playlist.
+     *
+     * @param order Current track order in the playlist
+     * @return Response
+     * @throws JSONException
+     */
+    @DELETE
+    @Path("{order: [0-9]+}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response delete(
+            @PathParam("order") Integer order) throws JSONException {
+
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+
+        ValidationUtil.validateRequired(order, "order");
+
+        // Get the playlist
+        PlaylistDao playlistDao = new PlaylistDao();
+        Playlist playlist = playlistDao.getActiveByUserId(principal.getId());
+        if (playlist == null) {
+            throw new ServerException("UnknownError", MessageFormat.format("Playlist not found for user {0}", principal.getId()));
+        }
+        PlaylistTrackDao playlistTrackDao = new PlaylistTrackDao();
+
+        // Remove the track at the current order from playlist
+        String trackId = playlistTrackDao.removePlaylistTrack(playlist.getId(), order);
+        if (trackId == null) {
+            throw new ClientException("TrackNotFound", MessageFormat.format("Track not found at position {0}", order));
+        }
 
         // Always return OK
         JSONObject response = new JSONObject();
