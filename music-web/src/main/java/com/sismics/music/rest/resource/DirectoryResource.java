@@ -1,6 +1,9 @@
 package com.sismics.music.rest.resource;
 
 import com.sismics.music.core.dao.jpa.DirectoryDao;
+import com.sismics.music.core.event.async.DirectoryCreatedAsyncEvent;
+import com.sismics.music.core.event.async.DirectoryDeletedAsyncEvent;
+import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.jpa.Directory;
 import com.sismics.music.rest.constant.BaseFunction;
 import com.sismics.rest.exception.ClientException;
@@ -54,11 +57,11 @@ public class DirectoryResource extends BaseResource {
         // Create the directory
         DirectoryDao directoryDao = new DirectoryDao();
         String directoryId = directoryDao.create(directory);
-
+        
         // Raise a directory creation event
-//        DirectoryCreatedEvent directoryCreatedEvent = new DirectoryCreatedEvent();
-//        directoryCreatedEvent.setDirectory(directory);
-//        AppContext.getInstance().getAsyncEventBus().post(directoryCreatedEvent);
+        DirectoryCreatedAsyncEvent directoryCreatedAsyncEvent = new DirectoryCreatedAsyncEvent();
+        directoryCreatedAsyncEvent.setDirectory(directory);
+        AppContext.getInstance().getCollectionEventBus().post(directoryCreatedAsyncEvent);
 
         // Always return OK
         JSONObject response = new JSONObject();
@@ -112,6 +115,12 @@ public class DirectoryResource extends BaseResource {
         }
         directoryDao.update(directory);
 
+        // TODO delete and recreate index if the location is different
+        // Raise a directory creation event
+//        DirectoryCreatedAsyncEvent directoryCreatedAsyncEvent = new DirectoryCreatedAsyncEvent();
+//        directoryCreatedAsyncEvent.setDirectory(directory);
+//        AppContext.getInstance().getCollectionEventBus().post(directoryCreatedAsyncEvent);
+
         // Always return "ok"
         JSONObject response = new JSONObject();
         response.put("status", "ok");
@@ -143,6 +152,11 @@ public class DirectoryResource extends BaseResource {
 
         // Delete the directory
         directoryDao.delete(directory.getId());
+
+        // Raise a directory deleted event
+        DirectoryDeletedAsyncEvent directoryDeletedAsyncEvent = new DirectoryDeletedAsyncEvent();
+        directoryDeletedAsyncEvent.setDirectory(directory);
+        AppContext.getInstance().getCollectionEventBus().post(directoryDeletedAsyncEvent);
 
         // Always return ok
         JSONObject response = new JSONObject();

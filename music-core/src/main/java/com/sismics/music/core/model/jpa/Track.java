@@ -38,14 +38,14 @@ public class Track {
     /**
      * Track file name.
      */
-    @Column(name = "TRK_FILE_C", nullable = false, length = 2000)
+    @Column(name = "TRK_FILENAME_C", nullable = false, length = 2000)
     private String fileName;
     
     /**
      * Track title.
      */
-    @Column(name = "TRK_NAME_C", nullable = false, length = 2000)
-    private String name;
+    @Column(name = "TRK_TITLE_C", nullable = false, length = 2000)
+    private String title;
 
     /**
      * Track year.
@@ -141,6 +141,24 @@ public class Track {
      */
     public void setArtistId(String artistId) {
         this.artistId = artistId;
+    }
+
+    /**
+     * Getter of title.
+     *
+     * @return title
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * Setter of title.
+     *
+     * @param title title
+     */
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     /**
@@ -291,7 +309,7 @@ public class Track {
     public String toString() {
         return Objects.toStringHelper(this)
                 .add("id", id)
-                .add("name", name)
+                .add("title", title)
                 .toString();
     }
 }

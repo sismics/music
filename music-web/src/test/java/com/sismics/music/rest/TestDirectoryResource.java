@@ -1,5 +1,6 @@
 package com.sismics.music.rest;
 
+import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.rest.filter.CookieAuthenticationFilter;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -10,6 +11,8 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Test;
+
+import java.io.File;
 
 /**
  * Exhaustive test of the directory resource.
@@ -53,21 +56,25 @@ public class TestDirectoryResource extends BaseJerseyTest {
         directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         postParams = new MultivaluedMapImpl();
         postParams.putSingle("name", "main");
-        postParams.putSingle("location", "/var/music/main");
+        postParams.putSingle("location", "/vartest/music/main");
         response = directoryResource.put(ClientResponse.class, postParams);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
         json = response.getEntity(JSONObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
+        AppContext.getInstance().waitForAsync();
+
         // Admin creates a directory without name : OK, the name is inferred from the directory location
         directoryResource = resource().path("/directory");
         directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         postParams = new MultivaluedMapImpl();
-        postParams.putSingle("location", "/var/music/mix");
+        postParams.putSingle("location", "/vartest/music/mix");
         response = directoryResource.put(ClientResponse.class, postParams);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
         json = response.getEntity(JSONObject.class);
         Assert.assertEquals("ok", json.getString("status"));
+
+        AppContext.getInstance().waitForAsync();
 
         // Admin lists all directories
         directoryResource = resource().path("/directory");
@@ -91,12 +98,14 @@ public class TestDirectoryResource extends BaseJerseyTest {
         directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         postParams = new MultivaluedMapImpl();
         postParams.add("name", "mainstream");
-        postParams.add("location", "/var/music/mainstream");
+        postParams.add("location", "/vartest/music/mainstream");
         postParams.add("active", true);
         response = directoryResource.post(ClientResponse.class, postParams);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
         json = response.getEntity(JSONObject.class);
         Assert.assertEquals("ok", json.getString("status"));
+
+        AppContext.getInstance().waitForAsync();
 
         // Check the update
         directoryResource = resource().path("/directory");
@@ -119,6 +128,8 @@ public class TestDirectoryResource extends BaseJerseyTest {
         response = directoryResource.delete(ClientResponse.class);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
 
+        AppContext.getInstance().waitForAsync();
+
         // Check the deletion
         directoryResource = resource().path("/directory");
         directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
@@ -128,5 +139,38 @@ public class TestDirectoryResource extends BaseJerseyTest {
         directories = json.optJSONArray("directories");
         Assert.assertNotNull(directories);
         Assert.assertEquals(1, directories.length());
+    }
+
+    /**
+     * Test the collection indexing service.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testCollectionIndexing() throws Exception {
+        // Login users
+        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+
+        // Admin adds a directory to the collection
+        WebResource directoryResource = resource().path("/directory");
+        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        MultivaluedMapImpl postParams = new MultivaluedMapImpl();
+        postParams.putSingle("location", getClass().getResource("/music/").toURI().getPath());
+        ClientResponse response = directoryResource.put(ClientResponse.class, postParams);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        JSONObject json = response.getEntity(JSONObject.class);
+        Assert.assertEquals("ok", json.getString("status"));
+
+        AppContext.getInstance().waitForAsync();
+
+        // Check that the albums are correctly added
+        WebResource albumResource = resource().path("/album");
+        albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        response = albumResource.get(ClientResponse.class);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        json = response.getEntity(JSONObject.class);
+        JSONArray albums = json.optJSONArray("albums");
+        Assert.assertNotNull(albums);
+        Assert.assertEquals(1, albums.length());
     }
 }

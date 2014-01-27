@@ -200,6 +200,7 @@ public class Directory {
         return Objects.toStringHelper(this)
                 .add("id", id)
                 .add("name", name)
+                .add("location", location)
                 .toString();
     }
 }

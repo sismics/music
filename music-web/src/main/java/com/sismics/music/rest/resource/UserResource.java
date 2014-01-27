@@ -19,6 +19,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
+import com.sismics.music.core.dao.jpa.PlaylistDao;
+import com.sismics.music.core.model.jpa.Playlist;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -110,6 +112,13 @@ public class UserResource extends BaseResource {
                 throw new ServerException("UnknownError", "Unknown Server Error", e);
             }
         }
+
+        // Create the default playlist for this user
+        Playlist playlist = new Playlist();
+        playlist.setUserId(userId);
+
+        PlaylistDao playlistDao = new PlaylistDao();
+        playlistDao.create(playlist);
 
         // Raise a user creation event
         UserCreatedEvent userCreatedEvent = new UserCreatedEvent();

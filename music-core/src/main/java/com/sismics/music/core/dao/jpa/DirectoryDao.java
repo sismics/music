@@ -78,7 +78,7 @@ public class DirectoryDao {
     }
     
     /**
-     * Gets an active directory by its directoryname.
+     * Gets an active directory by its ID.
      * 
      * @param id Directory ID
      * @return Directory

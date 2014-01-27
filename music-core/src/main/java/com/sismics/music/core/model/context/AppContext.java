@@ -9,7 +9,10 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
+import com.sismics.music.core.listener.async.DirectoryCreatedAsyncListener;
+import com.sismics.music.core.listener.async.DirectoryDeletedAsyncListener;
 import com.sismics.music.core.listener.sync.DeadEventListener;
+import com.sismics.music.core.service.CollectionService;
 import com.sismics.util.EnvironmentUtil;
 
 /**
@@ -34,6 +37,16 @@ public class AppContext {
     private EventBus asyncEventBus;
 
     /**
+     * Collection indexing asynchronous event bus.
+     */
+    private EventBus collectionEventBus;
+
+    /**
+     * Collection service.
+     */
+    private CollectionService collectionService;
+
+    /**
      * Asynchronous executors.
      */
     private List<ExecutorService> asyncExecutorList;
@@ -43,6 +56,10 @@ public class AppContext {
      */
     private AppContext() {
         resetEventBus();
+
+        collectionService = new CollectionService();
+        collectionService.startAndWait();
+
     }
     
     /**
@@ -55,6 +72,9 @@ public class AppContext {
         asyncExecutorList = new ArrayList<ExecutorService>();
         
         asyncEventBus = newAsyncEventBus();
+        collectionEventBus = newAsyncEventBus();
+        collectionEventBus.register(new DirectoryCreatedAsyncListener());
+        collectionEventBus.register(new DirectoryDeletedAsyncListener());
     }
 
     /**
@@ -119,11 +139,29 @@ public class AppContext {
     }
 
     /**
+     * Getter of collectionService.
+     *
+     * @return collectionService
+     */
+    public CollectionService getCollectionService() {
+        return collectionService;
+    }
+
+    /**
      * Getter of asyncEventBus.
      *
      * @return asyncEventBus
      */
     public EventBus getAsyncEventBus() {
         return asyncEventBus;
+    }
+
+    /**
+     * Getter of collectionEventBus.
+     *
+     * @return collectionEventBus
+     */
+    public EventBus getCollectionEventBus() {
+        return collectionEventBus;
     }
 }

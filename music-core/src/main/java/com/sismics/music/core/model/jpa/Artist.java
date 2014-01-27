@@ -26,7 +26,7 @@ public class Artist {
     /**
      * Artist title.
      */
-    @Column(name = "ART_NAME_C", nullable = false, length = 100)
+    @Column(name = "ART_NAME_C", nullable = false, length = 1000)
     private String name;
 
     /**

@@ -12,9 +12,9 @@
     <class>com.sismics.music.core.model.jpa.BaseFunction</class>
     <class>com.sismics.music.core.model.jpa.Config</class>
     <class>com.sismics.music.core.model.jpa.Directory</class>
-    <class>com.sismics.music.core.model.jpa.Track</class>
     <class>com.sismics.music.core.model.jpa.Locale</class>
-    <class>com.sismics.music.core.model.jpa.Transcoder</class>
+    <class>com.sismics.music.core.model.jpa.Playlist</class>
+    <class>com.sismics.music.core.model.jpa.PlaylistTrack</class>
     <class>com.sismics.music.core.model.jpa.RoleBaseFunction</class>
     <class>com.sismics.music.core.model.jpa.Track</class>
     <class>com.sismics.music.core.model.jpa.Transcoder</class>

@@ -497,6 +497,13 @@
         <artifactId>jaudiotagger</artifactId>
         <version>${org.jaudiotagger.version}</version>
       </dependency>
+	  
+      <dependency>
+        <groupId>de.u-mass</groupId>
+        <artifactId>lastfm-java</artifactId>
+        <version>0.1.2</version>
+      </dependency>
+            
     </dependencies>
   </dependencyManagement>
   

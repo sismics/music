@@ -126,6 +126,11 @@
       <artifactId>jaudiotagger</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>de.u-mass</groupId>
+      <artifactId>lastfm-java</artifactId>
+    </dependency>
+
     <!-- Test dependencies -->
     <dependency>
       <groupId>junit</groupId>
