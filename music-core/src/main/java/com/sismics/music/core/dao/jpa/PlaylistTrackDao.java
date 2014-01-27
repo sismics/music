@@ -1,11 +1,7 @@
 package com.sismics.music.core.dao.jpa;
 
-import com.sismics.music.core.model.jpa.Playlist;
 import com.sismics.music.core.model.jpa.PlaylistTrack;
-import com.sismics.music.core.model.jpa.Track;
-import com.sismics.music.core.model.jpa.User;
 import com.sismics.util.context.ThreadLocalContext;
-import org.mindrot.jbcrypt.BCrypt;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -96,7 +92,7 @@ public class PlaylistTrackDao {
     public String removePlaylistTrack(String playlistId, Integer order) {
         // Get track at the specified order
         EntityManager em = ThreadLocalContext.get().getEntityManager();
-        Query q = em.createNativeQuery("select pt.TRK_ID_C from T_PLAYLIST_TRACK pt where pt.PLT_IDPLAYLIST_C = :playlistId and pt.PLT_ORDER_C = :order");
+        Query q = em.createNativeQuery("select pt.PLT_IDTRACK_C from T_PLAYLIST_TRACK pt where pt.PLT_IDPLAYLIST_C = :playlistId and pt.PLT_ORDER_N = :order");
         q.setParameter("playlistId", playlistId);
         q.setParameter("order", order);
         String trackId = null;
@@ -107,7 +103,7 @@ public class PlaylistTrackDao {
         }
 
         // Delete the track
-        q = em.createNativeQuery("delete from T_PLAYLIST_TRACK pt where pt.PLT_IDPLAYLIST_C = :playlistId and pt.PLT_ORDER_C = :order");
+        q = em.createNativeQuery("delete from T_PLAYLIST_TRACK pt where pt.PLT_IDPLAYLIST_C = :playlistId and pt.PLT_ORDER_N = :order");
         q.setParameter("playlistId", playlistId);
         q.setParameter("order", order);
         q.executeUpdate();

@@ -125,7 +125,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(track1Id, tracks.getJSONObject(1).getString("id"));
 
         // Admin reverses the order of the 2 tracks
-        playlistResource = resource().path("/move");
+        playlistResource = resource().path("/playlist/move");
         playlistResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         postParams = new MultivaluedMapImpl();
         postParams.putSingle("order", 1);
