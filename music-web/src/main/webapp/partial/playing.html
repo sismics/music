@@ -6,6 +6,7 @@
     <table class="table table-striped">
       <thead>
       <tr>
+        <th></th>
         <th>Title</th>
         <th>Length</th>
         <th>Artist</th>
@@ -13,34 +14,18 @@
       </tr>
       </thead>
       <tbody>
-      <tr>
-        <td>Title 1</td>
-        <td>3:30</td>
-        <td>Artist 1</td>
-        <td>Album 1</td>
-      </tr>
-      <tr>
-        <td>Title 2</td>
-        <td>3:17</td>
-        <td>Artist 1</td>
-        <td>Album 1</td>
-      </tr>
-      <tr>
-        <td><span class="glyphicon glyphicon-signal"></span> Title 3</td>
-        <td>5:12</td>
-        <td>Artist 1</td>
-        <td>Album 1</td>
-      </tr><tr>
-        <td>Title 4</td>
-        <td>4:15</td>
-        <td>Artist 1</td>
-        <td>Album 1</td>
-      </tr>
-      <tr>
-        <td>Title 5</td>
-        <td>3:45</td>
-        <td>Artist 1</td>
-        <td>Album 1</td>
+      <tr ng-repeat="track in tracks">
+        <td>
+          <span class="glyphicon glyphicon-play" ng-click="playTrack($index)"></span>
+          <span class="glyphicon glyphicon-minus" ng-click="removeTrack($index)"></span>
+        </td>
+        <td>
+          <span class="glyphicon glyphicon-signal" ng-if="$index == currentOrder"></span>
+          {{ track.title }}
+        </td>
+        <td>{{ track.length | duration }}</td>
+        <td>{{ track.artist.name }}</td>
+        <td>{{ track.album.name }}</td>
       </tr>
       </tbody>
     </table>

@@ -7,15 +7,17 @@
   </div>
 
   <div class="col-md-7 now-playing">
-    <span class="text-muted">{{ track.artist }}</span> {{ track.title }}
-    <div class="progress">
-      <progressbar value="timeProgress()" max="100" ng-click="seek($event)" />
+    <div ng-show="track">
+      <span class="text-muted">{{ track.artist.name }}</span> {{ track.title }}
+      <div class="progress" ng-click="seek($event)">
+        <progressbar value="timeProgress()" max="100" />
+      </div>
     </div>
   </div>
 
   <div class="col-md-3 info">
-    <div ng-show="audio.duration">
-      {{ audio.currentTime | round }}/{{ audio.duration | round }}sec
+    <div ng-show="audio.duration && track">
+      {{ audio.currentTime | duration }}/{{ audio.duration | duration }}sec
       <span class="glyphicon glyphicon-volume-up"
             ng-click="mute()"
             ng-class="{ 'glyphicon-volume-up': audio.volume == 1, 'glyphicon-volume-off': audio.volume == 0 }"></span>

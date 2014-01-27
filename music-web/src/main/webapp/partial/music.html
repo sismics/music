@@ -10,9 +10,12 @@
   <div class="row">
     <div class="col-sm-6 col-md-3" ng-repeat="album in albums">
       <a class="thumbnail" href="#/album/{{ album.id }}">
-        <img ng-src="{{ baseUrl }}/getCoverArt.view?id={{ album.coverArt }}&size=200&{{ urlParameters }}" />
+        <img ng-src="http://placehold.it/200x200" />
         <div class="caption">
-          <p style="overflow: hidden; height: 40px">{{ album.title }}</p>
+          <div style="overflow: hidden; height: 40px">
+            <div class="text-muted">{{ album.artist.name }}</div>
+            <div>{{ album.name }}</div>
+          </div>
         </div>
       </a>
     </div>

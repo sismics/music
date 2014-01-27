@@ -3,7 +3,7 @@
 /**
  * Audio player directive.
  */
-App.directive('audioPlayer', function($rootScope, AudioPlayer) {
+App.directive('audioPlayer', function($rootScope, Playlist) {
   return {
     restrict: 'E',
     controller: function($scope, $element) {
@@ -12,15 +12,17 @@ App.directive('audioPlayer', function($rootScope, AudioPlayer) {
 
       // Tell others to give me my prev/next track (with audio.set message)
       $scope.next = function() {
-        AudioPlayer.next();
+        Playlist.next();
       };
       $scope.prev = function() {
-        AudioPlayer.prev();
+        Playlist.prev();
       };
 
       // Tell audio element to play/pause, you can also use $scope.audio.play() or $scope.audio.pause();
       $scope.playpause = function() {
-        $scope.audio.paused ? $scope.audio.play() : $scope.audio.pause();
+        if ($scope.track != null) {
+          $scope.audio.paused ? $scope.audio.play() : $scope.audio.pause();
+        }
       };
 
       // Mute/unmute volume
@@ -35,11 +37,22 @@ App.directive('audioPlayer', function($rootScope, AudioPlayer) {
       $scope.audio.addEventListener('ended', function(){ $rootScope.$broadcast('audio.ended', this); $scope.next(); });
 
       // Current track has changed
-      $rootScope.$on('audio.set', function() {
-        var track = AudioPlayer.currentTrack();
-        $scope.audio.src = track.url;
-        $scope.audio.play();
+      $scope.$on('audio.set', function(e, play) {
+        var track = Playlist.currentTrack();
+        $scope.audio.src = 'api/track/' + track.id;
+        if (play) {
+          $scope.audio.play();
+        } else {
+          $scope.audio.pause();
+        }
         $scope.track = track;
+      });
+
+      // Stop the audio
+      $scope.$on('audio.stop', function() {
+        $scope.track = null;
+        $scope.audio.pause();
+        $scope.audio.src = null;
       });
 
       // Returns current track progression
@@ -47,8 +60,9 @@ App.directive('audioPlayer', function($rootScope, AudioPlayer) {
         return $scope.audio.currentTime / $scope.audio.duration * 100;
       };
 
+      // Seek through the current track
       $scope.seek = function(e) {
-        $scope.audio.currentTime = e.offsetX / e.target.clientWidth * $scope.audio.duration;
+        $scope.audio.currentTime = e.offsetX / e.delegateTarget.clientWidth * $scope.audio.duration;
       }
 
       // Update display of things - makes time-scrub work
