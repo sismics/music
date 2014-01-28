@@ -7,15 +7,6 @@ App.factory('Playlist', function($rootScope, Restangular, $timeout) {
   var currentTrack = null;
   var tracks = [];
 
-  var update = function() {
-    var promise = Restangular.one('playlist').getList();
-    promise.then(function(data) {
-      tracks = data.tracks;
-      $rootScope.$broadcast('playlist.updated', tracks);
-    });
-    return promise;
-  };
-
   var service = {
     /**
      * Play a track from the current playlist.
@@ -26,6 +17,18 @@ App.factory('Playlist', function($rootScope, Restangular, $timeout) {
         currentTrack = _currentTrack;
         $rootScope.$broadcast('audio.set', true);
       }
+    },
+    
+    /**
+     * Update the playlist.
+     */
+    update: function() {
+      var promise = Restangular.one('playlist').getList();
+      promise.then(function(data) {
+        tracks = data.tracks;
+        $rootScope.$broadcast('playlist.updated', tracks);
+      });
+      return promise;
     },
 
     /**
@@ -72,7 +75,7 @@ App.factory('Playlist', function($rootScope, Restangular, $timeout) {
         id: trackId,
         order: null
       }).then(function() {
-            var promise = update();
+            var promise = service.update();
             if (play) {
               promise.then(function() {
                 service.play(0);
@@ -98,7 +101,7 @@ App.factory('Playlist', function($rootScope, Restangular, $timeout) {
       }
 
       Restangular.one('playlist', order).remove().then(function() {
-        update();
+        service.update();
       });
     },
 
@@ -143,14 +146,6 @@ App.factory('Playlist', function($rootScope, Restangular, $timeout) {
       return tracks;
     }
   };
-
-  // Update playlist on application startup
-  update().then(function() {
-    // Open the first track without playing it
-    $timeout(function() {
-      service.open(0);
-    }, 250);
-  });
 
   return service;
 });

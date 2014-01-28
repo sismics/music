@@ -6,7 +6,9 @@
 App.controller('Login', function($rootScope, $scope, $state, $dialog, User) {
   $scope.login = function() {
     User.login($scope.user).then(function() {
-      $rootScope.userInfo = User.userInfo(true);
+      User.userInfo(true).then(function(data) {
+        $rootScope.userInfo = data;
+      });
       $state.transitionTo('main.music');
     }, function() {
       var title = 'Login failed';

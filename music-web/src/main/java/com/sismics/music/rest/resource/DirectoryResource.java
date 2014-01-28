@@ -186,7 +186,7 @@ public class DirectoryResource extends BaseResource {
         for (Directory directory : directoryList) {
             JSONObject directoryJson = new JSONObject();
             directoryJson.put("id", directory.getId());
-            directoryJson.put("name", directory.getId());
+            directoryJson.put("name", directory.getName());
             directoryJson.put("location", directory.getLocation());
             directoryJson.put("active", directory.getDisableDate() == null);
             directoryJson.put("valid", true); // TODO test if directory valid

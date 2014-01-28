@@ -78,15 +78,60 @@ var App = angular.module('music',
           }
         }
       })
-      .state('main.settings', {
-        url: '/settings',
+      .state('main.settingsdirectories', {
+        url: '/settings/directories',
         views: {
           'content': {
-            templateUrl: 'partial/settings.html',
-            controller: 'Settings'
+            templateUrl: 'partial/settings.directories.html',
+            controller: 'SettingsDirectories'
           }
         }
-      });
+      })
+      .state('main.settingsaccount', {
+      url: '/settings/account',
+      views: {
+        'settings': {
+          templateUrl: 'partial/settings.account.html',
+          controller: 'SettingsAccount'
+        }
+      }
+    })
+    .state('main.settingslog', {
+      url: '/settings/log',
+      views: {
+        'settings': {
+          templateUrl: 'partial/settings.log.html',
+          controller: 'SettingsLog'
+        }
+      }
+    })
+    .state('main.settingsuser', {
+      url: '/setting/user',
+      views: {
+        'settings': {
+          templateUrl: 'partial/settings.user.html',
+          controller: 'SettingsUser'
+        }
+      }
+    })
+    .state('main.settingsuser.edit', {
+      url: '/edit/:username',
+      views: {
+        'user': {
+          templateUrl: 'partial/settings.user.edit.html',
+          controller: 'SettingsUserEdit'
+        }
+      }
+    })
+    .state('main.settingsuser.add', {
+      url: '/add',
+      views: {
+        'user': {
+          templateUrl: 'partial/settings.user.edit.html',
+          controller: 'SettingsUserEdit'
+        }
+      }
+    })
 
       // Configuring Restangular
       RestangularProvider.setBaseUrl('api');

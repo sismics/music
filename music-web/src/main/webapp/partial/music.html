@@ -2,13 +2,17 @@
   <ul class="nav nav-tabs">
     <li class="active"><a href="#">Albums</a></li>
     <li><a href="#">Artists</a></li>
-    <li><a href="#">Titles</a></li>
-    <li><a href="#">Genres</a></li>
+    <li><a href="#">Tracks</a></li>
   </ul>
 
-
   <div class="row" ng-show="albums.length > 0">
-    <div class="col-sm-6 col-md-3" ng-repeat="album in albums">
+    <div class="col-sm-12 search-form">
+      <form role="form">
+        <input type="text" class="form-control" ng-model="filter" placeholder="Filter" />
+      </form>
+    </div>
+  
+    <div class="col-sm-6 col-md-3" ng-repeat="album in albums | filter: filter">
       <a class="thumbnail" href="#/album/{{ album.id }}">
         <img ng-src="http://placehold.it/200x200" />
         <div class="caption">

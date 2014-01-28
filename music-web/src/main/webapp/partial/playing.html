@@ -8,9 +8,9 @@
       <tr>
         <th></th>
         <th>Title</th>
-        <th>Length</th>
         <th>Artist</th>
         <th>Album</th>
+        <th>Length</th>
       </tr>
       </thead>
       <tbody>
@@ -21,9 +21,9 @@
           <span class="glyphicon glyphicon-minus" ng-click="removeTrack($index)"></span>
         </td>
         <td>{{ track.title }}</td>
-        <td>{{ track.length | duration }}</td>
         <td>{{ track.artist.name }}</td>
         <td>{{ track.album.name }}</td>
+        <td>{{ track.length | duration }}</td>
       </tr>
       </tbody>
     </table>
