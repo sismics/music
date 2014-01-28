@@ -7,7 +7,7 @@
   </ul>
 
 
-  <div class="row">
+  <div class="row" ng-show="albums.length > 0">
     <div class="col-sm-6 col-md-3" ng-repeat="album in albums">
       <a class="thumbnail" href="#/album/{{ album.id }}">
         <img ng-src="http://placehold.it/200x200" />
@@ -20,4 +20,8 @@
       </a>
     </div>
   </div>
+  
+  <p ng-show="albums.length == 0" class="text-center">
+    Music library empty
+  </p>
 </div>

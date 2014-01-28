@@ -3,7 +3,7 @@
 /**
  * Audio player service.
  */
-App.factory('Playlist', function($rootScope, Restangular) {
+App.factory('Playlist', function($rootScope, Restangular, $timeout) {
   var currentTrack = null;
   var tracks = [];
 
@@ -147,7 +147,9 @@ App.factory('Playlist', function($rootScope, Restangular) {
   // Update playlist on application startup
   update().then(function() {
     // Open the first track without playing it
-    service.open(0);
+    $timeout(function() {
+      service.open(0);
+    }, 250);
   });
 
   return service;

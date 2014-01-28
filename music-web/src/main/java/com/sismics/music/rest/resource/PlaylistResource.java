@@ -63,7 +63,7 @@ public class PlaylistResource extends BaseResource {
 
         // Get the track order
         if (order == null) {
-            order = playlistTrackDao.getPlaylistTrackLastOrder(playlist.getId()) + 1;
+            order = playlistTrackDao.getPlaylistTrackNextOrder(playlist.getId());
         }
 
         // Insert the track into the playlist

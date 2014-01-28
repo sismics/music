@@ -52,7 +52,7 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
       $scope.$on('audio.stop', function() {
         $scope.track = null;
         $scope.audio.pause();
-        $scope.audio.src = null;
+        $scope.audio.src = '';
       });
 
       // Returns current track progression
@@ -62,7 +62,8 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
 
       // Seek through the current track
       $scope.seek = function(e) {
-        $scope.audio.currentTime = e.offsetX / e.delegateTarget.clientWidth * $scope.audio.duration;
+        var offX = e.clientX - $(e.delegateTarget).offset().left;
+        $scope.audio.currentTime = offX / e.delegateTarget.clientWidth * $scope.audio.duration;
       }
 
       // Update display of things - makes time-scrub work

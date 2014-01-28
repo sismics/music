@@ -25,7 +25,10 @@
   </div>
 
   <div class="col-md-1 playing">
-    <button type="button" class="btn btn-default" ng-click="openNowPlaying()"><span class="glyphicon glyphicon-list"></span></button>
+    <button type="button" class="btn btn-default" tooltip="Playing queue"
+        ng-click="openNowPlaying()" ng-class="{active: $uiRoute}" ui-route="/playing">
+      <span class="glyphicon glyphicon-list"></span>
+    </button>
   </div>
 
 </div>
