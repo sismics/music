@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Main default controller.
+ * Main defaultcontroller.
  */
 App.controller('MainDefault', function() {
 });

@@ -18,7 +18,7 @@ App.factory('Playlist', function($rootScope, Restangular, $timeout) {
         $rootScope.$broadcast('audio.set', true);
       }
     },
-    
+
     /**
      * Update the playlist.
      */

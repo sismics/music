@@ -38,6 +38,7 @@ var App = angular.module('music',
         url: '',
         views: {
           'content': {
+            templateUrl: 'partial/main.default.html',
             controller: 'MainDefault'
           }
         }
@@ -90,7 +91,7 @@ var App = angular.module('music',
       .state('main.settingsaccount', {
       url: '/settings/account',
       views: {
-        'settings': {
+        'content': {
           templateUrl: 'partial/settings.account.html',
           controller: 'SettingsAccount'
         }
@@ -99,16 +100,16 @@ var App = angular.module('music',
     .state('main.settingslog', {
       url: '/settings/log',
       views: {
-        'settings': {
+        'content': {
           templateUrl: 'partial/settings.log.html',
           controller: 'SettingsLog'
         }
       }
     })
     .state('main.settingsuser', {
-      url: '/setting/user',
+      url: '/settings/user',
       views: {
-        'settings': {
+        'content': {
           templateUrl: 'partial/settings.user.html',
           controller: 'SettingsUser'
         }

@@ -38,7 +38,7 @@ App.controller('SettingsUserEdit', function($scope, $dialog, $state, $stateParam
     
     promise.then(function() {
       $scope.loadUsers();
-      $state.transitionTo('settings.user');
+      $state.transitionTo('main.settingsuser');
     });
   };
 
@@ -47,16 +47,16 @@ App.controller('SettingsUserEdit', function($scope, $dialog, $state, $stateParam
    */
   $scope.remove = function () {
     var title = 'Delete user';
-    var msg = 'Do you really want to delete this user? All associated documents, files and tags will be deleted';
+    var msg = 'Do you really want to delete this user?';
     var btns = [{result:'cancel', label: 'Cancel'}, {result:'ok', label: 'OK', cssClass: 'btn-primary'}];
 
     $dialog.messageBox(title, msg, btns, function(result) {
       if (result == 'ok') {
         Restangular.one('user', $stateParams.username).remove().then(function() {
           $scope.loadUsers();
-          $state.transitionTo('settings.user');
+          $state.transitionTo('main.settingsuser');
         }, function () {
-          $state.transitionTo('settings.user');
+          $state.transitionTo('main.settingsuser');
         });
       }
     });

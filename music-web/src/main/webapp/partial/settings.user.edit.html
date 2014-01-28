@@ -1,12 +1,8 @@
 <img src="img/loader.gif" ng-show="!user && isEdit()" />
 
 <div ng-show="user || !isEdit()">
-  <h2 ng-show="isEdit()">Edit
-    <small>"{{ user.username }}"</small>
-  </h2>
-  <h2 ng-show="!isEdit()">Add
-    <small>user</small>
-  </h2>
+  <h4 ng-show="isEdit()">Edit "{{ user.username }}"</h4>
+  <h4 ng-show="!isEdit()">Add user</h4>
   <form class="form-horizontal" name="editUserForm" novalidate>
     <div class="form-group" ng-class="{ 'has-error': !editUserForm.username.$valid, success: editUserForm.username.$valid }">
       <label class="col-sm-2 control-label" for="inputUsername">Username</label>
