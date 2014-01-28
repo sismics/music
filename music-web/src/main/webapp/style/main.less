@@ -51,3 +51,31 @@ html, body {
     margin-bottom: 10px;
   }
 }
+
+.table-playing-tracks {
+  table-layout: fixed;
+  -webkit-user-select: none; /* Chrome/Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+ */
+  /* Rules below not implemented in browsers yet */
+  -o-user-select: none;
+  user-select: none;
+
+  > tbody > tr:nth-child(even) > td {
+    background: #fff;
+  }
+
+  > tbody td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .handle {
+    background: url('../img/grippy_large.png') no-repeat;
+    width: 12px;
+    height: 100%;
+    display: inline-block;
+    vertical-align: middle;
+  }
+}

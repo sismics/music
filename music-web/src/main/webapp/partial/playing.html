@@ -3,27 +3,31 @@
     <h3 class="panel-title"><span class="glyphicon glyphicon-play"></span> Now playing</h3>
   </div>
   <div class="panel-body">
-    <table class="table table-striped" ng-show="tracks.length > 0">
+    <table class="table table-striped table-playing-tracks" ng-show="tracks.length > 0">
       <thead>
       <tr>
-        <th></th>
+        <th style="width: 8%"></th>
         <th>Title</th>
         <th>Artist</th>
         <th>Album</th>
-        <th>Length</th>
+        <th style="width: 7%"><span class="glyphicon glyphicon-time"></span></th>
+        <th style="width: 4%"></th>
       </tr>
       </thead>
-      <tbody>
-      <tr ng-repeat="track in tracks" ng-dblclick="playTrack($index)">
+      <tbody ui-sortable="trackSortableOptions">
+      <tr ng-repeat="track in tracks" ng-dblclick="playTrack($index)" data-order="{{ track.order }}">
         <td>
-          <span class="glyphicon glyphicon-signal" ng-if="$index == currentOrder"></span>
-          <span class="glyphicon glyphicon-play" ng-click="playTrack($index)"></span>
-          <span class="glyphicon glyphicon-minus" ng-click="removeTrack($index)"></span>
+          <span class="handle"></span>
+          <span ng-if="$index == currentOrder">
+            <img src="img/equalizer.gif" ng-if="currentStatus == 'playing'" />
+            <img src="img/equalizer_pause.png" ng-if="currentStatus == 'paused' || currentStatus == 'stopped'" />
+          </span>
         </td>
-        <td>{{ track.title }}</td>
-        <td>{{ track.artist.name }}</td>
-        <td>{{ track.album.name }}</td>
+        <td title="{{ track.title }}">{{ track.title }}</td>
+        <td title="{{ track.artist.name }}">{{ track.artist.name }}</td>
+        <td title="{{ track.album.name }}">{{ track.album.name }}</td>
         <td>{{ track.length | duration }}</td>
+        <td><span class="glyphicon glyphicon-minus" ng-click="removeTrack($index)"></span></td>
       </tr>
       </tbody>
     </table>

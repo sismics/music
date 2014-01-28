@@ -5,7 +5,7 @@
  */
 var App = angular.module('music',
     // Dependencies
-    ['ui.router', 'ui.bootstrap', 'dialog', 'ui.route', 'restangular']
+    ['ui.router', 'ui.bootstrap', 'dialog', 'ui.route', 'restangular', 'ui.sortable']
   )
 
 /**
@@ -38,7 +38,6 @@ var App = angular.module('music',
         url: '',
         views: {
           'content': {
-            templateUrl: 'partial/main.default.html',
             controller: 'MainDefault'
           }
         }

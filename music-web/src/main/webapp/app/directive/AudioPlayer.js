@@ -31,10 +31,10 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
       }
 
       // Listen for audio-element events, and broadcast stuff
-      $scope.audio.addEventListener('play', function(){ $rootScope.$broadcast('audio.play', this); });
-      $scope.audio.addEventListener('pause', function(){ $rootScope.$broadcast('audio.pause', this); });
-      $scope.audio.addEventListener('timeupdate', function(){ $rootScope.$broadcast('audio.time', this); });
-      $scope.audio.addEventListener('ended', function(){ $rootScope.$broadcast('audio.ended', this); $scope.next(); });
+      $scope.audio.addEventListener('play', function(){ $rootScope.$broadcast('audio.play'); });
+      $scope.audio.addEventListener('pause', function(){ $rootScope.$broadcast('audio.pause'); });
+      $scope.audio.addEventListener('timeupdate', function(){ $rootScope.$broadcast('audio.time'); });
+      $scope.audio.addEventListener('ended', function(){ $rootScope.$broadcast('audio.ended'); $scope.next(); });
 
       // Current track has changed
       $scope.$on('audio.set', function(e, play) {
@@ -44,6 +44,7 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
           $scope.audio.play();
         } else {
           $scope.audio.pause();
+          $rootScope.$broadcast('audio.pause');
         }
         $scope.track = track;
       });
@@ -53,6 +54,7 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
         $scope.track = null;
         $scope.audio.pause();
         $scope.audio.src = '';
+        $rootScope.$broadcast('audio.ended');
       });
 
       // Returns current track progression

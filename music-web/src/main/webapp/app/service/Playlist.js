@@ -5,8 +5,21 @@
  */
 App.factory('Playlist', function($rootScope, Restangular, $timeout) {
   var currentTrack = null;
+  var currentStatus = 'stopped';
   var tracks = [];
 
+  // Maintain updated status
+  $rootScope.$on('audio.play', function() {
+    currentStatus = 'playing';
+  });
+  $rootScope.$on('audio.pause', function() {
+    currentStatus = 'paused';
+  });
+  $rootScope.$on('audio.ended', function() {
+    currentStatus = 'stopped';
+  });
+
+  // Service
   var service = {
     /**
      * Play a track from the current playlist.
@@ -17,6 +30,27 @@ App.factory('Playlist', function($rootScope, Restangular, $timeout) {
         currentTrack = _currentTrack;
         $rootScope.$broadcast('audio.set', true);
       }
+    },
+
+    /**
+     * Returns the current status.
+     * @returns {string}
+     */
+    currentStatus: function() {
+      return currentStatus;
+    },
+
+    /**
+     * Move a track in the playlist
+     * @param order
+     * @param neworder
+     */
+    moveTrack: function(order, neworder) {
+      Restangular.one('playlist', order).post('move', {
+        neworder: neworder
+      }).then(function() {
+        service.update();
+      });
     },
 
     /**

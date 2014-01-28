@@ -177,7 +177,7 @@ public class PlaylistResource extends BaseResource {
         List<JSONObject> tracks = new ArrayList<JSONObject>();
         TrackDao trackDao = new TrackDao();
         List<TrackDto> trackList = trackDao.findByCriteria(new TrackCriteria().setUserId(principal.getId()));
-        int i = 1;
+        int i = 0;
         for (TrackDto trackDto : trackList) {
             JSONObject track = new JSONObject();
             track.put("order", i++);
