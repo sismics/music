@@ -7,16 +7,19 @@ import com.sismics.music.core.dao.jpa.criteria.TrackCriteria;
 import com.sismics.music.core.dao.jpa.dto.TrackDto;
 import com.sismics.music.core.model.jpa.Playlist;
 import com.sismics.music.core.model.jpa.Track;
+import com.sismics.music.core.util.TransactionUtil;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
 import com.sismics.rest.util.ValidationUtil;
+
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +71,32 @@ public class PlaylistResource extends BaseResource {
 
         // Insert the track into the playlist
         playlistTrackDao.insertPlaylistTrack(playlist.getId(), track.getId(), order);
+
+        // Always return OK
+        JSONObject response = new JSONObject();
+        response.put("status", "ok");
+        return Response.ok().entity(response).build();
+    }
+    
+    /**
+     * Inserts tracks in the playlist.
+     *
+     * @param idList List of track ID
+     * @return Response
+     * @throws JSONException
+     */
+    @PUT
+    @Path("multiple")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response insertTracks(
+            @FormParam("ids") List<String> idList) throws JSONException {
+
+        if (idList != null) {
+            for (String id : idList) {
+                insertTrack(id, null);
+                TransactionUtil.commit();
+            }
+        }
 
         // Always return OK
         JSONObject response = new JSONObject();
@@ -163,7 +192,7 @@ public class PlaylistResource extends BaseResource {
      * Returns all tracks in the playlist.
      *
      * @return Response
-     * @throws org.codehaus.jettison.json.JSONException
+     * @throws JSONException
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -193,6 +222,11 @@ public class PlaylistResource extends BaseResource {
             artist.put("id", trackDto.getArtistId());
             artist.put("name", trackDto.getArtistName());
             track.put("artist", artist);
+            
+            JSONObject album = new JSONObject();
+            album.put("id", trackDto.getAlbumId());
+            album.put("name", trackDto.getAlbumName());
+            track.put("album", album);
 
             tracks.add(track);
         }

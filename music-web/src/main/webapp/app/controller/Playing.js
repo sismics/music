@@ -32,6 +32,11 @@ App.controller('Playing', function($scope, Playlist) {
     Playlist.play(order);
   };
 
+  // Clear the playlist
+  $scope.clear = function() {
+    Playlist.clear(true);
+  };
+
   // Configuration for track sorting
   $scope.trackSortableOptions = {
     forceHelperSize: true,

@@ -4,11 +4,11 @@
       <h1><span class="text-muted">{{ album.artist.name }}</span> {{ album.name }} <small></small></h1>
     </div>
 
-    <ul class="nav nav-pills">
-      <li><a href="#"><span class="glyphicon glyphicon-play"></span> Play all</a></li>
-      <li><a href="#"><span class="glyphicon glyphicon-random"></span> Shuffle</a></li>
-      <li><a href="#"><span class="glyphicon glyphicon-plus"></span> Add all</a></li>
-    </ul>
+    <div class="btn-toolbar" role="toolbar">
+      <button class="btn btn-link" ng-click="playAllTracks()"><span class="glyphicon glyphicon-play"></span> Play all</button>
+      <button class="btn btn-link" ng-click="shuffleAllTracks()"><span class="glyphicon glyphicon-random"></span> Shuffle</button>
+      <button class="btn btn-link" ng-click="addAllTracks()"><span class="glyphicon glyphicon-plus"></span> Add all</button>
+    </div>
 
     <div class="row">
       <div class="col-md-7">

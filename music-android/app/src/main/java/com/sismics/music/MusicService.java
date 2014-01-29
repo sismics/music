@@ -129,7 +129,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
     // our RemoteControlClient object, which will use remote control APIs available in
     // SDK level >= 14, if they're available.
-    RemoteControlClientCompat mRemoteControlClientCompat;
+    RemoteControlClient mRemoteControlClient;
 
     // Dummy album art we will pass to the remote control (if the APIs are available).
     Bitmap mDummyAlbumArt;
@@ -181,7 +181,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
         // Create the retriever and start an asynchronous task that will prepare it.
         mRetriever = new MusicRetriever(getContentResolver());
-        (new PrepareMusicRetrieverTask(mRetriever,this)).execute();
+        (new PrepareMusicRetrieverTask(mRetriever, this)).execute();
 
         // create the Audio Focus Helper, if the Audio Focus feature is available (SDK 8 or above)
         if (android.os.Build.VERSION.SDK_INT >= 8)
@@ -265,8 +265,8 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         }
 
         // Tell any remote controls that our playback state is 'playing'.
-        if (mRemoteControlClientCompat != null) {
-            mRemoteControlClientCompat
+        if (mRemoteControlClient != null) {
+            mRemoteControlClient
                     .setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
         }
     }
@@ -288,8 +288,8 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         }
 
         // Tell any remote controls that our playback state is 'paused'.
-        if (mRemoteControlClientCompat != null) {
-            mRemoteControlClientCompat
+        if (mRemoteControlClient != null) {
+            mRemoteControlClient
                     .setPlaybackState(RemoteControlClient.PLAYSTATE_PAUSED);
         }
     }
@@ -319,8 +319,8 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             giveUpAudioFocus();
 
             // Tell any remote controls that our playback state is 'paused'.
-            if (mRemoteControlClientCompat != null) {
-                mRemoteControlClientCompat
+            if (mRemoteControlClient != null) {
+                mRemoteControlClient
                         .setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
             }
 
@@ -449,42 +449,36 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
             // Use the media button APIs (if available) to register ourselves for media button
             // events
-
-            MediaButtonHelper.registerMediaButtonEventReceiverCompat(
-                    mAudioManager, mMediaButtonReceiverComponent);
+            mAudioManager.registerMediaButtonEventReceiver(mMediaButtonReceiverComponent);
 
             // Use the remote control APIs (if available) to set the playback state
-
-            if (mRemoteControlClientCompat == null) {
+            if (mRemoteControlClient == null) {
                 Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
                 intent.setComponent(mMediaButtonReceiverComponent);
-                mRemoteControlClientCompat = new RemoteControlClientCompat(
+                mRemoteControlClient = new RemoteControlClient(
                         PendingIntent.getBroadcast(this /*context*/,
                                 0 /*requestCode, ignored*/, intent /*intent*/, 0 /*flags*/));
-                RemoteControlHelper.registerRemoteControlClient(mAudioManager,
-                        mRemoteControlClientCompat);
+                mAudioManager.registerRemoteControlClient(mRemoteControlClient);
             }
 
-            mRemoteControlClientCompat.setPlaybackState(
+            mRemoteControlClient.setPlaybackState(
                     RemoteControlClient.PLAYSTATE_PLAYING);
 
-            mRemoteControlClientCompat.setTransportControlFlags(
+            mRemoteControlClient.setTransportControlFlags(
                     RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
                     RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
                     RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
                     RemoteControlClient.FLAG_KEY_MEDIA_STOP);
 
             // Update the remote controls
-            mRemoteControlClientCompat.editMetadata(true)
+            mRemoteControlClient.editMetadata(true)
                     .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, playingItem.getArtist())
                     .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, playingItem.getAlbum())
                     .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, playingItem.getTitle())
                     .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
                             playingItem.getDuration())
                     // TODO: fetch real item artwork
-                    .putBitmap(
-                            RemoteControlClientCompat.MetadataEditorCompat.METADATA_KEY_ARTWORK,
-                            mDummyAlbumArt)
+                    .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, mDummyAlbumArt)
                     .apply();
 
             // starts preparing the media player in the background. When it's done, it will call
@@ -522,7 +516,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
     /** Updates the notification. */
     void updateNotification(String text) {
-        PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
+        PendingIntent pi = PendingIntent.getActivity(this, 0,
                 new Intent(getApplicationContext(), MainActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT);
         mNotification.setLatestEventInfo(getApplicationContext(), "Sismics Music", text, pi);
@@ -535,7 +529,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
      * user as a notification. That's why we create the notification here.
      */
     void setUpAsForeground(String text) {
-        PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
+        PendingIntent pi = PendingIntent.getActivity(this, 0,
                 new Intent(getApplicationContext(), MainActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT);
         mNotification = new Notification();
@@ -552,7 +546,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
      * the Error state. We warn the user about the error and reset the media player.
      */
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        Toast.makeText(getApplicationContext(), "Media player error! Resetting.",
+        Toast.makeText(this, "Media player error! Resetting.",
             Toast.LENGTH_SHORT).show();
         Log.e(TAG, "Error: what=" + String.valueOf(what) + ", extra=" + String.valueOf(extra));
 
@@ -563,7 +557,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     }
 
     public void onGainedAudioFocus() {
-        Toast.makeText(getApplicationContext(), "gained audio focus.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "gained audio focus.", Toast.LENGTH_SHORT).show();
         mAudioFocus = AudioFocus.Focused;
 
         // restart media player with new focus settings
@@ -572,7 +566,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     }
 
     public void onLostAudioFocus(boolean canDuck) {
-        Toast.makeText(getApplicationContext(), "lost audio focus." + (canDuck ? "can duck" :
+        Toast.makeText(this, "lost audio focus." + (canDuck ? "can duck" :
             "no duck"), Toast.LENGTH_SHORT).show();
         mAudioFocus = canDuck ? AudioFocus.NoFocusCanDuck : AudioFocus.NoFocusNoDuck;
 

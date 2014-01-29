@@ -28,7 +28,7 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
       // Mute/unmute volume
       $scope.mute = function() {
         $scope.audio.volume == 0 ? $scope.audio.volume = 1 : $scope.audio.volume = 0;
-      }
+      };
 
       // Listen for audio-element events, and broadcast stuff
       $scope.audio.addEventListener('play', function(){ $rootScope.$broadcast('audio.play'); });
@@ -66,7 +66,21 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
       $scope.seek = function(e) {
         var offX = e.clientX - $(e.delegateTarget).offset().left;
         $scope.audio.currentTime = offX / e.delegateTarget.clientWidth * $scope.audio.duration;
+      };
+
+      // Toggle repeat
+      $scope.repeat = Playlist.isRepeat();
+      $scope.toggleRepeat = function() {
+        Playlist.toggleRepeat();
+        $scope.repeat = Playlist.isRepeat();
       }
+
+      // Toggle shuffle
+      $scope.shuffle = Playlist.isShuffle();
+      $scope.toggleShuffle = function() {
+        Playlist.toggleShuffle();
+        $scope.shuffle = Playlist.isShuffle();
+      };
 
       // Update display of things - makes time-scrub work
       setInterval(function(){ $scope.$apply(); }, 250);

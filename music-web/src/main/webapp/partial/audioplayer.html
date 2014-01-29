@@ -1,12 +1,15 @@
 <div class="row">
 
-  <div class="col-md-1 text-right btn-play">
+  <div class="col-md-2 text-right btn-play">
     <button type="button" class="btn btn-primary" ng-click="playpause()">
       <span class="glyphicon" ng-class="{ 'glyphicon-play': audio.paused, 'glyphicon-pause': !audio.paused }"></span>
     </button>
+    <button type="button" class="btn btn-primary" ng-click="next()">
+      <span class="glyphicon glyphicon-step-forward"></span>
+    </button>
   </div>
 
-  <div class="col-md-7 now-playing">
+  <div class="col-md-6 now-playing">
     <div ng-show="track">
       <span class="text-muted">{{ track.artist.name }}</span> {{ track.title }}
       <div class="progress" ng-click="seek($event)">
@@ -15,7 +18,7 @@
     </div>
   </div>
 
-  <div class="col-md-3 info">
+  <div class="col-md-2 info">
     <div ng-show="audio.duration && track">
       {{ audio.currentTime | duration }}/{{ audio.duration | duration }}sec
       <span class="glyphicon glyphicon-volume-up"
@@ -24,11 +27,25 @@
     </div>
   </div>
 
-  <div class="col-md-1 playing">
-    <button type="button" class="btn btn-default" tooltip="Playing queue"
-        ng-click="openNowPlaying()" ng-class="{active: $uiRoute}" ui-route="/playing">
-      <span class="glyphicon glyphicon-list"></span>
-    </button>
+  <div class="col-md-2 playing">
+    <div class="btn-toolbar" role="toolbar">
+      <div class="btn-group">
+        <button type="button" class="btn btn-default" tooltip="Playing queue"
+                ng-click="openNowPlaying()" ng-class="{active: $uiRoute}" ui-route="/playing">
+          <span class="glyphicon glyphicon-list"></span>
+        </button>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-default" tooltip="Repeat playlist" tooltip-append-to-body="true"
+                ng-click="toggleRepeat()" ng-class="{active: repeat}">
+          <span class="glyphicon glyphicon-repeat"></span>
+        </button>
+        <button class="btn btn-default" tooltip="Shuffle playing" tooltip-append-to-body="true"
+                ng-click="toggleShuffle()" ng-class="{active: shuffle}">
+          <span class="glyphicon glyphicon-random"></span>
+        </button>
+      </div>
+    </div>
   </div>
 
 </div>

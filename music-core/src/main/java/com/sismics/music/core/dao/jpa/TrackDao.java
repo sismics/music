@@ -1,17 +1,21 @@
 package com.sismics.music.core.dao.jpa;
 
-import com.google.common.base.Joiner;
-import com.sismics.music.core.dao.jpa.criteria.AlbumCriteria;
-import com.sismics.music.core.dao.jpa.criteria.TrackCriteria;
-import com.sismics.music.core.dao.jpa.dto.AlbumDto;
-import com.sismics.music.core.dao.jpa.dto.TrackDto;
-import com.sismics.music.core.model.jpa.Track;
-import com.sismics.util.context.ThreadLocalContext;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
-import java.util.*;
+
+import com.google.common.base.Joiner;
+import com.sismics.music.core.dao.jpa.criteria.TrackCriteria;
+import com.sismics.music.core.dao.jpa.dto.TrackDto;
+import com.sismics.music.core.model.jpa.Track;
+import com.sismics.util.context.ThreadLocalContext;
 
 /**
  * Track DAO.
@@ -99,9 +103,10 @@ public class TrackDao {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
         StringBuilder sb = new StringBuilder("select t.TRK_ID_C, t.TRK_FILENAME_C, t.TRK_TITLE_C, t.TRK_YEAR_N, t.TRK_LENGTH_N, t.TRK_BITRATE_N, t.TRK_VBR_B, t.TRK_FORMAT_C, ");
-        sb.append(" a.ART_ID_C, a.ART_NAME_C ");
+        sb.append(" a.ART_ID_C, a.ART_NAME_C, t.TRK_IDALBUM_C, alb.ALB_NAME_C ");
         sb.append(" from T_TRACK t ");
         sb.append(" join T_ARTIST a ON(a.ART_ID_C = t.TRK_IDARTIST_C) ");
+        sb.append(" join T_ALBUM alb ON(t.TRK_IDALBUM_C = alb.ALB_ID_C) ");
         if (criteria.getUserId() != null) {
             sb.append(" join T_PLAYLIST_TRACK pt ON(pt.PLT_IDTRACK_C = t.TRK_ID_C) ");
             sb.append(" join T_PLAYLIST p ON(p.PLL_ID_C = pt.PLT_IDPLAYLIST_C) ");
@@ -153,6 +158,8 @@ public class TrackDao {
             trackDto.setFormat((String) o[i++]);
             trackDto.setArtistId((String) o[i++]);
             trackDto.setArtistName((String) o[i++]);
+            trackDto.setAlbumId((String) o[i++]);
+            trackDto.setAlbumName((String) o[i++]);
             trackDtoList.add(trackDto);
         }
         return trackDtoList;
