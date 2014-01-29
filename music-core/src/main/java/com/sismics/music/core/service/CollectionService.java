@@ -1,5 +1,17 @@
 package com.sismics.music.core.service;
 
+import java.io.File;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.lang.StringUtils;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.AudioHeader;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.AbstractScheduledService;
 import com.sismics.music.core.dao.jpa.AlbumDao;
@@ -10,17 +22,6 @@ import com.sismics.music.core.model.jpa.Artist;
 import com.sismics.music.core.model.jpa.Directory;
 import com.sismics.music.core.model.jpa.Track;
 import com.sismics.music.core.util.TransactionUtil;
-
-import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.audio.AudioHeader;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Collection service.
@@ -149,8 +150,8 @@ public class CollectionService extends AbstractScheduledService {
                 }
             }
             
-            track.setTitle(tag.getFirst(FieldKey.TITLE));
-            String artistName = tag.getFirst(FieldKey.ARTIST);
+            track.setTitle(StringUtils.abbreviate(tag.getFirst(FieldKey.TITLE), 2000));
+            String artistName = StringUtils.abbreviate(tag.getFirst(FieldKey.ARTIST), 1000);;
             ArtistDao artistDao = new ArtistDao();
             Artist artist = artistDao.getActiveByName(artistName);
             if (artist == null) {
@@ -160,7 +161,7 @@ public class CollectionService extends AbstractScheduledService {
             }
             track.setArtistId(artist.getId());
 
-            String albumArtistName = tag.getFirst(FieldKey.ALBUM_ARTIST);
+            String albumArtistName = StringUtils.abbreviate(tag.getFirst(FieldKey.ALBUM_ARTIST), 1000);
             Artist albumArtist = null;
             if (!Strings.isNullOrEmpty(albumArtistName)) {
                 albumArtist = artistDao.getActiveByName(albumArtistName);
@@ -173,7 +174,7 @@ public class CollectionService extends AbstractScheduledService {
                 albumArtist = artist;
             }
 
-            String albumName = tag.getFirst(FieldKey.ALBUM);
+            String albumName = StringUtils.abbreviate(tag.getFirst(FieldKey.ALBUM), 1000);
             AlbumDao albumDao = new AlbumDao();
             Album album = albumDao.getActiveByArtistIdAndName(albumArtist.getId(), albumName);
             if (album == null) {

@@ -38,7 +38,7 @@ public class Album {
     /**
      * Album title.
      */
-    @Column(name = "ALB_NAME_C", nullable = false, length = 100)
+    @Column(name = "ALB_NAME_C", nullable = false, length = 1000)
     private String name;
 
     /**
