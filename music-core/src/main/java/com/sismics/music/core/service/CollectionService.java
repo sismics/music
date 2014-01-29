@@ -140,8 +140,16 @@ public class CollectionService extends AbstractScheduledService {
             track.setFormat(header.getEncodingType());
             track.setVbr(header.isVariableBitRate());
 
+            String year = tag.getFirst(FieldKey.YEAR);
+            if (!Strings.isNullOrEmpty(year)) {
+                try {
+                    track.setYear(Integer.valueOf(year));
+                } catch (NumberFormatException e) {
+                    // Ignore parsing errors
+                }
+            }
+            
             track.setTitle(tag.getFirst(FieldKey.TITLE));
-            track.setYear(Integer.valueOf(tag.getFirst(FieldKey.YEAR)));
             String artistName = tag.getFirst(FieldKey.ARTIST);
             ArtistDao artistDao = new ArtistDao();
             Artist artist = artistDao.getActiveByName(artistName);
