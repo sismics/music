@@ -1,5 +1,6 @@
 package com.sismics.music.core.service;
 
+import com.google.common.base.Strings;
 import com.google.common.util.concurrent.AbstractScheduledService;
 import com.sismics.music.core.dao.jpa.AlbumDao;
 import com.sismics.music.core.dao.jpa.ArtistDao;
@@ -9,6 +10,7 @@ import com.sismics.music.core.model.jpa.Artist;
 import com.sismics.music.core.model.jpa.Directory;
 import com.sismics.music.core.model.jpa.Track;
 import com.sismics.music.core.util.TransactionUtil;
+
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
@@ -152,7 +154,7 @@ public class CollectionService extends AbstractScheduledService {
 
             String albumArtistName = tag.getFirst(FieldKey.ALBUM_ARTIST);
             Artist albumArtist = null;
-            if (albumArtistName != null) {
+            if (!Strings.isNullOrEmpty(albumArtistName)) {
                 albumArtist = artistDao.getActiveByName(albumArtistName);
                 if (albumArtist == null) {
                     albumArtist = new Artist();
