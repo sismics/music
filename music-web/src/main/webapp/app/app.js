@@ -5,7 +5,7 @@
  */
 var App = angular.module('music',
     // Dependencies
-    ['ui.router', 'ui.bootstrap', 'dialog', 'ui.route', 'restangular', 'ui.sortable']
+    ['ui.router', 'ui.bootstrap', 'dialog', 'ui.route', 'restangular', 'ui.sortable', 'pasvaz.bindonce']
   )
 
 /**
