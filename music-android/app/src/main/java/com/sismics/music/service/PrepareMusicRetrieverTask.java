@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.sismics.music;
+package com.sismics.music.service;
 
 import android.os.AsyncTask;
 

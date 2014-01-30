@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.sismics.music;
+package com.sismics.music.service;
 
 /**
  * Represents something that can react to audio focus events. We implement this instead of just

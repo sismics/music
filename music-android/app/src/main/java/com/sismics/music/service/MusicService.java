@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.sismics.music;
+package com.sismics.music.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -40,13 +40,16 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.sismics.music.activity.MusicActivity;
+import com.sismics.music.R;
+
 import java.io.IOException;
 
 /**
  * Service that handles media playback. This is the Service through which we perform all the media
  * handling in our application. Upon initialization, it starts a {@link MusicRetriever} to scan
  * the user's media. Then, it waits for Intents (which come from our main activity,
- * {@link MainActivity}, which signal the service to perform specific operations: Play, Pause,
+ * {@link com.sismics.music.activity.MusicActivity}, which signal the service to perform specific operations: Play, Pause,
  * Rewind, Skip, etc.
  */
 public class MusicService extends Service implements OnCompletionListener, OnPreparedListener,
@@ -382,7 +385,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
     void processAddRequest(Intent intent) {
         // user wants to play a song directly by URL or path. The URL or path comes in the "data"
-        // part of the Intent. This Intent is sent by {@link MainActivity} after the user
+        // part of the Intent. This Intent is sent by {@link MusicActivity} after the user
         // specifies the URL/path via an alert box.
         if (mState == State.Retrieving) {
             // we'll play the requested URL right after we finish retrieving
@@ -517,7 +520,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     /** Updates the notification. */
     void updateNotification(String text) {
         PendingIntent pi = PendingIntent.getActivity(this, 0,
-                new Intent(getApplicationContext(), MainActivity.class),
+                new Intent(getApplicationContext(), MusicActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT);
         mNotification.setLatestEventInfo(getApplicationContext(), "Sismics Music", text, pi);
         mNotificationManager.notify(NOTIFICATION_ID, mNotification);
@@ -530,7 +533,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
      */
     void setUpAsForeground(String text) {
         PendingIntent pi = PendingIntent.getActivity(this, 0,
-                new Intent(getApplicationContext(), MainActivity.class),
+                new Intent(getApplicationContext(), MusicActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT);
         mNotification = new Notification();
         mNotification.tickerText = text;

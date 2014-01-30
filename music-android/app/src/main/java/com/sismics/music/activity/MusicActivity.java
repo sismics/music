@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.sismics.music;
+package com.sismics.music.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -28,12 +28,15 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.sismics.music.R;
+import com.sismics.music.service.MusicService;
+
 /** 
  * Main activity: shows media player buttons. This activity shows the media player buttons and
  * lets the user click them. No media handling is done here -- everything is done by passing
- * Intents to our {@link MusicService}.
+ * Intents to our {@link com.sismics.music.service.MusicService}.
  * */
-public class MainActivity extends Activity implements OnClickListener {
+public class MusicActivity extends Activity implements OnClickListener {
     /**
      * The URL we suggest as default when adding by URL. This is just so that the user doesn't
      * have to find an URL to test this sample.
@@ -49,7 +52,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
     /**
      * Called when the activity is first created. Here, we simply set the event listeners and
-     * start the background service ({@link MusicService}) that will handle the actual media
+     * start the background service ({@link com.sismics.music.service.MusicService}) that will handle the actual media
      * playback.
      */
     @Override
