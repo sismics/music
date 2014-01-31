@@ -32,7 +32,6 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.media.RemoteControlClient;
-import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
 import android.os.IBinder;
@@ -40,21 +39,20 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.sismics.music.activity.MusicActivity;
 import com.sismics.music.R;
+import com.sismics.music.activity.MusicActivity;
+import com.sismics.music.model.Playlist;
 
 import java.io.IOException;
 
 /**
  * Service that handles media playback. This is the Service through which we perform all the media
- * handling in our application. Upon initialization, it starts a {@link MusicRetriever} to scan
- * the user's media. Then, it waits for Intents (which come from our main activity,
+ * handling in our application. Then, it waits for Intents (which come from our main activity,
  * {@link com.sismics.music.activity.MusicActivity}, which signal the service to perform specific operations: Play, Pause,
  * Rewind, Skip, etc.
  */
 public class MusicService extends Service implements OnCompletionListener, OnPreparedListener,
-                OnErrorListener, MusicFocusable,
-                PrepareMusicRetrieverTask.MusicRetrieverPreparedListener {
+                OnErrorListener, MusicFocusable {
 
     // The tag we put on debug messages
     final static String TAG = "SismicsMusic";
@@ -69,7 +67,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     public static final String ACTION_STOP = "com.sismics.music.action.STOP";
     public static final String ACTION_SKIP = "com.sismics.music.action.SKIP";
     public static final String ACTION_REWIND = "com.sismics.music.action.REWIND";
-    public static final String ACTION_URL = "com.sismics.music.action.URL";
 
     // The volume we set the media player to when we lose audio focus, but are allowed to reduce
     // the volume instead of stopping playback.
@@ -95,14 +92,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
     State mState = State.Retrieving;
 
-    // if in Retrieving mode, this flag indicates whether we should start playing immediately
-    // when we are ready or not.
-    boolean mStartPlayingAfterRetrieve = false;
-
-    // if mStartPlayingAfterRetrieve is true, this variable indicates the URL that we should
-    // start playing when we are ready. If null, we should play a random song from the device
-    Uri mWhatToPlayAfterRetrieve = null;
-
     // do we have audio focus?
     enum AudioFocus {
         NoFocusNoDuck,    // we don't have audio focus, and can't duck
@@ -111,11 +100,12 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     }
     AudioFocus mAudioFocus = AudioFocus.NoFocusNoDuck;
 
+    // if in Retrieving mode, this flag indicates whether we should start playing immediately
+    // when we are ready or not.
+    boolean mStartPlayingAfterRetrieve = false;
+
     // title of the song we are currently playing
     String mSongTitle = "";
-
-    // whether the song we are playing is streaming from the network
-    boolean mIsStreaming = false;
 
     // Wifi lock that we hold when streaming files from the internet, in order to prevent the
     // device from shutting off the Wifi radio
@@ -125,10 +115,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     // area at the top of the screen as an icon -- and as text as well if the user expands the
     // notification area).
     final int NOTIFICATION_ID = 1;
-
-    // Our instance of our MusicRetriever, which handles scanning for media and
-    // providing titles and URIs as we need.
-    MusicRetriever mRetriever;
 
     // our RemoteControlClient object, which will use remote control APIs available in
     // SDK level >= 14, if they're available.
@@ -182,15 +168,8 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
-        // Create the retriever and start an asynchronous task that will prepare it.
-        mRetriever = new MusicRetriever(getContentResolver());
-        (new PrepareMusicRetrieverTask(mRetriever, this)).execute();
-
         // create the Audio Focus Helper, if the Audio Focus feature is available (SDK 8 or above)
-        if (android.os.Build.VERSION.SDK_INT >= 8)
-            mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), this);
-        else
-            mAudioFocus = AudioFocus.Focused; // no focus feature, so we always "have" audio focus
+        mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), this);
 
         mDummyAlbumArt = BitmapFactory.decodeResource(getResources(), R.drawable.dummy_album_art);
 
@@ -225,8 +204,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                     break;
                 case ACTION_STOP:
                     processStopRequest();
-                case ACTION_URL:
-                    processAddRequest(intent);
                     break;
             }
         }
@@ -247,7 +224,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         if (mState == State.Retrieving) {
             // If we are still retrieving media, just set the flag to start playing when we're
             // ready
-            mWhatToPlayAfterRetrieve = null; // play a random song
             mStartPlayingAfterRetrieve = true;
             return;
         }
@@ -258,7 +234,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
         if (mState == State.Stopped) {
             // If we're stopped, just go ahead to the next song and start playing
-            playNextSong(null);
+            playNextSong();
         }
         else if (mState == State.Paused) {
             // If we're paused, just continue playback and restore the 'foreground service' state.
@@ -305,7 +281,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     void processSkipRequest() {
         if (mState == State.Playing || mState == State.Paused) {
             tryToGetAudioFocus();
-            playNextSong(null);
+            playNextSong();
         }
     }
 
@@ -383,22 +359,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         if (!mPlayer.isPlaying()) mPlayer.start();
     }
 
-    void processAddRequest(Intent intent) {
-        // user wants to play a song directly by URL or path. The URL or path comes in the "data"
-        // part of the Intent. This Intent is sent by {@link MusicActivity} after the user
-        // specifies the URL/path via an alert box.
-        if (mState == State.Retrieving) {
-            // we'll play the requested URL right after we finish retrieving
-            mWhatToPlayAfterRetrieve = intent.getData();
-            mStartPlayingAfterRetrieve = true;
-        }
-        else if (mState == State.Playing || mState == State.Paused || mState == State.Stopped) {
-            Log.i(TAG, "Playing from URL/path: " + intent.getData());
-            tryToGetAudioFocus();
-            playNextSong(intent.getDataString());
-        }
-    }
-
     void tryToGetAudioFocus() {
         if (mAudioFocus != AudioFocus.Focused && mAudioFocusHelper != null
                         && mAudioFocusHelper.requestFocus())
@@ -411,41 +371,23 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
      * manualUrl is non-null, then it specifies the URL or path to the song that will be played
      * next.
      */
-    void playNextSong(String manualUrl) {
+    void playNextSong() {
         mState = State.Stopped;
         relaxResources(false); // release everything except MediaPlayer
 
         try {
-            MusicRetriever.Item playingItem;
-            if (manualUrl != null) {
-                // set the source of the media player to a manual URL or path
-                createMediaPlayerIfNeeded();
-                mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                mPlayer.setDataSource(manualUrl);
-                mIsStreaming = manualUrl.startsWith("http:") || manualUrl.startsWith("https:");
-
-                playingItem = new MusicRetriever.Item(0, null, manualUrl, null, 0);
-            }
-            else {
-                mIsStreaming = false; // playing a locally available song
-
-                playingItem = mRetriever.getRandomItem();
-                if (playingItem == null) {
-                    Toast.makeText(this,
-                            "No available music to play. Place some music on your external storage "
-                            + "device (e.g. your SD card) and try again.",
-                            Toast.LENGTH_LONG).show();
-                    processStopRequest(true); // stop everything!
-                    return;
-                }
-
-                // set the source of the media player a a content URI
-                createMediaPlayerIfNeeded();
-                mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                mPlayer.setDataSource(getApplicationContext(), playingItem.getURI());
+            Playlist.Track nextTrack = Playlist.next();
+            if (nextTrack == null) {
+                return;
             }
 
-            mSongTitle = playingItem.getTitle();
+            // set the source of the media player to a manual URL or path
+            createMediaPlayerIfNeeded();
+            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            String url = nextTrack.getUrl(this);
+            mPlayer.setDataSource(url);
+
+            mSongTitle = nextTrack.getTitle();
 
             mState = State.Preparing;
             setUpAsForeground(mSongTitle + " (loading)");
@@ -475,11 +417,11 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
             // Update the remote controls
             mRemoteControlClient.editMetadata(true)
-                    .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, playingItem.getArtist())
-                    .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, playingItem.getAlbum())
-                    .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, playingItem.getTitle())
+                    .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, nextTrack.getArtist())
+                    .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, nextTrack.getAlbum())
+                    .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, nextTrack.getTitle())
                     .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
-                            playingItem.getDuration())
+                            nextTrack.getDuration())
                     // TODO: fetch real item artwork
                     .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, mDummyAlbumArt)
                     .apply();
@@ -492,10 +434,8 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             mPlayer.prepareAsync();
 
             // If we are streaming from the internet, we want to hold a Wifi lock, which prevents
-            // the Wifi radio from going to sleep while the song is playing. If, on the other hand,
-            // we are *not* streaming, we want to release the lock if we were holding it before.
-            if (mIsStreaming) mWifiLock.acquire();
-            else if (mWifiLock.isHeld()) mWifiLock.release();
+            // the Wifi radio from going to sleep while the song is playing.
+            mWifiLock.acquire();
         }
         catch (IOException ex) {
             Log.e("MusicService", "IOException playing next song: " + ex.getMessage());
@@ -506,7 +446,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     /** Called when media player is done playing current song. */
     public void onCompletion(MediaPlayer player) {
         // The media player finished playing the current song, so we go ahead and start the next.
-        playNextSong(null);
+        playNextSong();
     }
 
     /** Called when media player is done preparing. */
@@ -577,19 +517,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         if (mPlayer != null && mPlayer.isPlaying())
             configAndStartMediaPlayer();
     }
-
-    public void onMusicRetrieverPrepared() {
-        // Done retrieving!
-        mState = State.Stopped;
-
-        // If the flag indicates we should start playing after retrieving, let's do that now.
-        if (mStartPlayingAfterRetrieve) {
-            tryToGetAudioFocus();
-            playNextSong(mWhatToPlayAfterRetrieve == null ?
-                    null : mWhatToPlayAfterRetrieve.toString());
-        }
-    }
-
 
     @Override
     public void onDestroy() {

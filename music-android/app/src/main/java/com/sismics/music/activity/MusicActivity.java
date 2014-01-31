@@ -17,16 +17,12 @@
 package com.sismics.music.activity;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 
 import com.sismics.music.R;
 import com.sismics.music.service.MusicService;
@@ -37,18 +33,12 @@ import com.sismics.music.service.MusicService;
  * Intents to our {@link com.sismics.music.service.MusicService}.
  * */
 public class MusicActivity extends Activity implements OnClickListener {
-    /**
-     * The URL we suggest as default when adding by URL. This is just so that the user doesn't
-     * have to find an URL to test this sample.
-     */
-    final String SUGGESTED_URL = "http://www.vorbis.com/music/Epoq-Lepidoptera.ogg";
 
     Button mPlayButton;
     Button mPauseButton;
     Button mSkipButton;
     Button mRewindButton;
     Button mStopButton;
-    Button mEjectButton;
 
     /**
      * Called when the activity is first created. Here, we simply set the event listeners and
@@ -65,14 +55,12 @@ public class MusicActivity extends Activity implements OnClickListener {
         mSkipButton = (Button) findViewById(R.id.skipbutton);
         mRewindButton = (Button) findViewById(R.id.rewindbutton);
         mStopButton = (Button) findViewById(R.id.stopbutton);
-        mEjectButton = (Button) findViewById(R.id.ejectbutton);
 
         mPlayButton.setOnClickListener(this);
         mPauseButton.setOnClickListener(this);
         mSkipButton.setOnClickListener(this);
         mRewindButton.setOnClickListener(this);
         mStopButton.setOnClickListener(this);
-        mEjectButton.setOnClickListener(this);
     }
 
     public void onClick(View target) {
@@ -87,40 +75,6 @@ public class MusicActivity extends Activity implements OnClickListener {
             startService(new Intent(MusicService.ACTION_REWIND));
         else if (target == mStopButton)
             startService(new Intent(MusicService.ACTION_STOP));
-        else if (target == mEjectButton) {
-            showUrlDialog();
-        }
-    }
-
-    /** 
-     * Shows an alert dialog where the user can input a URL. After showing the dialog, if the user
-     * confirms, sends the appropriate intent to the {@link MusicService} to cause that URL to be
-     * played.
-     */
-    void showUrlDialog() {
-        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
-        alertBuilder.setTitle("Manual Input");
-        alertBuilder.setMessage("Enter a URL (must be http://)");
-        final EditText input = new EditText(this);
-        alertBuilder.setView(input);
-
-        input.setText(SUGGESTED_URL);
-
-        alertBuilder.setPositiveButton("Play!", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dlg, int whichButton) {
-                // Send an intent with the URL of the song to play. This is expected by
-                // MusicService.
-                Intent i = new Intent(MusicService.ACTION_URL);
-                Uri uri = Uri.parse(input.getText().toString());
-                i.setData(uri);
-                startService(i);
-            }
-        });
-        alertBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dlg, int whichButton) {}
-        });
-
-        alertBuilder.show();
     }
 
     @Override

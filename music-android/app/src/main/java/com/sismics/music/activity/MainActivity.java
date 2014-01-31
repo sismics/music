@@ -5,14 +5,18 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
 import com.sismics.music.fragment.MyMusicFragment;
+import com.sismics.music.model.ApplicationContext;
+import com.sismics.music.resource.UserResource;
 
 import java.util.Locale;
 
@@ -36,6 +40,14 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Check if logged in
+        if (!ApplicationContext.getInstance().isLoggedIn()) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_main);
 
         // Set up the action bar.
@@ -84,13 +96,23 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.settings:
+                return true;
+
+            case R.id.logout:
+                UserResource.logout(getApplicationContext(), new JsonHttpResponseHandler() {
+                    @Override
+                    public void onFinish() {
+                        // Force logout in all cases, so the user is not stuck in case of network error
+                        ApplicationContext.getInstance().setUserInfo(getApplicationContext(), null);
+                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                        finish();
+                    }
+                });
+                return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 

@@ -1,6 +1,7 @@
 package com.sismics.music.fragment;
 
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,8 +20,7 @@ import org.json.JSONObject;
 
 public class MyMusicFragment extends Fragment {
         /**
-         * Returns a new instance of this fragment for the given section
-         * number.
+         * Returns a new instance of this fragment.
          */
         public static MyMusicFragment newInstance() {
             MyMusicFragment fragment = new MyMusicFragment();
@@ -36,28 +36,28 @@ public class MyMusicFragment extends Fragment {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_my_music, container, false);
-            final AQuery aq = new AQuery(view);
 
-            JSONObject cache = PreferenceUtil.getCachedJson(getActivity(), PreferenceUtil.Pref.CACHED_ALBUMS_LIST_JSON);
-            if (cache != null) {
-                aq.id(R.id.listAlbum).adapter(new AlbumAdapter(getActivity(), cache.optJSONArray("albums")));
+            if (savedInstanceState == null) {
+                // Do first time initialization -- add initial fragment.
+                Fragment newFragment = AlbumListFragment.newInstance(getId());
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.add(R.id.content, newFragment);
+                ft.commit();
             }
-
-            AlbumResource.list(getActivity(), new JsonHttpResponseHandler() {
-                public void onSuccess(final JSONObject json) {
-                    ListView listView = aq.id(R.id.listAlbum).getListView();
-                    JSONArray albums = json.optJSONArray("albums");
-                    PreferenceUtil.setCachedJson(getActivity(), PreferenceUtil.Pref.CACHED_ALBUMS_LIST_JSON, json);
-
-                    AlbumAdapter adapter = (AlbumAdapter) listView.getAdapter();
-                    if (adapter != null) {
-                        adapter.setAlbums(albums);
-                    } else {
-                        listView.setAdapter(new AlbumAdapter(getActivity(), albums));
-                    }
-                }
-            });
 
             return view;
         }
+
+    public void openAlbum(JSONObject item) {
+        // Instantiate a new fragment.
+        Fragment newFragment = AlbumFragment.newInstance(item);
+
+        // Add the fragment to the activity, pushing this transaction
+        // on to the back stack.
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.replace(R.id.content, newFragment);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        ft.addToBackStack(null);
+        ft.commit();
     }
+}

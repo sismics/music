@@ -17,4 +17,10 @@ public class AlbumResource extends BaseResource {
 
         client.get(getApiUrl(context) + "/album", responseHandler);
     }
+
+    public static void info(Context context, String id, JsonHttpResponseHandler responseHandler) {
+        init(context);
+
+        client.get(getApiUrl(context) + "/album/" + id, responseHandler);
+    }
 }
