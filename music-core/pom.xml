@@ -82,16 +82,6 @@
     </dependency>
       
     <dependency>
-      <groupId>org.ccil.cowan.tagsoup</groupId>
-      <artifactId>tagsoup</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
-      <artifactId>owasp-java-html-sanitizer</artifactId>
-    </dependency>
-    
-    <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-core</artifactId>
     </dependency>
@@ -129,6 +119,11 @@
     <dependency>
       <groupId>de.u-mass</groupId>
       <artifactId>lastfm-java</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>org.imgscalr</groupId>
+        <artifactId>imgscalr-lib</artifactId>
     </dependency>
 
     <!-- Test dependencies -->
