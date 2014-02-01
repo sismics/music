@@ -3,7 +3,7 @@
 /**
  * Album controller.
  */
-App.controller('Album', function($scope, $stateParams, Restangular, Playlist) {
+App.controller('Album', function($scope, $stateParams, Restangular, Playlist, $modal) {
   $scope.album = {
     tracks: []
   };
@@ -36,5 +36,13 @@ App.controller('Album', function($scope, $stateParams, Restangular, Playlist) {
   // Add all tracks to the playlist
   $scope.addAllTracks = function() {
     Playlist.addAll(_.pluck($scope.album.tracks, 'id'), false);
+  };
+
+  // Zoom the album art in a modal
+  $scope.zoomAlbumArt = function() {
+    $modal.open({
+      template: '<img src="api/album/' + $scope.album.id + '/albumart/large" />',
+      windowClass: 'album-art-modal'
+    });
   };
 });

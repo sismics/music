@@ -61,7 +61,7 @@ var App = angular.module('music',
         }
       })
       .state('main.music', {
-        url: '/music',
+        url: '/music/*filter',
         views: {
           'content': {
             templateUrl: 'partial/music.html',

@@ -35,7 +35,7 @@
       </div>
 
       <div class="col-md-5">
-        <img ng-if="album.albumart" ng-src="api/album/{{ album.id }}/albumart/large" style="width: 100%;" />
+        <img ng-if="album.albumart" ng-click="zoomAlbumArt()" ng-src="api/album/{{ album.id }}/albumart/large" style="width: 100%;" />
         <div class="pull-right">
           <a ng-href="#/album/{{ album.id }}/albumart">Change album art</a>
         </div>
