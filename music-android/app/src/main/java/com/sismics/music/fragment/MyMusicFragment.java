@@ -19,34 +19,34 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class MyMusicFragment extends Fragment {
-        /**
-         * Returns a new instance of this fragment.
-         */
-        public static MyMusicFragment newInstance() {
-            MyMusicFragment fragment = new MyMusicFragment();
-            Bundle args = new Bundle();
-            fragment.setArguments(args);
-            return fragment;
+    /**
+     * Returns a new instance of this fragment.
+     */
+    public static MyMusicFragment newInstance() {
+        MyMusicFragment fragment = new MyMusicFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public MyMusicFragment() {
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_my_music, container, false);
+
+        if (savedInstanceState == null) {
+            // Do first time initialization -- add initial fragment.
+            Fragment newFragment = AlbumListFragment.newInstance(getId());
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.add(R.id.content, newFragment);
+            ft.commit();
         }
 
-        public MyMusicFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.fragment_my_music, container, false);
-
-            if (savedInstanceState == null) {
-                // Do first time initialization -- add initial fragment.
-                Fragment newFragment = AlbumListFragment.newInstance(getId());
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.add(R.id.content, newFragment);
-                ft.commit();
-            }
-
-            return view;
-        }
+        return view;
+    }
 
     public void openAlbum(JSONObject item) {
         // Instantiate a new fragment.

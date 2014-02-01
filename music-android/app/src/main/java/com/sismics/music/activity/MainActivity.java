@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
 import com.sismics.music.fragment.MyMusicFragment;
+import com.sismics.music.fragment.PlaylistFragment;
 import com.sismics.music.model.ApplicationContext;
 import com.sismics.music.resource.UserResource;
 
@@ -147,14 +148,14 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
                 case 0:
                     return MyMusicFragment.newInstance();
                 case 1:
-                    return null;
+                    return PlaylistFragment.newInstance();
             }
             return null;
         }
 
         @Override
         public int getCount() {
-            return 1;
+            return 2;
         }
 
         @Override

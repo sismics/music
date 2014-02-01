@@ -5,7 +5,12 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 
+import com.loopj.android.http.PersistentCookieStore;
+
+import org.apache.http.cookie.Cookie;
 import org.json.JSONObject;
+
+import java.util.List;
 
 /**
  * Utility class on preferences.
@@ -107,6 +112,7 @@ public class PreferenceUtil {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         Editor editor = sharedPreferences.edit();
         editor.putString(Pref.CACHED_USER_INFO_JSON.name(), null);
+        editor.putString(Pref.CACHED_ALBUMS_LIST_JSON.name(), null);
         editor.commit();
     }
     
@@ -141,4 +147,20 @@ public class PreferenceUtil {
         
         return serverUrl;
     }
+    /**
+     * Returns auth token cookie from shared preferences.
+     * @return Auth token
+     */
+    public static String getAuthToken(Context context) {
+        PersistentCookieStore cookieStore = new PersistentCookieStore(context);
+        List<Cookie> cookieList = cookieStore.getCookies();
+        for (Cookie cookie : cookieList) {
+            if (cookie.getName().equals("auth_token")) {
+                return cookie.getValue();
+            }
+        }
+
+        return null;
+    }
+
 }

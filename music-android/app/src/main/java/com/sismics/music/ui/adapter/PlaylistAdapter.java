@@ -2,6 +2,7 @@ package com.sismics.music.ui.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,7 @@ import org.json.JSONObject;
  * 
  * @author bgamard
  */
-public class TracksAdapter extends BaseAdapter {
+public class PlaylistAdapter extends BaseAdapter {
     /**
      * Context.
      */
@@ -32,16 +33,16 @@ public class TracksAdapter extends BaseAdapter {
      */
     private AQuery aq;
 
-    private JSONArray tracks;
-
     /**
      * Constructor.
      * @param activity Context activity
      */
-    public TracksAdapter(Activity activity, JSONArray tracks) {
+    public PlaylistAdapter(Activity activity) {
         this.activity = activity;
-        this.tracks = tracks;
         this.aq = new AQuery(activity);
+
+        // Register itself to the playlist helper
+        Playlist.registerAdapter(this);
     }
 
     @Override
@@ -50,11 +51,10 @@ public class TracksAdapter extends BaseAdapter {
         
         if (view == null) {
             LayoutInflater vi = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = vi.inflate(R.layout.list_item_track, null);
+            view = vi.inflate(R.layout.list_item_playlist, null);
             aq.recycle(view);
             holder = new ViewHolder();
             holder.trackName = aq.id(R.id.trackName).getTextView();
-            holder.addBtn = aq.id(R.id.add).getButton();
             view.setTag(holder);
         } else {
             aq.recycle(view);
@@ -62,31 +62,35 @@ public class TracksAdapter extends BaseAdapter {
         }
         
         // Filling track data
-        final JSONObject track = getItem(position);
-        holder.trackName.setText(track.optString("title"));
-        holder.addBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Playlist.add(track);
-            }
-        });
+        Playlist.Track track = getItem(position);
+        holder.trackName.setText(track.getTitle());
+        if (Playlist.currentTrack() == track) {
+            view.setBackgroundColor(Color.GRAY);
+        } else {
+            view.setBackgroundColor(Color.TRANSPARENT);
+        }
 
         return view;
     }
 
     @Override
     public int getCount() {
-        return tracks.length();
+        return Playlist.length();
     }
 
     @Override
-    public JSONObject getItem(int position) {
-        return tracks.optJSONObject(position);
+    public Playlist.Track getItem(int position) {
+        return Playlist.getAt(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return position;
+        return Playlist.getAt(position).getId().hashCode();
+    }
+
+    @Override
+    public boolean hasStableIds() {
+        return true;
     }
 
     /**
@@ -96,6 +100,10 @@ public class TracksAdapter extends BaseAdapter {
      */
     private static class ViewHolder {
         TextView trackName;
-        Button addBtn;
+    }
+
+    public void onDestroy() {
+        // Unregister from the playlist helper
+        Playlist.unregisterAdapter(this);
     }
 }

@@ -63,7 +63,7 @@ public class AlbumListFragment extends Fragment {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     AlbumAdapter adapter = (AlbumAdapter) aq.id(R.id.listAlbum).getListView().getAdapter();
                     int parentId = getArguments().getInt("parentId");
-                    MyMusicFragment myMusicFragment = (MyMusicFragment) getFragmentManager().findFragmentById(parentId);
+                    MyMusicFragment myMusicFragment = (MyMusicFragment) getFragmentManager().findFragmentByTag("android:switcher:" + parentId + ":0");
                     myMusicFragment.openAlbum(adapter.getItem(position));
                 }
             });

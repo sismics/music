@@ -18,7 +18,7 @@ import org.json.JSONObject;
  * 
  * @author bgamard
  */
-@ReportsCrashes(formKey = "",
+/*@ReportsCrashes(formKey = "",
         httpMethod = Method.PUT,
         reportType = Type.JSON,
         formUri = "http://acralyzer.sismics.com/music-report",
@@ -26,11 +26,11 @@ import org.json.JSONObject;
         formUriBasicAuthPassword = "jOS9ezJR",
         mode = ReportingInteractionMode.TOAST,
         forceCloseDialogAfterToast = true,
-        resToastText = R.string.crash_toast_text)
+        resToastText = R.string.crash_toast_text)*/
 public class MainApplication extends Application {
     @Override
     public void onCreate() {
-        ACRA.init(this);
+        // ACRA.init(this);
 
         // Fetching /user/info from cache
         JSONObject json = PreferenceUtil.getCachedJson(getApplicationContext(), PreferenceUtil.Pref.CACHED_USER_INFO_JSON);
