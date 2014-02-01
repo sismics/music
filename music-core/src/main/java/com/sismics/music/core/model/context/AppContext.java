@@ -5,6 +5,7 @@ import com.google.common.eventbus.EventBus;
 import com.sismics.music.core.listener.async.DirectoryCreatedAsyncListener;
 import com.sismics.music.core.listener.async.DirectoryDeletedAsyncListener;
 import com.sismics.music.core.listener.sync.DeadEventListener;
+import com.sismics.music.core.service.albumart.AlbumArtService;
 import com.sismics.music.core.service.collection.CollectionService;
 import com.sismics.util.EnvironmentUtil;
 
@@ -47,6 +48,11 @@ public class AppContext {
     private CollectionService collectionService;
 
     /**
+     * Album art service.
+     */
+    private AlbumArtService albumArtService;
+
+    /**
      * Asynchronous executors.
      */
     private List<ExecutorService> asyncExecutorList;
@@ -60,6 +66,7 @@ public class AppContext {
         collectionService = new CollectionService();
         collectionService.startAndWait();
 
+        albumArtService = new AlbumArtService();
     }
     
     /**
@@ -122,6 +129,15 @@ public class AppContext {
      */
     public CollectionService getCollectionService() {
         return collectionService;
+    }
+
+    /**
+     * Getter of albumArtService.
+     *
+     * @return albumArtService
+     */
+    public AlbumArtService getAlbumArtService() {
+        return albumArtService;
     }
 
     /**

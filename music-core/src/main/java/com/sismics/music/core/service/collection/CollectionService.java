@@ -5,10 +5,12 @@ import com.google.common.util.concurrent.AbstractScheduledService;
 import com.sismics.music.core.dao.jpa.AlbumDao;
 import com.sismics.music.core.dao.jpa.ArtistDao;
 import com.sismics.music.core.dao.jpa.TrackDao;
+import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.jpa.Album;
 import com.sismics.music.core.model.jpa.Artist;
 import com.sismics.music.core.model.jpa.Directory;
 import com.sismics.music.core.model.jpa.Track;
+import com.sismics.music.core.service.albumart.AlbumArtImporter;
 import com.sismics.music.core.util.TransactionUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jaudiotagger.audio.AudioFile;
@@ -93,7 +95,7 @@ public class CollectionService extends AbstractScheduledService {
             if (fileEntry.isDirectory()) {
                 indexDirectory(rootDirectory, fileEntry);
             } else {
-                // TODO ALBUM_ART_FILENAME_FILTER media files properly
+                // TODO filter media files properly
                 if (fileEntry.getName().endsWith(".mp3")) {
                     indexFile(rootDirectory, fileEntry);
                 }
@@ -150,7 +152,7 @@ public class CollectionService extends AbstractScheduledService {
             }
             
             track.setTitle(StringUtils.abbreviate(tag.getFirst(FieldKey.TITLE), 2000));
-            String artistName = StringUtils.abbreviate(tag.getFirst(FieldKey.ARTIST), 1000);;
+            String artistName = StringUtils.abbreviate(tag.getFirst(FieldKey.ARTIST), 1000);
             ArtistDao artistDao = new ArtistDao();
             Artist artist = artistDao.getActiveByName(artistName);
             if (artist == null) {
@@ -177,10 +179,18 @@ public class CollectionService extends AbstractScheduledService {
             AlbumDao albumDao = new AlbumDao();
             Album album = albumDao.getActiveByArtistIdAndName(albumArtist.getId(), albumName);
             if (album == null) {
+                // Import album art
+                AlbumArtImporter albumArtImporter = new AlbumArtImporter();
+                File albumArtFile = albumArtImporter.scanDirectory(file.getParentFile());
+
                 album = new Album();
                 album.setArtistId(albumArtist.getId());
                 album.setDirectoryId(rootDirectory.getId()); // FIXME we can have a 2 directories pointing to the same Album entity
                 album.setName(albumName);
+                if (albumArtFile != null) {
+                    String albumArtId = AppContext.getInstance().getAlbumArtService().importAlbumArt(albumArtFile);
+                    album.setAlbumArt(albumArtId);
+                }
                 albumDao.create(album);
             }
             track.setAlbumId(album.getId());
