@@ -53,6 +53,11 @@ public class AlbumFragment extends Fragment {
             AlbumResource.info(getActivity(), album.optString("id"), new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(final JSONObject json) {
+                    if (getActivity() == null) {
+                        // The activity is dead, and this fragment has been detached
+                        return;
+                    }
+
                     ListView listView = aq.id(R.id.listTracks).getListView();
                     JSONArray tracks = json.optJSONArray("tracks");
 
