@@ -8,10 +8,10 @@ App.controller('Album', function($scope, $stateParams, Restangular, Playlist) {
     tracks: []
   };
 
-  // Load albums
+  // Load album
   Restangular.one('album', $stateParams.id).get().then(function(data) {
     $scope.album = data;
-  })
+  });
 
   // Play a single track
   $scope.playTrack = function(track) {

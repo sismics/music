@@ -78,6 +78,15 @@ var App = angular.module('music',
           }
         }
       })
+      .state('main.albumart', {
+        url: '/album/:id/albumart',
+        views: {
+          'content': {
+            templateUrl: 'partial/albumart.html',
+            controller: 'AlbumArt'
+          }
+        }
+      })
       .state('main.settingsdirectories', {
         url: '/settings/directories',
         views: {
