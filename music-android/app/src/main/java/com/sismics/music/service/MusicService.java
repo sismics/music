@@ -1,19 +1,3 @@
-/*   
- * Copyright (C) 2011 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.sismics.music.service;
 
 import android.app.Notification;
@@ -23,8 +7,6 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
@@ -54,9 +36,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Service that handles media playback. This is the Service through which we perform all the media
- * handling in our application. Then, it waits for Intents, which signal the service to
- * perform specific operations: Play, Pause, Rewind, Skip, etc.
+ * Music service to download and play the playlist..
  */
 public class MusicService extends Service implements OnCompletionListener, OnPreparedListener,
                 OnErrorListener, MusicFocusable {
@@ -64,10 +44,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     // The tag we put on debug messages
     final static String TAG = "SismicsMusic";
 
-    // These are the Intent actions that we are prepared to handle. Notice that the fact these
-    // constants exist in our class is a mere convenience: what really defines the actions our
-    // service can handle are the <action> tags in the <intent-filters> tag for our service in
-    // AndroidManifest.xml.
+    // Action intents handled by this service
     public static final String ACTION_TOGGLE_PLAYBACK = "com.sismics.music.action.TOGGLE_PLAYBACK";
     public static final String ACTION_PLAY = "com.sismics.music.action.PLAY";
     public static final String ACTION_PAUSE = "com.sismics.music.action.PAUSE";
@@ -75,17 +52,17 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     public static final String ACTION_SKIP = "com.sismics.music.action.SKIP";
     public static final String ACTION_REWIND = "com.sismics.music.action.REWIND";
 
+    // Extra to force the playing
     public static final String EXTRA_FORCE = "force";
 
     // The volume we set the media player to when we lose audio focus, but are allowed to reduce
     // the volume instead of stopping playback.
     public static final float DUCK_VOLUME = 0.1f;
 
-    // our media player
+    // Our media player
     MediaPlayer mPlayer = null;
 
-    // our AudioFocusHelper object, if it's available (it's available on SDK level >= 8)
-    // If not available, this will be null. Always check for null before using!
+    // Our AudioFocusHelper object, always available since we target API 14
     AudioFocusHelper mAudioFocusHelper = null;
 
     // indicates the state our service:
@@ -124,11 +101,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     // SDK level >= 14, if they're available.
     RemoteControlClient mRemoteControlClient;
 
-    // Dummy album art we will pass to the remote control (if the APIs are available).
-    Bitmap mDummyAlbumArt;
-
-    // The component name of MusicIntentReceiver, for use with media button and remote control
-    // APIs
+    // The component name of MusicIntentReceiver, for use with media button and remote control APIs
     ComponentName mMediaButtonReceiverComponent;
 
     AudioManager mAudioManager;
@@ -177,8 +150,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
         // create the Audio Focus Helper, if the Audio Focus feature is available (SDK 8 or above)
         mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), this);
-
-        mDummyAlbumArt = BitmapFactory.decodeResource(getResources(), R.drawable.dummy_album_art);
 
         mMediaButtonReceiverComponent = new ComponentName(this, MusicIntentReceiver.class);
     }
@@ -466,10 +437,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                     .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, track.getArtistName())
                     .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, track.getAlbumName())
                     .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, track.getTitle())
-                    .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
-                            track.getLength())
-                            // TODO: fetch real item artwork
-                    .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, mDummyAlbumArt)
+                    .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, track.getLength())
                     .apply();
 
             // starts preparing the media player in the background. When it's done, it will call
