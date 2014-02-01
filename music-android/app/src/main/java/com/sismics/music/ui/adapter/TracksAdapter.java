@@ -67,7 +67,7 @@ public class TracksAdapter extends BaseAdapter {
         holder.addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Playlist.add(track);
+                Playlist.add(activity, track);
             }
         });
 

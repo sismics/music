@@ -45,6 +45,11 @@ public class AlbumListFragment extends Fragment {
 
             AlbumResource.list(getActivity(), new JsonHttpResponseHandler() {
                 public void onSuccess(final JSONObject json) {
+                    if (getActivity() == null) {
+                        // The activity is dead, and this fragment has been detached
+                        return;
+                    }
+
                     ListView listView = aq.id(R.id.listAlbum).getListView();
                     JSONArray albums = json.optJSONArray("albums");
                     PreferenceUtil.setCachedJson(getActivity(), PreferenceUtil.Pref.CACHED_ALBUMS_LIST_JSON, json);

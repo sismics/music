@@ -40,14 +40,18 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.loopj.android.http.FileAsyncHttpResponseHandler;
+import com.loopj.android.http.RequestHandle;
 import com.sismics.music.R;
 import com.sismics.music.activity.MainActivity;
 import com.sismics.music.model.Playlist;
-import com.sismics.music.util.PreferenceUtil;
+import com.sismics.music.resource.TrackResource;
+import com.sismics.music.util.CacheUtil;
 
+import org.apache.http.Header;
+
+import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Service that handles media playback. This is the Service through which we perform all the media
@@ -131,6 +135,9 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     NotificationManager mNotificationManager;
 
     Notification mNotification = null;
+
+    // Request handle of the current download
+    RequestHandle bufferRequestHandle;
 
     /**
      * Makes sure the media player exists and has been reset. This will create the media player
@@ -253,8 +260,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
         // Tell any remote controls that our playback state is 'paused'.
         if (mRemoteControlClient != null) {
-            mRemoteControlClient
-                    .setPlaybackState(RemoteControlClient.PLAYSTATE_PAUSED);
+            mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PAUSED);
         }
     }
 
@@ -271,28 +277,22 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     }
 
     void processStopRequest() {
-        processStopRequest(false);
-    }
+        mState = State.Stopped;
 
-    void processStopRequest(boolean force) {
-        if (mState == State.Playing || mState == State.Paused || force) {
-            mState = State.Stopped;
+        // Stop the playlist
+        Playlist.stop();
 
-            // Stop the playlist
-            Playlist.stop();
+        // let go of all resources...
+        relaxResources(true);
+        giveUpAudioFocus();
 
-            // let go of all resources...
-            relaxResources(true);
-            giveUpAudioFocus();
-
-            // Tell any remote controls that our playback state is 'paused'.
-            if (mRemoteControlClient != null) {
-                mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
-            }
-
-            // service is no longer necessary. Will be started again if needed.
-            stopSelf();
+        // Tell any remote controls that our playback state is 'paused'.
+        if (mRemoteControlClient != null) {
+            mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
         }
+
+        // service is no longer necessary. Will be started again if needed.
+        stopSelf();
     }
 
     /**
@@ -310,6 +310,11 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             mPlayer.reset();
             mPlayer.release();
             mPlayer = null;
+        }
+
+        if (bufferRequestHandle != null) {
+            // We are buffering something, cancel it
+            bufferRequestHandle.cancel(true);
         }
 
         // we can also release the Wifi lock, if we're holding it
@@ -358,21 +363,77 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         mState = State.Stopped;
         relaxResources(false); // release everything except MediaPlayer
 
-        try {
-            Playlist.Track nextTrack = Playlist.next();
-            if (nextTrack == null) {
-                return;
+        Playlist.Track nextTrack = Playlist.next(true);
+        if (nextTrack == null) {
+            return;
+        }
+
+        // set the source of the media player to a manual URL or path
+        downloadTrack(nextTrack, true);
+    }
+
+    void downloadTrack(final Playlist.Track track, final boolean play) {
+        Log.d("SismicsMusic", "Start downloading " + track.getTitle());
+        if (bufferRequestHandle != null) {
+            // We are buffering something else, cancel it
+            Log.d("SismicsMusic", "Cancelling a previous download");
+            bufferRequestHandle.cancel(true);
+            bufferRequestHandle = null;
+        }
+
+        final File incompleteCacheFile = CacheUtil.getIncompleteCacheFile(this, track);
+
+        FileAsyncHttpResponseHandler responseHandler = new FileAsyncHttpResponseHandler(incompleteCacheFile) {
+            @Override
+            public void onStart() {
+                Playlist.updateTrackCacheStatus(track, Playlist.Track.CacheStatus.DOWNLOADING);
             }
 
-            // set the source of the media player to a manual URL or path
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, File file) {
+                if (CacheUtil.setComplete(file)) {
+                    Playlist.updateTrackCacheStatus(track, Playlist.Track.CacheStatus.COMPLETE);
+                    if (play) {
+                        doPlay(track);
+                    }
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                // Request is finished (and not cancelled), let's buffer the next song without playing it
+                bufferRequestHandle = null;
+                Playlist.Track nextTrack = Playlist.after(track);
+                if (nextTrack != null) {
+                    Log.d("SismicsMusic", "Downloading the next track " + nextTrack.getTitle());
+                    downloadTrack(nextTrack, false);
+                }
+            }
+        };
+
+        if (CacheUtil.isComplete(MusicService.this, track)) {
+            Log.d("SismicsMusic", "This track is already complete, output: " + play);
+
+            // Nothing to buffer, the track is already complete in the cache
+            if (play) {
+                doPlay(track);
+            }
+
+            responseHandler.onFinish();
+            return;
+        }
+
+        bufferRequestHandle = TrackResource.download(this, track.getId(), responseHandler);
+    }
+
+    void doPlay(Playlist.Track track) {
+        try {
             createMediaPlayerIfNeeded();
             mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            String url = nextTrack.getUrl(this);
-            Map<String, String> headers = new HashMap<>();
-            headers.put("Cookie", "auth_token=" + PreferenceUtil.getAuthToken(this) + ";");
-            mPlayer.setDataSource(this, Uri.parse(url), headers);
+            File file = CacheUtil.getCompleteCacheFile(this, track);
+            mPlayer.setDataSource(this, Uri.fromFile(file));
 
-            mSongTitle = nextTrack.getTitle();
+            mSongTitle = track.getTitle();
 
             mState = State.Preparing;
             setUpAsForeground(mSongTitle + " (loading)");
@@ -396,18 +457,18 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
             mRemoteControlClient.setTransportControlFlags(
                     RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
-                    RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
-                    RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
-                    RemoteControlClient.FLAG_KEY_MEDIA_STOP);
+                            RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
+                            RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
+                            RemoteControlClient.FLAG_KEY_MEDIA_STOP);
 
             // Update the remote controls
             mRemoteControlClient.editMetadata(true)
-                    .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, nextTrack.getArtistName())
-                    .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, nextTrack.getAlbumName())
-                    .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, nextTrack.getTitle())
+                    .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, track.getArtistName())
+                    .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, track.getAlbumName())
+                    .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, track.getTitle())
                     .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
-                            nextTrack.getLength())
-                    // TODO: fetch real item artwork
+                            track.getLength())
+                            // TODO: fetch real item artwork
                     .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, mDummyAlbumArt)
                     .apply();
 
@@ -421,10 +482,8 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             // If we are streaming from the internet, we want to hold a Wifi lock, which prevents
             // the Wifi radio from going to sleep while the song is playing.
             mWifiLock.acquire();
-        }
-        catch (IOException ex) {
-            Log.e("MusicService", "IOException playing next song: " + ex.getMessage());
-            ex.printStackTrace();
+        } catch (IOException e) {
+            Log.e("SismicsMusic", "Error playing song", e);
         }
     }
 

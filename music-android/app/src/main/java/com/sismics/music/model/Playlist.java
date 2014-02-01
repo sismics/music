@@ -1,10 +1,9 @@
 package com.sismics.music.model;
 
 import android.content.Context;
-import android.widget.Adapter;
 import android.widget.BaseAdapter;
 
-import com.sismics.music.util.PreferenceUtil;
+import com.sismics.music.util.CacheUtil;
 
 import org.json.JSONObject;
 
@@ -20,14 +19,21 @@ public class Playlist {
 
     public static class Track {
 
-        JSONObject track;
-
-        public Track(JSONObject track) {
-            this.track = track;
+        public static enum CacheStatus {
+            NONE, DOWNLOADING, COMPLETE
         }
 
-        public String getUrl(Context context) {
-            return PreferenceUtil.getServerUrl(context) + "/api/track/" + track.optString("id");
+        JSONObject track;
+
+        CacheStatus cacheStatus;
+
+        public Track(Context context, JSONObject track) {
+            this.track = track;
+            computeCacheStatus(context);
+        }
+
+        private void computeCacheStatus(Context context) {
+            cacheStatus = CacheUtil.isComplete(context, this) ? CacheStatus.COMPLETE : CacheStatus.NONE;
         }
 
         public String getTitle() {
@@ -49,6 +55,14 @@ public class Playlist {
         public long getLength() {
             return track.optInt("length");
         }
+
+        public CacheStatus getCacheStatus() {
+            return cacheStatus;
+        }
+
+        public void setCacheStatus(CacheStatus cacheStatus) {
+            this.cacheStatus = cacheStatus;
+        }
     }
 
     private static List<Track> trackList = new ArrayList<>();
@@ -62,19 +76,35 @@ public class Playlist {
         notifyAdapters();
     }
 
-    public static Track next() {
+    public static Track next(boolean advance) {
+        int index = currentTrackIndex;
+
         if (trackList.size() == 0) {
             return null;
         }
-        if (currentTrackIndex == -1 || currentTrackIndex == trackList.size() - 1) {
+        if (index == -1 || index == trackList.size() - 1) {
             // Nothing was played or this is the end, start at the beginning
-            currentTrackIndex = 0;
+            index = 0;
         } else {
-            currentTrackIndex++;
+            index++;
         }
 
-        notifyAdapters();
-        return trackList.get(currentTrackIndex);
+        if (advance) {
+            currentTrackIndex = index;
+            notifyAdapters();
+        }
+
+        return trackList.get(index);
+    }
+
+    public static Track after(Track before) {
+        if (!trackList.contains(before)) {
+            // The track has been delete since
+            return null;
+        }
+
+        int beforeIndex = trackList.indexOf(before);
+        return getAt(++beforeIndex);
     }
 
     public static void change(int position) {
@@ -104,9 +134,18 @@ public class Playlist {
         return trackList.size();
     }
 
-    public static void add(JSONObject json) {
-        Track track = new Track(json);
+    public static void add(Context context, JSONObject json) {
+        Track track = new Track(context, json);
         trackList.add(track);
+        notifyAdapters();
+    }
+
+    public static void updateTrackCacheStatus(Track track, Track.CacheStatus status) {
+        if (!trackList.contains(track)) {
+            // The track has been delete since
+            return;
+        }
+        track.setCacheStatus(status);
         notifyAdapters();
     }
 

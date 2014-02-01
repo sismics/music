@@ -63,7 +63,9 @@ public class PlaylistAdapter extends BaseAdapter {
         
         // Filling track data
         Playlist.Track track = getItem(position);
-        holder.trackName.setText(track.getTitle());
+
+        holder.trackName.setText(track.getTitle() + " " + track.getCacheStatus());
+
         if (Playlist.currentTrack() == track) {
             view.setBackgroundColor(Color.GRAY);
         } else {
