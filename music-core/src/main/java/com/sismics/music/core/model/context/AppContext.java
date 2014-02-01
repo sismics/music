@@ -1,19 +1,19 @@
 package com.sismics.music.core.model.context;
 
+import com.google.common.eventbus.AsyncEventBus;
+import com.google.common.eventbus.EventBus;
+import com.sismics.music.core.listener.async.DirectoryCreatedAsyncListener;
+import com.sismics.music.core.listener.async.DirectoryDeletedAsyncListener;
+import com.sismics.music.core.listener.sync.DeadEventListener;
+import com.sismics.music.core.service.collection.CollectionService;
+import com.sismics.util.EnvironmentUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import com.google.common.eventbus.AsyncEventBus;
-import com.google.common.eventbus.EventBus;
-import com.sismics.music.core.listener.async.DirectoryCreatedAsyncListener;
-import com.sismics.music.core.listener.async.DirectoryDeletedAsyncListener;
-import com.sismics.music.core.listener.sync.DeadEventListener;
-import com.sismics.music.core.service.CollectionService;
-import com.sismics.util.EnvironmentUtil;
 
 /**
  * Global application context.

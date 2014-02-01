@@ -1,16 +1,4 @@
-package com.sismics.music.core.service;
-
-import java.io.File;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang.StringUtils;
-import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.audio.AudioHeader;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package com.sismics.music.core.service.collection;
 
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.AbstractScheduledService;
@@ -22,6 +10,17 @@ import com.sismics.music.core.model.jpa.Artist;
 import com.sismics.music.core.model.jpa.Directory;
 import com.sismics.music.core.model.jpa.Track;
 import com.sismics.music.core.util.TransactionUtil;
+import org.apache.commons.lang.StringUtils;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.AudioHeader;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Collection service.
@@ -94,7 +93,7 @@ public class CollectionService extends AbstractScheduledService {
             if (fileEntry.isDirectory()) {
                 indexDirectory(rootDirectory, fileEntry);
             } else {
-                // TODO filter media files properly
+                // TODO ALBUM_ART_FILENAME_FILTER media files properly
                 if (fileEntry.getName().endsWith(".mp3")) {
                     indexFile(rootDirectory, fileEntry);
                 }
