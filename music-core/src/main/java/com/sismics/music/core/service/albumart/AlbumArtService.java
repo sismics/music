@@ -75,8 +75,7 @@ public class AlbumArtService  {
      * @param albumArtSize Album art ID
      */
     protected void deleteAlbumArt(String id, AlbumArtSize albumArtSize) {
-        String albumArtFileName = getAlbumArtFileName(id, albumArtSize);
-        File albumArtFile = new File(getAlbumArtDir() + File.separator + albumArtFileName);
+        File albumArtFile = getAlbumArtFile(id, albumArtSize);
         try {
             albumArtFile.delete();
         } catch (Exception e) {
@@ -85,16 +84,16 @@ public class AlbumArtService  {
     }
 
     /**
-     * Return the album art file name.
-     * 
+     * Return an album art file.
+     *
      * @param id Album art ID
-     * @param albumArtSize Album art size
-     * @return File name
+     * @param albumArtSize Album art ID
+     * @return Album art file
      */
-    public String getAlbumArtFileName(String id, AlbumArtSize albumArtSize) {
-        return id + "_" + albumArtSize.name().toLowerCase();
+    public File getAlbumArtFile(String id, AlbumArtSize albumArtSize) {
+        String albumArtFileName = getAlbumArtFileName(id, albumArtSize);
+        return new File(getAlbumArtDir() + File.separator + albumArtFileName);
     }
-    
     /**
      * Return the storage directory of album art files.
      * 
@@ -123,5 +122,16 @@ public class AlbumArtService  {
 //        }
         
         return albumArtDir;
+    }
+
+    /**
+     * Return the album art file name.
+     *
+     * @param id Album art ID
+     * @param albumArtSize Album art size
+     * @return File name
+     */
+    public String getAlbumArtFileName(String id, AlbumArtSize albumArtSize) {
+        return id + "_" + albumArtSize.name().toLowerCase();
     }
 }

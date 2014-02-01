@@ -1,29 +1,30 @@
 package com.sismics.music.rest.resource;
 
 import com.sismics.music.core.dao.jpa.AlbumDao;
-import com.sismics.music.core.dao.jpa.DirectoryDao;
 import com.sismics.music.core.dao.jpa.TrackDao;
 import com.sismics.music.core.dao.jpa.criteria.AlbumCriteria;
 import com.sismics.music.core.dao.jpa.criteria.TrackCriteria;
 import com.sismics.music.core.dao.jpa.dto.AlbumDto;
 import com.sismics.music.core.dao.jpa.dto.TrackDto;
-import com.sismics.music.core.event.async.DirectoryCreatedAsyncEvent;
-import com.sismics.music.core.event.async.DirectoryDeletedAsyncEvent;
 import com.sismics.music.core.model.context.AppContext;
-import com.sismics.music.core.model.jpa.Directory;
-import com.sismics.music.rest.constant.BaseFunction;
-import com.sismics.rest.exception.ClientException;
+import com.sismics.music.core.model.jpa.Album;
+import com.sismics.music.core.service.albumart.AlbumArtService;
+import com.sismics.music.core.service.albumart.AlbumArtSize;
+import com.sismics.music.core.util.TransactionUtil;
 import com.sismics.rest.exception.ForbiddenClientException;
-import com.sismics.rest.util.ValidationUtil;
-import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -34,6 +35,11 @@ import java.util.List;
 @Path("/album")
 public class AlbumResource extends BaseResource {
     /**
+     * Logger.
+     */
+    private static final Logger log = LoggerFactory.getLogger(AlbumResource.class);
+
+    /**
      * Returns an album detail.
      *
      * @return Response
@@ -42,7 +48,7 @@ public class AlbumResource extends BaseResource {
     @GET
     @Path("{id: [a-z0-9\\-]+}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response id(
+    public Response detail(
             @PathParam("id") String id) throws JSONException {
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -59,6 +65,7 @@ public class AlbumResource extends BaseResource {
         JSONObject response = new JSONObject();
         response.put("id", album.getId());
         response.put("name", album.getName());
+        response.put("albumart", album.getAlbumArt() != null);
 
         JSONObject artistJson = new JSONObject();
         artistJson.put("id", album.getArtistId());
@@ -94,6 +101,54 @@ public class AlbumResource extends BaseResource {
     }
 
     /**
+     * Returns a album cover.
+     *
+     * @param id Album ID
+     * @param size Cover size
+     * @return Response
+     * @throws JSONException
+     */
+    @GET
+    @Path("{id: [a-z0-9\\-]+}/albumart/{size: [a-z]+}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response albumart(
+            @PathParam("id") String id,
+            @PathParam("size") String size) throws JSONException {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+
+        // Get the album
+        AlbumDao albumDao = new AlbumDao();
+        Album album = albumDao.getActiveById(id);
+        if (album == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        // Get the album art size
+        AlbumArtSize albumArtSize = null;
+        try {
+            albumArtSize = AlbumArtSize.valueOf(size.toUpperCase());
+        } catch (Exception e) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        // Get the file
+        final AlbumArtService albumArtService = AppContext.getInstance().getAlbumArtService();
+        File file = albumArtService.getAlbumArtFile(album.getAlbumArt(), albumArtSize);
+        if (!file.exists() || !file.canRead()) {
+            if (log.isErrorEnabled()) {
+                log.error("Album art file cannot be read: " + file.getAbsolutePath());
+            }
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        TransactionUtil.commit();
+
+        return Response.ok(file, "image/jpeg").build();
+    }
+
+    /**
      * Returns all active albums.
      *
      * @return Response
@@ -115,6 +170,7 @@ public class AlbumResource extends BaseResource {
             JSONObject albumJson = new JSONObject();
             albumJson.put("id", album.getId());
             albumJson.put("name", album.getName());
+            albumJson.put("albumart", album.getAlbumArt() != null);
 
             JSONObject artistJson = new JSONObject();
             artistJson.put("id", album.getArtistId());
