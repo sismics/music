@@ -17,6 +17,11 @@ public class AlbumDto {
     private String name;
     
     /**
+     * Album art ID.
+     */
+    private String albumArt;
+
+    /**
      * Artist id.
      */
     private String artistId;
@@ -60,6 +65,24 @@ public class AlbumDto {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Getter of albumArt.
+     *
+     * @return albumArt
+     */
+    public String getAlbumArt() {
+        return albumArt;
+    }
+
+    /**
+     * Setter of albumArt.
+     *
+     * @param albumArt albumArt
+     */
+    public void setAlbumArt(String albumArt) {
+        this.albumArt = albumArt;
     }
 
     /**

@@ -97,7 +97,7 @@ public class AlbumDao {
     public List<AlbumDto> findByCriteria(AlbumCriteria criteria) {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-        StringBuilder sb = new StringBuilder("select a.ALB_ID_C, a.ALB_NAME_C, ar.ART_ID_C, ar.ART_NAME_C ");
+        StringBuilder sb = new StringBuilder("select a.ALB_ID_C, a.ALB_NAME_C,  a.ALB_ALBUMART_C, ar.ART_ID_C, ar.ART_NAME_C ");
         sb.append(" from T_ALBUM a ");
         sb.append(" join T_ARTIST ar on(ar.ART_ID_C = a.ALB_IDARTIST_C) ");
 
@@ -132,6 +132,7 @@ public class AlbumDao {
             AlbumDto albumDto = new AlbumDto();
             albumDto.setId((String) o[i++]);
             albumDto.setName((String) o[i++]);
+            albumDto.setAlbumArt((String) o[i++]);
             albumDto.setArtistId((String) o[i++]);
             albumDto.setArtistName((String) o[i++]);
             albumDtoList.add(albumDto);
