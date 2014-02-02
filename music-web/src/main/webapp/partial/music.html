@@ -2,7 +2,6 @@
   <ul class="nav nav-tabs">
     <li class="active"><a href="#">Albums</a></li>
     <li><a href="#">Artists</a></li>
-    <li><a href="#">Tracks</a></li>
   </ul>
 
   <div class="row" ng-show="albums.length > 0">
@@ -17,12 +16,12 @@
     </div>
   
     <div class="col-sm-6 col-md-3" bindonce ng-repeat="album in albums | filter: filter">
-      <a class="thumbnail" bo-href="'#/album/' + album.id">
+      <a class="thumbnail albumart-thumbnail" bo-href="'#/album/' + album.id">
         <div class="img-container">
           <img bo-if="album.albumart" bo-src="'api/album/' + album.id + '/albumart/small'" />
         </div>
         <div class="caption">
-          <div style="overflow: hidden; height: 40px">
+          <div class="caption-container">
             <div class="text-muted" bo-text="album.artist.name"></div>
             <div bo-text="album.name"></div>
           </div>

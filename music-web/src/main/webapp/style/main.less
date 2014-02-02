@@ -58,18 +58,35 @@ html, body {
   .search-form {
     margin-bottom: 10px;
   }
+}
 
-  .thumbnail {
+.albumart-thumbnail {
+  @media (min-width: 992px) {
     .img-container {
-      width: 100%;
-      height: 179px;
-      overflow: hidden;
-      background: #ddd;
-
-      img {
-        width: 100%;
-      }
+      height: 143px;
+      width: 143px;
     }
+  }
+
+  @media (min-width: 1200px) {
+    .img-container {
+      height: 179px;
+      width: 179px;
+    }
+  }
+
+  .img-container {
+    overflow: hidden;
+    background: #444;
+
+    img {
+      width: 100%;
+    }
+  }
+
+  .caption .caption-container {
+    overflow: hidden;
+    height: 40px
   }
 }
 
@@ -82,6 +99,18 @@ html, body {
 
     img {
       width: 100%;
+    }
+  }
+}
+
+.search {
+  .tracks {
+    table {
+      > tbody td {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
   }
 }

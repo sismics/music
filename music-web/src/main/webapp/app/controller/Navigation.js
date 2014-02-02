@@ -24,4 +24,32 @@ App.controller('Navigation', function($rootScope, $scope, User, $state) {
     });
     $event.preventDefault();
   };
+
+  // Watch search query
+  $scope.$watch('query', function(newval) {
+    if (typeof newval == 'undefined') {
+      return;
+    }
+
+    if (newval.length >= 3) {
+      var isSearchView = $state.current.name == 'main.search';
+      $state.go('main.search', {
+        query: newval
+      }, {
+        location: isSearchView ? 'replace' : true,
+        notify: !isSearchView
+      });
+    }
+  });
+
+  // Listen for state changes to sync the search form
+  $rootScope.$on('$stateChangeStart',
+      function(event, toState, toParams, fromState){
+        if (fromState.name == 'main.search') {
+          $scope.query = '';
+        }
+        if (toState.name == 'main.search') {
+          $scope.query = toParams.query;
+        }
+      });
 });

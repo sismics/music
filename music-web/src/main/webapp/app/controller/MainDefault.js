@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Main defaultcontroller.
+ * Main default controller.
  */
 App.controller('MainDefault', function($state) {
   $state.transitionTo('main.playing');

@@ -42,12 +42,12 @@ var App = angular.module('music',
           }
         }
       })
-      .state('main.latestalbums', {
-        url: '/latest',
+      .state('main.search', {
+        url: '/search/*query',
         views: {
           'content': {
-            templateUrl: 'partial/latestalbums.html',
-            controller: 'LatestAlbums'
+            templateUrl: 'partial/search.html',
+            controller: 'Search'
           }
         }
       })
