@@ -11,13 +11,23 @@ import com.loopj.android.http.RequestParams;
  * @author bgamard
  */
 public class AlbumResource extends BaseResource {
-
+    /**
+     * List all albums
+     * @param context Context
+     * @param responseHandler Response handler
+     */
     public static void list(Context context, JsonHttpResponseHandler responseHandler) {
         init(context);
 
         client.get(getApiUrl(context) + "/album", responseHandler);
     }
 
+    /**
+     * Get the album data.
+     * @param context Context
+     * @param id Album ID
+     * @param responseHandler Response handler
+     */
     public static void info(Context context, String id, JsonHttpResponseHandler responseHandler) {
         init(context);
 

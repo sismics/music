@@ -14,7 +14,13 @@ import java.io.File;
  * @author bgamard
  */
 public class TrackResource extends BaseResource {
-
+    /**
+     * Download a track.
+     * @param context Context
+     * @param id PlaylistTrack ID
+     * @param responseHandler Response handler
+     * @return Request handle used to cancel
+     */
     public static RequestHandle download(Context context, String id, FileAsyncHttpResponseHandler responseHandler) {
         init(context);
 

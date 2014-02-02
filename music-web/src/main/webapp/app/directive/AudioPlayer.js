@@ -33,7 +33,7 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
       // Listen for audio-element events, and broadcast stuff
       $scope.audio.addEventListener('play', function(){ $rootScope.$broadcast('audio.play'); });
       $scope.audio.addEventListener('pause', function(){ $rootScope.$broadcast('audio.pause'); });
-      $scope.audio.addEventListener('timeupdate', function(){ $rootScope.$broadcast('audio.time'); });
+      // $scope.audio.addEventListener('timeupdate', function(){ $rootScope.$broadcast('audio.time'); });
       $scope.audio.addEventListener('ended', function(){ $rootScope.$broadcast('audio.ended'); $scope.next(); });
 
       // Current track has changed
@@ -83,7 +83,7 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
       };
 
       // Update display of things - makes time-scrub work
-      setInterval(function(){ $scope.$apply(); }, 250);
+      setInterval(function(){ $scope.$apply(); }, 500);
     },
 
     templateUrl: 'partial/audioplayer.html'

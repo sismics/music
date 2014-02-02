@@ -27,6 +27,7 @@ import com.loopj.android.http.RequestHandle;
 import com.sismics.music.R;
 import com.sismics.music.activity.MainActivity;
 import com.sismics.music.model.Playlist;
+import com.sismics.music.model.PlaylistTrack;
 import com.sismics.music.resource.TrackResource;
 import com.sismics.music.util.CacheUtil;
 
@@ -36,7 +37,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Music service to download and play the playlist..
+ * Music service to download and play the playlist.
  */
 public class MusicService extends Service implements OnCompletionListener, OnPreparedListener,
                 OnErrorListener, MusicFocusable {
@@ -187,10 +188,13 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             }
         }
 
-        return START_NOT_STICKY; // Means we started the service, but don't want it to
-                                 // restart in case it's killed.
+        // Means we started the service, but don't want it to restart in case it's killed
+        return START_NOT_STICKY;
     }
 
+    /**
+     * Toggle playback request.
+     */
     void processTogglePlaybackRequest() {
         if (mState == State.Paused || mState == State.Stopped) {
             processPlayRequest(false);
@@ -199,10 +203,12 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         }
     }
 
+    /**
+     * Play request.
+     * @param force If true force the playing
+     */
     void processPlayRequest(boolean force) {
         tryToGetAudioFocus();
-
-        // actually play the song
 
         if (mState == State.Stopped || force) {
             // If we're stopped, just go ahead to the next song and start playing
@@ -220,6 +226,9 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         }
     }
 
+    /**
+     * Pause request.
+     */
     void processPauseRequest() {
         if (mState == State.Playing) {
             // Pause media player and cancel the 'foreground service' state.
@@ -235,11 +244,17 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         }
     }
 
+    /**
+     * Rewind request.
+     */
     void processRewindRequest() {
         if (mState == State.Playing || mState == State.Paused)
             mPlayer.seekTo(0);
     }
 
+    /**
+     * Skip request.
+     */
     void processSkipRequest() {
         if (mState == State.Playing || mState == State.Paused) {
             tryToGetAudioFocus();
@@ -247,6 +262,9 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         }
     }
 
+    /**
+     * Stop request.
+     */
     void processStopRequest() {
         mState = State.Stopped;
 
@@ -334,17 +352,22 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         mState = State.Stopped;
         relaxResources(false); // release everything except MediaPlayer
 
-        Playlist.Track nextTrack = Playlist.next(true);
-        if (nextTrack == null) {
+        PlaylistTrack nextPlaylistTrack = Playlist.next(true);
+        if (nextPlaylistTrack == null) {
             return;
         }
 
         // set the source of the media player to a manual URL or path
-        downloadTrack(nextTrack, true);
+        downloadTrack(nextPlaylistTrack, true);
     }
 
-    void downloadTrack(final Playlist.Track track, final boolean play) {
-        Log.d("SismicsMusic", "Start downloading " + track.getTitle());
+    /**
+     * Download a playlistTrack.
+     * @param playlistTrack PlaylistTrack to download
+     * @param play If true, play it
+     */
+    void downloadTrack(final PlaylistTrack playlistTrack, final boolean play) {
+        Log.d("SismicsMusic", "Start downloading " + playlistTrack.getTitle());
         if (bufferRequestHandle != null) {
             // We are buffering something else, cancel it
             Log.d("SismicsMusic", "Cancelling a previous download");
@@ -352,20 +375,20 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             bufferRequestHandle = null;
         }
 
-        final File incompleteCacheFile = CacheUtil.getIncompleteCacheFile(this, track);
+        final File incompleteCacheFile = CacheUtil.getIncompleteCacheFile(playlistTrack);
 
         FileAsyncHttpResponseHandler responseHandler = new FileAsyncHttpResponseHandler(incompleteCacheFile) {
             @Override
             public void onStart() {
-                Playlist.updateTrackCacheStatus(track, Playlist.Track.CacheStatus.DOWNLOADING);
+                Playlist.updateTrackCacheStatus(playlistTrack, PlaylistTrack.CacheStatus.DOWNLOADING);
             }
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, File file) {
                 if (CacheUtil.setComplete(file)) {
-                    Playlist.updateTrackCacheStatus(track, Playlist.Track.CacheStatus.COMPLETE);
+                    Playlist.updateTrackCacheStatus(playlistTrack, PlaylistTrack.CacheStatus.COMPLETE);
                     if (play) {
-                        doPlay(track);
+                        doPlay(playlistTrack);
                     }
                 }
             }
@@ -374,37 +397,41 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             public void onFinish() {
                 // Request is finished (and not cancelled), let's buffer the next song without playing it
                 bufferRequestHandle = null;
-                Playlist.Track nextTrack = Playlist.after(track);
-                if (nextTrack != null) {
-                    Log.d("SismicsMusic", "Downloading the next track " + nextTrack.getTitle());
-                    downloadTrack(nextTrack, false);
+                PlaylistTrack nextPlaylistTrack = Playlist.after(playlistTrack);
+                if (nextPlaylistTrack != null) {
+                    Log.d("SismicsMusic", "Downloading the next playlistTrack " + nextPlaylistTrack.getTitle());
+                    downloadTrack(nextPlaylistTrack, false);
                 }
             }
         };
 
-        if (CacheUtil.isComplete(MusicService.this, track)) {
-            Log.d("SismicsMusic", "This track is already complete, output: " + play);
+        if (CacheUtil.isComplete(playlistTrack)) {
+            Log.d("SismicsMusic", "This playlistTrack is already complete, output: " + play);
 
-            // Nothing to buffer, the track is already complete in the cache
+            // Nothing to buffer, the playlistTrack is already complete in the cache
             if (play) {
-                doPlay(track);
+                doPlay(playlistTrack);
             }
 
             responseHandler.onFinish();
             return;
         }
 
-        bufferRequestHandle = TrackResource.download(this, track.getId(), responseHandler);
+        bufferRequestHandle = TrackResource.download(this, playlistTrack.getId(), responseHandler);
     }
 
-    void doPlay(Playlist.Track track) {
+    /**
+     * Play a downloaded playlistTrack.
+     * @param playlistTrack PlaylistTrack to play
+     */
+    void doPlay(PlaylistTrack playlistTrack) {
         try {
             createMediaPlayerIfNeeded();
             mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            File file = CacheUtil.getCompleteCacheFile(this, track);
+            File file = CacheUtil.getCompleteCacheFile(playlistTrack);
             mPlayer.setDataSource(this, Uri.fromFile(file));
 
-            mSongTitle = track.getTitle();
+            mSongTitle = playlistTrack.getTitle();
 
             mState = State.Preparing;
             setUpAsForeground(mSongTitle + " (loading)");
@@ -434,10 +461,10 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
             // Update the remote controls
             mRemoteControlClient.editMetadata(true)
-                    .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, track.getArtistName())
-                    .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, track.getAlbumName())
-                    .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, track.getTitle())
-                    .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, track.getLength())
+                    .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, playlistTrack.getArtistName())
+                    .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, playlistTrack.getAlbumName())
+                    .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, playlistTrack.getTitle())
+                    .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, playlistTrack.getLength())
                     .apply();
 
             // starts preparing the media player in the background. When it's done, it will call
@@ -455,14 +482,18 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         }
     }
 
-    /** Called when media player is done playing current song. */
+    /**
+     * Called when media player is done playing current song.
+    */
     @Override
     public void onCompletion(MediaPlayer player) {
         // The media player finished playing the current song, so we go ahead and start the next.
         playNextSong();
     }
 
-    /** Called when media player is done preparing. */
+    /**
+     * Called when media player is done preparing.
+    */
     @Override
     public void onPrepared(MediaPlayer player) {
         // The media player is done preparing. That means we can start playing!
@@ -471,7 +502,9 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         configAndStartMediaPlayer();
     }
 
-    /** Updates the notification. */
+    /**
+     * Updates the notification.
+    */
     void updateNotification(String text) {
         PendingIntent pi = PendingIntent.getActivity(this, 0,
                 new Intent(getApplicationContext(), MainActivity.class),
@@ -491,7 +524,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                 PendingIntent.FLAG_UPDATE_CURRENT);
         mNotification = new Notification();
         mNotification.tickerText = text;
-        mNotification.icon = R.drawable.ic_stat_playing;
+        mNotification.icon = R.drawable.ic_launcher;
         mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
         mNotification.setLatestEventInfo(getApplicationContext(), "Sismics Music",
                 text, pi);

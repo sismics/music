@@ -11,10 +11,14 @@ import android.widget.TextView;
 
 import com.androidquery.AQuery;
 import com.sismics.music.R;
+import com.sismics.music.model.Album;
 import com.sismics.music.model.Playlist;
+import com.sismics.music.model.Track;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.List;
 
 /**
  * Adapter for tracks list.
@@ -32,14 +36,23 @@ public class TracksAdapter extends BaseAdapter {
      */
     private AQuery aq;
 
-    private JSONArray tracks;
+    /**
+     * Album.
+     */
+    private Album album;
+
+    /**
+     * Tracks.
+     */
+    private List<Track> tracks;
 
     /**
      * Constructor.
      * @param activity Context activity
      */
-    public TracksAdapter(Activity activity, JSONArray tracks) {
+    public TracksAdapter(Activity activity, Album album, List<Track> tracks) {
         this.activity = activity;
+        this.album = album;
         this.tracks = tracks;
         this.aq = new AQuery(activity);
     }
@@ -62,12 +75,12 @@ public class TracksAdapter extends BaseAdapter {
         }
         
         // Filling track data
-        final JSONObject track = getItem(position);
-        holder.trackName.setText(track.optString("title"));
+        final Track track = getItem(position);
+        holder.trackName.setText(track.getTitle());
         holder.addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Playlist.add(activity, track);
+                Playlist.add(album, track);
             }
         });
 
@@ -76,17 +89,22 @@ public class TracksAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return tracks.length();
+        return tracks.size();
     }
 
     @Override
-    public JSONObject getItem(int position) {
-        return tracks.optJSONObject(position);
+    public Track getItem(int position) {
+        return tracks.get(position);
     }
 
     @Override
     public long getItemId(int position) {
         return position;
+    }
+
+    public void setTracks(List<Track> tracks) {
+        this.tracks = tracks;
+        notifyDataSetChanged();
     }
 
     /**

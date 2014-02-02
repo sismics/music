@@ -18,6 +18,9 @@ import com.sismics.music.ui.adapter.PlaylistAdapter;
 
 import org.json.JSONObject;
 
+/**
+ * Playlist fragment.
+ */
 public class PlaylistFragment extends Fragment {
     /**
      * Returns a new instance of this fragment.
@@ -29,19 +32,21 @@ public class PlaylistFragment extends Fragment {
         return fragment;
     }
 
-    public PlaylistFragment() {
-    }
-
+    /**
+     * The playlist list adapter.
+     */
     PlaylistAdapter playlistAdapter;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the view
         View view = inflater.inflate(R.layout.fragment_playlist, container, false);
-
         AQuery aq = new AQuery(view);
 
+        // Create a new playlist adapter
         playlistAdapter = new PlaylistAdapter(getActivity());
+
+        // Configure the tracks list
         aq.id(R.id.listTracks)
                 .adapter(playlistAdapter)
                 .itemClicked(new AdapterView.OnItemClickListener() {
@@ -54,6 +59,7 @@ public class PlaylistFragment extends Fragment {
                     }
                 });
 
+        // Play button
         aq.id(R.id.playlistPlay).clicked(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -61,6 +67,7 @@ public class PlaylistFragment extends Fragment {
             }
         });
 
+        // Pause button
         aq.id(R.id.playlistPause).clicked(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,6 +75,7 @@ public class PlaylistFragment extends Fragment {
             }
         });
 
+        // Stop button
         aq.id(R.id.playlistStop).clicked(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

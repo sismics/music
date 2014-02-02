@@ -7,15 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
 import com.sismics.music.R;
 import com.sismics.music.model.Playlist;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.sismics.music.model.PlaylistTrack;
 
 /**
  * Adapter for tracks list.
@@ -61,12 +58,12 @@ public class PlaylistAdapter extends BaseAdapter {
             holder = (ViewHolder) view.getTag();
         }
         
-        // Filling track data
-        Playlist.Track track = getItem(position);
+        // Filling playlistTrack data
+        PlaylistTrack playlistTrack = getItem(position);
 
-        holder.trackName.setText(track.getTitle() + " " + track.getCacheStatus());
+        holder.trackName.setText(playlistTrack.getTitle() + " " + playlistTrack.getCacheStatus());
 
-        if (Playlist.currentTrack() == track) {
+        if (Playlist.currentTrack() == playlistTrack) {
             view.setBackgroundColor(Color.GRAY);
         } else {
             view.setBackgroundColor(Color.TRANSPARENT);
@@ -81,7 +78,7 @@ public class PlaylistAdapter extends BaseAdapter {
     }
 
     @Override
-    public Playlist.Track getItem(int position) {
+    public PlaylistTrack getItem(int position) {
         return Playlist.getAt(position);
     }
 
@@ -96,7 +93,7 @@ public class PlaylistAdapter extends BaseAdapter {
     }
 
     /**
-     * Article ViewHolder.
+     * PlaylistTrack ViewHolder.
      * 
      * @author bgamard
      */
@@ -104,6 +101,9 @@ public class PlaylistAdapter extends BaseAdapter {
         TextView trackName;
     }
 
+    /**
+     * Destroy this adapter.
+     */
     public void onDestroy() {
         // Unregister from the playlist helper
         Playlist.unregisterAdapter(this);
