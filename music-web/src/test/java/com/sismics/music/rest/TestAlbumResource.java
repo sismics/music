@@ -26,7 +26,7 @@ public class TestAlbumResource extends BaseJerseyTest {
         // Login users
         String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
 
-        // Admin adds a album to the collection
+        // Admin adds an album to the collection
         WebResource directoryResource = resource().path("/directory");
         directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         MultivaluedMapImpl postParams = new MultivaluedMapImpl();

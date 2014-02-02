@@ -1,21 +1,19 @@
 package com.sismics.music.core.dao.jpa;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
-
 import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.jpa.criteria.TrackCriteria;
 import com.sismics.music.core.dao.jpa.dto.TrackDto;
 import com.sismics.music.core.model.jpa.Track;
+import com.sismics.music.core.util.jpa.PaginatedList;
+import com.sismics.music.core.util.jpa.PaginatedLists;
+import com.sismics.music.core.util.jpa.QueryParam;
+import com.sismics.music.core.util.jpa.QueryUtil;
 import com.sismics.util.context.ThreadLocalContext;
+
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+import java.util.*;
 
 /**
  * Track DAO.
@@ -96,10 +94,22 @@ public class TrackDao {
      * Searches tracks by criteria.
      *
      * @param criteria Search criteria
-     * @return List of tracks
+     * @param paginatedList Paginated list (populated by side effects)
      */
-    @SuppressWarnings("unchecked")
-    public List<TrackDto> findByCriteria(TrackCriteria criteria) {
+    public void findByCriteria(TrackCriteria criteria, PaginatedList<TrackDto> paginatedList) {
+        QueryParam queryParam = getQueryParam(criteria);
+        List<Object[]> l = PaginatedLists.executePaginatedQuery(paginatedList, queryParam, false);
+        List<TrackDto> trackDtoList = assembleResultList(l);
+        paginatedList.setResultList(trackDtoList);
+    }
+
+    /**
+     * Creates the query parameters from the criteria.
+     *
+     * @param criteria Search criteria
+     * @return Query parameters
+     */
+    private QueryParam getQueryParam(TrackCriteria criteria) {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
         StringBuilder sb = new StringBuilder("select t.TRK_ID_C, t.TRK_FILENAME_C, t.TRK_TITLE_C, t.TRK_YEAR_N, t.TRK_LENGTH_N, t.TRK_BITRATE_N, t.TRK_VBR_B, t.TRK_FORMAT_C, ");
@@ -118,6 +128,10 @@ public class TrackDao {
             criteriaList.add("t.TRK_IDALBUM_C = :albumId");
             parameterMap.put("albumId", criteria.getAlbumId());
         }
+        if (criteria.getTitleLike() != null) {
+            criteriaList.add("lower(t.TRK_TITLE_C) like lower(:titleLike)");
+            parameterMap.put("titleLike", "%" + criteria.getTitleLike() + "%");
+        }
         if (criteria.getUserId() != null) {
             criteriaList.add("p.PLL_IDUSER_C = :userId");
             parameterMap.put("userId", criteria.getUserId());
@@ -135,17 +149,19 @@ public class TrackDao {
             sb.append(" order by t.TRK_TITLE_C asc"); //TODO add order column
         }
 
-        // Search
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        Query q = em.createNativeQuery(sb.toString());
-        for (Map.Entry<String, Object> entry : parameterMap.entrySet()) {
-            q.setParameter(entry.getKey(), entry.getValue());
-        }
-        List<Object[]> resultList = q.getResultList();
+        QueryParam queryParam = new QueryParam(sb.toString(), parameterMap);
+        return queryParam;
+    }
 
-        // Assemble results
+    /**
+     * Assemble the query results.
+     *
+     * @param l Query results as a table
+     * @return Query results as a list of domain objects
+     */
+    private List<TrackDto> assembleResultList(List<Object[]> l) {
         List<TrackDto> trackDtoList = new ArrayList<TrackDto>();
-        for (Object[] o : resultList) {
+        for (Object[] o : l) {
             int i = 0;
             TrackDto trackDto = new TrackDto();
             trackDto.setId((String) o[i++]);
@@ -163,6 +179,20 @@ public class TrackDao {
             trackDtoList.add(trackDto);
         }
         return trackDtoList;
+    }
+
+    /**
+     * Searches tracks by criteria.
+     *
+     * @param criteria Search criteria
+     * @return List of tracks
+     */
+    @SuppressWarnings("unchecked")
+    public List<TrackDto> findByCriteria(TrackCriteria criteria) {
+        QueryParam queryParam = getQueryParam(criteria);
+        Query q = QueryUtil.getNativeQuery(queryParam);
+        List<Object[]> l = q.getResultList();
+        return assembleResultList(l);
     }
 
     /**
