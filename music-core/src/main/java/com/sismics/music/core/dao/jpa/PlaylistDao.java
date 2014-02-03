@@ -1,14 +1,12 @@
 package com.sismics.music.core.dao.jpa;
 
-import com.sismics.music.core.model.jpa.Directory;
 import com.sismics.music.core.model.jpa.Playlist;
 import com.sismics.util.context.ThreadLocalContext;
+import org.skife.jdbi.v2.Handle;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
-import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -24,12 +22,16 @@ public class PlaylistDao {
      * @return Playlist ID
      */
     public String create(Playlist playlist) {
-        // Create the playlist UUID
         playlist.setId(UUID.randomUUID().toString());
 
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        em.persist(playlist);
-        
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("insert into " +
+                "  T_PLAYLIST(PLL_ID_C, PLL_IDUSER_C)" +
+                "  values(:id, :userId)")
+                .bind("id", playlist.getId())
+                .bind("userId", playlist.getUserId())
+                .execute();
+
         return playlist.getId();
     }
 

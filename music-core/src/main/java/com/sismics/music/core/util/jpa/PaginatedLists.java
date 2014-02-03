@@ -1,7 +1,9 @@
 package com.sismics.music.core.util.jpa;
 
-import javax.persistence.Query;
+import org.skife.jdbi.v2.Query;
+
 import java.util.List;
+import java.util.Map;
 
 /**
  * Utilities for paginated lists.
@@ -63,7 +65,7 @@ public class PaginatedLists {
         
         Query q = QueryUtil.getNativeQuery(countQueryParam);
         
-        Number resultCount = (Number) q.getSingleResult();
+        Long resultCount = ((Map<String,Long>) q.first()).get("result_count");
         paginatedList.setResultCount(resultCount.intValue());
     }
 
@@ -78,9 +80,9 @@ public class PaginatedLists {
     private static <E> List<Object[]> executeResultQuery(PaginatedList<E> paginatedList, QueryParam queryParam) {
         Query q = QueryUtil.getNativeQuery(queryParam);
         
-        q.setFirstResult(paginatedList.getOffset());
-        q.setMaxResults(paginatedList.getLimit());
-        return q.getResultList();
+        //q.setOffset(paginatedList.getOffset()); // TODO how to do offset?
+        q.setMaxRows(paginatedList.getLimit());
+        return q.list();
     }
     
     /**

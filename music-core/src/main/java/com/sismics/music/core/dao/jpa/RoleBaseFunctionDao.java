@@ -1,12 +1,12 @@
 package com.sismics.music.core.dao.jpa;
 
-import java.util.Set;
-
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-
 import com.google.common.collect.Sets;
 import com.sismics.util.context.ThreadLocalContext;
+import org.skife.jdbi.v2.Handle;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Role base functions DAO.
@@ -20,14 +20,18 @@ public class RoleBaseFunctionDao {
      * @param roleId Role ID
      * @return Set of base functions
      */
-    @SuppressWarnings("unchecked")
     public Set<String> findByRoleId(String roleId) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        StringBuilder sb = new StringBuilder("select rbf.RBF_IDBASEFUNCTION_C from T_ROLE_BASE_FUNCTION rbf, T_ROLE r");
-        sb.append(" where rbf.RBF_IDROLE_C = :roleId and rbf.RBF_DELETEDATE_D is null");
-        sb.append(" and r.ROL_ID_C = rbf.RBF_IDROLE_C and r.ROL_DELETEDATE_D is null");
-        Query q = em.createNativeQuery(sb.toString());
-        q.setParameter("roleId", roleId);
-        return Sets.newHashSet(q.getResultList());
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        List<Map<String, Object>> resultList = handle.createQuery("select rbf.RBF_IDBASEFUNCTION_C " +
+                "  from T_ROLE_BASE_FUNCTION rbf, T_ROLE r" +
+                "  where rbf.RBF_IDROLE_C = :roleId and rbf.RBF_DELETEDATE_D is null" +
+                "  and r.ROL_ID_C = rbf.RBF_IDROLE_C and r.ROL_DELETEDATE_D is null")
+                .bind("roleId", roleId)
+                .list();
+        Set<String> roleSet = Sets.newHashSet();
+        for (Map<String, Object> role : resultList) {
+            roleSet.add((String) role.get("RBF_IDBASEFUNCTION_C"));
+        }
+        return roleSet;
     }
 }

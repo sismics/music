@@ -192,8 +192,8 @@ public class TrackDao {
     @SuppressWarnings("unchecked")
     public List<TrackDto> findByCriteria(TrackCriteria criteria) {
         QueryParam queryParam = getQueryParam(criteria);
-        Query q = QueryUtil.getNativeQuery(queryParam);
-        List<Object[]> l = q.getResultList();
+        org.skife.jdbi.v2.Query q = QueryUtil.getNativeQuery(queryParam);
+        List<Object[]> l = q.list();
         return assembleResultList(l);
     }
 

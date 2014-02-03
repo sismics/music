@@ -35,6 +35,9 @@ public class RoleBaseFunction {
      */
     private Date deleteDate;
 
+    public RoleBaseFunction() {
+    }
+
     public RoleBaseFunction(String id, String roleId, String baseFunctionId, Date createDate, Date deleteDate) {
         this.id = id;
         this.roleId = roleId;

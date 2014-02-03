@@ -10,10 +10,9 @@ import com.sismics.music.core.util.jpa.QueryParam;
 import com.sismics.music.core.util.jpa.SortCriteria;
 import com.sismics.util.context.ThreadLocalContext;
 import org.mindrot.jbcrypt.BCrypt;
+import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
 
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -31,18 +30,17 @@ public class UserDao {
      * @return ID of the authenticated user or null
      */
     public String authenticate(String username, String password) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        Query q = em.createQuery("select u from User u where u.username = :username and u.deleteDate is null");
-        q.setParameter("username", username);
-        try {
-            User user = (User) q.getSingleResult();
-            if (!BCrypt.checkpw(password, user.getPassword())) {
-                return null;
-            }
-            return user.getId();
-        } catch (NoResultException e) {
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        Query<User> q = handle.createQuery("select u.USE_ID_C, u.USE_IDLOCALE_C, u.USE_IDROLE_C, u.USE_USERNAME_C, u.USE_PASSWORD_C, u.USE_EMAIL_C, u.USE_THEME_C, u.USE_MAXBITRATE_N, u.USE_LASTFMLOGIN_C, u.USE_LASTFMPASSWORD_C, u.USE_LASTFMACTIVE_B, u.USE_FIRSTCONNECTION_B, u.USE_CREATEDATE_D, u.USE_DELETEDATE_D" +
+                "  from T_USER u" +
+                "  where u.USE_USERNAME_C = :username and u.USE_DELETEDATE_D is null")
+                .bind("username", username)
+                .mapTo(User.class);
+        User user = q.first();
+        if (user == null || !BCrypt.checkpw(password, user.getPassword())) {
             return null;
         }
+        return user.getId();
     }
     
     /**
@@ -53,23 +51,38 @@ public class UserDao {
      * @throws Exception
      */
     public String create(User user) throws Exception {
-        // Create the user UUID
+        // Init user data
         user.setId(UUID.randomUUID().toString());
-        
-        // Checks for user unicity
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        Query q = em.createQuery("select u from User u where u.username = :username and u.deleteDate is null");
-        q.setParameter("username", user.getUsername());
-        List<?> l = q.getResultList();
-        if (l.size() > 0) {
-            throw new Exception("AlreadyExistingUsername");
-        }
-        
-        user.setCreateDate(new Date());
         user.setPassword(hashPassword(user.getPassword()));
         user.setTheme(Constants.DEFAULT_THEME_ID);
-        em.persist(user);
-        
+        user.setFirstConnection(true);
+        user.setCreateDate(new Date());
+
+        // Checks for user unicity
+        if (getActiveByUsername(user.getUsername()) != null) {
+            throw new Exception("AlreadyExistingUsername");
+        }
+
+        // Create user
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("insert into " +
+                " T_USER(USE_ID_C, USE_IDLOCALE_C, USE_IDROLE_C, USE_USERNAME_C, USE_PASSWORD_C, USE_EMAIL_C, USE_THEME_C, USE_MAXBITRATE_N, USE_LASTFMLOGIN_C, USE_LASTFMPASSWORD_C, USE_LASTFMACTIVE_B, USE_FIRSTCONNECTION_B, USE_CREATEDATE_D)" +
+                " values(:id, :localeId, :roleId, :username, :password, :email, :theme, :maxBitrate, :lastFmLogin, :lastFmPassword, :lastFmActive, :firstConnection, :createDate)")
+                .bind("id", user.getId())
+                .bind("localeId", user.getLocaleId())
+                .bind("roleId", user.getRoleId())
+                .bind("username", user.getUsername())
+                .bind("password", user.getPassword())
+                .bind("email", user.getEmail())
+                .bind("theme", user.getTheme())
+                .bind("maxBitrate", user.getMaxBitrate())
+                .bind("lastFmLogin", user.getLastFmLogin())
+                .bind("lastFmPassword", user.getLastFmPassword())
+                .bind("lastFmActive", user.isLastFmActive())
+                .bind("firstConnection", user.isFirstConnection())
+                .bind("createDate", user.getCreateDate())
+                .execute();
+
         return user.getId();
     }
     
@@ -80,19 +93,20 @@ public class UserDao {
      * @return Updated user
      */
     public User update(User user) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        
-        // Get the user
-        Query q = em.createQuery("select u from User u where u.id = :id and u.deleteDate is null");
-        q.setParameter("id", user.getId());
-        User userFromDb = (User) q.getSingleResult();
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("update T_USER u set " +
+                " u.USE_IDLOCALE_C = :localeId," +
+                " u.USE_EMAIL_C = :email, " +
+                " u.USE_THEME_C = :theme, " +
+                " u.USE_FIRSTCONNECTION_B = :firstConnection " +
+                " where u.USE_ID_C = :id and u.USE_DELETEDATE_D is null")
+                .bind("id", user.getId())
+                .bind("localeId", user.getLocaleId())
+                .bind("email", user.getEmail())
+                .bind("theme", user.getTheme())
+                .bind("firstConnection", user.isFirstConnection())
+                .execute();
 
-        // Update the user
-        userFromDb.setLocaleId(user.getLocaleId());
-        userFromDb.setEmail(user.getEmail());
-        userFromDb.setTheme(user.getTheme());
-        userFromDb.setFirstConnection(user.isFirstConnection());
-        
         return user;
     }
     
@@ -103,16 +117,14 @@ public class UserDao {
      * @return Updated user
      */
     public User updatePassword(User user) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        
-        // Get the user
-        Query q = em.createQuery("select u from User u where u.id = :id and u.deleteDate is null");
-        q.setParameter("id", user.getId());
-        User userFromDb = (User) q.getSingleResult();
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("update T_USER u set " +
+                " u.USE_PASSWORD_C = :password " +
+                " where u.USE_ID_C = :id and u.USE_DELETEDATE_D is null")
+                .bind("id", user.getId())
+                .bind("password", hashPassword(user.getPassword()))
+                .execute();
 
-        // Update the user
-        userFromDb.setPassword(hashPassword(user.getPassword()));
-        
         return user;
     }
 
@@ -122,13 +134,14 @@ public class UserDao {
      * @param id User ID
      * @return User
      */
-    public User getById(String id) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        try {
-            return em.find(User.class, id);
-        } catch (NoResultException e) {
-            return null;
-        }
+    public User getActiveById(String id) {
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        Query<User> q = handle.createQuery("select u.USE_ID_C, u.USE_IDLOCALE_C, u.USE_IDROLE_C, u.USE_USERNAME_C, u.USE_PASSWORD_C, u.USE_EMAIL_C, u.USE_THEME_C, u.USE_MAXBITRATE_N, u.USE_LASTFMLOGIN_C, u.USE_LASTFMPASSWORD_C, u.USE_LASTFMACTIVE_B, u.USE_FIRSTCONNECTION_B, u.USE_CREATEDATE_D, u.USE_DELETEDATE_D" +
+                "  from T_USER u" +
+                "  where u.USE_ID_C = :id and u.USE_DELETEDATE_D is null")
+                .bind("id", id)
+                .mapTo(User.class);
+        return q.first();
     }
     
     /**
@@ -138,14 +151,13 @@ public class UserDao {
      * @return User
      */
     public User getActiveByUsername(String username) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        try {
-            Query q = em.createQuery("select u from User u where u.username = :username and u.deleteDate is null");
-            q.setParameter("username", username);
-            return (User) q.getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        Query<User> q = handle.createQuery("select u.USE_ID_C, u.USE_IDLOCALE_C, u.USE_IDROLE_C, u.USE_USERNAME_C, u.USE_PASSWORD_C, u.USE_EMAIL_C, u.USE_THEME_C, u.USE_MAXBITRATE_N, u.USE_LASTFMLOGIN_C, u.USE_LASTFMPASSWORD_C, u.USE_LASTFMACTIVE_B, u.USE_FIRSTCONNECTION_B, u.USE_CREATEDATE_D, u.USE_DELETEDATE_D" +
+                "  from T_USER u" +
+                "  where u.USE_USERNAME_C = :username and u.USE_DELETEDATE_D is null")
+                .bind("username", username)
+                .mapTo(User.class);
+        return q.first();
     }
     
     /**
@@ -155,14 +167,13 @@ public class UserDao {
      * @return User
      */
     public User getActiveByPasswordResetKey(String passwordResetKey) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        try {
-            Query q = em.createQuery("select u from User u where u.passwordResetKey = :passwordResetKey and u.deleteDate is null");
-            q.setParameter("passwordResetKey", passwordResetKey);
-            return (User) q.getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        Query<User> q = handle.createQuery("select u.USE_ID_C, u.USE_IDLOCALE_C, u.USE_IDROLE_C, u.USE_USERNAME_C, u.USE_PASSWORD_C, u.USE_EMAIL_C, u.USE_THEME_C, u.USE_MAXBITRATE_N, u.USE_LASTFMLOGIN_C, u.USE_LASTFMPASSWORD_C, u.USE_LASTFMACTIVE_B, u.USE_FIRSTCONNECTION_B, u.USE_CREATEDATE_D, u.USE_DELETEDATE_D" +
+                "  from T_USER u" +
+                "  where u.USE_PASSWORDRESETKEY_C = :passwordResetKey and u.USE_DELETEDATE_D is null")
+                .bind("passwordResetKey", passwordResetKey)
+                .mapTo(User.class);
+        return q.first();
     }
     
     /**
@@ -171,21 +182,13 @@ public class UserDao {
      * @param username User's username
      */
     public void delete(String username) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-            
-        // Get the user
-        Query q = em.createQuery("select u from User u where u.username = :username and u.deleteDate is null");
-        q.setParameter("username", username);
-        User userFromDb = (User) q.getSingleResult();
-        
-        // Delete the user
-        Date dateNow = new Date();
-        userFromDb.setDeleteDate(dateNow);
-
-        // Delete linked data
-        q = em.createQuery("delete from AuthenticationToken at where at.userId = :userId");
-        q.setParameter("userId", userFromDb.getId());
-        q.executeUpdate();
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("update T_USER d" +
+                "  set u.USE_DELETEDATE_D = :deleteDate" +
+                "  where u.USE_USERNAME_C = :username u.USE_DELETEDATE_D is null")
+                .bind("username", username)
+                .bind("deleteDate", new Date())
+                .execute();
     }
 
     /**

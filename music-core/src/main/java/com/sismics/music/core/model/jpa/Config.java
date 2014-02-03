@@ -19,6 +19,9 @@ public class Config {
      */
     private String value;
 
+    public Config() {
+    }
+
     public Config(ConfigType id, String value) {
         this.id = id;
         this.value = value;

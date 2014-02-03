@@ -1,11 +1,10 @@
 package com.sismics.music.core.util.jpa;
 
-import java.util.Map.Entry;
-
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-
 import com.sismics.util.context.ThreadLocalContext;
+import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
+
+import java.util.Map.Entry;
 
 /**
  * Query utilities.
@@ -21,10 +20,10 @@ public class QueryUtil {
      * @return Native query
      */
     public static Query getNativeQuery(QueryParam queryParam) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        Query query = em.createNativeQuery(queryParam.getQueryString());
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        Query query = handle.createQuery(queryParam.getQueryString());
         for (Entry<String, Object> entry : queryParam.getParameterMap().entrySet()) {
-            query.setParameter(entry.getKey(), entry.getValue());
+            query.bind(entry.getKey(), entry.getValue());
         }
         return query;
     }

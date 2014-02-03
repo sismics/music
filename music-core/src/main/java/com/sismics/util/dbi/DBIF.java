@@ -1,7 +1,7 @@
 package com.sismics.util.dbi;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import com.sismics.music.core.dao.jpa.mapper.LocaleMapper;
+import com.sismics.music.core.dao.jpa.mapper.*;
 import com.sismics.music.core.util.DirectoryUtil;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
@@ -36,7 +36,20 @@ public class DBIF {
         try {
             ComboPooledDataSource cpds = new ComboPooledDataSource(); // TODO use getEntityManagerProperties()
             dbi = new DBI(cpds);
+            dbi.registerMapper(new AlbumMapper());
+            dbi.registerMapper(new ArtistMapper());
+            dbi.registerMapper(new AuthenticationTokenMapper());
+            dbi.registerMapper(new BaseFunctionMapper());
+            dbi.registerMapper(new ConfigMapper());
+            dbi.registerMapper(new DirectoryMapper());
             dbi.registerMapper(new LocaleMapper());
+            dbi.registerMapper(new PlaylistMapper());
+            dbi.registerMapper(new PlaylistTrackMapper());
+            dbi.registerMapper(new RoleBaseFunctionMapper());
+            dbi.registerMapper(new RoleMapper());
+            dbi.registerMapper(new TrackMapper());
+            dbi.registerMapper(new TranscoderMapper());
+            dbi.registerMapper(new UserMapper());
         } catch (Throwable t) {
             log.error("Error creating DBI", t);
         }

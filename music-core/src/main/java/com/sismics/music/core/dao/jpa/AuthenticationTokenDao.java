@@ -1,15 +1,12 @@
 package com.sismics.music.core.dao.jpa;
 
-import java.util.Date;
-import java.util.UUID;
-
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-
-import org.joda.time.DateTime;
-
 import com.sismics.music.core.model.jpa.AuthenticationToken;
 import com.sismics.util.context.ThreadLocalContext;
+import org.joda.time.DateTime;
+import org.skife.jdbi.v2.Handle;
+
+import java.util.Date;
+import java.util.UUID;
 
 /**
  * Authentication token DAO.
@@ -24,8 +21,13 @@ public class AuthenticationTokenDao {
      * @return Authentication token
      */
     public AuthenticationToken get(String id) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        return em.find(AuthenticationToken.class, id);
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        return handle.createQuery("select AUT_ID_C, AUT_IDUSER_C, AUT_LONGLASTED_B, AUT_CREATEDATE_D, AUT_LASTCONNECTIONDATE_D" +
+                "  from T_AUTHENTICATION_TOKEN" +
+                "  where AUT_ID_C = :id")
+                .bind("id", id)
+                .mapTo(AuthenticationToken.class)
+                .first();
     }
 
     /**
@@ -35,12 +37,19 @@ public class AuthenticationTokenDao {
      * @return Authentication token ID
      */
     public String create(AuthenticationToken authenticationToken) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-            
         authenticationToken.setId(UUID.randomUUID().toString());
-        authenticationToken.setCreationDate(new Date());
-        em.persist(authenticationToken);
-        
+        authenticationToken.setCreateDate(new Date());
+
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("insert into " +
+                "  T_AUTHENTICATION_TOKEN(AUT_ID_C, AUT_IDUSER_C, AUT_LONGLASTED_B, AUT_CREATEDATE_D)" +
+                "  values(:id, :userId, :longLasted, :createDate)")
+                .bind("id", authenticationToken.getId())
+                .bind("userId", authenticationToken.getUserId())
+                .bind("longLasted", authenticationToken.isLongLasted())
+                .bind("createDate", authenticationToken.getCreateDate())
+                .execute();
+            
         return authenticationToken.getId();
     }
 
@@ -51,10 +60,14 @@ public class AuthenticationTokenDao {
      * @throws Exception
      */
     public void delete(String authenticationTokenId) throws Exception {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        AuthenticationToken authenticationToken = em.find(AuthenticationToken.class, authenticationTokenId);
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        AuthenticationToken authenticationToken = get(authenticationTokenId);
         if (authenticationToken != null) {
-            em.remove(authenticationToken);
+            handle.createStatement("delete from " +
+                    "  T_AUTHENTICATION_TOKEN" +
+                    "  where AUT_ID_C = :id")
+                    .bind("id", authenticationToken.getId())
+                    .execute();
         } else {
             throw new Exception("Token not found: " + authenticationTokenId);
         }
@@ -66,16 +79,14 @@ public class AuthenticationTokenDao {
      * @param userId User ID
      */
     public void deleteOldSessionToken(String userId) {
-        StringBuilder sb = new StringBuilder("delete from T_AUTHENTICATION_TOKEN AS ato ");
-        sb.append(" where ato.AUT_IDUSER_C = :userId and ato.AUT_LONGLASTED_B = :longLasted");
-        sb.append(" and ato.AUT_LASTCONNECTIONDATE_D < :minDate ");
-
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        Query q = em.createNativeQuery(sb.toString());
-        q.setParameter("userId", userId);
-        q.setParameter("longLasted", false);
-        q.setParameter("minDate", DateTime.now().minusDays(1).toDate());
-        q.executeUpdate();
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("delete from T_AUTHENTICATION_TOKEN AS ato " +
+                "  where ato.AUT_IDUSER_C = :userId and ato.AUT_LONGLASTED_B = :longLasted" +
+                "  and ato.AUT_LASTCONNECTIONDATE_D < :minDate")
+                .bind("userId", userId)
+                .bind("longLasted", false)
+                .bind("minDate", DateTime.now().minusDays(1).toDate())
+                .execute();
     }
 
     /**
@@ -84,14 +95,12 @@ public class AuthenticationTokenDao {
      * @param id Token id
      */
     public void updateLastConnectionDate(String id) {
-        StringBuilder sb = new StringBuilder("update T_AUTHENTICATION_TOKEN ato ");
-        sb.append(" set ato.AUT_LASTCONNECTIONDATE_D = :currentDate ");
-        sb.append(" where ato.AUT_ID_C = :id");
-
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        Query q = em.createNativeQuery(sb.toString());
-        q.setParameter("currentDate", new Date());
-        q.setParameter("id", id);
-        q.executeUpdate();
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("update T_AUTHENTICATION_TOKEN ato " +
+                "  set ato.AUT_LASTCONNECTIONDATE_D = :currentDate" +
+                "  where ato.AUT_ID_C = :id ")
+                .bind("currentDate", new Date())
+                .bind("id", id)
+                .execute();
     }
 }

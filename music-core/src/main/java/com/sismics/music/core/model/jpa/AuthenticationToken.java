@@ -28,18 +28,21 @@ public class AuthenticationToken {
     /**
      * Token creation date.
      */
-    private Date creationDate;
+    private Date createDate;
 
     /**
      * Last connection date using this token.
      */
     private Date lastConnectionDate;
 
-    public AuthenticationToken(String id, String userId, boolean longLasted, Date creationDate, Date lastConnectionDate) {
+    public AuthenticationToken() {
+    }
+
+    public AuthenticationToken(String id, String userId, boolean longLasted, Date createDate, Date lastConnectionDate) {
         this.id = id;
         this.userId = userId;
         this.longLasted = longLasted;
-        this.creationDate = creationDate;
+        this.createDate = createDate;
         this.lastConnectionDate = lastConnectionDate;
     }
 
@@ -98,21 +101,21 @@ public class AuthenticationToken {
     }
 
     /**
-     * Getter of creationDate.
+     * Getter of createDate.
      *
-     * @return creationDate
+     * @return createDate
      */
-    public Date getCreationDate() {
-        return creationDate;
+    public Date getCreateDate() {
+        return createDate;
     }
 
     /**
-     * Setter of creationDate.
+     * Setter of createDate.
      *
-     * @param creationDate creationDate
+     * @param createDate createDate
      */
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
 
     /**

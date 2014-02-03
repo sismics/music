@@ -1,33 +1,8 @@
 package com.sismics.music.rest.resource;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import javax.servlet.http.Cookie;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.NewCookie;
-import javax.ws.rs.core.Response;
-
-import com.sismics.music.core.dao.jpa.PlaylistDao;
-import com.sismics.music.core.model.jpa.Playlist;
-import org.apache.commons.lang.StringUtils;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
 import com.sismics.music.core.constant.Constants;
 import com.sismics.music.core.dao.jpa.AuthenticationTokenDao;
+import com.sismics.music.core.dao.jpa.PlaylistDao;
 import com.sismics.music.core.dao.jpa.RoleBaseFunctionDao;
 import com.sismics.music.core.dao.jpa.UserDao;
 import com.sismics.music.core.dao.jpa.dto.UserDto;
@@ -35,6 +10,7 @@ import com.sismics.music.core.event.PasswordChangedEvent;
 import com.sismics.music.core.event.UserCreatedEvent;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.jpa.AuthenticationToken;
+import com.sismics.music.core.model.jpa.Playlist;
 import com.sismics.music.core.model.jpa.User;
 import com.sismics.music.core.util.jpa.PaginatedList;
 import com.sismics.music.core.util.jpa.PaginatedLists;
@@ -48,6 +24,20 @@ import com.sismics.security.UserPrincipal;
 import com.sismics.util.EnvironmentUtil;
 import com.sismics.util.LocaleUtil;
 import com.sismics.util.filter.TokenBasedSecurityFilter;
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+
+import javax.servlet.http.Cookie;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * User REST resources.
@@ -486,14 +476,14 @@ public class UserResource extends BaseResource {
             
             // Check if admin has the default password
             UserDao userDao = new UserDao();
-            User adminUser = userDao.getById("admin");
+            User adminUser = userDao.getActiveById("admin");
             if (adminUser != null && adminUser.getDeleteDate() == null) {
                 response.put("is_default_password", Constants.DEFAULT_ADMIN_PASSWORD.equals(adminUser.getPassword()));
             }
         } else {
             response.put("anonymous", false);
             UserDao userDao = new UserDao();
-            User user = userDao.getById(principal.getId());
+            User user = userDao.getActiveById(principal.getId());
             response.put("username", user.getUsername());
             response.put("email", user.getEmail());
             response.put("theme", user.getTheme());

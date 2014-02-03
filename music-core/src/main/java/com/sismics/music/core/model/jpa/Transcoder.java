@@ -50,6 +50,20 @@ public class Transcoder {
      */
     private Date deleteDate;
 
+    public Transcoder() {
+    }
+
+    public Transcoder(String id, String name, String source, Date destination, Date readDate, Date starredDate, Date createDate, Date deleteDate) {
+        this.id = id;
+        this.name = name;
+        this.source = source;
+        this.destination = destination;
+        this.readDate = readDate;
+        this.starredDate = starredDate;
+        this.createDate = createDate;
+        this.deleteDate = deleteDate;
+    }
+
     /**
      * Getter of id.
      *

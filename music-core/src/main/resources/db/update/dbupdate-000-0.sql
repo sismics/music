@@ -1,6 +1,6 @@
 create cached table T_ALBUM ( ALB_ID_C varchar(36) not null, ALB_IDDIRECTORY_C varchar(36) not null, ALB_IDARTIST_C varchar(36) not null, ALB_NAME_C varchar(1000) not null, ALB_ALBUMART_C varchar(36), ALB_CREATEDATE_D datetime not null, ALB_DELETEDATE_D datetime, primary key (ALB_ID_C) );
 create cached table T_ARTIST ( ART_ID_C varchar(36) not null, ART_NAME_C varchar(1000) not null, ART_CREATEDATE_D datetime not null, ART_DELETEDATE_D datetime, primary key (ART_ID_C) );
-create memory table T_AUTHENTICATION_TOKEN ( AUT_ID_C varchar(36) not null, AUT_IDUSER_C varchar(36) not null, AUT_LONGLASTED_B bit not null, AUT_CREATIONDATE_D datetime not null, AUT_LASTCONNECTIONDATE_D datetime, primary key (AUT_ID_C) );
+create memory table T_AUTHENTICATION_TOKEN ( AUT_ID_C varchar(36) not null, AUT_IDUSER_C varchar(36) not null, AUT_LONGLASTED_B bit not null, AUT_CREATEDATE_D datetime not null, AUT_LASTCONNECTIONDATE_D datetime, primary key (AUT_ID_C) );
 create memory table T_BASE_FUNCTION ( BAF_ID_C varchar(20) not null, primary key (BAF_ID_C) );
 create memory table T_CONFIG ( CFG_ID_C varchar(50) not null, CFG_VALUE_C varchar(250) not null, primary key (CFG_ID_C) );
 create memory table T_DIRECTORY ( DIR_ID_C varchar(36) not null, DIR_NAME_C varchar(100) not null, DIR_LOCATION_C varchar(1000), DIR_CREATEDATE_D datetime not null, DIR_DISABLEDATE_D datetime, DIR_DELETEDATE_D datetime, primary key (DIR_ID_C) );
