@@ -24,6 +24,8 @@
     <org.slf4j.jcl-over-slf4j.version>1.6.6</org.slf4j.jcl-over-slf4j.version>
     <junit.junit.version>4.7</junit.junit.version>
     <org.hsqldb.hsqldb.version>2.3.0</org.hsqldb.hsqldb.version>
+    <com.mchange.c3p0.version>0.9.5-pre6</com.mchange.c3p0.version>
+    <org.jdbi.jdbi.version>2.51</org.jdbi.jdbi.version>
     <com.sun.jersey.version>1.17</com.sun.jersey.version>
     <org.mindrot.jbcrypt>0.3m</org.mindrot.jbcrypt>
     <org.subethamail.subethasmtp.version>3.1.6</org.subethamail.subethasmtp.version>
@@ -388,6 +390,18 @@
         <groupId>org.hsqldb</groupId>
         <artifactId>hsqldb</artifactId>
         <version>${org.hsqldb.hsqldb.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.mchange</groupId>
+        <artifactId>c3p0</artifactId>
+        <version>${com.mchange.c3p0.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi</artifactId>
+        <version>${org.jdbi.jdbi.version}</version>
       </dependency>
 
       <dependency>

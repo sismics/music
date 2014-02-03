@@ -1,46 +1,41 @@
 package com.sismics.music.core.model.jpa;
 
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 import com.google.common.base.Objects;
+
+import java.util.Date;
 
 /**
  * Role (set of base functions).
  * 
  * @author jtremeaux
  */
-@Entity
-@Table(name = "T_ROLE")
 public class Role {
     /**
      * Role ID.
      */
-    @Id
-    @Column(name = "ROL_ID_C", length = 36)
     private String id;
     
     /**
      * Role name.
      */
-    @Column(name = "ROL_NAME_C", nullable = false, length = 50)
     private String name;
     
     /**
      * Creation date.
      */
-    @Column(name = "ROL_CREATEDATE_D", nullable = false)
     private Date createDate;
     
     /**
      * Deletion date.
      */
-    @Column(name = "ROL_DELETEDATE_D")
     private Date deleteDate;
+
+    public Role(String id, String name, Date createDate, Date deleteDate) {
+        this.id = id;
+        this.name = name;
+        this.createDate = createDate;
+        this.deleteDate = deleteDate;
+    }
 
     /**
      * Getter of id.

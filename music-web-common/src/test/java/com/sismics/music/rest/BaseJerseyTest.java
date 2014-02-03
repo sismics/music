@@ -1,18 +1,8 @@
 package com.sismics.music.rest;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URLDecoder;
-import java.util.List;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeUtility;
-
-import com.sismics.music.core.model.context.AppContext;
-import com.sismics.util.jpa.EMF;
+import com.sismics.music.rest.descriptor.JerseyTestWebAppDescriptorFactory;
+import com.sismics.music.rest.util.ClientUtil;
+import com.sun.jersey.test.framework.JerseyTest;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.junit.After;
@@ -20,9 +10,15 @@ import org.junit.Before;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
-import com.sismics.music.rest.descriptor.JerseyTestWebAppDescriptorFactory;
-import com.sismics.music.rest.util.ClientUtil;
-import com.sun.jersey.test.framework.JerseyTest;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeUtility;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLDecoder;
+import java.util.List;
 
 /**
  * Base class of integration tests with Jersey.
@@ -64,7 +60,7 @@ public abstract class BaseJerseyTest extends JerseyTest {
 
 //        if (EMF.get() != null) {
 //            EMF.get().close();
-//            EMF.createEntityManager();
+//            EMF.createDbi();
 //        }
 
         String httpRoot = URLDecoder.decode(new File(getClass().getResource("/").getFile()).getAbsolutePath(), "utf-8");

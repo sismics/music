@@ -2,10 +2,6 @@ package com.sismics.music.core.model.jpa;
 
 import com.google.common.base.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.util.Date;
 
 /**
@@ -13,52 +9,55 @@ import java.util.Date;
  * 
  * @author jtremeaux
  */
-@Entity
-@Table(name = "T_ALBUM")
 public class Album {
     /**
      * Album ID.
      */
-    @Id
-    @Column(name = "ALB_ID_C", length = 36)
     private String id;
 
     /**
      * Directory ID.
      */
-    @Column(name = "ALB_IDDIRECTORY_C", nullable = false, length = 36)
     private String directoryId;
 
     /**
      * Artist ID.
      */
-    @Column(name = "ALB_IDARTIST_C", nullable = false, length = 36)
     private String artistId;
 
     /**
      * Album title.
      */
-    @Column(name = "ALB_NAME_C", nullable = false, length = 1000)
     private String name;
 
     /**
      * Album art ID (same as the file name).
      */
-    @Column(name = "ALB_ALBUMART_C", length = 36)
     private String albumArt;
 
     /**
      * Creation date.
      */
-    @Column(name = "ALB_CREATEDATE_D", nullable = false)
     private Date createDate;
     
     /**
      * Deletion date.
      */
-    @Column(name = "ALB_DELETEDATE_D")
     private Date deleteDate;
-    
+
+    public Album() {
+    }
+
+    public Album(String id, String directoryId, String artistId, String name, String albumArt, Date createDate, Date deleteDate) {
+        this.id = id;
+        this.directoryId = directoryId;
+        this.artistId = artistId;
+        this.name = name;
+        this.albumArt = albumArt;
+        this.createDate = createDate;
+        this.deleteDate = deleteDate;
+    }
+
     /**
      * Getter of id.
      *

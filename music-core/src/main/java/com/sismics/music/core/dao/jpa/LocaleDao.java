@@ -1,13 +1,12 @@
 package com.sismics.music.core.dao.jpa;
 
-import java.util.List;
-
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
-
+import com.sismics.music.core.dao.jpa.mapper.LocaleMapper;
 import com.sismics.music.core.model.jpa.Locale;
 import com.sismics.util.context.ThreadLocalContext;
+import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
+
+import java.util.List;
 
 /**
  * Locale DAO.
@@ -22,10 +21,10 @@ public class LocaleDao {
      * @return Locale
      */
     public Locale getById(String id) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
+        final Handle handle = ThreadLocalContext.get().getHandle();
         try {
-            return em.find(Locale.class, id);
-        } catch (NoResultException e) {
+            return (Locale) handle.createQuery("select LOC_ID_C from T_LOCALE where id = :id").bind("id", id).map(new LocaleMapper()).first();
+        } catch (Exception e) {
             return null;
         }
     }
@@ -37,8 +36,8 @@ public class LocaleDao {
      */
     @SuppressWarnings("unchecked")
     public List<Locale> findAll() {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        Query q = em.createQuery("select l from Locale l order by l.id");
-        return q.getResultList();
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        Query q = handle.createQuery("select LOC_ID_C from T_LOCALE order by LOC_ID_C asc");
+        return q.map(new LocaleMapper()).list();
     }
 }

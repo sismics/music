@@ -1,36 +1,21 @@
-package com.sismics.util.jpa;
-
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Writer;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.ResourceBundle;
-
-import org.hibernate.HibernateException;
-import org.hibernate.JDBCException;
-import org.hibernate.engine.jdbc.internal.FormatStyle;
-import org.hibernate.engine.jdbc.internal.Formatter;
-import org.hibernate.engine.jdbc.spi.JdbcServices;
-import org.hibernate.engine.jdbc.spi.SqlStatementLogger;
-import org.hibernate.service.ServiceRegistry;
-import org.hibernate.tool.hbm2ddl.ConnectionHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package com.sismics.util.dbi;
 
 import com.google.common.base.Strings;
 import com.google.common.io.CharStreams;
 import com.sismics.music.core.util.ConfigUtil;
 import com.sismics.util.ResourceUtil;
+import org.hibernate.HibernateException;
+import org.skife.jdbi.v2.Handle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.text.MessageFormat;
+import java.util.*;
 
 /**
  * A helper to update the database incrementally.
@@ -43,51 +28,29 @@ public abstract class DbOpenHelper {
      */
     private static final Logger log = LoggerFactory.getLogger(DbOpenHelper.class);
 
-    private final ConnectionHelper connectionHelper;
-    
-    private final SqlStatementLogger sqlStatementLogger;
+    private final Handle handle;
     
     private final List<Exception> exceptions = new ArrayList<Exception>();
 
-    private Formatter formatter;
-
     private boolean haltOnError;
     
-    private Statement stmt;
-
-    public DbOpenHelper(ServiceRegistry serviceRegistry) throws HibernateException {
-        final JdbcServices jdbcServices = serviceRegistry.getService(JdbcServices.class);
-        connectionHelper = new SuppliedConnectionProviderConnectionHelper(jdbcServices.getConnectionProvider());
-
-        sqlStatementLogger = jdbcServices.getSqlStatementLogger();
-        formatter = (sqlStatementLogger.isFormat() ? FormatStyle.DDL : FormatStyle.NONE).getFormatter();
+    public DbOpenHelper(Handle handle) throws HibernateException {
+        this.handle = handle;
     }
 
     public void open() {
         log.info("Opening database and executing incremental updates");
 
         Connection connection = null;
-        Writer outputFileWriter = null;
-
         exceptions.clear();
 
         try {
-            try {
-                connectionHelper.prepare(true);
-                connection = connectionHelper.getConnection();
-            } catch (SQLException sqle) {
-                exceptions.add(sqle);
-                log.error("Unable to get database metadata", sqle);
-                throw sqle;
-            }
-
             // Check if database is already created
             Integer oldVersion = null;
             try {
-                stmt = connection.createStatement();
-                ResultSet result = stmt.executeQuery("select c.CFG_VALUE_C from T_CONFIG c where c.CFG_ID_C='DB_VERSION'");
-                if (result.next()) {
-                    String oldVersionStr = result.getString(1);
+                List<Map<String,Object>> resultMap = handle.select("select c.CFG_VALUE_C as ver from T_CONFIG c where c.CFG_ID_C='DB_VERSION'");
+                if (!resultMap.isEmpty()) {
+                    String oldVersionStr = (String) resultMap.get(0).get("ver");
                     oldVersion = Integer.parseInt(oldVersionStr);
                 }
             } catch (Exception e) {
@@ -96,14 +59,8 @@ public abstract class DbOpenHelper {
                 } else {
                     log.error("Unable to get database version", e);
                 }
-            } finally {
-                if (stmt != null) {
-                    stmt.close();
-                    stmt = null;
-                }
             }
 
-            stmt = connection.createStatement();
             if (oldVersion == null) {
                 // Execute creation script
                 log.info("Executing initial schema creation script");
@@ -120,25 +77,6 @@ public abstract class DbOpenHelper {
         } catch (Exception e) {
             exceptions.add(e);
             log.error("Unable to complete schema update", e);
-        } finally {
-            try {
-                if (stmt != null) {
-                    stmt.close();
-                    stmt = null;
-                }
-                connectionHelper.release();
-            } catch (Exception e) {
-                exceptions.add(e);
-                log.error("Unable to close connection", e);
-            }
-            try {
-                if (outputFileWriter != null) {
-                    outputFileWriter.close();
-                }
-            } catch (Exception e) {
-                exceptions.add(e);
-                log.error("Unable to close connection", e);
-            }
         }
     }
 
@@ -171,10 +109,9 @@ public abstract class DbOpenHelper {
      * Execute a SQL script. All statements must be one line only.
      * 
      * @param inputScript Script to execute
-     * @throws IOException
-     * @throws SQLException
+     * @throws Exception
      */
-    protected void executeScript(InputStream inputScript) throws IOException, SQLException {
+    protected void executeScript(InputStream inputScript) throws Exception {
         List<String> lines = CharStreams.readLines(new InputStreamReader(inputScript));
         
         for (String sql : lines) {
@@ -182,17 +119,13 @@ public abstract class DbOpenHelper {
                 continue;
             }
             
-            String formatted = formatter.format(sql);
+//            String formatted = formatter.format(sql);
             try {
-                log.debug(formatted);
-                stmt.executeUpdate(formatted);
-            } catch (SQLException e) {
+                log.debug(sql);
+                handle.update(sql);
+            } catch (Exception e) {
                 if (haltOnError) {
-                    if (stmt != null) {
-                        stmt.close();
-                        stmt = null;
-                    }
-                    throw new JDBCException("Error during script execution", e);
+                    throw new RuntimeException("Error during script execution", e);
                 }
                 exceptions.add(e);
                 if (log.isErrorEnabled()) {
@@ -226,6 +159,6 @@ public abstract class DbOpenHelper {
      * @param format True to format
      */
     public void setFormat(boolean format) {
-        this.formatter = (format ? FormatStyle.DDL : FormatStyle.NONE).getFormatter();
+//        this.formatter = (format ? FormatStyle.DDL : FormatStyle.NONE).getFormatter();
     }
 }

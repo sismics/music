@@ -2,10 +2,9 @@ package com.sismics.music.core.dao.jpa;
 
 import com.sismics.music.core.model.jpa.Directory;
 import com.sismics.util.context.ThreadLocalContext;
+import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
 
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -23,26 +22,31 @@ public class DirectoryDao {
      * @return Directory ID
      */
     public String create(Directory directory) {
-        // Create the directory UUID
         directory.setId(UUID.randomUUID().toString());
-
+        directory.setCreateDate(new Date());
         directory.normalizeLocation();
         if (directory.getName() == null) {
             directory.updateNameFromLocation();
         }
 
 //        // Checks for directory unicity
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
 //        Query q = em.createQuery("select u from Directory u where d.directoryname = :directoryname and d.deleteDate is null");
 //        q.setParameter("directoryname", directory.getDirectoryname());
 //        List<?> l = q.getResultList();
 //        if (l.size() > 0) {
 //            throw new Exception("AlreadyExistingDirectoryname");
 //        }
-        
-        directory.setCreateDate(new Date());
-        em.persist(directory);
-        
+
+        Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("insert into " +
+                " T_DIRECTORY(DIR_ID_C, DIR_NAME_C, DIR_LOCATION_C, DIR_CREATEDATE_D)" +
+                " values(:id, :name, :location, :createDate)")
+                .bind("id", directory.getId())
+                .bind("name", directory.getName())
+                .bind("location", directory.getLocation())
+                .bind("createDate", directory.getCreateDate())
+                .execute();
+
         return directory.getId();
     }
     
@@ -53,30 +57,22 @@ public class DirectoryDao {
      * @return Updated directory
      */
     public Directory update(Directory directory) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-
         directory.normalizeLocation();
         if (directory.getName() == null) {
             directory.updateNameFromLocation();
         }
 
-        // Get the directory
-        Query q = em.createQuery("select d from Directory d where d.id = :id and d.deleteDate is null");
-        q.setParameter("id", directory.getId());
-        Directory directoryFromDb = (Directory) q.getSingleResult();
-
-        // Update the directory
-        directoryFromDb.setName(directory.getName());
-        directoryFromDb.setLocation(directory.getLocation());
-        if (directoryFromDb.getDisableDate() == null && directory.getDisableDate() != null) {
-            directoryFromDb.setDisableDate(directory.getDisableDate());
-
-            // TODO remove this dir from the index
-        } else if (directoryFromDb.getDisableDate() != null && directory.getDisableDate() == null) {
-            directoryFromDb.setDisableDate(null);
-
-            // TODO add this dir to the index
-        }
+        Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("update T_DIRECTORY d set " +
+                " d.DIR_NAME_C = :name," +
+                " d.DIR_LOCATION_C = :location " +
+                " d.DIR_DISABLEDATE_D = :disableDate " +
+                " where d.DIR_ID_C = :id")
+                .bind("id", directory.getId())
+                .bind("name", directory.getName())
+                .bind("location", directory.getLocation())
+                .bind("disableDate", directory.getLocation())
+                .execute();
 
         return directory;
     }
@@ -88,14 +84,12 @@ public class DirectoryDao {
      * @return Directory
      */
     public Directory getActiveById(String id) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        try {
-            Query q = em.createQuery("select d from Directory d where d.id = :id and d.deleteDate is null");
-            q.setParameter("id", id);
-            return (Directory) q.getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+        Handle handle = ThreadLocalContext.get().getHandle();
+        Query q = handle.createQuery("select d.DIR_ID_C, d.DIR_NAME_C, d.DIR_LOCATION_C, d.DIR_DISABLEDATE_D, d.DIR_CREATEDATE_D, d.DIR_DELETEDATE_D" +
+                "  from T_DIRECTORY d" +
+                "  where d.DIR_ID_C = :id and d.DIR_DELETEDATE_D is null")
+                .bind("id", id);
+        return (Directory) q.first(Directory.class);
     }
     
     /**
@@ -104,17 +98,14 @@ public class DirectoryDao {
      * @param id Directory ID
      */
     public void delete(String id) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
+        Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("update T_DIRECTORY d" +
+                "  set d.DIR_DELETEDATE_D = :deleteDate" +
+                "  where d.DIR_ID_C = :id and d.DIR_DELETEDATE_D is null")
+                .bind("id", id)
+                .bind("deleteDate", new Date())
+                .execute();
             
-        // Get the directory
-        Query q = em.createQuery("select d from Directory d where d.id = :id and d.deleteDate is null");
-        q.setParameter("id", id);
-        Directory directoryFromDb = (Directory) q.getSingleResult();
-        
-        // Delete the directory
-        Date dateNow = new Date();
-        directoryFromDb.setDeleteDate(dateNow);
-
         // TODO Delete linked data (albums + tracks + artists?)
 //        q = em.createQuery("delete from AuthenticationToken at where at.directoryId = :directoryId");
 //        q.setParameter("directoryId", directoryFromDb.getId());
@@ -128,9 +119,12 @@ public class DirectoryDao {
      */
     @SuppressWarnings("unchecked")
     public List<Directory> findAllEnabled() {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        Query q = em.createQuery("select d from Directory d where d.deleteDate is null and d.disableDate is null order by d.name");
-        return q.getResultList();
+        Handle handle = ThreadLocalContext.get().getHandle();
+        Query q = handle.createQuery("select d.DIR_ID_C, d.DIR_NAME_C, d.DIR_LOCATION_C, d.DIR_DISABLEDATE_D, d.DIR_CREATEDATE_D, d.DIR_DELETEDATE_D " +
+                "  from d.T_DIRECTORY " +
+                "  where d.DIR_DELETEDATE_D and d.DIR_DISABLEDATE_D is null " +
+                "order by d.DIR_NAME_C is null");
+        return (List<Directory>) q.list(Directory.class);
     }
 
     /**
@@ -140,8 +134,11 @@ public class DirectoryDao {
      */
     @SuppressWarnings("unchecked")
     public List<Directory> findAll() {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        Query q = em.createQuery("select d from Directory d where d.deleteDate is null order by d.name");
-        return q.getResultList();
+        Handle handle = ThreadLocalContext.get().getHandle();
+        Query q = handle.createQuery("select d.DIR_ID_C, d.DIR_NAME_C, d.DIR_LOCATION_C, d.DIR_DISABLEDATE_D, d.DIR_CREATEDATE_D, d.DIR_DELETEDATE_D " +
+                "  from d.T_DIRECTORY " +
+                "  where d.DIR_DELETEDATE_D " +
+                "  order by d.DIR_NAME_C is null");
+        return (List<Directory>) q.list(Directory.class);
     }
 }

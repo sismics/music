@@ -5,6 +5,7 @@ import com.sismics.music.core.dao.jpa.criteria.AlbumCriteria;
 import com.sismics.music.core.dao.jpa.dto.AlbumDto;
 import com.sismics.music.core.model.jpa.Album;
 import com.sismics.util.context.ThreadLocalContext;
+import org.skife.jdbi.v2.Handle;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -27,9 +28,18 @@ public class AlbumDao {
         album.setId(UUID.randomUUID().toString());
         album.setCreateDate(new Date());
 
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        em.persist(album);
-        
+        Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("insert into " +
+                " T_ALBUM(ALB_ID_C, ALB_IDDIRECTORY_C, ALB_IDARTIST_C, ALB_NAME_C, ALB_ALBUMART_C, ALB_CREATEDATE_D)" +
+                " values(:id, :directoryId, :artistId, :name, :albumArt, :createDate)")
+                .bind("id", album.getId())
+                .bind("directoryId", album.getDirectoryId())
+                .bind("artistId", album.getArtistId())
+                .bind("name", album.getName())
+                .bind("albumArt", album.getAlbumArt())
+                .bind("createDate", album.getCreateDate())
+                .execute();
+
         return album.getId();
     }
     
@@ -40,14 +50,14 @@ public class AlbumDao {
      * @return Updated album
      */
     public Album update(Album album) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
+//        EntityManager em = ThreadLocalContext.get().getEntityManager();
+//
+//        // Get the album
+//        Query q = em.createQuery("select a from Album a where a.id = :id and a.deleteDate is null");
+//        q.setParameter("id", album.getId());
+//        Album albumFromDb = (Album) q.getSingleResult();
 
-        // Get the album
-        Query q = em.createQuery("select a from Album a where a.id = :id and a.deleteDate is null");
-        q.setParameter("id", album.getId());
-        Album albumFromDb = (Album) q.getSingleResult();
-
-        // Update the album
+        // TODO Update the album
 
         return album;
     }

@@ -2,10 +2,6 @@ package com.sismics.music.core.model.jpa;
 
 import com.google.common.base.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.util.Date;
 
 /**
@@ -13,82 +9,85 @@ import java.util.Date;
  * 
  * @author jtremeaux
  */
-@Entity
-@Table(name = "T_TRACK")
 public class Track {
     /**
      * Track ID.
      */
-    @Id
-    @Column(name = "TRK_ID_C", length = 36)
     private String id;
 
     /**
      * Album ID.
      */
-    @Column(name = "TRK_IDALBUM_C", nullable = false, length = 36)
     private String albumId;
 
     /**
      * Artist ID.
      */
-    @Column(name = "TRK_IDARTIST_C", nullable = false, length = 36)
     private String artistId;
 
     /**
      * Track file name.
      */
-    @Column(name = "TRK_FILENAME_C", nullable = false, length = 2000)
     private String fileName;
     
     /**
      * Track title.
      */
-    @Column(name = "TRK_TITLE_C", nullable = false, length = 2000)
     private String title;
 
     /**
      * Track year.
      */
-    @Column(name = "TRK_YEAR_N")
     private Integer year;
     
     /**
      * Track length (in seconds).
      */
-    @Column(name = "TRK_LENGTH_N", nullable = false)
     private Integer length;
 
     /**
      * Track bitrate (in kbps).
      */
-    @Column(name = "TRK_BITRATE_N", nullable = false)
     private Integer bitrate;
 
     /**
      * Track is encoded in variable bitrate (VBR).
      */
-    @Column(name = "TRK_VBR_B", nullable = false)
     private boolean vbr;
     
     /**
      * Track format.
      */
-    @Column(name = "TRK_FORMAT_C", nullable = false, length = 10)
     private String format;
     
     /**
      * Creation date.
      */
-    @Column(name = "TRK_CREATEDATE_D", nullable = false)
     private Date createDate;
     
     /**
      * Deletion date.
      */
-    @Column(name = "TRK_DELETEDATE_D")
     private Date deleteDate;
-    
+
+    public Track() {
+    }
+
+    public Track(String id, String albumId, String artistId, String fileName, String title, Integer year, Integer length, Integer bitrate, boolean vbr, String format, Date createDate, Date deleteDate) {
+        this.id = id;
+        this.albumId = albumId;
+        this.artistId = artistId;
+        this.fileName = fileName;
+        this.title = title;
+        this.year = year;
+        this.length = length;
+        this.bitrate = bitrate;
+        this.vbr = vbr;
+        this.format = format;
+        this.createDate = createDate;
+        this.deleteDate = deleteDate;
+    }
+
     /**
      * Getter of id.
      *

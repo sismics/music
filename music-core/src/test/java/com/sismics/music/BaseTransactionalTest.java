@@ -1,13 +1,11 @@
 package com.sismics.music;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-
+import com.sismics.util.context.ThreadLocalContext;
+import com.sismics.util.dbi.DBIF;
 import org.junit.After;
 import org.junit.Before;
-
-import com.sismics.util.context.ThreadLocalContext;
-import com.sismics.util.jpa.EMF;
+import org.skife.jdbi.v2.DBI;
+import org.skife.jdbi.v2.Handle;
 
 /**
  * Base class of tests with a transactional context.
@@ -17,12 +15,12 @@ import com.sismics.util.jpa.EMF;
 public abstract class BaseTransactionalTest {
     @Before
     public void setUp() throws Exception {
-        // Initialize the entity manager
-        EntityManager em = EMF.get().createEntityManager();
+        // Initialize the persistence layer
+        DBI dbi = DBIF.get();
+        Handle handle = dbi.open();
         ThreadLocalContext context = ThreadLocalContext.get();
-        context.setEntityManager(em);
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
+        context.setHandle(handle);
+        handle.begin();
     }
 
     @After

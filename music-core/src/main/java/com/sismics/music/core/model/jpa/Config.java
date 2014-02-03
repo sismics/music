@@ -1,12 +1,5 @@
 package com.sismics.music.core.model.jpa;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 import com.google.common.base.Objects;
 import com.sismics.music.core.constant.ConfigType;
 
@@ -15,22 +8,21 @@ import com.sismics.music.core.constant.ConfigType;
  * 
  * @author jtremeaux
  */
-@Entity
-@Table(name = "T_CONFIG")
 public class Config {
     /**
      * Configuration parameter ID.
      */
-    @Id
-    @Column(name = "CFG_ID_C", length = 50)
-    @Enumerated(EnumType.STRING)
     private ConfigType id;
     
     /**
      * Configuration parameter value.
      */
-    @Column(name = "CFG_VALUE_C", length = 250)
     private String value;
+
+    public Config(ConfigType id, String value) {
+        this.id = id;
+        this.value = value;
+    }
 
     /**
      * Getter of id.

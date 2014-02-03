@@ -2,10 +2,6 @@ package com.sismics.music.core.model.jpa;
 
 import com.google.common.base.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.util.Date;
 
 /**
@@ -13,94 +9,97 @@ import java.util.Date;
  * 
  * @author jtremeaux
  */
-@Entity
-@Table(name = "T_USER")
 public class User {
     /**
      * User ID.
      */
-    @Id
-    @Column(name = "USE_ID_C", length = 36)
     private String id;
     
     /**
      * Locale ID.
      */
-    @Column(name = "USE_IDLOCALE_C", nullable = false, length = 10)
     private String localeId;
     
     /**
      * Locale ID.
      */
-    @Column(name = "USE_IDROLE_C", nullable = false, length = 36)
     private String roleId;
     
     /**
      * User's username.
      */
-    @Column(name = "USE_USERNAME_C", nullable = false, length = 50)
     private String username;
     
     /**
      * User's password.
      */
-    @Column(name = "USE_PASSWORD_C", nullable = false, length = 100)
     private String password;
 
     /**
      * Email address.
      */
-    @Column(name = "USE_EMAIL_C", nullable = false, length = 100)
     private String email;
     
     /**
      * Theme.
      */
-    @Column(name = "USE_THEME_C", nullable = false, length = 100)
     private String theme;
     
     /**
      * Maximum bitrate in kbps (null if unlimited).
      */
-    @Column(name = "USE_MAXBITRATE_N")
     private Integer maxBitrate;
 
     /**
      * User login on Last.fm.
      */
-    @Column(name = "USE_LASTFMLOGIN_C")
     private String lastFmLogin;
 
     /**
      * User password on Last.fm.
      */
-    @Column(name = "USE_LASTFMPASSWORD_C")
     private String lastFmPassword;
 
     /**
      * Scrobbling on Last.fm active.
      */
-    @Column(name = "USE_LASTFMACTIVE_B")
     private boolean lastFmActive;
 
     /**
      * True if the user hasn't dismissed the first connection screen.
      */
-    @Column(name = "USE_FIRSTCONNECTION_B", nullable = false)
     private boolean firstConnection;
 
     /**
      * Creation date.
      */
-    @Column(name = "USE_CREATEDATE_D", nullable = false)
     private Date createDate;
     
     /**
      * Deletion date.
      */
-    @Column(name = "USE_DELETEDATE_D")
     private Date deleteDate;
-    
+
+    public User() {
+    }
+
+    public User(String id, String localeId, String roleId, String username, String password, String email, String theme, Integer maxBitrate, String lastFmLogin, String lastFmPassword, boolean lastFmActive, boolean firstConnection, Date createDate, Date deleteDate) {
+        this.id = id;
+        this.localeId = localeId;
+        this.roleId = roleId;
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.theme = theme;
+        this.maxBitrate = maxBitrate;
+        this.lastFmLogin = lastFmLogin;
+        this.lastFmPassword = lastFmPassword;
+        this.lastFmActive = lastFmActive;
+        this.firstConnection = firstConnection;
+        this.createDate = createDate;
+        this.deleteDate = deleteDate;
+    }
+
     /**
      * Getter of id.
      *

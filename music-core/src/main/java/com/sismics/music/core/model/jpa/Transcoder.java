@@ -2,10 +2,6 @@ package com.sismics.music.core.model.jpa;
 
 import com.google.common.base.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.util.Date;
 
 /**
@@ -13,56 +9,45 @@ import java.util.Date;
  * 
  * @author jtremeaux
  */
-@Entity
-@Table(name = "T_TRANSCODER")
 public class Transcoder {
     /**
      * Transcoder ID.
      */
-    @Id
-    @Column(name = "TRN_ID_C", length = 36)
     private String id;
     
     /**
      * Transcoder name.
      */
-    @Column(name = "TRN_NAME_C", nullable = false, length = 100)
     private String name;
     
     /**
      * Transcoder source formats, space separated.
      */
-    @Column(name = "TRN_SOURCE_C", nullable = false, length = 1000)
     private String source;
     
     /**
      * Transcoder destination format.
      */
-    @Column(name = "TRN_DESTINATION_C", nullable = false)
     private Date destination;
     
     /**
      * Transcoder command (step 1).
      */
-    @Column(name = "TRN_READDATE_D")
     private Date readDate;
     
     /**
      * Transcoder command (step 2).
      */
-    @Column(name = "TRN_STARREDDATE_D")
     private Date starredDate;
     
     /**
      * Creation date.
      */
-    @Column(name = "TRN_CREATEDATE_D")
     private Date createDate;
 
     /**
      * Deletion date.
      */
-    @Column(name = "TRN_DELETEDATE_D")
     private Date deleteDate;
 
     /**

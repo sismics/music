@@ -1,10 +1,5 @@
 package com.sismics.music.core.model.jpa;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 import com.google.common.base.Objects;
 
 /**
@@ -12,15 +7,15 @@ import com.google.common.base.Objects;
  * 
  * @author jtremeaux
  */
-@Entity
-@Table(name = "T_BASE_FUNCTION")
 public class BaseFunction {
     /**
      * Base function ID (ex: "ADMIN").
      */
-    @Id
-    @Column(name = "BAF_ID_C", length = 10)
     private String id;
+
+    public BaseFunction(String id) {
+        this.id = id;
+    }
 
     /**
      * Getter of id.

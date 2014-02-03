@@ -6,15 +6,14 @@ import com.sismics.music.core.util.DirectoryUtil;
 import com.sismics.music.core.util.TransactionUtil;
 import com.sismics.util.EnvironmentUtil;
 import com.sismics.util.context.ThreadLocalContext;
-import com.sismics.util.jpa.EMF;
+import com.sismics.util.dbi.DBIF;
 import org.apache.log4j.Level;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.RollingFileAppender;
+import org.skife.jdbi.v2.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -80,18 +79,18 @@ public class RequestContextFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-        EntityManager em = null;
-        
+        Handle handle = null;
         try {
-            em = EMF.get().createEntityManager();
+            handle = DBIF.get().open();
         } catch (Exception e) {
-            throw new ServletException("Cannot create entity manager", e);
+            throw new ServletException("Cannot create DBI handle", e);
         }
+
         ThreadLocalContext context = ThreadLocalContext.get();
-        context.setEntityManager(em);
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
-        
+        context.setHandle(handle);
+        //handle.setTransactionIsolation(TransactionIsolationLevel.READ_COMMITTED);
+        handle.begin();
+
         try {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
@@ -99,16 +98,14 @@ public class RequestContextFilter implements Filter {
             
             log.error("An exception occured, rolling back current transaction", e);
 
-            // If an unprocessed error comes up from the application layers (Jersey...), rollback the transaction (should not happen)
-            if (em.isOpen()) {
-                if (em.getTransaction() != null && em.getTransaction().isActive()) {
-                    em.getTransaction().rollback();
-                }
-                
+            // If an unprocessed error comes up from the application layers (Jersey...), rollback the transaction
+            if (handle.isInTransaction()) {
+                handle.rollback();
+
                 try {
-                    em.close();
+                    handle.close();
                 } catch (Exception ce) {
-                    log.error("Error closing entity manager", ce);
+                    log.error("Error closing DBI handle", ce);
                 }
             }
             throw new ServletException(e);
@@ -117,26 +114,24 @@ public class RequestContextFilter implements Filter {
         ThreadLocalContext.cleanup();
 
         // No error processing the request : commit / rollback the current transaction depending on the HTTP code
-        if (em.isOpen()) {
-            if (em.getTransaction() != null && em.getTransaction().isActive()) {
-                HttpServletResponse r = (HttpServletResponse) response;
-                int statusClass = r.getStatus() / 100;
-                if (statusClass == 2 || statusClass == 3) {
-                    try {
-                        em.getTransaction().commit();
-                    } catch (Exception e) {
-                        log.error("Error during commit", e);
-                        r.sendError(500);
-                    }
-                } else {
-                    em.getTransaction().rollback();
-                }
-                
+        if (handle.isInTransaction()) {
+            HttpServletResponse r = (HttpServletResponse) response;
+            int statusClass = r.getStatus() / 100;
+            if (statusClass == 2 || statusClass == 3) {
                 try {
-                    em.close();
+                    handle.commit();
                 } catch (Exception e) {
-                    log.error("Error closing entity manager", e);
+                    log.error("Error during commit", e);
+                    r.sendError(500);
                 }
+            } else {
+                handle.rollback();
+            }
+
+            try {
+                handle.close();
+            } catch (Exception e) {
+                log.error("Error closing JDBI handle", e);
             }
         }
     }

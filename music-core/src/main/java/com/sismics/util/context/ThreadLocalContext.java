@@ -1,5 +1,7 @@
 package com.sismics.util.context;
 
+import org.skife.jdbi.v2.Handle;
+
 import javax.persistence.EntityManager;
 
 /**
@@ -12,6 +14,11 @@ public class ThreadLocalContext {
      * ThreadLocal to store the context.
      */
     public static final ThreadLocal<ThreadLocalContext> threadLocalContext = new ThreadLocal<ThreadLocalContext>();
+    
+    /**
+     * JDBI handle.
+     */
+    private Handle handle;
     
     /**
      * Entity manager.
@@ -71,5 +78,23 @@ public class ThreadLocalContext {
      */
     public void setEntityManager(EntityManager entityManager) {
         this.entityManager = entityManager;
+    }
+    
+    /**
+     * Getter of handle.
+     *
+     * @return handle
+     */
+    public Handle getHandle() {
+        return handle;
+    }
+
+    /**
+     * Setter of handle.
+     *
+     * @param handle handle
+     */
+    public void setHandle(Handle handle) {
+        this.handle = handle;
     }
 }

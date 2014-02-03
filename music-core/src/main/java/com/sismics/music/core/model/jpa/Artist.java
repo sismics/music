@@ -2,10 +2,6 @@ package com.sismics.music.core.model.jpa;
 
 import com.google.common.base.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.util.Date;
 
 /**
@@ -13,34 +9,37 @@ import java.util.Date;
  * 
  * @author jtremeaux
  */
-@Entity
-@Table(name = "T_ARTIST")
 public class Artist {
     /**
      * Album ID.
      */
-    @Id
-    @Column(name = "ART_ID_C", length = 36)
     private String id;
 
     /**
      * Artist title.
      */
-    @Column(name = "ART_NAME_C", nullable = false, length = 1000)
     private String name;
 
     /**
      * Creation date.
      */
-    @Column(name = "ART_CREATEDATE_D", nullable = false)
     private Date createDate;
     
     /**
      * Deletion date.
      */
-    @Column(name = "ART_DELETEDATE_D")
     private Date deleteDate;
-    
+
+    public Artist() {
+    }
+
+    public Artist(String id, String name, Date createDate, Date deleteDate) {
+        this.id = id;
+        this.name = name;
+        this.createDate = createDate;
+        this.deleteDate = deleteDate;
+    }
+
     /**
      * Getter of id.
      *

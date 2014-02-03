@@ -1,10 +1,5 @@
 package com.sismics.music.core.model.jpa;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 import com.google.common.base.Objects;
 
 /**
@@ -12,14 +7,10 @@ import com.google.common.base.Objects;
  * 
  * @author jtremeaux
  */
-@Entity
-@Table(name = "T_LOCALE")
 public class Locale {
     /**
      * Locale ID (ex: fr_FR).
      */
-    @Id
-    @Column(name = "LOC_ID_C", length = 10)
     private String id;
 
     /**
@@ -29,6 +20,10 @@ public class Locale {
      */
     public String getId() {
         return id;
+    }
+
+    public Locale(String id) {
+        this.id = id;
     }
 
     /**

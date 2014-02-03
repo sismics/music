@@ -222,7 +222,7 @@ public class CollectionService extends AbstractScheduledService {
      */
     public void reindex() {
         DirectoryDao directoryDao = new DirectoryDao();
-        List<Directory> directoryList = directoryDao.findAll();
+        List<Directory> directoryList = directoryDao.findAllEnabled();
         for (Directory directory : directoryList) {
             addDirectoryToIndex(directory);
         }

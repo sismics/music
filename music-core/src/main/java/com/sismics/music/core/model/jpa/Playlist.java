@@ -2,32 +2,29 @@ package com.sismics.music.core.model.jpa;
 
 import com.google.common.base.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.util.Date;
-
 /**
  * Playlist entity.
  * 
  * @author jtremeaux
  */
-@Entity
-@Table(name = "T_PLAYLIST")
 public class Playlist {
     /**
      * Playlist ID.
      */
-    @Id
-    @Column(name = "PLL_ID_C", length = 36)
     private String id;
 
     /**
      * User ID.
      */
-    @Column(name = "PLL_IDUSER_C", nullable = false, length = 36)
     private String userId;
+
+    public Playlist() {
+    }
+
+    public Playlist(String id, String userId) {
+        this.id = id;
+        this.userId = userId;
+    }
 
     /**
      * Getter of id.

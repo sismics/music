@@ -2,43 +2,41 @@ package com.sismics.music.core.model.jpa;
 
 import com.google.common.base.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 /**
  * Playlist track entity.
  * 
  * @author jtremeaux
  */
-@Entity
-@Table(name = "T_PLAYLIST_TRACK")
 public class PlaylistTrack {
     /**
      * Playlist track ID.
      */
-    @Id
-    @Column(name = "PLT_ID_C", length = 36)
     private String id;
 
     /**
      * Playlist ID.
      */
-    @Column(name = "PLT_IDPLAYLIST_C", nullable = false, length = 36)
     private String playlistId;
 
     /**
      * Track ID.
      */
-    @Column(name = "PLT_IDTRACK_C", nullable = false, length = 36)
     private String trackId;
 
     /**
      * Order in the playlist.
      */
-    @Column(name = "PLT_ORDER_N", nullable = false)
     private Integer order;
+
+    public PlaylistTrack() {
+    }
+
+    public PlaylistTrack(String id, String playlistId, String trackId, Integer order) {
+        this.id = id;
+        this.playlistId = playlistId;
+        this.trackId = trackId;
+        this.order = order;
+    }
 
     /**
      * Getter of id.
