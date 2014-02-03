@@ -22,7 +22,7 @@ public class AlbumDto {
     private String albumArt;
 
     /**
-     * Artist id.
+     * Artist ID.
      */
     private String artistId;
     
