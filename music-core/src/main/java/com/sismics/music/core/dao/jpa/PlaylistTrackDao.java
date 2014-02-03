@@ -47,15 +47,12 @@ public class PlaylistTrackDao {
      *
      * @param playlistId Playlist ID
      */
-    public Integer getPlaylistTrackLastOrder(String playlistId) {
+    public Integer getPlaylistTrackNextOrder(String playlistId) {
         EntityManager em = ThreadLocalContext.get().getEntityManager();
         Query q = em.createNativeQuery("select max(pt.PLT_ORDER_N) from T_PLAYLIST_TRACK pt where pt.PLT_IDPLAYLIST_C = :playlistId");
         q.setParameter("playlistId", playlistId);
         Integer order = (Integer) q.getSingleResult();
-        if (order == null) {
-            order = 0;
-        }
-        return order;
+        return order == null ? 0 : order + 1;
     }
 
     /**

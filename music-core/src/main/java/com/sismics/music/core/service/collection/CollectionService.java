@@ -1,5 +1,6 @@
-package com.sismics.music.core.service;
+package com.sismics.music.core.service.collection;
 
+import com.google.common.base.Strings;
 import com.google.common.util.concurrent.AbstractScheduledService;
 import com.sismics.music.core.dao.jpa.AlbumDao;
 import com.sismics.music.core.dao.jpa.ArtistDao;
@@ -7,11 +8,14 @@ import com.sismics.music.core.dao.jpa.DirectoryDao;
 import com.sismics.music.core.dao.jpa.TrackDao;
 import com.sismics.music.core.dao.jpa.criteria.AlbumCriteria;
 import com.sismics.music.core.dao.jpa.dto.AlbumDto;
+import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.jpa.Album;
 import com.sismics.music.core.model.jpa.Artist;
 import com.sismics.music.core.model.jpa.Directory;
 import com.sismics.music.core.model.jpa.Track;
+import com.sismics.music.core.service.albumart.AlbumArtImporter;
 import com.sismics.music.core.util.TransactionUtil;
+import org.apache.commons.lang.StringUtils;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
@@ -156,9 +160,17 @@ public class CollectionService extends AbstractScheduledService {
             track.setFormat(header.getEncodingType());
             track.setVbr(header.isVariableBitRate());
 
-            track.setTitle(tag.getFirst(FieldKey.TITLE));
-            track.setYear(Integer.valueOf(tag.getFirst(FieldKey.YEAR)));
-            String artistName = tag.getFirst(FieldKey.ARTIST);
+            String year = tag.getFirst(FieldKey.YEAR);
+            if (!Strings.isNullOrEmpty(year)) {
+                try {
+                    track.setYear(Integer.valueOf(year));
+                } catch (NumberFormatException e) {
+                    // Ignore parsing errors
+                }
+            }
+            
+            track.setTitle(StringUtils.abbreviate(tag.getFirst(FieldKey.TITLE), 2000));
+            String artistName = StringUtils.abbreviate(tag.getFirst(FieldKey.ARTIST), 1000);
             ArtistDao artistDao = new ArtistDao();
             Artist artist = artistDao.getActiveByName(artistName);
             if (artist == null) {
@@ -168,9 +180,9 @@ public class CollectionService extends AbstractScheduledService {
             }
             track.setArtistId(artist.getId());
 
-            String albumArtistName = tag.getFirst(FieldKey.ALBUM_ARTIST);
+            String albumArtistName = StringUtils.abbreviate(tag.getFirst(FieldKey.ALBUM_ARTIST), 1000);
             Artist albumArtist = null;
-            if (albumArtistName != null) {
+            if (!Strings.isNullOrEmpty(albumArtistName)) {
                 albumArtist = artistDao.getActiveByName(albumArtistName);
                 if (albumArtist == null) {
                     albumArtist = new Artist();
@@ -181,14 +193,22 @@ public class CollectionService extends AbstractScheduledService {
                 albumArtist = artist;
             }
 
-            String albumName = tag.getFirst(FieldKey.ALBUM);
+            String albumName = StringUtils.abbreviate(tag.getFirst(FieldKey.ALBUM), 1000);
             AlbumDao albumDao = new AlbumDao();
             Album album = albumDao.getActiveByArtistIdAndName(albumArtist.getId(), albumName);
             if (album == null) {
+                // Import album art
+                AlbumArtImporter albumArtImporter = new AlbumArtImporter();
+                File albumArtFile = albumArtImporter.scanDirectory(file.getParentFile());
+
                 album = new Album();
                 album.setArtistId(albumArtist.getId());
                 album.setDirectoryId(rootDirectory.getId());
                 album.setName(albumName);
+                if (albumArtFile != null) {
+                    String albumArtId = AppContext.getInstance().getAlbumArtService().importAlbumArt(albumArtFile);
+                    album.setAlbumArt(albumArtId);
+                }
                 albumDao.create(album);
             }
             track.setAlbumId(album.getId());

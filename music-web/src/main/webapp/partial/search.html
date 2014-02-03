@@ -1,0 +1,33 @@
+<div class="search">
+  <div class="results" ng-show="results">
+    <div class="albums" ng-show="results.albums">
+      <h3>Albums</h3>
+    </div>
+
+    <div class="artists" ng-show="results.artists">
+      <h3>Artists</h3>
+    </div>
+
+    <div class="tracks" ng-show="results.tracks">
+      <h3>Tracks</h3>
+      <table class="table table-striped">
+        <thead>
+        <tr>
+          <th>Title</th>
+          <th>Artist</th>
+          <th>Album</th>
+          <th style="width: 7%"><span class="glyphicon glyphicon-time"></span></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="track in results.tracks">
+          <td title="{{ track.title }}">{{ track.title }}</td>
+          <td title="{{ track.artist.name }}">{{ track.artist.name }}</td>
+          <td title="{{ track.album.name }}"><a ng-href="#/album/{{ track.album.id }}">{{ track.album.name }}</a></td>
+          <td>{{ track.length | duration }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

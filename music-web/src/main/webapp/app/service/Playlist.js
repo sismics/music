@@ -3,19 +3,25 @@
 /**
  * Audio player service.
  */
-App.factory('Playlist', function($rootScope, Restangular) {
+App.factory('Playlist', function($rootScope, Restangular, $timeout) {
   var currentTrack = null;
+  var currentStatus = 'stopped';
   var tracks = [];
+  var repeat = true;
+  var shuffle = false;
 
-  var update = function() {
-    var promise = Restangular.one('playlist').getList();
-    promise.then(function(data) {
-      tracks = data.tracks;
-      $rootScope.$broadcast('playlist.updated', tracks);
-    });
-    return promise;
-  };
+  // Maintain updated status
+  $rootScope.$on('audio.play', function() {
+    currentStatus = 'playing';
+  });
+  $rootScope.$on('audio.pause', function() {
+    currentStatus = 'paused';
+  });
+  $rootScope.$on('audio.ended', function() {
+    currentStatus = 'stopped';
+  });
 
+  // Service
   var service = {
     /**
      * Play a track from the current playlist.
@@ -26,6 +32,41 @@ App.factory('Playlist', function($rootScope, Restangular) {
         currentTrack = _currentTrack;
         $rootScope.$broadcast('audio.set', true);
       }
+    },
+
+    /**
+     * Move a track in the playlist
+     * @param order
+     * @param neworder
+     */
+    moveTrack: function(order, neworder) {
+      if (currentTrack != null) {
+        if (order < currentTrack && neworder >= currentTrack) {
+          currentTrack--;
+        } else if (order > currentTrack && neworder <= currentTrack) {
+          currentTrack++;
+        } else if (order == currentTrack) {
+          currentTrack = neworder;
+        }
+      }
+
+      Restangular.one('playlist', order).post('move', {
+        neworder: neworder
+      }).then(function() {
+        service.update();
+      });
+    },
+
+    /**
+     * Update the playlist.
+     */
+    update: function() {
+      var promise = Restangular.one('playlist').getList();
+      promise.then(function(data) {
+        tracks = data.tracks;
+        $rootScope.$broadcast('playlist.updated', tracks);
+      });
+      return promise;
     },
 
     /**
@@ -53,10 +94,19 @@ App.factory('Playlist', function($rootScope, Restangular) {
      * Play the next track.
      */
     next: function() {
-      if (_.size(tracks) > currentTrack + 1) {
+      var size = _.size(tracks);
+      if (size == 0) {
+        return;
+      }
+      if (shuffle) {
+        currentTrack = _.random(0, size - 1);
+        $rootScope.$broadcast('audio.set', true);
+        return;
+      }
+      if (size > currentTrack + 1) {
         currentTrack++;
         $rootScope.$broadcast('audio.set', true);
-      } else if (_.size(tracks) > 0) {
+      } else if (repeat) {
         currentTrack = 0;
         $rootScope.$broadcast('audio.set', true);
       }
@@ -72,10 +122,30 @@ App.factory('Playlist', function($rootScope, Restangular) {
         id: trackId,
         order: null
       }).then(function() {
-            var promise = update();
+            var promise = service.update();
             if (play) {
               promise.then(function() {
                 service.play(0);
+              })
+            }
+          });
+    },
+
+    /**
+     * Add a list of tracks to the playlist.
+     * @param trackIdList
+     * @param play If true, immediately play the first track once added
+     */
+    addAll: function(trackIdList, play) {
+      Restangular.one('playlist/multiple').put({
+        ids: trackIdList
+      }).then(function() {
+            var promise = service.update();
+            if (play) {
+              promise.then(function() {
+                if (_.size(tracks) > 0) {
+                  service.play(0);
+                }
               })
             }
           });
@@ -98,8 +168,25 @@ App.factory('Playlist', function($rootScope, Restangular) {
       }
 
       Restangular.one('playlist', order).remove().then(function() {
-        update();
+        service.update();
       });
+    },
+
+    /**
+     * Remove all tracks from the playlist.
+     * @param update Update playlist if true
+     * @returns {*}
+     */
+    clear: function(update) {
+      // Stop the audio
+      currentTrack = null;
+      $rootScope.$broadcast('audio.stop');
+
+      var promise = Restangular.one('playlist').remove();
+      if (update) {
+        service.update();
+      }
+      return promise;
     },
 
     /**
@@ -107,12 +194,22 @@ App.factory('Playlist', function($rootScope, Restangular) {
      * @param trackId
      */
     removeAndPlay: function(trackId) {
+      service.clear(false).then(function() {
+        service.add(trackId, true);
+      });
+    },
+
+    /**
+     * Remove all tracks from the playlist and play a list of new ones.
+     * @param trackIdList
+     */
+    removeAndPlayAll: function(trackIdList) {
       // Stop the audio
       currentTrack = null;
       $rootScope.$broadcast('audio.stop');
 
       Restangular.one('playlist').remove().then(function() {
-        service.add(trackId, true);
+        service.addAll(trackIdList, true);
       });
     },
 
@@ -127,28 +224,14 @@ App.factory('Playlist', function($rootScope, Restangular) {
       return tracks[currentTrack];
     },
 
-    /**
-     * Returns the current track index.
-     * @returns currentTrack
-     */
-    currentOrder: function() {
-      return currentTrack;
-    },
-
-    /**
-     * Returns all tracks from the playlist.
-     * @returns {Array}
-     */
-    getTracks: function() {
-      return tracks;
-    }
+    currentStatus: function() { return currentStatus; },
+    currentOrder: function() { return currentTrack; },
+    getTracks: function() { return tracks; },
+    isRepeat: function() { return repeat; },
+    toggleRepeat: function() { repeat = !repeat; },
+    isShuffle: function() { return shuffle; },
+    toggleShuffle: function() { shuffle = !shuffle; }
   };
-
-  // Update playlist on application startup
-  update().then(function() {
-    // Open the first track without playing it
-    service.open(0);
-  });
 
   return service;
 });

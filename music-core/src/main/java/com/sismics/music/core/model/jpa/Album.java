@@ -38,8 +38,14 @@ public class Album {
     /**
      * Album title.
      */
-    @Column(name = "ALB_NAME_C", nullable = false, length = 100)
+    @Column(name = "ALB_NAME_C", nullable = false, length = 1000)
     private String name;
+
+    /**
+     * Album art ID (same as the file name).
+     */
+    @Column(name = "ALB_ALBUMART_C", length = 36)
+    private String albumArt;
 
     /**
      * Creation date.
@@ -123,6 +129,24 @@ public class Album {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Getter of albumArt.
+     *
+     * @return albumArt
+     */
+    public String getAlbumArt() {
+        return albumArt;
+    }
+
+    /**
+     * Setter of albumArt.
+     *
+     * @param albumArt albumArt
+     */
+    public void setAlbumArt(String albumArt) {
+        this.albumArt = albumArt;
     }
 
     /**

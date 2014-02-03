@@ -2,22 +2,35 @@
   <ul class="nav nav-tabs">
     <li class="active"><a href="#">Albums</a></li>
     <li><a href="#">Artists</a></li>
-    <li><a href="#">Titles</a></li>
-    <li><a href="#">Genres</a></li>
   </ul>
 
-
-  <div class="row">
-    <div class="col-sm-6 col-md-3" ng-repeat="album in albums">
-      <a class="thumbnail" href="#/album/{{ album.id }}">
-        <img ng-src="http://placehold.it/200x200" />
+  <div class="row" ng-show="albums.length > 0">
+    <div class="col-sm-12 search-form">
+      <form role="form">
+        <div class="form-group has-feedback">
+          <label class="control-label invisible" for="inputFilter">Filter</label>
+          <input type="text" id="inputFilter" class="form-control" ng-model="filter" placeholder="Filter" />
+          <span ng-show="filter != ''" ng-click="filter = ''" class="glyphicon glyphicon-remove form-control-feedback"></span>
+        </div>
+      </form>
+    </div>
+  
+    <div class="col-sm-6 col-md-3" bindonce ng-repeat="album in albums | filter: filter">
+      <a class="thumbnail albumart-thumbnail" bo-href="'#/album/' + album.id">
+        <div class="img-container">
+          <img bo-if="album.albumart" bo-src="'api/album/' + album.id + '/albumart/small'" />
+        </div>
         <div class="caption">
-          <div style="overflow: hidden; height: 40px">
-            <div class="text-muted">{{ album.artist.name }}</div>
-            <div>{{ album.name }}</div>
+          <div class="caption-container">
+            <div class="text-muted" bo-text="album.artist.name"></div>
+            <div bo-text="album.name"></div>
           </div>
         </div>
       </a>
     </div>
   </div>
+  
+  <p ng-show="albums.length == 0" class="text-center">
+    Music library empty
+  </p>
 </div>

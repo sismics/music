@@ -28,13 +28,13 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
       // Mute/unmute volume
       $scope.mute = function() {
         $scope.audio.volume == 0 ? $scope.audio.volume = 1 : $scope.audio.volume = 0;
-      }
+      };
 
       // Listen for audio-element events, and broadcast stuff
-      $scope.audio.addEventListener('play', function(){ $rootScope.$broadcast('audio.play', this); });
-      $scope.audio.addEventListener('pause', function(){ $rootScope.$broadcast('audio.pause', this); });
-      $scope.audio.addEventListener('timeupdate', function(){ $rootScope.$broadcast('audio.time', this); });
-      $scope.audio.addEventListener('ended', function(){ $rootScope.$broadcast('audio.ended', this); $scope.next(); });
+      $scope.audio.addEventListener('play', function(){ $rootScope.$broadcast('audio.play'); });
+      $scope.audio.addEventListener('pause', function(){ $rootScope.$broadcast('audio.pause'); });
+      // $scope.audio.addEventListener('timeupdate', function(){ $rootScope.$broadcast('audio.time'); });
+      $scope.audio.addEventListener('ended', function(){ $rootScope.$broadcast('audio.ended'); $scope.next(); });
 
       // Current track has changed
       $scope.$on('audio.set', function(e, play) {
@@ -44,6 +44,7 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
           $scope.audio.play();
         } else {
           $scope.audio.pause();
+          $rootScope.$broadcast('audio.pause');
         }
         $scope.track = track;
       });
@@ -52,7 +53,8 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
       $scope.$on('audio.stop', function() {
         $scope.track = null;
         $scope.audio.pause();
-        $scope.audio.src = null;
+        $scope.audio.src = '';
+        $rootScope.$broadcast('audio.ended');
       });
 
       // Returns current track progression
@@ -62,11 +64,26 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
 
       // Seek through the current track
       $scope.seek = function(e) {
-        $scope.audio.currentTime = e.offsetX / e.delegateTarget.clientWidth * $scope.audio.duration;
+        var offX = e.clientX - $(e.delegateTarget).offset().left;
+        $scope.audio.currentTime = offX / e.delegateTarget.clientWidth * $scope.audio.duration;
+      };
+
+      // Toggle repeat
+      $scope.repeat = Playlist.isRepeat();
+      $scope.toggleRepeat = function() {
+        Playlist.toggleRepeat();
+        $scope.repeat = Playlist.isRepeat();
       }
 
+      // Toggle shuffle
+      $scope.shuffle = Playlist.isShuffle();
+      $scope.toggleShuffle = function() {
+        Playlist.toggleShuffle();
+        $scope.shuffle = Playlist.isShuffle();
+      };
+
       // Update display of things - makes time-scrub work
-      setInterval(function(){ $scope.$apply(); }, 250);
+      setInterval(function(){ $scope.$apply(); }, 500);
     },
 
     templateUrl: 'partial/audioplayer.html'

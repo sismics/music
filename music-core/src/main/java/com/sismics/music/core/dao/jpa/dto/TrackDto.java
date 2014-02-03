@@ -1,6 +1,5 @@
 package com.sismics.music.core.dao.jpa.dto;
 
-import javax.persistence.Column;
 
 /**
  * Track DTO.
@@ -57,6 +56,16 @@ public class TrackDto {
      * Artist name.
      */
     private String artistName;
+    
+    /**
+     * Album id.
+     */
+    private String albumId;
+
+    /**
+     * Album name.
+     */
+    private String albumName;
 
     /**
      * Getter of id.
@@ -236,5 +245,41 @@ public class TrackDto {
      */
     public void setArtistName(String artistName) {
         this.artistName = artistName;
+    }
+
+    /**
+     * Getter of albumId.
+     *
+     * @return the albumId
+     */
+    public String getAlbumId() {
+        return albumId;
+    }
+
+    /**
+     * Setter of albumId.
+     *
+     * @param albumId albumId
+     */
+    public void setAlbumId(String albumId) {
+        this.albumId = albumId;
+    }
+
+    /**
+     * Getter of albumName.
+     *
+     * @return the albumName
+     */
+    public String getAlbumName() {
+        return albumName;
+    }
+
+    /**
+     * Setter of albumName.
+     *
+     * @param albumName albumName
+     */
+    public void setAlbumName(String albumName) {
+        this.albumName = albumName;
     }
 }

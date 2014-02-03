@@ -4,18 +4,13 @@ import com.sismics.music.core.dao.jpa.TrackDao;
 import com.sismics.music.core.model.jpa.Track;
 import com.sismics.music.core.util.TransactionUtil;
 import com.sismics.rest.exception.ForbiddenClientException;
-
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import java.io.File;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Track REST resources.
@@ -27,13 +22,14 @@ public class TrackResource extends BaseResource {
     /**
      * Returns a track stream.
      *
+     * @param id Track ID
      * @return Response
      * @throws JSONException
      */
     @GET
     @Path("{id: [a-z0-9\\-]+}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response id(
+    public Response stream(
             @PathParam("id") String id) throws JSONException {
         if (!authenticate()) {
             throw new ForbiddenClientException();

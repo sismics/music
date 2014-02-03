@@ -1,0 +1,55 @@
+<div class="panel panel-default albumart">
+  <div class="panel-body">
+    <div class="page-header">
+      <h1><span class="text-muted">{{ album.artist.name }}</span> {{ album.name }} <small></small></h1>
+      <h2>Change album art</h2>
+    </div>
+
+    <form class="form-inline well-lg row" name="uploadForm" novalidate>
+      <div class="form-group col-sm-5">
+        <input name="file" type="file" id="inputFile" required class="form-control" ng-model="file" />
+      </div>
+
+      <button type="submit" class="btn btn-primary col-sm-2" ng-click="uploadFile()" ng-disabled="!uploadForm.$valid">
+        <span class="glyphicon glyphicon-pencil"></span> Upload
+      </button>
+    </form>
+
+    <h4 class="text-center">or</h4>
+
+    <form class="form-inline well-lg row" name="urlForm" novalidate>
+      <div class="form-group col-sm-5">
+        <input name="url" type="text" id="inputUrl" placeholder="Direct URL" required class="form-control" ng-model="url" />
+      </div>
+
+      <button type="submit" class="btn btn-primary col-sm-2" ng-click="uploadLink()" ng-disabled="!urlForm.$valid">
+        <span class="glyphicon glyphicon-pencil"></span> Download
+      </button>
+    </form>
+
+    <h4 class="text-center">or</h4>
+
+    <form class="form-inline well-lg row" name="apiForm" novalidate>
+      <div class="form-group col-sm-5">
+        <input name="query" type="text" id="inputQuery" placeholder="Google Images Search" required class="form-control" ng-model="query" />
+      </div>
+
+      <button type="submit" class="btn btn-primary col-sm-2" ng-click="apiSearch()" ng-disabled="!apiForm.$valid">
+        <span class="glyphicon glyphicon-pencil"></span> Search
+      </button>
+    </form>
+
+    <div class="row results">
+      <div class="col-md-3" ng-repeat="result in results" ng-click="selectResult(result.url)">
+        <div class="thumbnail">
+          <div class="img-container">
+            <img ng-src="{{ result.tbUrl }}" />
+          </div>
+          <div class="caption text-center">
+            {{ result.width }}x{{ result.height }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

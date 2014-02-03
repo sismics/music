@@ -4,7 +4,7 @@ import com.google.common.eventbus.Subscribe;
 import com.sismics.music.core.event.async.CollectionReindexAsyncEvent;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.jpa.Directory;
-import com.sismics.music.core.service.CollectionService;
+import com.sismics.music.core.service.collection.CollectionService;
 import com.sismics.music.core.util.TransactionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,20 +1,21 @@
 package com.sismics.music.core.model.context;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 import com.sismics.music.core.listener.async.CollectionReindexAsyncListener;
 import com.sismics.music.core.listener.async.DirectoryCreatedAsyncListener;
 import com.sismics.music.core.listener.async.DirectoryDeletedAsyncListener;
 import com.sismics.music.core.listener.sync.DeadEventListener;
-import com.sismics.music.core.service.CollectionService;
+import com.sismics.music.core.service.albumart.AlbumArtService;
+import com.sismics.music.core.service.collection.CollectionService;
 import com.sismics.util.EnvironmentUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Global application context.
@@ -48,6 +49,11 @@ public class AppContext {
     private CollectionService collectionService;
 
     /**
+     * Album art service.
+     */
+    private AlbumArtService albumArtService;
+
+    /**
      * Asynchronous executors.
      */
     private List<ExecutorService> asyncExecutorList;
@@ -61,6 +67,7 @@ public class AppContext {
         collectionService = new CollectionService();
         collectionService.startAndWait();
 
+        albumArtService = new AlbumArtService();
     }
     
     /**
@@ -124,6 +131,15 @@ public class AppContext {
      */
     public CollectionService getCollectionService() {
         return collectionService;
+    }
+
+    /**
+     * Getter of albumArtService.
+     *
+     * @return albumArtService
+     */
+    public AlbumArtService getAlbumArtService() {
+        return albumArtService;
     }
 
     /**

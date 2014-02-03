@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.sismics.music.activity.MainActivity" >
+    
+    <item android:id="@+id/settings"
+        android:title="@string/settings"
+        android:showAsAction="collapseActionView" />
+    <item
+        android:id="@+id/logout"
+        android:showAsAction="collapseActionView"
+        android:title="@string/logout">
+    </item>
+</menu>

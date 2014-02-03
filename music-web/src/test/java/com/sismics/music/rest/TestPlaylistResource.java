@@ -6,6 +6,7 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Test;
 
+import com.google.common.collect.Lists;
 import com.sismics.music.rest.filter.CookieAuthenticationFilter;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -69,7 +70,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         JSONObject track1 = tracks.getJSONObject(1);
         String track1Id = track1.getString("id");
 
-        // Admin checks that his playlist is empty.
+        // Admin checks that his playlist is empty
         WebResource playlistResource = resource().path("/playlist");
         playlistResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         response = playlistResource.get(ClientResponse.class);
@@ -133,7 +134,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         json = response.getEntity(JSONObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
-        // Admin checks that his playlist contains 2 tracks in the right order.
+        // Admin checks that his playlist contains 2 tracks in the right order
         playlistResource = resource().path("/playlist");
         playlistResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         response = playlistResource.get(ClientResponse.class);
@@ -163,5 +164,45 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertNotNull(tracks);
         Assert.assertEquals(1, tracks.length());
         Assert.assertEquals(track0Id, tracks.getJSONObject(0).getString("id"));
+        
+        // Admin clears his playlist
+        playlistResource = resource().path("/playlist");
+        playlistResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        response = playlistResource.delete(ClientResponse.class);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        json = response.getEntity(JSONObject.class);
+        Assert.assertEquals("ok", json.getString("status"));
+        
+        // Admin checks that his playlist is empty
+        playlistResource = resource().path("/playlist");
+        playlistResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        response = playlistResource.get(ClientResponse.class);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        json = response.getEntity(JSONObject.class);
+        tracks = json.optJSONArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(0, tracks.length());
+        
+        // Admin adds 2 tracks at the same time
+        playlistResource = resource().path("/playlist/multiple");
+        playlistResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        postParams = new MultivaluedMapImpl();
+        postParams.put("ids", Lists.newArrayList(track0Id, track1Id));
+        response = playlistResource.put(ClientResponse.class, postParams);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        json = response.getEntity(JSONObject.class);
+        Assert.assertEquals("ok", json.getString("status"));
+        
+        // Admin checks that his playlist contains 2 tracks in the right order
+        playlistResource = resource().path("/playlist");
+        playlistResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        response = playlistResource.get(ClientResponse.class);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        json = response.getEntity(JSONObject.class);
+        tracks = json.optJSONArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(2, tracks.length());
+        Assert.assertEquals(track0Id, tracks.getJSONObject(0).getString("id"));
+        Assert.assertEquals(track1Id, tracks.getJSONObject(1).getString("id"));
     }
 }
