@@ -7,7 +7,17 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
+
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DirectColorModel;
+import java.awt.image.PixelGrabber;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,6 +42,10 @@ public class ImageUtil {
 
         // TODO add BMP
     };
+    
+    // Related to alpha channel removal
+    private static final int[] RGB_MASKS = {0xFF0000, 0xFF00, 0xFF};
+    private static final ColorModel RGB_OPAQUE = new DirectColorModel(32, RGB_MASKS[0], RGB_MASKS[1], RGB_MASKS[2]);
     
     /**
      * Detects the image format from its contents.
@@ -174,5 +188,21 @@ public class ImageUtil {
                 writer.dispose();
             }
         }
+    }
+
+    /**
+     * Read an image and remove the alpha channel.
+     * @param file Image file
+     * @return Image without alpha channel
+     * @throws Exception 
+     */
+    public static BufferedImage readImageWithoutAlphaChannel(File file) throws Exception {
+        Image img = Toolkit.getDefaultToolkit().createImage(file.getAbsolutePath());
+        PixelGrabber pg = new PixelGrabber(img, 0, 0, -1, -1, true);
+        pg.grabPixels();
+        int width = pg.getWidth(), height = pg.getHeight();
+        DataBuffer buffer = new DataBufferInt((int[]) pg.getPixels(), pg.getWidth() * pg.getHeight());
+        WritableRaster raster = Raster.createPackedRaster(buffer, width, height, width, RGB_MASKS, null);
+        return new BufferedImage(RGB_OPAQUE, raster, false, null);
     }
 }

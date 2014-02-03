@@ -7,7 +7,7 @@ App.controller('SettingsDirectories', function($scope, Restangular, $dialog) {
   // Initialize add directory form
   $scope.directory = {
     name: '', location: ''
-  }
+  };
   
   // Load directories
   $scope.loadDirectories = function() {
@@ -22,8 +22,8 @@ App.controller('SettingsDirectories', function($scope, Restangular, $dialog) {
     var title = 'Delete directory';
     var msg = 'Do you really want to delete directory ' + directory.name + '?';
     var btns = [
-      {result: 'cancel', label: 'Cancel'},
-      {result: 'ok', label: 'OK', cssClass: 'btn-primary'}
+      { result: 'cancel', label: 'Cancel' },
+      { result: 'ok', label: 'OK', cssClass: 'btn-primary' }
     ];
 
     $dialog.messageBox(title, msg, btns, function (result) {
@@ -40,8 +40,15 @@ App.controller('SettingsDirectories', function($scope, Restangular, $dialog) {
     Restangular.one('directory').put({
       name: $scope.directory.name,
       location: $scope.directory.location
-    }).then(function() {
-      $scope.loadDirectories();
-    });
+    })
+        .then(function() {
+          // Reset add directory form
+          $scope.directory = {
+            name: '', location: ''
+          };
+
+          // Reload directories
+          $scope.loadDirectories();
+        });
   };
 });

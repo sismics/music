@@ -1,14 +1,14 @@
 package com.sismics.music.core.service.albumart;
 
-import com.google.common.util.concurrent.AbstractService;
-import com.sismics.music.core.util.ImageUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.util.concurrent.AbstractService;
+import com.sismics.music.core.util.ImageUtil;
 
 /**
  * Album art service.
@@ -49,7 +49,7 @@ public class AlbumArtService  {
         if (fileType == null) {
             throw new Exception("Unknown file format for picture " + originalFile.getName());
         }
-        BufferedImage originalImage = ImageIO.read(originalFile);
+        BufferedImage originalImage = ImageUtil.readImageWithoutAlphaChannel(originalFile);
         String albumArtFileName = getAlbumArtFileName(id, albumArtSize);
         File albumArtFile = new File(getAlbumArtDir() + File.separator + albumArtFileName);
 

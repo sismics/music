@@ -58,7 +58,7 @@
 				    <a class="navbar-brand" href="#"><span class="glyphicon glyphicon-headphones"></span> Sismics Music</a>
 				  </div>
 
-          <form class="navbar-form navbar-left" role="search">
+          <form class="navbar-form navbar-left" role="search" ng-show="!userInfo.anonymous">
             <div class="form-group">
               <input type="text" class="form-control" ng-model="query" placeholder="Search your music" style="width: 430px;">
             </div>
