@@ -11,6 +11,8 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 
+import com.sismics.music.core.model.context.AppContext;
+import com.sismics.util.jpa.EMF;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.junit.After;
@@ -55,11 +57,16 @@ public abstract class BaseJerseyTest extends JerseyTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        
+
         wiser = new Wiser();
         wiser.setPort(2500);
         wiser.start();
-        
+
+//        if (EMF.get() != null) {
+//            EMF.get().close();
+//            EMF.createEntityManager();
+//        }
+
         String httpRoot = URLDecoder.decode(new File(getClass().getResource("/").getFile()).getAbsolutePath(), "utf-8");
         httpServer = HttpServer.createSimpleServer(httpRoot, "localhost", 9997);
         // Disable file cache to fix https://java.net/jira/browse/GRIZZLY-1350

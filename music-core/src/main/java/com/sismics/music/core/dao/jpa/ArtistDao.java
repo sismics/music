@@ -101,4 +101,22 @@ public class ArtistDao {
         Date dateNow = new Date();
         artistFromDb.setDeleteDate(dateNow);
     }
+
+    /**
+     * Delete any artist that don't have any album.
+     *
+     * @param directoryId Directory ID
+     */
+    public void deleteEmptyArtist(String directoryId) {
+        EntityManager em = ThreadLocalContext.get().getEntityManager();
+        Query q = em.createNativeQuery("update T_ARTIST a set a.ART_DELETEDATE_D = :deleteDate where a.ART_ID_C NOT IN (" +
+                "  select al.ALB_IDARTIST_C from T_ARTIST ea " +
+                "    join T_ALBUM al on(ea.ART_ID_C = al.ALB_IDARTIST_C)" +
+                "    where ea.ART_DELETEDATE_D is null and al.ALB_DELETEDATE_D is null and al.ALB_IDDIRECTORY_C = :directoryId" +
+                "    group by al.ALB_IDARTIST_C" +
+                ")");
+        q.setParameter("deleteDate", new Date());
+        q.setParameter("directoryId", directoryId);
+        q.executeUpdate();
+    }
 }

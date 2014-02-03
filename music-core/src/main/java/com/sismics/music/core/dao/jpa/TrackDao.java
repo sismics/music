@@ -57,13 +57,15 @@ public class TrackDao {
     /**
      * Gets an active track by its file name.
      * 
+     * @param directoryId Directory ID
      * @param fileName Track file name
      * @return Track
      */
-    public Track getActiveByFilename(String fileName) {
+    public Track getActiveByDirectoryAndFilename(String directoryId, String fileName) {
         EntityManager em = ThreadLocalContext.get().getEntityManager();
         try {
-            Query q = em.createQuery("select t from Track t where t.fileName = :fileName and t.deleteDate is null");
+            Query q = em.createQuery("select t from Track t, Album a where t.albumId = a.id and t.fileName = :fileName and t.deleteDate is null and a.deleteDate is null and a.directoryId = :directoryId");
+            q.setParameter("directoryId", directoryId);
             q.setParameter("fileName", fileName);
             return (Track) q.getSingleResult();
         } catch (NoResultException e) {
@@ -159,18 +161,33 @@ public class TrackDao {
     }
 
     /**
-     * Deletes a track.
+     * Deletes all tracks from an album.
      * 
+     * @param albumId Album ID
+     */
+    public void deleteFromAlbum(String albumId) {
+        EntityManager em = ThreadLocalContext.get().getEntityManager();
+            
+        // Get the track
+        Query q = em.createNativeQuery("update T_TRACK set TRK_DELETEDATE_D = :deleteDate WHERE TRK_DELETEDATE_D is null and TRK_IDALBUM_C = :albumId ");
+        q.setParameter("albumId", albumId);
+        q.setParameter("deleteDate", new Date());
+        q.executeUpdate();
+    }
+
+    /**
+     * Deletes a track.
+     *
      * @param id Track ID
      */
     public void delete(String id) {
         EntityManager em = ThreadLocalContext.get().getEntityManager();
-            
+
         // Get the track
         Query q = em.createQuery("select t from Track t where t.id = :id and t.deleteDate is null");
         q.setParameter("id", id);
         Track trackFromDb = (Track) q.getSingleResult();
-        
+
         // Delete the track
         Date dateNow = new Date();
         trackFromDb.setDeleteDate(dateNow);

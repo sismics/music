@@ -3,10 +3,11 @@
 /**
  * Sismics Music application.
  */
-var App = angular.module('music',
+var App = angular.module('/music',
     // Dependencies
-    ['ui.router', 'ui.bootstrap', 'dialog', 'ui.route', 'restangular']
+    ['ui.router', 'ui.bootstrap', 'dialog', 'ui.route', 'restangular', 'ngSanitize']
   )
+
 
 /**
  * Configuring modules.

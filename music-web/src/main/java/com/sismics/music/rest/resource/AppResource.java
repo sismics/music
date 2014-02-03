@@ -12,6 +12,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.sismics.music.core.event.async.CollectionReindexAsyncEvent;
+import com.sismics.music.core.event.async.DirectoryCreatedAsyncEvent;
+import com.sismics.music.core.model.context.AppContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
@@ -129,11 +132,37 @@ public class AppResource extends BaseResource {
         }
         checkBaseFunction(BaseFunction.ADMIN);
         
-        JSONObject response = new JSONObject();
         if (!NetworkUtil.mapTcpPort(request.getServerPort())) {
             throw new ServerException("NetworkError", "Error mapping port using UPnP");
         }
-        
+
+        // Always return OK
+        JSONObject response = new JSONObject();
+        response.put("status", "ok");
+        return Response.ok().entity(response).build();
+    }
+
+    /**
+     * Rebuilds the music collection index.
+     *
+     * @return Response
+     * @throws JSONException
+     */
+    @POST
+    @Path("batch/reindex")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response reindex() throws JSONException {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+        checkBaseFunction(BaseFunction.ADMIN);
+
+        // Raise a directory creation event
+        CollectionReindexAsyncEvent collectionReindexAsyncEvent = new CollectionReindexAsyncEvent();
+        AppContext.getInstance().getCollectionEventBus().post(collectionReindexAsyncEvent);
+
+        // Always return OK
+        JSONObject response = new JSONObject();
         response.put("status", "ok");
         return Response.ok().entity(response).build();
     }

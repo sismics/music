@@ -12,6 +12,11 @@ public class AlbumCriteria {
     private String id;
 
     /**
+     * Directory ID.
+     */
+    private String directoryId;
+
+    /**
      * Getter of id.
      *
      * @return id
@@ -28,6 +33,26 @@ public class AlbumCriteria {
      */
     public AlbumCriteria setId(String id) {
         this.id = id;
+        return this;
+    }
+
+    /**
+     * Getter of directoryId.
+     *
+     * @return directoryId
+     */
+    public String getDirectoryId() {
+        return this.directoryId;
+    }
+
+    /**
+     * Setter of directoryId.
+     *
+     * @param directoryId directoryId
+     * @return Criteria
+     */
+    public AlbumCriteria setDirectoryId(String directoryId) {
+        this.directoryId = directoryId;
         return this;
     }
 }

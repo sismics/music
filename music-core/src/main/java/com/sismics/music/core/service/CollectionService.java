@@ -3,7 +3,10 @@ package com.sismics.music.core.service;
 import com.google.common.util.concurrent.AbstractScheduledService;
 import com.sismics.music.core.dao.jpa.AlbumDao;
 import com.sismics.music.core.dao.jpa.ArtistDao;
+import com.sismics.music.core.dao.jpa.DirectoryDao;
 import com.sismics.music.core.dao.jpa.TrackDao;
+import com.sismics.music.core.dao.jpa.criteria.AlbumCriteria;
+import com.sismics.music.core.dao.jpa.dto.AlbumDto;
 import com.sismics.music.core.model.jpa.Album;
 import com.sismics.music.core.model.jpa.Artist;
 import com.sismics.music.core.model.jpa.Directory;
@@ -18,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -58,17 +62,22 @@ public class CollectionService extends AbstractScheduledService {
     }
 
     /**
-     * Add a directory to the index.
+     * Add a directory to the index / update existing index.
      *
      * @param directory Directory to index
      */
     public void addDirectoryToIndex(Directory directory) {
+        // Add / update this directory to the index
         File file = new File(directory.getLocation());
         if (!file.exists() || !file.isDirectory()) {
             log.error("Cannot read from directory: " + file.getAbsolutePath());
             return;
         }
         indexDirectory(directory, file);
+
+        // Delete all artists that don't have any album
+        ArtistDao artistDao = new ArtistDao();
+        artistDao.deleteEmptyArtist(directory.getId());
     }
 
     /**
@@ -77,7 +86,16 @@ public class CollectionService extends AbstractScheduledService {
      * @param directory Directory to index
      */
     public void removeDirectoryFromIndex(Directory directory) {
-        // TODO implement
+        // Delete all albums from this directory
+        AlbumDao albumDao = new AlbumDao();
+        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria().setDirectoryId(directory.getId()));
+        for (AlbumDto albumDto : albumList) {
+            albumDao.delete(albumDto.getId());
+        }
+
+        // Delete all artists that don't have any album
+        ArtistDao artistDao = new ArtistDao();
+        artistDao.deleteEmptyArtist(directory.getId());
     }
 
     /**
@@ -107,7 +125,7 @@ public class CollectionService extends AbstractScheduledService {
      */
     private void indexFile(Directory rootDirectory, File file) {
         TrackDao trackDao = new TrackDao();
-        Track track = trackDao.getActiveByFilename(file.getAbsolutePath());
+        Track track = trackDao.getActiveByDirectoryAndFilename(rootDirectory.getId(), file.getAbsolutePath());
         if (track != null) {
             readTrackMetadata(rootDirectory, file, track);
         } else {
@@ -115,6 +133,7 @@ public class CollectionService extends AbstractScheduledService {
             track.setFileName(file.getAbsolutePath());
 
             readTrackMetadata(rootDirectory, file, track);
+            trackDao.create(track);
         }
     }
 
@@ -126,7 +145,6 @@ public class CollectionService extends AbstractScheduledService {
      * @param track Track entity (updated)
      */
     private void readTrackMetadata(Directory rootDirectory, File file, Track track) {
-        TrackDao trackDao = new TrackDao();
         try {
             AudioFile audioFile = AudioFileIO.read(file);
             Tag tag = audioFile.getTag();
@@ -169,16 +187,24 @@ public class CollectionService extends AbstractScheduledService {
             if (album == null) {
                 album = new Album();
                 album.setArtistId(albumArtist.getId());
-                album.setDirectoryId(rootDirectory.getId()); // FIXME we can have a 2 directories pointing to the same Album entity
+                album.setDirectoryId(rootDirectory.getId());
                 album.setName(albumName);
                 albumDao.create(album);
             }
             track.setAlbumId(album.getId());
-
-            trackDao.create(track);
         } catch (Exception e) {
             log.error("Error extracting metadata from file: " + file.getAbsolutePath(), e);
         }
     }
 
+    /**
+     * Reindex the whole collection.
+     */
+    public void reindex() {
+        DirectoryDao directoryDao = new DirectoryDao();
+        List<Directory> directoryList = directoryDao.findAll();
+        for (Directory directory : directoryList) {
+            addDirectoryToIndex(directory);
+        }
+    }
 }

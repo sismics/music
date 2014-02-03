@@ -107,6 +107,10 @@ public class AlbumDao {
             criteriaList.add("a.ALB_ID_C = :id");
             parameterMap.put("id", criteria.getId());
         }
+        if (criteria.getDirectoryId() != null) {
+            criteriaList.add("a.ALB_IDDIRECTORY_C = :directoryId");
+            parameterMap.put("directoryId", criteria.getDirectoryId());
+        }
         criteriaList.add("ar.ART_DELETEDATE_D is null");
         criteriaList.add("a.ALB_DELETEDATE_D is null");
 
@@ -155,5 +159,9 @@ public class AlbumDao {
         // Delete the album
         Date dateNow = new Date();
         albumFromDb.setDeleteDate(dateNow);
+
+        // Delete linked tracks
+        TrackDao trackDao = new TrackDao();
+        trackDao.deleteFromAlbum(id);
     }
 }

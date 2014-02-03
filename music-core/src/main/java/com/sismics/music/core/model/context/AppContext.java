@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
+import com.sismics.music.core.listener.async.CollectionReindexAsyncListener;
 import com.sismics.music.core.listener.async.DirectoryCreatedAsyncListener;
 import com.sismics.music.core.listener.async.DirectoryDeletedAsyncListener;
 import com.sismics.music.core.listener.sync.DeadEventListener;
@@ -75,6 +76,7 @@ public class AppContext {
         collectionEventBus = newAsyncEventBus();
         collectionEventBus.register(new DirectoryCreatedAsyncListener());
         collectionEventBus.register(new DirectoryDeletedAsyncListener());
+        collectionEventBus.register(new CollectionReindexAsyncListener());
     }
 
     /**

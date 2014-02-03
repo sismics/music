@@ -41,7 +41,7 @@ public class DirectoryCreatedAsyncListener {
         TransactionUtil.handle(new Runnable() {
             @Override
             public void run() {
-             // Index new directory
+                // Index new directory
                 CollectionService collectionService = AppContext.getInstance().getCollectionService();
                 collectionService.addDirectoryToIndex(directory);
             }

@@ -70,8 +70,12 @@ public class DirectoryDao {
         directoryFromDb.setLocation(directory.getLocation());
         if (directoryFromDb.getDisableDate() == null && directory.getDisableDate() != null) {
             directoryFromDb.setDisableDate(directory.getDisableDate());
+
+            // TODO remove this dir from the index
         } else if (directoryFromDb.getDisableDate() != null && directory.getDisableDate() == null) {
             directoryFromDb.setDisableDate(null);
+
+            // TODO add this dir to the index
         }
 
         return directory;
@@ -115,6 +119,18 @@ public class DirectoryDao {
 //        q = em.createQuery("delete from AuthenticationToken at where at.directoryId = :directoryId");
 //        q.setParameter("directoryId", directoryFromDb.getId());
 //        q.executeUpdate();
+    }
+
+    /**
+     * Returns the list of all enabled directories.
+     *
+     * @return List of directories
+     */
+    @SuppressWarnings("unchecked")
+    public List<Directory> findAllEnabled() {
+        EntityManager em = ThreadLocalContext.get().getEntityManager();
+        Query q = em.createQuery("select d from Directory d where d.deleteDate is null and d.disableDate is null order by d.name");
+        return q.getResultList();
     }
 
     /**

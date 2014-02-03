@@ -81,12 +81,12 @@ public class TestDirectoryResource extends BaseJerseyTest {
         Assert.assertNotNull(directories);
         Assert.assertEquals(2, directories.length());
         JSONObject directory0 = directories.getJSONObject(0);
-        Assert.assertNotNull(directory0.opt("id"));
         String directory0Id = directory0.optString("id");
         Assert.assertNotNull(directory0Id);
         Assert.assertNotNull("main", directory0.optString("name"));
         Assert.assertNotNull("/var/music/main", directory0.optString("location"));
         Assert.assertTrue(directory0.optBoolean("active"));
+        String directory1Id = directories.getJSONObject(1).getString("id");
 
         // Admin updates the directory info
         directoryResource = resource().path("/directory/" + directory0Id);
@@ -115,8 +115,13 @@ public class TestDirectoryResource extends BaseJerseyTest {
         Assert.assertNotNull("/var/music/mainstream", directory0.optString("location"));
         Assert.assertTrue(directory0.optBoolean("active"));
 
-        // Admin deletes the directory
+        // Admin deletes the directories
         directoryResource = resource().path("/directory/" + directory0Id);
+        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        response = directoryResource.delete(ClientResponse.class);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+
+        directoryResource = resource().path("/directory/" + directory1Id);
         directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         response = directoryResource.delete(ClientResponse.class);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
@@ -129,7 +134,7 @@ public class TestDirectoryResource extends BaseJerseyTest {
         json = response.getEntity(JSONObject.class);
         directories = json.optJSONArray("directories");
         Assert.assertNotNull(directories);
-        Assert.assertEquals(1, directories.length());
+        Assert.assertEquals(0, directories.length());
     }
 
     /**
@@ -152,6 +157,18 @@ public class TestDirectoryResource extends BaseJerseyTest {
         JSONObject json = response.getEntity(JSONObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
+        // Admin lists all directories
+        directoryResource = resource().path("/directory");
+        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        response = directoryResource.get(ClientResponse.class);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        json = response.getEntity(JSONObject.class);
+        JSONArray directories = json.optJSONArray("directories");
+        Assert.assertNotNull(directories);
+        Assert.assertEquals(1, directories.length());
+        JSONObject directory0 = directories.getJSONObject(0);
+        String directory0Id = directory0.getString("id");
+
         // Check that the albums are correctly added
         WebResource albumResource = resource().path("/album");
         albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
@@ -161,5 +178,21 @@ public class TestDirectoryResource extends BaseJerseyTest {
         JSONArray albums = json.optJSONArray("albums");
         Assert.assertNotNull(albums);
         Assert.assertEquals(1, albums.length());
+
+        // Admin deletes the directory
+        directoryResource = resource().path("/directory/" + directory0Id);
+        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        response = directoryResource.delete(ClientResponse.class);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+
+        // Check that the albums are correctly removed
+        albumResource = resource().path("/album");
+        albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        response = albumResource.get(ClientResponse.class);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        json = response.getEntity(JSONObject.class);
+        albums = json.optJSONArray("albums");
+        Assert.assertNotNull(albums);
+        Assert.assertEquals(0, albums.length());
     }
 }

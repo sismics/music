@@ -29,6 +29,12 @@ public final class EMF {
     private static EntityManagerFactory emfInstance;
 
     static {
+        if (emfInstance == null) {
+            createEntityManager();
+        }
+    }
+
+    public static void createEntityManager() {
         try {
             Map<Object, Object> properties = getEntityManagerProperties();
 
@@ -37,7 +43,7 @@ public final class EMF {
             ServiceRegistry reg = new ServiceRegistryBuilder().applySettings(properties).buildServiceRegistry();
 
             DbOpenHelper openHelper = new DbOpenHelper(reg) {
-                
+
                 @Override
                 public void onCreate() throws Exception {
                     executeAllScript(0);
@@ -51,14 +57,14 @@ public final class EMF {
                 }
             };
             openHelper.open();
-            
+
             emfInstance = Persistence.createEntityManagerFactory("transactions-optional", getEntityManagerProperties());
-            
+
         } catch (Throwable t) {
             log.error("Error creating EMF", t);
         }
     }
-    
+
     private static Map<Object, Object> getEntityManagerProperties() {
         // Use properties file if exists
         try {
