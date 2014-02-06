@@ -25,6 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@id/imgCover"
+            android:layout_toLeftOf="@+id/buttons"
             android:orientation="vertical"
             android:gravity="center_vertical">
 
@@ -33,6 +34,8 @@
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
                 android:text="Bruno Mars"
+                android:singleLine="true"
+                android:ellipsize="end"
                 android:textColor="#999"
                 android:fontFamily="sans-serif-light"
                 android:id="@+id/artistName" />
@@ -41,11 +44,37 @@
                 android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="22sp"
+                android:textSize="20sp"
+                android:singleLine="true"
+                android:ellipsize="end"
                 android:text="Earth To Mars"
                 android:fontFamily="sans-serif-light"
                 android:id="@+id/albumName" />
 
+        </LinearLayout>
+        
+        <LinearLayout
+            android:id="@+id/buttons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:orientation="vertical"
+            android:layout_alignParentRight="true">
+            
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?android:attr/borderlessButtonStyle"
+                android:id="@+id/btnPlayAll"
+                android:src="@drawable/ic_action_play"/>
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?android:attr/borderlessButtonStyle"
+                android:id="@+id/btnAddAll"
+                android:src="@drawable/ic_action_add_to_queue"/>
+            
         </LinearLayout>
 
     </RelativeLayout>

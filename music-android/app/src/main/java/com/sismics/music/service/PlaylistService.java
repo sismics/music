@@ -129,4 +129,28 @@ public class PlaylistService {
         playlistTrackList.add(playlistTrack);
         EventBus.getDefault().post(new PlaylistChangedEvent());
     }
+
+    /**
+     * Clear the playlist.
+     */
+    public static void clear(boolean notify) {
+        playlistTrackList.clear();
+        currentTrackIndex = -1;
+        if (notify) {
+            EventBus.getDefault().post(new PlaylistChangedEvent());
+        }
+    }
+
+    /**
+     * Add a list of tracks.
+     * @param album Album linked to all tracks
+     * @param trackList Tracks
+     */
+    public static void addAll(Album album, List<Track> trackList) {
+        for (Track track : trackList) {
+            PlaylistTrack playlistTrack = new PlaylistTrack(album, track);
+            playlistTrackList.add(playlistTrack);
+        }
+        EventBus.getDefault().post(new PlaylistChangedEvent());
+    }
 }

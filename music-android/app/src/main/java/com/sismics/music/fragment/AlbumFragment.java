@@ -1,6 +1,7 @@
 package com.sismics.music.fragment;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,8 +18,10 @@ import com.sismics.music.R;
 import com.sismics.music.adapter.TracksAdapter;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.model.Album;
+import com.sismics.music.model.PlaylistTrack;
 import com.sismics.music.model.Track;
 import com.sismics.music.resource.AlbumResource;
+import com.sismics.music.service.MusicService;
 import com.sismics.music.service.PlaylistService;
 import com.sismics.music.util.CacheUtil;
 import com.sismics.music.util.PreferenceUtil;
@@ -130,6 +133,26 @@ public class AlbumFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 PlaylistService.add(album, tracksAdapter.getItem(position - 1));
+            }
+        });
+
+        // Play all
+        aq.id(R.id.btnPlayAll).clicked(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<Track> trackList = tracksAdapter.getTracks();
+                PlaylistService.clear(false);
+                PlaylistService.addAll(album, trackList);
+                getActivity().startService(new Intent(MusicService.ACTION_PLAY));
+            }
+        });
+
+        // Add all
+        aq.id(R.id.btnAddAll).clicked(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<Track> trackList = tracksAdapter.getTracks();
+                PlaylistService.addAll(album, trackList);
             }
         });
 

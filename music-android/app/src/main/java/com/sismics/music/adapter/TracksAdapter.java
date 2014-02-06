@@ -102,6 +102,10 @@ public class TracksAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public List<Track> getTracks() {
+        return tracks;
+    }
+
     /**
      * Article ViewHolder.
      * 
