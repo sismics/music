@@ -16,8 +16,8 @@ import com.sismics.music.R;
 import com.sismics.music.listener.CallbackListener;
 import com.sismics.music.model.ApplicationContext;
 import com.sismics.music.resource.UserResource;
-import com.sismics.music.ui.form.Validator;
-import com.sismics.music.ui.form.validator.Required;
+import com.sismics.music.util.form.Validator;
+import com.sismics.music.util.form.validator.Required;
 import com.sismics.music.util.DialogUtil;
 import com.sismics.music.util.PreferenceUtil;
 

@@ -1,12 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/card_bg"
+    android:gravity="center_vertical">
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    <ImageView
+        android:contentDescription="@string/album_art"
+        android:id="@+id/imgCover"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleType="centerCrop"/>
 
-    <TextView
+    <LinearLayout
+        android:layout_toRightOf="@id/imgCover"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/albumName" />
-</LinearLayout>
+        android:layout_height="60dp"
+        android:gravity="center_vertical"
+        android:layout_marginLeft="12dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="Bruno Mars"
+            android:textColor="#999"
+            android:fontFamily="sans-serif-light"
+            android:id="@+id/artistName" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="Earth To Mars"
+            android:fontFamily="sans-serif-light"
+            android:id="@+id/albumName" />
+
+    </LinearLayout>
+
+</RelativeLayout>

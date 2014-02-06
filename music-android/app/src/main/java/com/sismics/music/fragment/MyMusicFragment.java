@@ -6,19 +6,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 
-import com.androidquery.AQuery;
-import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
 import com.sismics.music.event.OpenAlbumEvent;
-import com.sismics.music.model.Album;
-import com.sismics.music.resource.AlbumResource;
-import com.sismics.music.ui.adapter.AlbumAdapter;
-import com.sismics.music.util.PreferenceUtil;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import de.greenrobot.event.EventBus;
 

@@ -23,12 +23,19 @@ public class Album implements Serializable {
     private String name;
 
     /**
+     * Artist name.
+     */
+    private String artistName;
+
+    /**
      * Build a new album from JSON data.
      * @param album JSON data
      */
     public Album(JSONObject album) {
         this.id = album.optString("id");
         this.name = album.optString("name");
+        JSONObject artist = album.optJSONObject("artist");
+        this.artistName = artist.optString("name");
     }
 
     public String getId() {
@@ -45,5 +52,13 @@ public class Album implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getArtistName() {
+        return artistName;
+    }
+
+    public void setArtistName(String artistName) {
+        this.artistName = artistName;
     }
 }

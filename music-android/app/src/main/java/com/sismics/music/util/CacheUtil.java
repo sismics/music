@@ -16,6 +16,8 @@ import org.jaudiotagger.tag.Tag;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +46,17 @@ public class CacheUtil {
      * @return True if complete
      */
     public static boolean isComplete(PlaylistTrack playlistTrack) {
+        return getCompleteCacheFile(playlistTrack).exists();
+    }
+
+    /**
+     * Returns true if the given track with album is complete.
+     * @param album Album associated with the track
+     * @param track Track
+     * @return True if complete
+     */
+    public static boolean isComplete(Album album, Track track) {
+        PlaylistTrack playlistTrack = new PlaylistTrack(album, track);
         return getCompleteCacheFile(playlistTrack).exists();
     }
 
@@ -114,6 +127,8 @@ public class CacheUtil {
                 track.setTitle(tag.getFirst(FieldKey.TITLE));
                 track.setId(file.getName().substring(0, file.getName().indexOf(".")));
                 trackList.add(track);
+            } catch (ClosedChannelException e) {
+                // We have been interrupted, don't care
             } catch (Exception e) {
                 Log.e("CacheUtil", "Error extracting metadata from file: " + file.getAbsolutePath(), e);
             }

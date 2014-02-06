@@ -22,6 +22,9 @@
     <string name="logout">Sign Out</string>
     <string name="settings">Settings</string>
     <string name="crash_toast_text">A crash occurred, a report has been sent to resolve this problem</string>
+    <string name="album_art">Album art</string>
+    <string name="more_options">More options</string>
+    <string name="cached">Cached</string>
 
     <!-- Validation -->
     <string name="validate_error_email">Invalid email</string>

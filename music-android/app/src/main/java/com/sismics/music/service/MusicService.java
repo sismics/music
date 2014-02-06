@@ -26,6 +26,7 @@ import com.loopj.android.http.FileAsyncHttpResponseHandler;
 import com.loopj.android.http.RequestHandle;
 import com.sismics.music.R;
 import com.sismics.music.activity.MainActivity;
+import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.model.PlaylistTrack;
 import com.sismics.music.resource.TrackResource;
 import com.sismics.music.util.CacheUtil;
@@ -34,6 +35,8 @@ import org.apache.http.Header;
 
 import java.io.File;
 import java.io.IOException;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * Music service to download and play the playlist.
@@ -379,13 +382,15 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         FileAsyncHttpResponseHandler responseHandler = new FileAsyncHttpResponseHandler(incompleteCacheFile) {
             @Override
             public void onStart() {
-                PlaylistService.updateTrackCacheStatus(playlistTrack, PlaylistTrack.CacheStatus.DOWNLOADING);
+                playlistTrack.setCacheStatus(PlaylistTrack.CacheStatus.DOWNLOADING);
+                EventBus.getDefault().post(new TrackCacheStatusChangedEvent(playlistTrack));
             }
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, File file) {
                 if (CacheUtil.setComplete(file)) {
-                    PlaylistService.updateTrackCacheStatus(playlistTrack, PlaylistTrack.CacheStatus.COMPLETE);
+                    playlistTrack.setCacheStatus(PlaylistTrack.CacheStatus.COMPLETE);
+                    EventBus.getDefault().post(new TrackCacheStatusChangedEvent(playlistTrack));
                     if (play) {
                         doPlay(playlistTrack);
                     }
@@ -433,7 +438,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             mSongTitle = playlistTrack.getTitle();
 
             mState = State.Preparing;
-            setUpAsForeground(mSongTitle + " (loading)");
+            setUpAsForeground(mSongTitle);
 
             // Use the media button APIs (if available) to register ourselves for media button
             // events
@@ -497,7 +502,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     public void onPrepared(MediaPlayer player) {
         // The media player is done preparing. That means we can start playing!
         mState = State.Playing;
-        updateNotification(mSongTitle + " (playing)");
         configAndStartMediaPlayer();
     }
 
@@ -523,7 +527,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                 PendingIntent.FLAG_UPDATE_CURRENT);
         mNotification = new Notification();
         mNotification.tickerText = text;
-        mNotification.icon = R.drawable.ic_launcher;
+        mNotification.icon = R.drawable.ic_notification;
         mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
         mNotification.setLatestEventInfo(getApplicationContext(), "Sismics Music",
                 text, pi);

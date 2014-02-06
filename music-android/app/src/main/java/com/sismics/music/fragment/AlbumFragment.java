@@ -3,30 +3,33 @@ package com.sismics.music.fragment;
 import android.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.androidquery.AQuery;
+import com.androidquery.callback.BitmapAjaxCallback;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
+import com.sismics.music.adapter.TracksAdapter;
+import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.model.Album;
 import com.sismics.music.model.Track;
 import com.sismics.music.resource.AlbumResource;
-import com.sismics.music.ui.adapter.AlbumAdapter;
-import com.sismics.music.ui.adapter.TracksAdapter;
+import com.sismics.music.service.PlaylistService;
 import com.sismics.music.util.CacheUtil;
 import com.sismics.music.util.PreferenceUtil;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * Album details fragment.
@@ -34,15 +37,11 @@ import java.util.concurrent.Future;
  * @author bgamard
  */
 public class AlbumFragment extends Fragment {
-    /**
-     * Album JSON argument.
-     */
-    private static final String ARG_ALBUM = "album";
 
-    /**
-     * Async cache request.
-     */
+    private static final String ARG_ALBUM = "album";
     private AsyncTask cacheTask;
+    private EventBus eventBus;
+    private TracksAdapter tracksAdapter;
 
     /**
      * Returns a new instance of this fragment.
@@ -56,6 +55,12 @@ public class AlbumFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        eventBus = EventBus.getDefault();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final Album album = (Album) getArguments().getSerializable(ARG_ALBUM);
 
@@ -64,10 +69,24 @@ public class AlbumFragment extends Fragment {
         final AQuery aq = new AQuery(view);
 
         // Populate the view with the given data
-        aq.id(R.id.txtName).text(album.getName());
+        aq.id(R.id.albumName).text(album.getName());
+        aq.id(R.id.artistName).text(album.getArtistName());
+        String coverUrl = PreferenceUtil.getServerUrl(getActivity()) + "/api/album/" + album.getId() + "/albumart/small";
+        aq.id(R.id.imgCover).image(new BitmapAjaxCallback()
+                .url(coverUrl)
+                .animation(AQuery.FADE_IN_NETWORK)
+                .cookie("auth_token", PreferenceUtil.getAuthToken(getActivity()))
+        );
 
-        // Set a new adapter to the tracks list
-        aq.id(R.id.listTracks).adapter(new TracksAdapter(getActivity(), album, new ArrayList<Track>()));
+        // Set a new adapter to the tracks list, and attach the header to the ListView
+        ListView listTracks =  aq.id(R.id.listTracks).getListView();
+        View header = aq.id(R.id.header).getView();
+        ((ViewGroup) header.getParent()).removeView(header);
+        header.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        listTracks.addHeaderView(header, null, false);
+        tracksAdapter = new TracksAdapter(getActivity(), album, new ArrayList<Track>());
+        listTracks.setAdapter(tracksAdapter);
+
 
         // Grab cached tracks for this album
         cacheTask = new AsyncTask<Album, Void, List<Track>>() {
@@ -78,8 +97,7 @@ public class AlbumFragment extends Fragment {
 
             @Override
             protected void onPostExecute(List<Track> tracks) {
-                TracksAdapter adapter = (TracksAdapter) aq.id(R.id.listTracks).getListView().getAdapter();
-                adapter.setTracks(tracks);
+                tracksAdapter.setTracks(tracks);
             }
         }.execute(album);
 
@@ -103,12 +121,28 @@ public class AlbumFragment extends Fragment {
                 }
 
                 // Populate the adapter
-                TracksAdapter adapter = (TracksAdapter) aq.id(R.id.listTracks).getListView().getAdapter();
-                adapter.setTracks(tracks);
+                tracksAdapter.setTracks(tracks);
             }
         });
 
+        // Add to queue on click
+        listTracks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                PlaylistService.add(album, tracksAdapter.getItem(position - 1));
+            }
+        });
+
+        eventBus.register(this);
         return view;
+    }
+
+    /**
+     * A track cache status has changed.
+     * @param event Event
+     */
+    public void onEvent(TrackCacheStatusChangedEvent event) {
+        tracksAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -116,6 +150,7 @@ public class AlbumFragment extends Fragment {
         if (cacheTask != null) {
             cacheTask.cancel(true);
         }
+        eventBus.unregister(this);
         super.onDestroyView();
     }
 }

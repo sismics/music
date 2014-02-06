@@ -129,18 +129,4 @@ public class PlaylistService {
         playlistTrackList.add(playlistTrack);
         EventBus.getDefault().post(new PlaylistChangedEvent());
     }
-
-    /**
-     * Update a playlist track cache status.
-     * @param playlistTrack PlaylistTrack to update
-     * @param status New status
-     */
-    public static void updateTrackCacheStatus(PlaylistTrack playlistTrack, PlaylistTrack.CacheStatus status) {
-        if (!playlistTrackList.contains(playlistTrack)) {
-            // The playlistTrack has been delete since
-            return;
-        }
-        playlistTrack.setCacheStatus(status);
-        EventBus.getDefault().post(new PlaylistChangedEvent());
-    }
 }

@@ -11,9 +11,10 @@ import android.widget.AdapterView;
 import com.androidquery.AQuery;
 import com.sismics.music.R;
 import com.sismics.music.event.PlaylistChangedEvent;
+import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.service.PlaylistService;
 import com.sismics.music.service.MusicService;
-import com.sismics.music.ui.adapter.PlaylistAdapter;
+import com.sismics.music.adapter.PlaylistAdapter;
 
 import de.greenrobot.event.EventBus;
 
@@ -92,6 +93,14 @@ public class PlaylistFragment extends Fragment {
      * @param event Event
      */
     public void onEvent(PlaylistChangedEvent event) {
+        playlistAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * The cache status of a track has changed.
+     * @param event
+     */
+    public void onEvent(TrackCacheStatusChangedEvent event) {
         playlistAdapter.notifyDataSetChanged();
     }
 

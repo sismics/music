@@ -4,12 +4,51 @@
     android:layout_height="fill_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:id="@+id/txtName" />
+        android:id="@+id/header">
+
+        <ImageView
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/album_art"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_margin="8dp"
+            android:id="@+id/imgCover"
+            android:scaleType="centerCrop"
+            android:background="@drawable/card_bg"
+            android:padding="4dp"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/imgCover"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:text="Bruno Mars"
+                android:textColor="#999"
+                android:fontFamily="sans-serif-light"
+                android:id="@+id/artistName" />
+
+            <TextView
+                android:layout_marginTop="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="22sp"
+                android:text="Earth To Mars"
+                android:fontFamily="sans-serif-light"
+                android:id="@+id/albumName" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
 
     <ListView
         android:layout_width="match_parent"
