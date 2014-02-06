@@ -19,7 +19,9 @@ import java.io.FilenameFilter;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Cache utilities.
@@ -135,5 +137,26 @@ public class CacheUtil {
         }
 
         return trackList;
+    }
+
+    /**
+     * Returns album IDs containing at least one cached track.
+     * @return Albums IDs
+     */
+    public static Set<String> getCachedAlbumSet() {
+        File cacheDir = getMusicCacheDir();
+        File[] albumList = cacheDir.listFiles();
+        Set<String> output = new HashSet<>();
+        for (File album : albumList) {
+            if (album.list(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String filename) {
+                    return filename.endsWith(".complete");
+                }
+            }).length > 0) {
+                output.add(album.getName());
+            }
+        }
+        return output;
     }
 }

@@ -18,10 +18,13 @@ import com.sismics.music.event.OpenAlbumEvent;
 import com.sismics.music.model.Album;
 import com.sismics.music.resource.AlbumResource;
 import com.sismics.music.adapter.AlbumAdapter;
+import com.sismics.music.util.CacheUtil;
 import com.sismics.music.util.PreferenceUtil;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.Set;
 
 import de.greenrobot.event.EventBus;
 
@@ -92,10 +95,13 @@ public class AlbumListFragment extends Fragment {
      * Refresh album list.
      */
     private void refreshAlbumList() {
+        // Get cached albums
+        final Set<String> cachedAlbumSet = CacheUtil.getCachedAlbumSet();
+
         // Grab the data from the cache first
         JSONObject cache = PreferenceUtil.getCachedJson(getActivity(), PreferenceUtil.Pref.CACHED_ALBUMS_LIST_JSON);
         if (cache != null) {
-            aq.id(R.id.listAlbum).adapter(new AlbumAdapter(getActivity(), cache.optJSONArray("albums")));
+            aq.id(R.id.listAlbum).adapter(new AlbumAdapter(getActivity(), cache.optJSONArray("albums"), cachedAlbumSet));
         }
 
         // Download the album list from server
@@ -114,9 +120,11 @@ public class AlbumListFragment extends Fragment {
                 if (adapter != null) {
                     adapter.setAlbums(albums);
                 } else {
-                    listView.setAdapter(new AlbumAdapter(getActivity(), albums));
+                    listView.setAdapter(new AlbumAdapter(getActivity(), albums, cachedAlbumSet));
                 }
             }
         });
+
+
     }
 }

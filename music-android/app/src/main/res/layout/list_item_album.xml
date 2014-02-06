@@ -14,10 +14,12 @@
 
     <LinearLayout
         android:layout_toRightOf="@id/imgCover"
-        android:layout_width="wrap_content"
+        android:layout_toLeftOf="@+id/cached"
+        android:layout_width="match_parent"
         android:layout_height="60dp"
         android:gravity="center_vertical"
         android:layout_marginLeft="12dp"
+        android:layout_marginRight="8dp"
         android:orientation="vertical">
 
         <TextView
@@ -38,5 +40,15 @@
             android:id="@+id/albumName" />
 
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/cached"
+        android:contentDescription="@string/cached"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:src="@drawable/ic_action_make_available_offline"/>
 
 </RelativeLayout>

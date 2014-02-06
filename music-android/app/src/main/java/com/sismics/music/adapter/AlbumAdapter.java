@@ -19,6 +19,8 @@ import com.sismics.music.util.PreferenceUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Set;
+
 /**
  * Adapter for albums list.
  * 
@@ -31,14 +33,16 @@ public class AlbumAdapter extends BaseAdapter {
     private JSONArray albums;
     private String authToken;
     private String serverUrl;
+    private Set<String> cachedAlbumSet;
 
     /**
      * Constructor.
      * @param activity Context activity
      */
-    public AlbumAdapter(Activity activity, JSONArray albums) {
+    public AlbumAdapter(Activity activity, JSONArray albums, Set<String> cachedAlbumSet) {
         this.activity = activity;
         this.albums = albums;
+        this.cachedAlbumSet = cachedAlbumSet;
         this.aq = new AQuery(activity);
         this.authToken = PreferenceUtil.getAuthToken(activity);
         this.serverUrl = PreferenceUtil.getServerUrl(activity);
@@ -56,6 +60,7 @@ public class AlbumAdapter extends BaseAdapter {
             holder.albumName = aq.id(R.id.albumName).getTextView();
             holder.artistName = aq.id(R.id.artistName).getTextView();
             holder.imgCover = aq.id(R.id.imgCover).getImageView();
+            holder.cached = aq.id(R.id.cached).getImageView();
             view.setTag(holder);
         } else {
             aq.recycle(view);
@@ -65,7 +70,8 @@ public class AlbumAdapter extends BaseAdapter {
         JSONObject album = getItem(position);
 
         // Album cover
-        String coverUrl = serverUrl + "/api/album/" + album.optString("id") + "/albumart/small";
+        String albumId = album.optString("id");
+        String coverUrl = serverUrl + "/api/album/" + albumId + "/albumart/small";
         if (aq.shouldDelay(position, view, parent, coverUrl)) {
             aq.id(holder.imgCover).image((Bitmap) null);
         } else {
@@ -80,6 +86,7 @@ public class AlbumAdapter extends BaseAdapter {
         holder.albumName.setText(album.optString("name"));
         JSONObject artist = album.optJSONObject("artist");
         holder.artistName.setText(artist.optString("name"));
+        holder.cached.setVisibility(cachedAlbumSet.contains(albumId) ? View.VISIBLE : View.GONE);
 
         return view;
     }
@@ -113,5 +120,6 @@ public class AlbumAdapter extends BaseAdapter {
         TextView albumName;
         TextView artistName;
         ImageView imgCover;
+        ImageView cached;
     }
 }
