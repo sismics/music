@@ -11,6 +11,7 @@ import android.widget.ListView;
 import com.androidquery.AQuery;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
+import com.sismics.music.event.OpenAlbumEvent;
 import com.sismics.music.model.Album;
 import com.sismics.music.resource.AlbumResource;
 import com.sismics.music.ui.adapter.AlbumAdapter;
@@ -19,24 +20,23 @@ import com.sismics.music.util.PreferenceUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import de.greenrobot.event.EventBus;
+
 /**
  * Albums list fragments.
  *
  * @author bgamard
  */
 public class AlbumListFragment extends Fragment {
-    /**
-     * Parent fragment ID argument.
-     */
-    private static final String ARG_PARENT_FRAGMENT = "parentId";
+
+    private EventBus eventBus;
 
     /**
      * Returns a new instance of this fragment.
      */
-    public static AlbumListFragment newInstance(int id) {
+    public static AlbumListFragment newInstance() {
         AlbumListFragment fragment = new AlbumListFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_PARENT_FRAGMENT, id);
         fragment.setArguments(args);
         return fragment;
     }
@@ -45,6 +45,7 @@ public class AlbumListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the view
         View view = inflater.inflate(R.layout.fragment_album_list, container, false);
+        eventBus = EventBus.getDefault();
         final AQuery aq = new AQuery(view);
 
         // Grab the data from the cache first
@@ -79,9 +80,7 @@ public class AlbumListFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 AlbumAdapter adapter = (AlbumAdapter) aq.id(R.id.listAlbum).getListView().getAdapter();
-                int parentId = getArguments().getInt(ARG_PARENT_FRAGMENT);
-                MyMusicFragment myMusicFragment = (MyMusicFragment) getFragmentManager().findFragmentByTag("android:switcher:" + parentId + ":0");
-                myMusicFragment.openAlbum(new Album(adapter.getItem(position)));
+                eventBus.post(new OpenAlbumEvent(new Album(adapter.getItem(position))));
             }
         });
 

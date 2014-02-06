@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.androidquery.AQuery;
 import com.sismics.music.R;
-import com.sismics.music.model.Playlist;
+import com.sismics.music.service.PlaylistService;
 import com.sismics.music.model.PlaylistTrack;
 
 /**
@@ -37,9 +37,6 @@ public class PlaylistAdapter extends BaseAdapter {
     public PlaylistAdapter(Activity activity) {
         this.activity = activity;
         this.aq = new AQuery(activity);
-
-        // Register itself to the playlist helper
-        Playlist.registerAdapter(this);
     }
 
     @Override
@@ -63,7 +60,7 @@ public class PlaylistAdapter extends BaseAdapter {
 
         holder.trackName.setText(playlistTrack.getTitle() + " " + playlistTrack.getCacheStatus());
 
-        if (Playlist.currentTrack() == playlistTrack) {
+        if (PlaylistService.currentTrack() == playlistTrack) {
             view.setBackgroundColor(Color.GRAY);
         } else {
             view.setBackgroundColor(Color.TRANSPARENT);
@@ -74,17 +71,17 @@ public class PlaylistAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return Playlist.length();
+        return PlaylistService.length();
     }
 
     @Override
     public PlaylistTrack getItem(int position) {
-        return Playlist.getAt(position);
+        return PlaylistService.getAt(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return Playlist.getAt(position).getId().hashCode();
+        return PlaylistService.getAt(position).getId().hashCode();
     }
 
     @Override
@@ -99,13 +96,5 @@ public class PlaylistAdapter extends BaseAdapter {
      */
     private static class ViewHolder {
         TextView trackName;
-    }
-
-    /**
-     * Destroy this adapter.
-     */
-    public void onDestroy() {
-        // Unregister from the playlist helper
-        Playlist.unregisterAdapter(this);
     }
 }

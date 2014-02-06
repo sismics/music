@@ -26,7 +26,6 @@ import com.loopj.android.http.FileAsyncHttpResponseHandler;
 import com.loopj.android.http.RequestHandle;
 import com.sismics.music.R;
 import com.sismics.music.activity.MainActivity;
-import com.sismics.music.model.Playlist;
 import com.sismics.music.model.PlaylistTrack;
 import com.sismics.music.resource.TrackResource;
 import com.sismics.music.util.CacheUtil;
@@ -269,7 +268,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         mState = State.Stopped;
 
         // Stop the playlist
-        Playlist.stop();
+        PlaylistService.stop();
 
         // let go of all resources...
         relaxResources(true);
@@ -352,7 +351,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         mState = State.Stopped;
         relaxResources(false); // release everything except MediaPlayer
 
-        PlaylistTrack nextPlaylistTrack = Playlist.next(true);
+        PlaylistTrack nextPlaylistTrack = PlaylistService.next(true);
         if (nextPlaylistTrack == null) {
             return;
         }
@@ -380,13 +379,13 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         FileAsyncHttpResponseHandler responseHandler = new FileAsyncHttpResponseHandler(incompleteCacheFile) {
             @Override
             public void onStart() {
-                Playlist.updateTrackCacheStatus(playlistTrack, PlaylistTrack.CacheStatus.DOWNLOADING);
+                PlaylistService.updateTrackCacheStatus(playlistTrack, PlaylistTrack.CacheStatus.DOWNLOADING);
             }
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, File file) {
                 if (CacheUtil.setComplete(file)) {
-                    Playlist.updateTrackCacheStatus(playlistTrack, PlaylistTrack.CacheStatus.COMPLETE);
+                    PlaylistService.updateTrackCacheStatus(playlistTrack, PlaylistTrack.CacheStatus.COMPLETE);
                     if (play) {
                         doPlay(playlistTrack);
                     }
@@ -397,7 +396,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             public void onFinish() {
                 // Request is finished (and not cancelled), let's buffer the next song without playing it
                 bufferRequestHandle = null;
-                PlaylistTrack nextPlaylistTrack = Playlist.after(playlistTrack);
+                PlaylistTrack nextPlaylistTrack = PlaylistService.after(playlistTrack);
                 if (nextPlaylistTrack != null) {
                     Log.d("SismicsMusic", "Downloading the next playlistTrack " + nextPlaylistTrack.getTitle());
                     downloadTrack(nextPlaylistTrack, false);

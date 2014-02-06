@@ -1,10 +1,8 @@
 package com.sismics.music.fragment;
 
 import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,16 +10,21 @@ import android.widget.AdapterView;
 
 import com.androidquery.AQuery;
 import com.sismics.music.R;
-import com.sismics.music.model.Playlist;
+import com.sismics.music.event.PlaylistChangedEvent;
+import com.sismics.music.service.PlaylistService;
 import com.sismics.music.service.MusicService;
 import com.sismics.music.ui.adapter.PlaylistAdapter;
 
-import org.json.JSONObject;
+import de.greenrobot.event.EventBus;
 
 /**
  * Playlist fragment.
  */
 public class PlaylistFragment extends Fragment {
+
+    private PlaylistAdapter playlistAdapter;
+    private EventBus eventBus;
+
     /**
      * Returns a new instance of this fragment.
      */
@@ -31,11 +34,6 @@ public class PlaylistFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-
-    /**
-     * The playlist list adapter.
-     */
-    PlaylistAdapter playlistAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -52,7 +50,7 @@ public class PlaylistFragment extends Fragment {
                 .itemClicked(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Playlist.change(position - 1);
+                        PlaylistService.change(position - 1);
                         Intent intent = new Intent(MusicService.ACTION_PLAY, null, getActivity(), MusicService.class);
                         intent.putExtra(MusicService.EXTRA_FORCE, true);
                         getActivity().startService(intent);
@@ -83,12 +81,23 @@ public class PlaylistFragment extends Fragment {
             }
         });
 
+        eventBus = EventBus.getDefault();
+        eventBus.register(this);
+
         return view;
+    }
+
+    /**
+     * The playlist has changed.
+     * @param event Event
+     */
+    public void onEvent(PlaylistChangedEvent event) {
+        playlistAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onDestroyView() {
-        playlistAdapter.onDestroy();
+        eventBus.unregister(this);
         super.onDestroyView();
     }
 }

@@ -12,11 +12,8 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.sismics.music.R;
 import com.sismics.music.model.Album;
-import com.sismics.music.model.Playlist;
+import com.sismics.music.service.PlaylistService;
 import com.sismics.music.model.Track;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.List;
 
@@ -80,7 +77,7 @@ public class TracksAdapter extends BaseAdapter {
         holder.addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Playlist.add(album, track);
+                PlaylistService.add(album, track);
             }
         });
 

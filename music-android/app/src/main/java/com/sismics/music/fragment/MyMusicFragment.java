@@ -11,6 +11,7 @@ import android.widget.ListView;
 import com.androidquery.AQuery;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
+import com.sismics.music.event.OpenAlbumEvent;
 import com.sismics.music.model.Album;
 import com.sismics.music.resource.AlbumResource;
 import com.sismics.music.ui.adapter.AlbumAdapter;
@@ -19,12 +20,17 @@ import com.sismics.music.util.PreferenceUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import de.greenrobot.event.EventBus;
+
 /**
  * Fragment displaying the music collection.
  *
  * @author bgamard
  */
 public class MyMusicFragment extends Fragment {
+
+    private EventBus eventBus;
+
     /**
      * Returns a new instance of this fragment.
      */
@@ -39,25 +45,33 @@ public class MyMusicFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the view
         View view = inflater.inflate(R.layout.fragment_my_music, container, false);
+        eventBus = EventBus.getDefault();
 
         if (savedInstanceState == null) {
             // Do first time initialization, add initial fragment
-            Fragment newFragment = AlbumListFragment.newInstance(getId());
+            Fragment newFragment = AlbumListFragment.newInstance();
             FragmentTransaction ft = getFragmentManager().beginTransaction();
             ft.add(R.id.content, newFragment);
             ft.commit();
         }
 
+        eventBus.register(this);
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        eventBus.unregister(this);
+        super.onDestroyView();
     }
 
     /**
      * Open an album details.
-     * @param album Album
+     * @param event Event
      */
-    public void openAlbum(Album album) {
+    public void onEvent(OpenAlbumEvent event) {
         // Instantiate a new fragment
-        Fragment newFragment = AlbumFragment.newInstance(album);
+        Fragment newFragment = AlbumFragment.newInstance(event.getAlbum());
 
         // Add the fragment to the activity, pushing this transaction on to the back stack
         FragmentTransaction ft = getFragmentManager().beginTransaction();

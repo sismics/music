@@ -1,29 +1,25 @@
-package com.sismics.music.model;
+package com.sismics.music.service;
 
-import android.widget.BaseAdapter;
-
-import org.json.JSONObject;
+import com.sismics.music.event.PlaylistChangedEvent;
+import com.sismics.music.model.Album;
+import com.sismics.music.model.PlaylistTrack;
+import com.sismics.music.model.Track;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+import de.greenrobot.event.EventBus;
 
 /**
- * Global playlist manager.
+ * Playlist service.
  *
  * @author bgamard.
  */
-public class Playlist {
+public class PlaylistService {
     /**
      * Tracks in the playlist.
      */
     private static List<PlaylistTrack> playlistTrackList = new ArrayList<>();
-
-    /**
-     * Adapters registered to the playlist changes.
-     */
-    private static Set<BaseAdapter> adapterList = new HashSet<>();
 
     /**
      * Current track index.
@@ -35,7 +31,7 @@ public class Playlist {
      */
     public static void stop() {
         currentTrackIndex = -1;
-        notifyAdapters();
+        EventBus.getDefault().post(new PlaylistChangedEvent());
     }
 
     /**
@@ -58,7 +54,7 @@ public class Playlist {
 
         if (advance) {
             currentTrackIndex = index;
-            notifyAdapters();
+            EventBus.getDefault().post(new PlaylistChangedEvent());
         }
 
         return playlistTrackList.get(index);
@@ -131,7 +127,7 @@ public class Playlist {
     public static void add(Album album, Track track) {
         PlaylistTrack playlistTrack = new PlaylistTrack(album, track);
         playlistTrackList.add(playlistTrack);
-        notifyAdapters();
+        EventBus.getDefault().post(new PlaylistChangedEvent());
     }
 
     /**
@@ -145,31 +141,6 @@ public class Playlist {
             return;
         }
         playlistTrack.setCacheStatus(status);
-        notifyAdapters();
-    }
-
-    /**
-     * Register a new adapter.
-     * @param adapter New adapter
-     */
-    public static void registerAdapter(BaseAdapter adapter) {
-        adapterList.add(adapter);
-    }
-
-    /**
-     * Unregister an adapter.
-     * @param adapter Adapter to unregister
-     */
-    public static void unregisterAdapter(BaseAdapter adapter) {
-        adapterList.remove(adapter);
-    }
-
-    /**
-     * Notify adapters after a change in the playlist.
-     */
-    private static void notifyAdapters() {
-        for (BaseAdapter adapter : adapterList) {
-            adapter.notifyDataSetChanged();
-        }
+        EventBus.getDefault().post(new PlaylistChangedEvent());
     }
 }
