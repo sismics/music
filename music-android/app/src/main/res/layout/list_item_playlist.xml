@@ -1,13 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp">
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    <ImageView
+        android:contentDescription="@string/album_art"
+        android:id="@+id/imgCover"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleType="centerCrop"/>
 
-    <TextView
+    <ImageView
+        android:id="@+id/playing"
+        android:contentDescription="@string/now_playing"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleType="center"
+        android:src="@drawable/equalizer"
+        android:visibility="visible"
+        android:layout_alignParentLeft="true"/>
+
+    <LinearLayout
+        android:layout_toRightOf="@id/imgCover"
+        android:layout_toLeftOf="@+id/cached"
+        android:layout_centerVertical="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="8dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="Bruno Mars"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textColor="#999"
+            android:fontFamily="sans-serif-light"
+            android:id="@+id/artistName" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="Just the Way You Are"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-light"
+            android:id="@+id/trackName" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/cached"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/trackName" />
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/handle"
+        android:contentDescription="@string/cached"
+        android:src="@drawable/ic_action_make_available_offline"/>
 
-</LinearLayout>
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/handle"
+        android:layout_marginRight="6dp"
+        style="?android:attr/progressBarStyleSmall"/>
+
+    <ImageView
+        android:id="@+id/handle"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:src="@drawable/ic_drag"
+        android:contentDescription="@string/handle"
+        android:paddingRight="8dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"/>
+
+</RelativeLayout>

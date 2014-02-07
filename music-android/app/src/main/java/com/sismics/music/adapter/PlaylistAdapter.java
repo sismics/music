@@ -2,17 +2,24 @@ package com.sismics.music.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
+import com.androidquery.callback.BitmapAjaxCallback;
 import com.sismics.music.R;
 import com.sismics.music.service.PlaylistService;
 import com.sismics.music.model.PlaylistTrack;
+import com.sismics.music.util.PreferenceUtil;
 
 /**
  * Adapter for tracks list.
@@ -20,23 +27,23 @@ import com.sismics.music.model.PlaylistTrack;
  * @author bgamard
  */
 public class PlaylistAdapter extends BaseAdapter {
-    /**
-     * Context.
-     */
-    private Activity activity;
 
-    /**
-     * AQuery.
-     */
+    private Activity activity;
+    private String authToken;
+    private String serverUrl;
     private AQuery aq;
+    private AbsListView absListView;
 
     /**
      * Constructor.
      * @param activity Context activity
      */
-    public PlaylistAdapter(Activity activity) {
+    public PlaylistAdapter(Activity activity, AbsListView absListView) {
         this.activity = activity;
         this.aq = new AQuery(activity);
+        this.authToken = PreferenceUtil.getAuthToken(activity);
+        this.serverUrl = PreferenceUtil.getServerUrl(activity);
+        this.absListView = absListView;
     }
 
     @Override
@@ -48,22 +55,55 @@ public class PlaylistAdapter extends BaseAdapter {
             view = vi.inflate(R.layout.list_item_playlist, null);
             aq.recycle(view);
             holder = new ViewHolder();
+            holder.artistName = aq.id(R.id.artistName).getTextView();
             holder.trackName = aq.id(R.id.trackName).getTextView();
+            holder.cached  = aq.id(R.id.cached).getImageView();
+            holder.playing = aq.id(R.id.playing).getImageView();
+            holder.progress = aq.id(R.id.progress).getProgressBar();
+            holder.imgCover = aq.id(R.id.imgCover).getImageView();
             view.setTag(holder);
         } else {
             aq.recycle(view);
             holder = (ViewHolder) view.getTag();
         }
-        
+
         // Filling playlistTrack data
         PlaylistTrack playlistTrack = getItem(position);
+        holder.artistName.setText(playlistTrack.getArtistName());
+        holder.trackName.setText(playlistTrack.getTitle());
+        switch (playlistTrack.getCacheStatus()) {
+            case NONE:
+                holder.cached.setVisibility(View.GONE);
+                holder.progress.setVisibility(View.GONE);
+                break;
+            case COMPLETE:
+                holder.cached.setVisibility(View.VISIBLE);
+                holder.progress.setVisibility(View.GONE);
+                break;
+            case DOWNLOADING:
+                holder.cached.setVisibility(View.GONE);
+                holder.progress.setVisibility(View.VISIBLE);
+                break;
+        }
 
-        holder.trackName.setText(playlistTrack.getTitle() + " " + playlistTrack.getCacheStatus());
-
+        // Playing status
         if (PlaylistService.currentTrack() == playlistTrack) {
-            view.setBackgroundColor(Color.GRAY);
+            holder.playing.setVisibility(View.VISIBLE);
         } else {
-            view.setBackgroundColor(Color.TRANSPARENT);
+            holder.playing.setVisibility(View.INVISIBLE);
+        }
+
+        // Album cover
+        String albumId = playlistTrack.getAlbumId();
+        String coverUrl = serverUrl + "/api/album/" + albumId + "/albumart/small";
+        if (aq.shouldDelay(position, view, absListView, coverUrl)) {
+            aq.id(holder.imgCover).image((Bitmap) null);
+        } else {
+            aq.id(holder.imgCover).image(new BitmapAjaxCallback()
+                    .url(coverUrl)
+                    .animation(AQuery.FADE_IN_NETWORK)
+                    .cookie("auth_token", authToken)
+            );
         }
 
         return view;
@@ -95,6 +135,11 @@ public class PlaylistAdapter extends BaseAdapter {
      * @author bgamard
      */
     private static class ViewHolder {
+        TextView artistName;
         TextView trackName;
+        ImageView cached;
+        ImageView playing;
+        ImageView imgCover;
+        ProgressBar progress;
     }
 }

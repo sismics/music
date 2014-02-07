@@ -16,8 +16,8 @@
         android:layout_toRightOf="@id/imgCover"
         android:layout_toLeftOf="@+id/cached"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:gravity="center_vertical"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:layout_marginLeft="12dp"
         android:layout_marginRight="8dp"
         android:orientation="vertical">
@@ -27,6 +27,8 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:text="Bruno Mars"
+            android:singleLine="true"
+            android:ellipsize="end"
             android:textColor="#999"
             android:fontFamily="sans-serif-light"
             android:id="@+id/artistName" />
@@ -36,6 +38,8 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:text="Earth To Mars"
+            android:singleLine="true"
+            android:ellipsize="end"
             android:fontFamily="sans-serif-light"
             android:id="@+id/albumName" />
 

@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.androidquery.AQuery;
 import com.androidquery.callback.BitmapAjaxCallback;
@@ -133,6 +134,7 @@ public class AlbumFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 PlaylistService.add(album, tracksAdapter.getItem(position - 1));
+                Toast.makeText(getActivity(), R.string.add_toast, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -143,7 +145,10 @@ public class AlbumFragment extends Fragment {
                 List<Track> trackList = tracksAdapter.getTracks();
                 PlaylistService.clear(false);
                 PlaylistService.addAll(album, trackList);
-                getActivity().startService(new Intent(MusicService.ACTION_PLAY));
+                Intent intent = new Intent(MusicService.ACTION_PLAY, null, getActivity(), MusicService.class);
+                intent.putExtra(MusicService.EXTRA_FORCE, true);
+                getActivity().startService(intent);
+                Toast.makeText(getActivity(), R.string.play_all_toast, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -153,6 +158,7 @@ public class AlbumFragment extends Fragment {
             public void onClick(View v) {
                 List<Track> trackList = tracksAdapter.getTracks();
                 PlaylistService.addAll(album, trackList);
+                Toast.makeText(getActivity(), R.string.add_all_toast, Toast.LENGTH_SHORT).show();
             }
         });
 

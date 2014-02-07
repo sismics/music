@@ -25,6 +25,13 @@
     <string name="album_art">Album art</string>
     <string name="more_options">More options</string>
     <string name="cached">Cached</string>
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="stop">Stop</string>
+    <string name="handle">Drag me</string>
+    <string name="add_all_toast">All added to queue</string>
+    <string name="play_all_toast">Playing all</string>
+    <string name="add_toast">Added to queue</string>
 
     <!-- Validation -->
     <string name="validate_error_email">Invalid email</string>

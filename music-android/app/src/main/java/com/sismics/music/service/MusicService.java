@@ -218,7 +218,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         } else if (mState == State.Paused) {
             // If we're paused, just continue playback and restore the 'foreground service' state.
             mState = State.Playing;
-            setUpAsForeground(mSongTitle + " (playing)");
+            setUpAsForeground(mSongTitle);
             configAndStartMediaPlayer();
         }
 

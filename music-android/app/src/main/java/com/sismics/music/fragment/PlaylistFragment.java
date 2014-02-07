@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 import com.androidquery.AQuery;
+import com.mobeta.android.dslv.DragSortListView;
 import com.sismics.music.R;
 import com.sismics.music.event.PlaylistChangedEvent;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
@@ -41,9 +42,10 @@ public class PlaylistFragment extends Fragment {
         // Inflate the view
         View view = inflater.inflate(R.layout.fragment_playlist, container, false);
         AQuery aq = new AQuery(view);
+        DragSortListView listTracks = (DragSortListView)aq.id(R.id.listTracks).getView();
 
         // Create a new playlist adapter
-        playlistAdapter = new PlaylistAdapter(getActivity());
+        playlistAdapter = new PlaylistAdapter(getActivity(), listTracks);
 
         // Configure the tracks list
         aq.id(R.id.listTracks)
@@ -62,7 +64,8 @@ public class PlaylistFragment extends Fragment {
         aq.id(R.id.playlistPlay).clicked(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().startService(new Intent(MusicService.ACTION_PLAY));
+                Intent intent = new Intent(MusicService.ACTION_PLAY, null, getActivity(), MusicService.class);
+                getActivity().startService(intent);
             }
         });
 
@@ -70,7 +73,8 @@ public class PlaylistFragment extends Fragment {
         aq.id(R.id.playlistPause).clicked(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().startService(new Intent(MusicService.ACTION_PAUSE));
+                Intent intent = new Intent(MusicService.ACTION_PAUSE, null, getActivity(), MusicService.class);
+                getActivity().startService(intent);
             }
         });
 
@@ -78,13 +82,33 @@ public class PlaylistFragment extends Fragment {
         aq.id(R.id.playlistStop).clicked(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().startService(new Intent(MusicService.ACTION_STOP));
+                Intent intent = new Intent(MusicService.ACTION_STOP, null, getActivity(), MusicService.class);
+                getActivity().startService(intent);
+            }
+        });
+
+        // Track removed
+        listTracks.setRemoveListener(new DragSortListView.RemoveListener() {
+            @Override
+            public void remove(int position) {
+                if (PlaylistService.getCurrentTrackIndex() == position) {
+                    Intent intent = new Intent(MusicService.ACTION_STOP, null, getActivity(), MusicService.class);
+                    getActivity().startService(intent);
+                }
+                PlaylistService.remove(position);
+            }
+        });
+
+        // Track moved
+        listTracks.setDropListener(new DragSortListView.DropListener() {
+            @Override
+            public void drop(int from, int to) {
+                PlaylistService.move(from, to);
             }
         });
 
         eventBus = EventBus.getDefault();
         eventBus.register(this);
-
         return view;
     }
 
@@ -98,7 +122,7 @@ public class PlaylistFragment extends Fragment {
 
     /**
      * The cache status of a track has changed.
-     * @param event
+     * @param event Event
      */
     public void onEvent(TrackCacheStatusChangedEvent event) {
         playlistAdapter.notifyDataSetChanged();

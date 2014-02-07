@@ -130,6 +130,10 @@ public class PlaylistService {
         EventBus.getDefault().post(new PlaylistChangedEvent());
     }
 
+    public static int getCurrentTrackIndex() {
+        return currentTrackIndex;
+    }
+
     /**
      * Clear the playlist.
      */
@@ -151,6 +155,35 @@ public class PlaylistService {
             PlaylistTrack playlistTrack = new PlaylistTrack(album, track);
             playlistTrackList.add(playlistTrack);
         }
+        EventBus.getDefault().post(new PlaylistChangedEvent());
+    }
+
+    /**
+     * Remove a track.
+     * @param position Track position
+     */
+    public static void remove(int position) {
+        if (position < currentTrackIndex) {
+            currentTrackIndex--;
+        }
+        playlistTrackList.remove(position);
+        EventBus.getDefault().post(new PlaylistChangedEvent());
+    }
+
+    /**
+     * Move a track.
+     * @param oldposition Old position
+     * @param position New position
+     */
+    public static void move(int oldposition, int position) {
+        if (oldposition < currentTrackIndex && position >= currentTrackIndex) {
+            currentTrackIndex--;
+        } else if (oldposition > currentTrackIndex && position <= currentTrackIndex) {
+            currentTrackIndex++;
+        } else if (oldposition == currentTrackIndex) {
+            currentTrackIndex = position;
+        }
+        playlistTrackList.add(position, playlistTrackList.remove(oldposition));
         EventBus.getDefault().post(new PlaylistChangedEvent());
     }
 }

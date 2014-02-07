@@ -1,4 +1,18 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.8.+'
+    }
+}
+
 apply plugin: 'android'
+
+repositories {
+    mavenCentral()
+    flatDir { dirs 'libs' }
+}
 
 android {
     compileSdkVersion 19
@@ -30,4 +44,5 @@ dependencies {
     compile 'ch.acra:acra:4.5.0'
     compile 'org:jaudiotagger:2.0.3'
     compile 'de.greenrobot:eventbus:2.2.0'
+    compile 'com.mobeta.android.dslv:drag-sort-listview:0.6.1-SNAPSHOT-AAR@aar'
 }

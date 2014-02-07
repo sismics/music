@@ -60,7 +60,7 @@ public class PlaylistTrack {
      * @return Track artist name
      */
     public String getArtistName() {
-        return "";
+        return album.getArtistName();
     }
 
     /**
