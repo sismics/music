@@ -1,10 +1,8 @@
 package com.sismics.music.rest.resource;
 
+import com.sismics.music.core.constant.ConfigType;
 import com.sismics.music.core.constant.Constants;
-import com.sismics.music.core.dao.jpa.AuthenticationTokenDao;
-import com.sismics.music.core.dao.jpa.PlaylistDao;
-import com.sismics.music.core.dao.jpa.RoleBaseFunctionDao;
-import com.sismics.music.core.dao.jpa.UserDao;
+import com.sismics.music.core.dao.jpa.*;
 import com.sismics.music.core.dao.jpa.dto.UserDto;
 import com.sismics.music.core.event.PasswordChangedEvent;
 import com.sismics.music.core.event.UserCreatedEvent;
@@ -12,6 +10,7 @@ import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.jpa.AuthenticationToken;
 import com.sismics.music.core.model.jpa.Playlist;
 import com.sismics.music.core.model.jpa.User;
+import com.sismics.music.core.util.ConfigUtil;
 import com.sismics.music.core.util.jpa.PaginatedList;
 import com.sismics.music.core.util.jpa.PaginatedLists;
 import com.sismics.music.core.util.jpa.SortCriteria;
@@ -24,6 +23,8 @@ import com.sismics.security.UserPrincipal;
 import com.sismics.util.EnvironmentUtil;
 import com.sismics.util.LocaleUtil;
 import com.sismics.util.filter.TokenBasedSecurityFilter;
+import de.umass.lastfm.Authenticator;
+import de.umass.lastfm.Session;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -571,6 +572,51 @@ public class UserResource extends BaseResource {
         response.put("total", paginatedList.getResultCount());
         response.put("users", users);
         
+        return Response.ok().entity(response).build();
+    }
+
+    /**
+     * Authenticates a user on Last.fm.
+     *
+     * @param username Username
+     * @param lastFmUsername Last.fm username
+     * @param lastFmPassword Last.fm password
+     * @return Response
+     */
+    @PUT
+    @Path("{username: [a-zA-Z0-9_]+}/lastfm")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response registerLastFm(
+            @PathParam("username") String username,
+            @FormParam("username") String lastFmUsername,
+            @FormParam("password") String lastFmPassword
+            ) throws JSONException {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+
+        ValidationUtil.validateRequired(lastFmUsername, "username");
+        ValidationUtil.validateRequired(lastFmPassword, "password");
+
+        // Get the value of the session token
+        ConfigDao configDao = new ConfigDao();
+        String key = ConfigUtil.getConfigStringValue(ConfigType.LAST_FM_API_KEY);
+        String secret = ConfigUtil.getConfigStringValue(ConfigType.LAST_FM_API_SECRET);
+        Session session = Authenticator.getMobileSession(lastFmUsername, lastFmPassword, key, secret);
+        // TODO We should be able to distinguish invalid user credentials from invalid api key -- update Authenticator?
+        if (session == null) {
+            throw new ClientException("InvalidCredentials", "The supplied Last.fm credentials is invalid");
+        }
+
+        // Store the session token (it has no expiry date)
+        UserDao userDao = new UserDao();
+        User user = userDao.getActiveById(principal.getId());
+        user.setLastFmSessionToken(session.getKey());
+        userDao.updateLastFmSessionToken(user);
+
+        // Always return ok
+        JSONObject response = new JSONObject();
+        response.put("status", "ok");
         return Response.ok().entity(response).build();
     }
 }

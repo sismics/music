@@ -51,14 +51,9 @@ public class User {
     private Integer maxBitrate;
 
     /**
-     * User login on Last.fm.
+     * Session token on Last.fm.
      */
-    private String lastFmLogin;
-
-    /**
-     * User password on Last.fm.
-     */
-    private String lastFmPassword;
+    private String lastFmSessionToken;
 
     /**
      * Scrobbling on Last.fm active.
@@ -83,7 +78,7 @@ public class User {
     public User() {
     }
 
-    public User(String id, String localeId, String roleId, String username, String password, String email, String theme, Integer maxBitrate, String lastFmLogin, String lastFmPassword, boolean lastFmActive, boolean firstConnection, Date createDate, Date deleteDate) {
+    public User(String id, String localeId, String roleId, String username, String password, String email, String theme, Integer maxBitrate, String lastFmSessionToken, boolean lastFmActive, boolean firstConnection, Date createDate, Date deleteDate) {
         this.id = id;
         this.localeId = localeId;
         this.roleId = roleId;
@@ -92,8 +87,7 @@ public class User {
         this.email = email;
         this.theme = theme;
         this.maxBitrate = maxBitrate;
-        this.lastFmLogin = lastFmLogin;
-        this.lastFmPassword = lastFmPassword;
+        this.lastFmSessionToken = lastFmSessionToken;
         this.lastFmActive = lastFmActive;
         this.firstConnection = firstConnection;
         this.createDate = createDate;
@@ -245,39 +239,21 @@ public class User {
     }
 
     /**
-     * Getter of lastFmLogin.
+     * Getter of lastFmSessionToken.
      *
-     * @return lastFmLogin
+     * @return lastFmSessionToken
      */
-    public String getLastFmLogin() {
-        return lastFmLogin;
+    public String getLastFmSessionToken() {
+        return lastFmSessionToken;
     }
 
     /**
-     * Setter of lastFmLogin.
+     * Setter of lastFmSessionToken.
      *
-     * @param lastFmLogin lastFmLogin
+     * @param lastFmSessionToken lastFmSessionToken
      */
-    public void setLastFmLogin(String lastFmLogin) {
-        this.lastFmLogin = lastFmLogin;
-    }
-
-    /**
-     * Getter of lastFmPassword.
-     *
-     * @return lastFmPassword
-     */
-    public String getLastFmPassword() {
-        return lastFmPassword;
-    }
-
-    /**
-     * Setter of lastFmPassword.
-     *
-     * @param lastFmPassword lastFmPassword
-     */
-    public void setLastFmPassword(String lastFmPassword) {
-        this.lastFmPassword = lastFmPassword;
+    public void setLastFmSessionToken(String lastFmSessionToken) {
+        this.lastFmSessionToken = lastFmSessionToken;
     }
 
     /**

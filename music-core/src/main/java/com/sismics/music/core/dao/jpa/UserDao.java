@@ -3,6 +3,7 @@ package com.sismics.music.core.dao.jpa;
 import com.google.common.base.Joiner;
 import com.sismics.music.core.constant.Constants;
 import com.sismics.music.core.dao.jpa.dto.UserDto;
+import com.sismics.music.core.dao.jpa.mapper.UserMapper;
 import com.sismics.music.core.model.jpa.User;
 import com.sismics.music.core.util.jpa.PaginatedList;
 import com.sismics.music.core.util.jpa.PaginatedLists;
@@ -31,7 +32,7 @@ public class UserDao {
      */
     public String authenticate(String username, String password) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        Query<User> q = handle.createQuery("select u.USE_ID_C, u.USE_IDLOCALE_C, u.USE_IDROLE_C, u.USE_USERNAME_C, u.USE_PASSWORD_C, u.USE_EMAIL_C, u.USE_THEME_C, u.USE_MAXBITRATE_N, u.USE_LASTFMLOGIN_C, u.USE_LASTFMPASSWORD_C, u.USE_LASTFMACTIVE_B, u.USE_FIRSTCONNECTION_B, u.USE_CREATEDATE_D, u.USE_DELETEDATE_D" +
+        Query<User> q = handle.createQuery("select " + UserMapper.getColumns("u") +
                 "  from T_USER u" +
                 "  where u.USE_USERNAME_C = :username and u.USE_DELETEDATE_D is null")
                 .bind("username", username)
@@ -66,8 +67,8 @@ public class UserDao {
         // Create user
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                " T_USER(USE_ID_C, USE_IDLOCALE_C, USE_IDROLE_C, USE_USERNAME_C, USE_PASSWORD_C, USE_EMAIL_C, USE_THEME_C, USE_MAXBITRATE_N, USE_LASTFMLOGIN_C, USE_LASTFMPASSWORD_C, USE_LASTFMACTIVE_B, USE_FIRSTCONNECTION_B, USE_CREATEDATE_D)" +
-                " values(:id, :localeId, :roleId, :username, :password, :email, :theme, :maxBitrate, :lastFmLogin, :lastFmPassword, :lastFmActive, :firstConnection, :createDate)")
+                " T_USER(USE_ID_C, USE_IDLOCALE_C, USE_IDROLE_C, USE_USERNAME_C, USE_PASSWORD_C, USE_EMAIL_C, USE_THEME_C, USE_FIRSTCONNECTION_B, USE_CREATEDATE_D)" +
+                " values(:id, :localeId, :roleId, :username, :password, :email, :theme, :firstConnection, :createDate)")
                 .bind("id", user.getId())
                 .bind("localeId", user.getLocaleId())
                 .bind("roleId", user.getRoleId())
@@ -75,10 +76,6 @@ public class UserDao {
                 .bind("password", user.getPassword())
                 .bind("email", user.getEmail())
                 .bind("theme", user.getTheme())
-                .bind("maxBitrate", user.getMaxBitrate())
-                .bind("lastFmLogin", user.getLastFmLogin())
-                .bind("lastFmPassword", user.getLastFmPassword())
-                .bind("lastFmActive", user.isLastFmActive())
                 .bind("firstConnection", user.isFirstConnection())
                 .bind("createDate", user.getCreateDate())
                 .execute();
@@ -129,6 +126,24 @@ public class UserDao {
     }
 
     /**
+     * Update the user Last.fm session token.
+     *
+     * @param user User to update
+     * @return Updated user
+     */
+    public User updateLastFmSessionToken(User user) {
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("update T_USER u set " +
+                " u.USE_LASTFMSESSIONTOKEN_C = :lastFmSessionToken " +
+                " where u.USE_ID_C = :id and u.USE_DELETEDATE_D is null")
+                .bind("id", user.getId())
+                .bind("lastFmSessionToken", user.getLastFmSessionToken())
+                .execute();
+
+        return user;
+    }
+
+    /**
      * Gets a user by its ID.
      * 
      * @param id User ID
@@ -136,7 +151,7 @@ public class UserDao {
      */
     public User getActiveById(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        Query<User> q = handle.createQuery("select u.USE_ID_C, u.USE_IDLOCALE_C, u.USE_IDROLE_C, u.USE_USERNAME_C, u.USE_PASSWORD_C, u.USE_EMAIL_C, u.USE_THEME_C, u.USE_MAXBITRATE_N, u.USE_LASTFMLOGIN_C, u.USE_LASTFMPASSWORD_C, u.USE_LASTFMACTIVE_B, u.USE_FIRSTCONNECTION_B, u.USE_CREATEDATE_D, u.USE_DELETEDATE_D" +
+        Query<User> q = handle.createQuery("select " + UserMapper.getColumns("u") +
                 "  from T_USER u" +
                 "  where u.USE_ID_C = :id and u.USE_DELETEDATE_D is null")
                 .bind("id", id)
@@ -152,7 +167,7 @@ public class UserDao {
      */
     public User getActiveByUsername(String username) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        Query<User> q = handle.createQuery("select u.USE_ID_C, u.USE_IDLOCALE_C, u.USE_IDROLE_C, u.USE_USERNAME_C, u.USE_PASSWORD_C, u.USE_EMAIL_C, u.USE_THEME_C, u.USE_MAXBITRATE_N, u.USE_LASTFMLOGIN_C, u.USE_LASTFMPASSWORD_C, u.USE_LASTFMACTIVE_B, u.USE_FIRSTCONNECTION_B, u.USE_CREATEDATE_D, u.USE_DELETEDATE_D" +
+        Query<User> q = handle.createQuery("select " + UserMapper.getColumns("u") +
                 "  from T_USER u" +
                 "  where u.USE_USERNAME_C = :username and u.USE_DELETEDATE_D is null")
                 .bind("username", username)
@@ -168,7 +183,7 @@ public class UserDao {
      */
     public User getActiveByPasswordResetKey(String passwordResetKey) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        Query<User> q = handle.createQuery("select u.USE_ID_C, u.USE_IDLOCALE_C, u.USE_IDROLE_C, u.USE_USERNAME_C, u.USE_PASSWORD_C, u.USE_EMAIL_C, u.USE_THEME_C, u.USE_MAXBITRATE_N, u.USE_LASTFMLOGIN_C, u.USE_LASTFMPASSWORD_C, u.USE_LASTFMACTIVE_B, u.USE_FIRSTCONNECTION_B, u.USE_CREATEDATE_D, u.USE_DELETEDATE_D" +
+        Query<User> q = handle.createQuery("select " + UserMapper.getColumns("u") +
                 "  from T_USER u" +
                 "  where u.USE_PASSWORDRESETKEY_C = :passwordResetKey and u.USE_DELETEDATE_D is null")
                 .bind("passwordResetKey", passwordResetKey)
@@ -183,9 +198,9 @@ public class UserDao {
      */
     public void delete(String username) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_USER d" +
+        handle.createStatement("update T_USER u" +
                 "  set u.USE_DELETEDATE_D = :deleteDate" +
-                "  where u.USE_USERNAME_C = :username u.USE_DELETEDATE_D is null")
+                "  where u.USE_USERNAME_C = :username and u.USE_DELETEDATE_D is null")
                 .bind("username", username)
                 .bind("deleteDate", new Date())
                 .execute();

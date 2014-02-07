@@ -1,11 +1,9 @@
 package com.sismics.music.core.dao.jpa;
 
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-
 import com.sismics.music.core.constant.ConfigType;
 import com.sismics.music.core.model.jpa.Config;
 import com.sismics.util.context.ThreadLocalContext;
+import org.skife.jdbi.v2.Handle;
 
 /**
  * Configuration parameter DAO.
@@ -20,17 +18,17 @@ public class ConfigDao {
      * @return Configuration parameter
      */
     public Config getById(ConfigType id) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
-        
+        final Handle handle = ThreadLocalContext.get().getHandle();
+
         // Prevents from getting parameters outside of a transactional context (e.g. jUnit)
-        if (em == null) {
+        if (handle == null) {
             return null;
         }
-        
-        try {
-            return em.find(Config.class, id);
-        } catch (NoResultException e) {
-            return null;
-        }
+        return handle.createQuery("select CFG_ID_C, CFG_VALUE_C" +
+                "  from T_CONFIG" +
+                "  where CFG_ID_C = :id")
+                .bind("id", id.name())
+                .mapTo(Config.class)
+                .first();
     }
 }
