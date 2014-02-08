@@ -1,29 +1,5 @@
 package com.sismics.music.rest.resource;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import javax.servlet.http.Cookie;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.NewCookie;
-import javax.ws.rs.core.Response;
-
-import org.apache.commons.lang.StringUtils;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
 import com.sismics.music.core.constant.ConfigType;
 import com.sismics.music.core.constant.Constants;
 import com.sismics.music.core.dao.jpa.AuthenticationTokenDao;
@@ -50,9 +26,22 @@ import com.sismics.security.UserPrincipal;
 import com.sismics.util.EnvironmentUtil;
 import com.sismics.util.LocaleUtil;
 import com.sismics.util.filter.TokenBasedSecurityFilter;
-
 import de.umass.lastfm.Authenticator;
 import de.umass.lastfm.Session;
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+
+import javax.servlet.http.Cookie;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * User REST resources.
@@ -592,7 +581,6 @@ public class UserResource extends BaseResource {
     /**
      * Authenticates a user on Last.fm.
      *
-     * @param username Username
      * @param lastFmUsername Last.fm username
      * @param lastFmPassword Last.fm password
      * @return Response
