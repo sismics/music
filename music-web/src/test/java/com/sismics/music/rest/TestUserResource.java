@@ -1,19 +1,22 @@
 package com.sismics.music.rest;
 
-import com.sismics.music.rest.filter.CookieAuthenticationFilter;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
+import java.util.Locale;
+
+import javax.ws.rs.core.MultivaluedMap;
+
 import junit.framework.Assert;
+
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.ws.rs.core.MultivaluedMap;
-import java.util.Locale;
+import com.sismics.music.rest.filter.CookieAuthenticationFilter;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.ClientResponse.Status;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 /**
  * Exhaustive test of the user resource.
@@ -303,7 +306,7 @@ public class TestUserResource extends BaseJerseyTest {
         String lastFm0AuthenticationToken = clientUtil.login("user_lastfm0");
 
         // User admin updates his information
-        WebResource userResource = resource().path("/user/user_lastfm0/lastfm");
+        WebResource userResource = resource().path("/user/lastfm");
         userResource.addFilter(new CookieAuthenticationFilter(lastFm0AuthenticationToken));
         MultivaluedMapImpl postParams = new MultivaluedMapImpl();
         postParams.add("username", "user"); // Change to your user/pw -- don't commit ;-)

@@ -1,8 +1,35 @@
 package com.sismics.music.rest.resource;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.http.Cookie;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+
 import com.sismics.music.core.constant.ConfigType;
 import com.sismics.music.core.constant.Constants;
-import com.sismics.music.core.dao.jpa.*;
+import com.sismics.music.core.dao.jpa.AuthenticationTokenDao;
+import com.sismics.music.core.dao.jpa.PlaylistDao;
+import com.sismics.music.core.dao.jpa.RoleBaseFunctionDao;
+import com.sismics.music.core.dao.jpa.UserDao;
 import com.sismics.music.core.dao.jpa.dto.UserDto;
 import com.sismics.music.core.event.PasswordChangedEvent;
 import com.sismics.music.core.event.UserCreatedEvent;
@@ -23,22 +50,9 @@ import com.sismics.security.UserPrincipal;
 import com.sismics.util.EnvironmentUtil;
 import com.sismics.util.LocaleUtil;
 import com.sismics.util.filter.TokenBasedSecurityFilter;
+
 import de.umass.lastfm.Authenticator;
 import de.umass.lastfm.Session;
-import org.apache.commons.lang.StringUtils;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
-import javax.servlet.http.Cookie;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.NewCookie;
-import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 /**
  * User REST resources.
@@ -584,10 +598,9 @@ public class UserResource extends BaseResource {
      * @return Response
      */
     @PUT
-    @Path("{username: [a-zA-Z0-9_]+}/lastfm")
+    @Path("lastfm")
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerLastFm(
-            @PathParam("username") String username,
             @FormParam("username") String lastFmUsername,
             @FormParam("password") String lastFmPassword
             ) throws JSONException {
@@ -599,7 +612,6 @@ public class UserResource extends BaseResource {
         ValidationUtil.validateRequired(lastFmPassword, "password");
 
         // Get the value of the session token
-        ConfigDao configDao = new ConfigDao();
         String key = ConfigUtil.getConfigStringValue(ConfigType.LAST_FM_API_KEY);
         String secret = ConfigUtil.getConfigStringValue(ConfigType.LAST_FM_API_SECRET);
         Session session = Authenticator.getMobileSession(lastFmUsername, lastFmPassword, key, secret);
