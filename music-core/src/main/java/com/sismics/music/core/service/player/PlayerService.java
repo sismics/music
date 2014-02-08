@@ -1,5 +1,8 @@
 package com.sismics.music.core.service.player;
 
+import com.sismics.music.core.event.async.PlayCompletedEvent;
+import com.sismics.music.core.event.async.PlayStartedEvent;
+import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.jpa.Track;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,16 +42,25 @@ public class PlayerService {
     public void notifyPlaying(String userId, Track track, Date startDate, Integer duration) {
         PlayerStatus status = currentlyPlayerStatus.get(userId);
         if (status == null || !status.getTrack().getId().equals(track.getId()) || !status.getStartDate().equals(startDate)) {
+            // The user started playing a new track
             status = new PlayerStatus(track, startDate, duration);
             currentlyPlayerStatus.put(userId, status);
 
-            // TODO Notify Last.fm
+            // Dispatch a new play started event
+            PlayStartedEvent event = new PlayStartedEvent(userId, track);
+            AppContext.getInstance().getScrobblerEventBus().post(event);
         } else {
             status.setDuration(duration);
         }
 
         if (!status.isCommited() && duration >= track.getLength() / 2) {
-            // TODO to local DB + Last.fm
+            status.setCommited(true);
+
+            // Dispatch a new play completed event
+            PlayCompletedEvent event = new PlayCompletedEvent(userId, track);
+            AppContext.getInstance().getScrobblerEventBus().post(event);
+
+            // TODO commit nb. of track played to local DB
         }
     }
 }
