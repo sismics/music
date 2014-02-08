@@ -1,7 +1,9 @@
 package com.sismics.music.rest.resource;
 
 import com.sismics.music.core.dao.jpa.TrackDao;
+import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.jpa.Track;
+import com.sismics.music.core.service.player.PlayerService;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.util.ValidationUtil;
@@ -15,6 +17,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,7 +31,8 @@ public class PlayerResource extends BaseResource {
      * Signals Music that a track is being played. A track is considered playing if it is played more than halfway.
      *
      * @param id Track ID
-     * @param time Duration into the track in seconds
+     * @param dateStr Date the track was started playing.
+     * @param duration Duration into the track in seconds
      * @return Response
      * @throws org.codehaus.jettison.json.JSONException
      */
@@ -37,12 +41,14 @@ public class PlayerResource extends BaseResource {
     @Path("listening")
     public Response listening(
             @FormParam("id") String id,
-            @FormParam("time") Integer time) throws JSONException {
+            @FormParam("date") String dateStr,
+            @FormParam("duration") Integer duration) throws JSONException {
 
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        ValidationUtil.validateRequired(time, "time");
+        Date date = ValidationUtil.validateDate(dateStr, "date", false);
+        ValidationUtil.validateRequired(duration, "duration");
 
         // Load the track
         TrackDao trackDao = new TrackDao();
@@ -50,9 +56,11 @@ public class PlayerResource extends BaseResource {
         if (track == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        time = MathUtil.clip(time, 0, track.getLength());
+        duration = MathUtil.clip(duration, 0, track.getLength());
 
-        // TODO notify playing
+        // Update currently playing track
+        final PlayerService playerService = AppContext.getInstance().getPlayerService();
+        playerService.notifyPlaying(principal.getId(), track, date, duration);
 
         // Always return OK
         JSONObject response = new JSONObject();
@@ -64,7 +72,7 @@ public class PlayerResource extends BaseResource {
      * Post a set of tracks played before (useful for offline mode).
      *
      * @param id An array of track ID
-     * @param date An array of dates at which the track was started playing
+     * @param dateStr An array of dates at which the track was started playing
      * @return Response
      * @throws org.codehaus.jettison.json.JSONException
      */
@@ -73,12 +81,12 @@ public class PlayerResource extends BaseResource {
     @Path("listened")
     public Response listened(
             @FormParam("id") List<String> id,
-            @FormParam("date") List<Long> date) throws JSONException {
+            @FormParam("date") List<String> dateStr) throws JSONException {
 
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        if (id == null || date == null || id.size() != date.size()) {
+        if (id == null || dateStr == null || id.size() != dateStr.size()) {
             throw new ClientException("ValidationError", "Invalid id or dates");
         }
 

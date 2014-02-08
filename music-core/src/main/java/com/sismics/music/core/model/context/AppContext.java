@@ -8,6 +8,7 @@ import com.sismics.music.core.listener.async.DirectoryDeletedAsyncListener;
 import com.sismics.music.core.listener.sync.DeadEventListener;
 import com.sismics.music.core.service.albumart.AlbumArtService;
 import com.sismics.music.core.service.collection.CollectionService;
+import com.sismics.music.core.service.player.PlayerService;
 import com.sismics.util.EnvironmentUtil;
 
 import java.util.ArrayList;
@@ -54,6 +55,11 @@ public class AppContext {
     private AlbumArtService albumArtService;
 
     /**
+     * Player service.
+     */
+    private PlayerService playerService;
+
+    /**
      * Asynchronous executors.
      */
     private List<ExecutorService> asyncExecutorList;
@@ -68,6 +74,7 @@ public class AppContext {
         collectionService.startAndWait();
 
         albumArtService = new AlbumArtService();
+        playerService = new PlayerService();
     }
     
     /**
@@ -140,6 +147,15 @@ public class AppContext {
      */
     public AlbumArtService getAlbumArtService() {
         return albumArtService;
+    }
+
+    /**
+     * Getter of playerService.
+     *
+     * @return playerService
+     */
+    public PlayerService getPlayerService() {
+        return playerService;
     }
 
     /**
