@@ -32,7 +32,7 @@ public class UserDao {
      */
     public String authenticate(String username, String password) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        Query<User> q = handle.createQuery("select " + UserMapper.getColumns("u") +
+        Query<User> q = handle.createQuery("select " + new UserMapper().getJoinedColumns("u") +
                 "  from T_USER u" +
                 "  where u.USE_USERNAME_C = :username and u.USE_DELETEDATE_D is null")
                 .bind("username", username)
@@ -151,7 +151,7 @@ public class UserDao {
      */
     public User getActiveById(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        Query<User> q = handle.createQuery("select " + UserMapper.getColumns("u") +
+        Query<User> q = handle.createQuery("select " + new UserMapper().getJoinedColumns("u") +
                 "  from T_USER u" +
                 "  where u.USE_ID_C = :id and u.USE_DELETEDATE_D is null")
                 .bind("id", id)
@@ -167,7 +167,7 @@ public class UserDao {
      */
     public User getActiveByUsername(String username) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        Query<User> q = handle.createQuery("select " + UserMapper.getColumns("u") +
+        Query<User> q = handle.createQuery("select " + new UserMapper().getJoinedColumns("u") +
                 "  from T_USER u" +
                 "  where u.USE_USERNAME_C = :username and u.USE_DELETEDATE_D is null")
                 .bind("username", username)
@@ -183,7 +183,7 @@ public class UserDao {
      */
     public User getActiveByPasswordResetKey(String passwordResetKey) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        Query<User> q = handle.createQuery("select " + UserMapper.getColumns("u") +
+        Query<User> q = handle.createQuery("select " + new UserMapper().getJoinedColumns("u") +
                 "  from T_USER u" +
                 "  where u.USE_PASSWORDRESETKEY_C = :passwordResetKey and u.USE_DELETEDATE_D is null")
                 .bind("passwordResetKey", passwordResetKey)

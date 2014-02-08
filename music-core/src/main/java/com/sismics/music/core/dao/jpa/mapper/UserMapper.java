@@ -1,9 +1,8 @@
 package com.sismics.music.core.dao.jpa.mapper;
 
 import com.sismics.music.core.model.jpa.User;
-import org.apache.commons.lang.StringUtils;
+import com.sismics.util.dbi.BaseResultSetMapper;
 import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,8 +12,9 @@ import java.sql.SQLException;
  *
  * @author jtremeaux
  */
-public class UserMapper implements ResultSetMapper<User> {
-    private static String[] columns = {
+public class UserMapper extends BaseResultSetMapper<User> {
+    public String[] getColumns() {
+        return new String[] {
             "USE_ID_C",
             "USE_IDLOCALE_C",
             "USE_IDROLE_C",
@@ -28,21 +28,11 @@ public class UserMapper implements ResultSetMapper<User> {
             "USE_FIRSTCONNECTION_B",
             "USE_CREATEDATE_D",
             "USE_DELETEDATE_D"};
-
-    public static String getColumns() {
-        return StringUtils.join(columns, ",");
-    }
-
-    public static String getColumns(String prefix) {
-        String[] prefixedColumns = new String[columns.length];
-        for (int i = 0; i < columns.length; i++) {
-            prefixedColumns[i] = prefix + "." + columns[i];
-        }
-        return StringUtils.join(prefixedColumns, ",");
     }
 
     @Override
     public User map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+        final String[] columns = getColumns();
         int column = 0;
         return new User(
                 r.getString(columns[column++]),

@@ -1,8 +1,8 @@
 package com.sismics.music.core.dao.jpa.mapper;
 
-import com.sismics.music.core.model.jpa.Locale;
+import com.sismics.music.core.model.jpa.Transcoder;
+import com.sismics.util.dbi.BaseResultSetMapper;
 import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,9 +12,33 @@ import java.sql.SQLException;
  *
  * @author jtremeaux
  */
-public class TranscoderMapper implements ResultSetMapper<Locale> {
+public class TranscoderMapper extends BaseResultSetMapper<Transcoder> {
+    public String[] getColumns() {
+        return new String[] {
+            "TRN_ID_C",
+            "TRN_NAME_C",
+            "TRN_SOURCE_C",
+            "TRN_DESTINATION_C",
+            "TRN_STEP1_C",
+            "TRN_STEP2_C",
+            "TRN_CREATEDATE_D",
+            "TRN_DELETEDATE_D"
+        };
+    }
+
     @Override
-    public Locale map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-        return new Locale(r.getString("LOC_ID_C"));
+    public Transcoder map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+        final String[] columns = getColumns();
+        int column = 0;
+        return new Transcoder(
+                r.getString(columns[column++]),
+                r.getString(columns[column++]),
+                r.getString(columns[column++]),
+                r.getString(columns[column++]),
+                r.getString(columns[column++]),
+                r.getString(columns[column++]),
+                r.getDate(columns[column++]),
+                r.getDate(columns[column++])
+                );
     }
 }

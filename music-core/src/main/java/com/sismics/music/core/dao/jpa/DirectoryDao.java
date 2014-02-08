@@ -117,7 +117,6 @@ public class DirectoryDao {
      *
      * @return List of directories
      */
-    @SuppressWarnings("unchecked")
     public List<Directory> findAllEnabled() {
         Handle handle = ThreadLocalContext.get().getHandle();
         Query q = handle.createQuery("select d.DIR_ID_C, d.DIR_NAME_C, d.DIR_LOCATION_C, d.DIR_DISABLEDATE_D, d.DIR_CREATEDATE_D, d.DIR_DELETEDATE_D " +
@@ -132,7 +131,6 @@ public class DirectoryDao {
      *
      * @return List of directories
      */
-    @SuppressWarnings("unchecked")
     public List<Directory> findAll() {
         Handle handle = ThreadLocalContext.get().getHandle();
         Query q = handle.createQuery("select d.DIR_ID_C, d.DIR_NAME_C, d.DIR_LOCATION_C, d.DIR_DISABLEDATE_D, d.DIR_CREATEDATE_D, d.DIR_DELETEDATE_D " +

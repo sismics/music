@@ -28,17 +28,17 @@ public class Transcoder {
     /**
      * Transcoder destination format.
      */
-    private Date destination;
+    private String destination;
     
     /**
      * Transcoder command (step 1).
      */
-    private Date readDate;
+    private String step1;
     
     /**
      * Transcoder command (step 2).
      */
-    private Date starredDate;
+    private String step2;
     
     /**
      * Creation date.
@@ -53,13 +53,13 @@ public class Transcoder {
     public Transcoder() {
     }
 
-    public Transcoder(String id, String name, String source, Date destination, Date readDate, Date starredDate, Date createDate, Date deleteDate) {
+    public Transcoder(String id, String name, String source, String destination, String step1, String step2, Date createDate, Date deleteDate) {
         this.id = id;
         this.name = name;
         this.source = source;
         this.destination = destination;
-        this.readDate = readDate;
-        this.starredDate = starredDate;
+        this.step1 = step1;
+        this.step2 = step2;
         this.createDate = createDate;
         this.deleteDate = deleteDate;
     }
@@ -123,7 +123,7 @@ public class Transcoder {
      *
      * @return destination
      */
-    public Date getDestination() {
+    public String getDestination() {
         return destination;
     }
 
@@ -132,44 +132,44 @@ public class Transcoder {
      *
      * @param destination destination
      */
-    public void setDestination(Date destination) {
+    public void setDestination(String destination) {
         this.destination = destination;
     }
 
     /**
-     * Getter of readDate.
+     * Getter of step1.
      *
-     * @return readDate
+     * @return step1
      */
-    public Date getReadDate() {
-        return readDate;
+    public String getStep1() {
+        return step1;
     }
 
     /**
-     * Setter of readDate.
+     * Setter of step1.
      *
-     * @param readDate readDate
+     * @param step1 step1
      */
-    public void setReadDate(Date readDate) {
-        this.readDate = readDate;
+    public void setStep1(String step1) {
+        this.step1 = step1;
     }
 
     /**
-     * Getter of starredDate.
+     * Getter of step2.
      *
-     * @return starredDate
+     * @return step2
      */
-    public Date getStarredDate() {
-        return starredDate;
+    public String getStep2() {
+        return step2;
     }
 
     /**
-     * Setter of starredDate.
+     * Setter of step2.
      *
-     * @param starredDate starredDate
+     * @param step2 step2
      */
-    public void setStarredDate(Date starredDate) {
-        this.starredDate = starredDate;
+    public void setStep2(String step2) {
+        this.step2 = step2;
     }
 
     /**
