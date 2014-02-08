@@ -7,11 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
-import com.androidquery.callback.AjaxStatus;
 import com.androidquery.callback.BitmapAjaxCallback;
 import com.sismics.music.R;
 import com.sismics.music.util.PreferenceUtil;
@@ -26,7 +27,7 @@ import java.util.Set;
  * 
  * @author bgamard
  */
-public class AlbumAdapter extends BaseAdapter {
+public class AlbumAdapter extends BaseAdapter implements Filterable {
 
     private AQuery aq;
     private Activity activity;
@@ -109,6 +110,38 @@ public class AlbumAdapter extends BaseAdapter {
     public void setAlbums(JSONArray albums) {
         this.albums = albums;
         notifyDataSetChanged();
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults results = new FilterResults();
+                if (constraint == null || constraint.length() == 0) {
+                    results.values = albums;
+                    results.count = albums.length();
+                    return  results;
+                }
+
+                JSONArray values = new JSONArray();
+                for (int i = 0; i < albums.length(); i++) {
+                    JSONObject album = albums.optJSONObject(i);
+                    if (album.optString("name").contains(constraint)) {
+                        values.put(album);
+                    }
+                }
+                results.values = values;
+                results.count = values.length();
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                albums = (JSONArray) results.values;
+                notifyDataSetChanged();
+            }
+        };
     }
 
     /**
