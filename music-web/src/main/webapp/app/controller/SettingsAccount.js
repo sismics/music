@@ -4,8 +4,6 @@
  * Settings account controller.
  */
 App.controller('SettingsAccount', function($scope, Restangular) {
-  $scope.editUserAlert = false;
-  
   // Alerts
   $scope.alerts = [];
   

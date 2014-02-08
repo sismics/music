@@ -1,4 +1,32 @@
-<h3>My account</h3>
+<h3>Last.fm scrobbling</h3>
+<p>Last.fm username and password won't be stored.</p>
+<form class="form-horizontal" name="lastFmForm" novalidate>
+  <div class="form-group" ng-class="{ success: lastFmForm.username.$valid }">
+    <label class="col-sm-2 control-label" for="inputLastfmUsername">Last.fm username</label>
+    <div class="col-sm-7">
+      <input name="username" type="text" id="inputLastfmUsername" required class="form-control"
+             placeholder="Last.fm username" ng-model="lastfm.username" autocomplete="off" />
+    </div>
+  </div>
+
+  <div class="form-group" ng-class="{ success: lastFmForm.password.$valid }">
+    <label class="col-sm-2 control-label" for="inputLastfmPassword">Last.fm password</label>
+    <div class="col-sm-7">
+      <input name="password" type="password" id="inputLastfmPassword" required class="form-control"
+             placeholder="Last.fm password" ng-model="lastfm.password" autocomplete="off" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <button type="submit" class="btn btn-primary" ng-click="connectLastFm()" ng-disabled="!lastFmForm.$valid">
+        <span class="glyphicon glyphicon-pencil"></span> Connect
+      </button>
+    </div>
+  </div>
+</form>
+
+<h3>Change password</h3>
 <form class="form-horizontal" name="editUserForm" novalidate>
   <div class="form-group" ng-class="{ 'has-error': !editUserForm.password.$valid, success: editUserForm.password.$valid }">
     <label class="col-sm-2 control-label" for="inputPassword">Password</label>
