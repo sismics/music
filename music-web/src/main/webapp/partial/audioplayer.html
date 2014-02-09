@@ -19,7 +19,10 @@
             ng-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>
       <span class="text-muted">{{ track.artist.name }}</span> {{ track.title }}
       <div class="progress" ng-click="seek($event)">
-        <progressbar value="timeProgress()" max="100" />
+        <progress max="100">
+          <bar value="timeProgress()"></bar>
+          <bar value="bufferProgress()" type="buffer"></bar>
+        </progress>
       </div>
     </div>
   </div>

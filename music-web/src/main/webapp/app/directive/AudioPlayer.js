@@ -6,8 +6,9 @@
 App.directive('audioPlayer', function($rootScope, Playlist) {
   return {
     restrict: 'E',
-    controller: function($scope, $element) {
+    controller: function($scope) {
       $scope.audio = new Audio();
+      $scope.audio.preload = 'auto';
       $scope.startPlaying = 0;
       $scope.firstPingSent = false;
       $scope.halfwayPingSent = false;
@@ -28,13 +29,13 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
       });
 
       // Send a server ping halfway
-      $scope.audio.addEventListener('timeupdate', function() {
+      $scope.audio.addEventListener('timeupdate', _.throttle(function() {
         if ($scope.firstPingSent && !$scope.halfwayPingSent && $scope.audio.currentTime > $scope.audio.duration / 2) {
           // TODO Ping server
           $scope.halfwayPingSent = true;
           console.log('Halfway server ping (' + $scope.audio.currentTime + '), music started at: ' + $scope.startPlaying);
         }
-      });
+      }, 500));
 
       // Current track has changed
       $scope.$on('audio.set', function(e, play) {
@@ -67,14 +68,29 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
       });
 
       // Returns current track progression
-      $scope.timeProgress = function() {
-        return $scope.audio.currentTime / $scope.audio.duration * 100;
-      };
+      $scope.timeProgress = _.throttle(function() {
+        if ($scope.audio.duration) {
+          return $scope.audio.currentTime / $scope.audio.duration * 100;
+        }
+        return 0;
+      }, 500);
+
+      // Return current buffer progression
+      $scope.bufferProgress = _.throttle(function() {
+        var buff = $scope.audio.buffered;
+        if (buff.length > 0) {
+          var buffered = buff.end(buff.length - 1) - $scope.audio.currentTime;
+          return buffered / $scope.audio.duration * 100;
+        }
+        return 0;
+      }, 500);
 
       // Seek through the current track
       $scope.seek = function(e) {
-        var offX = e.clientX - $(e.delegateTarget).offset().left;
-        $scope.audio.currentTime = offX / e.delegateTarget.clientWidth * $scope.audio.duration;
+        if ($scope.audio.duration) {
+          var offX = e.clientX - $(e.delegateTarget).offset().left;
+          $scope.audio.currentTime = offX / e.delegateTarget.clientWidth * $scope.audio.duration;
+        }
       };
 
       // Toggle repeat
