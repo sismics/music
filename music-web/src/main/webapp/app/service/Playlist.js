@@ -3,7 +3,7 @@
 /**
  * Audio player service.
  */
-App.factory('Playlist', function($rootScope, Restangular) {
+App.factory('Playlist', function($rootScope, Restangular, toaster) {
   var currentTrack = null;
   var currentStatus = 'stopped';
   var tracks = [];
@@ -123,12 +123,13 @@ App.factory('Playlist', function($rootScope, Restangular) {
 
     /**
      * Add a track to the playlist.
-     * @param trackId
+     * @param track
      * @param play If true, immediately play the first track once added
+     * @param name Track name
      */
-    add: function(trackId, play) {
+    add: function(track, play) {
       Restangular.one('playlist').put({
-        id: trackId,
+        id: track.id,
         order: null
       }).then(function() {
             var promise = service.update();
@@ -136,6 +137,8 @@ App.factory('Playlist', function($rootScope, Restangular) {
               promise.then(function() {
                 service.play(0);
               })
+            } else {
+              toaster.pop('success', 'Track added', track.title);
             }
           });
     },
@@ -156,6 +159,8 @@ App.factory('Playlist', function($rootScope, Restangular) {
                   service.play(0);
                 }
               })
+            } else {
+              toaster.pop('success', 'Now playing', 'All tracks added');
             }
           });
     },
@@ -200,11 +205,11 @@ App.factory('Playlist', function($rootScope, Restangular) {
 
     /**
      * Remove all tracks from the playlist and play a new one.
-     * @param trackId
+     * @param track
      */
-    removeAndPlay: function(trackId) {
+    removeAndPlay: function(track) {
       service.clear(false).then(function() {
-        service.add(trackId, true);
+        service.add(track, true);
       });
     },
 

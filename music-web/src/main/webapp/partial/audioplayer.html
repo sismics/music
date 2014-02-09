@@ -15,7 +15,7 @@
 
   <div class="col-md-5 now-playing">
     <div ng-show="track">
-      <span class="glyphicon btn-like" ng-click="toggleLikeTrack(track)"
+      <span class="glyphicon btn-pointer" ng-click="toggleLikeTrack(track)"
             ng-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>
       <span class="text-muted">{{ track.artist.name }}</span> {{ track.title }}
       <div class="progress" ng-click="seek($event)">
@@ -30,7 +30,7 @@
   <div class="col-md-2 info">
     <div ng-show="audio.duration && track">
       {{ audio.currentTime | duration }}/{{ audio.duration | duration }}sec
-      <span class="glyphicon glyphicon-volume-up"
+      <span class="glyphicon glyphicon-volume-up btn-pointer"
             ng-click="mute()"
             ng-class="{ 'glyphicon-volume-up': audio.volume == 1, 'glyphicon-volume-off': audio.volume == 0 }"></span>
     </div>

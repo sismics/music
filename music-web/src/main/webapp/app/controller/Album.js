@@ -15,12 +15,12 @@ App.controller('Album', function($scope, $stateParams, Restangular, Playlist, $m
 
   // Play a single track
   $scope.playTrack = function(track) {
-    Playlist.removeAndPlay(track.id);
+    Playlist.removeAndPlay(track);
   };
 
   // Add a single track to the playlist
   $scope.addTrack = function(track) {
-    Playlist.add(track.id, false);
+    Playlist.add(track, false);
   };
 
   // Add all tracks to the playlist in a random order

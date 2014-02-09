@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="favicon.png" />
     <link rel="stylesheet" href="style/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="style/toaster.css" type="text/css" />
     <link rel="stylesheet/less" href="style/main.less" type="text/css" />
     <script>
       less = {
@@ -21,12 +22,14 @@
     <script src="lib/less.js" type="text/javascript"></script>
     <script src="lib/underscore.js" type="text/javascript"></script>
     <script src="lib/angular.js" type="text/javascript"></script>
+    <script src="lib/angular.animate.js" type="text/javascript"></script>
     <script src="lib/angular.bindonce.js" type="text/javascript"></script>
     <script src="lib/angular.ui-bootstrap.js" type="text/javascript"></script>
     <script src="lib/angular.ui-router.js" type="text/javascript"></script>
     <script src="lib/angular.ui-utils.js" type="text/javascript"></script>
     <script src="lib/angular.ui-sortable.js" type="text/javascript"></script>
     <script src="lib/angular.restangular.js" type="text/javascript"></script>
+    <script src="lib/angular.toaster.js" type="text/javascript"></script>
     <script src="app/app.js" type="text/javascript"></script>
     <script src="app/controller/Login.js" type="text/javascript"></script>
     <script src="app/controller/Navigation.js" type="text/javascript"></script>
@@ -49,6 +52,8 @@
     <script src="app/filter/Duration.js" type="text/javascript"></script>
   </head>
   <body>
+
+    <toaster-container toaster-options="{ 'time-out': 2000, 'position-class': 'toast-bottom-right' }"></toaster-container>
     
     <div id="wrap">
     
