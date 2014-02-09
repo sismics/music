@@ -9,15 +9,16 @@
     </button>
   </div>
 
-  <div class="col-md-1 albumart">
+  <div class="col-md-2 albumart">
     <img ng-if="track" ng-click="openAlbum(track.album.id)" ng-src="api/album/{{ track.album.id }}/albumart/small" />
   </div>
 
-  <div class="col-md-5 now-playing">
+  <div class="col-md-4 now-playing">
     <div ng-show="track">
       <span class="glyphicon btn-pointer" ng-click="toggleLikeTrack(track)"
             ng-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>
-      <span class="text-muted">{{ track.artist.name }}</span> {{ track.title }}
+      <span class="text-muted">{{ track.artist.name }}</span><br />
+      {{ track.title }}
       <div class="progress" ng-click="seek($event)">
         <progress max="100">
           <bar value="timeProgress()"></bar>
