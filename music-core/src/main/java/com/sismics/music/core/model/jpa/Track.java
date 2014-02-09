@@ -54,7 +54,17 @@ public class Track {
      * Track is encoded in variable bitrate (VBR).
      */
     private boolean vbr;
-    
+
+    /**
+     * Number of times this track was played.
+     */
+    private Integer playCount;
+
+    /**
+     * True if this track is a favorite.
+     */
+    private boolean favorite;
+
     /**
      * Track format.
      */
@@ -248,6 +258,42 @@ public class Track {
      */
     public void setVbr(boolean vbr) {
         this.vbr = vbr;
+    }
+
+    /**
+     * Getter of playCount.
+     *
+     * @return playCount
+     */
+    public Integer getPlayCount() {
+        return playCount;
+    }
+
+    /**
+     * Setter of playCount.
+     *
+     * @param playCount playCount
+     */
+    public void setPlayCount(Integer playCount) {
+        this.playCount = playCount;
+    }
+
+    /**
+     * Getter of favorite.
+     *
+     * @return favorite
+     */
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    /**
+     * Setter of favorite.
+     *
+     * @param favorite favorite
+     */
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
     }
 
     /**
