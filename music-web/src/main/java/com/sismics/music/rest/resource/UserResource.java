@@ -1,6 +1,5 @@
 package com.sismics.music.rest.resource;
 
-import com.sismics.music.core.constant.ConfigType;
 import com.sismics.music.core.constant.Constants;
 import com.sismics.music.core.dao.jpa.AuthenticationTokenDao;
 import com.sismics.music.core.dao.jpa.PlaylistDao;
@@ -13,7 +12,7 @@ import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.jpa.AuthenticationToken;
 import com.sismics.music.core.model.jpa.Playlist;
 import com.sismics.music.core.model.jpa.User;
-import com.sismics.music.core.util.ConfigUtil;
+import com.sismics.music.core.service.lastfm.LastFmService;
 import com.sismics.music.core.util.jpa.PaginatedList;
 import com.sismics.music.core.util.jpa.PaginatedLists;
 import com.sismics.music.core.util.jpa.SortCriteria;
@@ -26,7 +25,6 @@ import com.sismics.security.UserPrincipal;
 import com.sismics.util.EnvironmentUtil;
 import com.sismics.util.LocaleUtil;
 import com.sismics.util.filter.TokenBasedSecurityFilter;
-import de.umass.lastfm.Authenticator;
 import de.umass.lastfm.Session;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONArray;
@@ -600,9 +598,8 @@ public class UserResource extends BaseResource {
         ValidationUtil.validateRequired(lastFmPassword, "password");
 
         // Get the value of the session token
-        String key = ConfigUtil.getConfigStringValue(ConfigType.LAST_FM_API_KEY);
-        String secret = ConfigUtil.getConfigStringValue(ConfigType.LAST_FM_API_SECRET);
-        Session session = Authenticator.getMobileSession(lastFmUsername, lastFmPassword, key, secret);
+        final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
+        Session session = lastFmService.createSession(lastFmUsername, lastFmPassword);
         // TODO We should be able to distinguish invalid user credentials from invalid api key -- update Authenticator?
         if (session == null) {
             throw new ClientException("InvalidCredentials", "The supplied Last.fm credentials is invalid");

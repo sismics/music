@@ -1,7 +1,11 @@
 package com.sismics.music.rest.resource;
 
 import com.sismics.music.core.dao.jpa.TrackDao;
+import com.sismics.music.core.dao.jpa.UserDao;
+import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.jpa.Track;
+import com.sismics.music.core.model.jpa.User;
+import com.sismics.music.core.service.lastfm.LastFmService;
 import com.sismics.music.core.util.TransactionUtil;
 import com.sismics.rest.exception.ForbiddenClientException;
 import org.codehaus.jettison.json.JSONException;
@@ -72,7 +76,13 @@ public class TrackResource extends BaseResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        // TODO like track
+        // TODO update liked tracks locally
+        // Love the track on Last.fm
+        final User user = new UserDao().getActiveById(principal.getId());
+        if (user != null && user.getLastFmSessionToken() != null) {
+            final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
+            lastFmService.loveTrack(user, track);
+        }
 
         // Always return OK
         JSONObject response = new JSONObject();
@@ -101,7 +111,13 @@ public class TrackResource extends BaseResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        // TODO unlike track
+        // TODO unlike track locally
+        // Unove the track on Last.fm
+        final User user = new UserDao().getActiveById(principal.getId());
+        if (user != null && user.getLastFmSessionToken() != null) {
+            final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
+            lastFmService.unloveTrack(user, track);
+        }
 
         // Always return OK
         JSONObject response = new JSONObject();

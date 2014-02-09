@@ -6,6 +6,7 @@ import com.sismics.music.core.listener.async.*;
 import com.sismics.music.core.listener.sync.DeadEventListener;
 import com.sismics.music.core.service.albumart.AlbumArtService;
 import com.sismics.music.core.service.collection.CollectionService;
+import com.sismics.music.core.service.lastfm.LastFmService;
 import com.sismics.music.core.service.player.PlayerService;
 import com.sismics.util.EnvironmentUtil;
 
@@ -63,6 +64,11 @@ public class AppContext {
     private PlayerService playerService;
 
     /**
+     * Last.fm service.
+     */
+    private LastFmService lastFmService;
+
+    /**
      * Asynchronous executors.
      */
     private List<ExecutorService> asyncExecutorList;
@@ -78,6 +84,7 @@ public class AppContext {
 
         albumArtService = new AlbumArtService();
         playerService = new PlayerService();
+        lastFmService = new LastFmService();
     }
     
     /**
@@ -163,6 +170,15 @@ public class AppContext {
      */
     public PlayerService getPlayerService() {
         return playerService;
+    }
+
+    /**
+     * Getter of lastFmService.
+     *
+     * @return lastFmService
+     */
+    public LastFmService getLastFmService() {
+        return lastFmService;
     }
 
     /**
