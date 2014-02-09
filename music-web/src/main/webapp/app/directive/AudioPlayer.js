@@ -100,7 +100,7 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
       };
 
       // Tell audio element to play/pause
-      $scope.playpause = function() {
+      $rootScope.playpause = function() {
         if ($scope.track != null) {
           $scope.audio.paused ? $scope.audio.play() : $scope.audio.pause();
         }
