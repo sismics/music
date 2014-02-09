@@ -8,37 +8,39 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
     restrict: 'E',
     controller: function($scope, $element) {
       $scope.audio = new Audio();
-      $scope.currentNum = 0;
-
-      // Tell others to give me my prev/next track (with audio.set message)
-      $scope.next = function() {
-        Playlist.next();
-      };
-      $scope.prev = function() {
-        Playlist.prev();
-      };
-
-      // Tell audio element to play/pause, you can also use $scope.audio.play() or $scope.audio.pause();
-      $scope.playpause = function() {
-        if ($scope.track != null) {
-          $scope.audio.paused ? $scope.audio.play() : $scope.audio.pause();
-        }
-      };
-
-      // Mute/unmute volume
-      $scope.mute = function() {
-        $scope.audio.volume == 0 ? $scope.audio.volume = 1 : $scope.audio.volume = 0;
-      };
+      $scope.startPlaying = 0;
+      $scope.firstPingSent = false;
+      $scope.halfwayPingSent = false;
 
       // Listen for audio-element events, and broadcast stuff
-      $scope.audio.addEventListener('play', function(){ $rootScope.$broadcast('audio.play'); });
-      $scope.audio.addEventListener('pause', function(){ $rootScope.$broadcast('audio.pause'); });
-      // $scope.audio.addEventListener('timeupdate', function(){ $rootScope.$broadcast('audio.time'); });
-      $scope.audio.addEventListener('ended', function(){ $rootScope.$broadcast('audio.ended'); $scope.next(); });
+      $scope.audio.addEventListener('play', function() { $rootScope.$broadcast('audio.play'); });
+      $scope.audio.addEventListener('pause', function() { $rootScope.$broadcast('audio.pause'); });
+      $scope.audio.addEventListener('ended', function() { $rootScope.$broadcast('audio.ended'); $scope.next(); });
+
+      // Send a server ping when we start playing the track
+      $scope.audio.addEventListener('play', function() {
+        if (!$scope.firstPingSent) {
+          // TODO Ping server
+          $scope.startPlaying = new Date().getTime();
+          $scope.firstPingSent = true;
+          console.log('First server ping (' + $scope.audio.currentTime + '), music started at: ' + $scope.startPlaying);
+        }
+      });
+
+      // Send a server ping halfway
+      $scope.audio.addEventListener('timeupdate', function() {
+        if ($scope.firstPingSent && !$scope.halfwayPingSent && $scope.audio.currentTime > $scope.audio.duration / 2) {
+          // TODO Ping server
+          $scope.halfwayPingSent = true;
+          console.log('Halfway server ping (' + $scope.audio.currentTime + '), music started at: ' + $scope.startPlaying);
+        }
+      });
 
       // Current track has changed
       $scope.$on('audio.set', function(e, play) {
         var track = Playlist.currentTrack();
+        $scope.firstPingSent = false;
+        $scope.halfwayPingSent = false;
         $scope.audio.src = 'api/track/' + track.id;
         if (play) {
           $scope.audio.play();
@@ -80,6 +82,26 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
       $scope.toggleShuffle = function() {
         Playlist.toggleShuffle();
         $scope.shuffle = Playlist.isShuffle();
+      };
+
+      // Tell others to give me my prev/next track (with audio.set message)
+      $scope.next = function() {
+        Playlist.next();
+      };
+      $scope.prev = function() {
+        Playlist.prev();
+      };
+
+      // Tell audio element to play/pause
+      $scope.playpause = function() {
+        if ($scope.track != null) {
+          $scope.audio.paused ? $scope.audio.play() : $scope.audio.pause();
+        }
+      };
+
+      // Mute/unmute volume
+      $scope.mute = function() {
+        $scope.audio.volume == 0 ? $scope.audio.volume = 1 : $scope.audio.volume = 0;
       };
 
       // Update display of things - makes time-scrub work
