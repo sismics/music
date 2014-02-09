@@ -51,6 +51,13 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
         $scope.track = track;
       });
 
+      // Update UI on track liked
+      $scope.$on('track.liked', function(e, trackId, liked) {
+        if ($scope.track != null && $scope.track.id == trackId) {
+          $scope.track.liked = liked;
+        }
+      });
+
       // Stop the audio
       $scope.$on('audio.stop', function() {
         $scope.track = null;
@@ -75,7 +82,7 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
       $scope.toggleRepeat = function() {
         Playlist.toggleRepeat();
         $scope.repeat = Playlist.isRepeat();
-      }
+      };
 
       // Toggle shuffle
       $scope.shuffle = Playlist.isShuffle();

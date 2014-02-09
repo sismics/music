@@ -7,14 +7,12 @@ App.controller('Playing', function($scope, Playlist) {
   var updateScope = function() {
     $scope.currentOrder = Playlist.currentOrder();
     $scope.currentStatus = Playlist.currentStatus();
+    $scope.tracks = Playlist.getTracks();
   };
 
   // Grab current playlist, and listen to future changes
   $scope.tracks = Playlist.getTracks();
-  $scope.$on('playlist.updated', function(e, tracks) {
-    $scope.tracks = tracks;
-    updateScope();
-  });
+  $scope.$on('playlist.updated', updateScope);
 
   // Grab current track, and listen to future changes
   updateScope();
@@ -35,6 +33,11 @@ App.controller('Playing', function($scope, Playlist) {
   // Clear the playlist
   $scope.clear = function() {
     Playlist.clear(true);
+  };
+
+  // Like/unlike a track
+  $scope.toggleLikeTrack = function(track) {
+    Playlist.likeById(track.id, !track.liked);
   };
 
   // Configuration for track sorting

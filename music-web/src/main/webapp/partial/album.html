@@ -20,6 +20,7 @@
             <th>#</th>
             <th>Title</th>
             <th><span class="glyphicon glyphicon-time"></span></th>
+            <th></th>
           </tr>
           </thead>
           <tbody>
@@ -29,6 +30,10 @@
             <td>{{ track.order }}</td>
             <td>{{ track.title }}</td>
             <td>{{ track.length | duration }}</td>
+            <td>
+              <span class="glyphicon btn-like" ng-click="toggleLikeTrack(track)"
+                    ng-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>
+            </td>
           </tr>
           </tbody>
         </table>

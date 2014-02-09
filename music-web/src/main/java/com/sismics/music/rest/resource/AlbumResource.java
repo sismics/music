@@ -12,6 +12,7 @@ import com.sismics.music.core.service.albumart.AlbumArtService;
 import com.sismics.music.core.service.albumart.AlbumArtSize;
 import com.sismics.music.core.util.TransactionUtil;
 import com.sismics.rest.exception.ForbiddenClientException;
+
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
@@ -23,8 +24,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -145,7 +149,9 @@ public class AlbumResource extends BaseResource {
 
         TransactionUtil.commit();
 
-        return Response.ok(file, "image/jpeg").build();
+        return Response.ok(file, "image/jpeg")
+                .header("Expires", new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z").format(new Date().getTime() + 3600000 * 24 * 7))
+                .build();
     }
 
     /**

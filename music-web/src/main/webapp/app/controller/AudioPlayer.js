@@ -3,7 +3,7 @@
 /**
  * Audio player controller.
  */
-App.controller('AudioPlayer', function($scope, $state) {
+App.controller('AudioPlayer', function($scope, $state, Playlist) {
   // Open the current playlist
   $scope.openNowPlaying = function () {
     $state.transitionTo('main.playing');
@@ -12,5 +12,10 @@ App.controller('AudioPlayer', function($scope, $state) {
   // Open an album
   $scope.openAlbum = function(id) {
     $state.transitionTo('main.album', { id: id });
+  };
+
+  // Like/unlike a track
+  $scope.toggleLikeTrack = function(track) {
+    Playlist.likeById(track.id, !track.liked);
   };
 });

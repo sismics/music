@@ -45,4 +45,17 @@ App.controller('Album', function($scope, $stateParams, Restangular, Playlist, $m
       windowClass: 'album-art-modal'
     });
   };
+
+  // Like/unlike a track
+  $scope.toggleLikeTrack = function(track) {
+    Playlist.likeById(track.id, !track.liked);
+  };
+
+  // Update UI on track liked
+  $scope.$on('track.liked', function(e, trackId, liked) {
+    var track = _.findWhere($scope.album.tracks, { id: trackId });
+    if (track) {
+      track.liked = liked;
+    }
+  });
 });

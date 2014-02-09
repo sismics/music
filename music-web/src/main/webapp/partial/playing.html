@@ -15,21 +15,26 @@
         <th>Album</th>
         <th style="width: 7%"><span class="glyphicon glyphicon-time"></span></th>
         <th style="width: 4%"></th>
+        <th style="width: 4%"></th>
       </tr>
       </thead>
       <tbody ui-sortable="trackSortableOptions">
-      <tr ng-repeat="track in tracks" ng-dblclick="playTrack($index)" data-order="{{ track.order }}">
+      <tr bindonce ng-repeat="track in tracks" ng-dblclick="playTrack($index)" bo-attr bo-attr-data-order="track.order">
         <td>
           <span class="handle"></span>
-          <span ng-if="$index == currentOrder">
-            <img src="img/equalizer.gif" ng-if="currentStatus == 'playing'" />
-            <img src="img/equalizer_pause.png" ng-if="currentStatus == 'paused' || currentStatus == 'stopped'" />
+          <span bo-if="$index == currentOrder">
+            <img src="img/equalizer.gif" bo-if="currentStatus == 'playing'" />
+            <img src="img/equalizer_pause.png" bo-if="currentStatus == 'paused' || currentStatus == 'stopped'" />
           </span>
         </td>
-        <td title="{{ track.title }}">{{ track.title }}</td>
-        <td title="{{ track.artist.name }}">{{ track.artist.name }}</td>
-        <td title="{{ track.album.name }}"><a ng-href="#/album/{{ track.album.id }}">{{ track.album.name }}</a></td>
-        <td>{{ track.length | duration }}</td>
+        <td bo-title="track.title" bo-text="track.title"></td>
+        <td bo-title="track.artist.name" bo-text="track.artist.name"></td>
+        <td bo-title="track.album.name"><a bo-href="'#/album/' + track.album.id" bo-text="track.album.name"></a></td>
+        <td bo-text="track.length | duration"></td>
+        <td>
+          <span class="glyphicon btn-like" ng-click="toggleLikeTrack(track)"
+                bo-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>
+        </td>
         <td><span class="glyphicon glyphicon-minus" ng-click="removeTrack($index)"></span></td>
       </tr>
       </tbody>

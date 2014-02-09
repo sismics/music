@@ -3,7 +3,7 @@
 /**
  * Audio player service.
  */
-App.factory('Playlist', function($rootScope, Restangular, $timeout) {
+App.factory('Playlist', function($rootScope, Restangular) {
   var currentTrack = null;
   var currentStatus = 'stopped';
   var tracks = [];
@@ -21,6 +21,15 @@ App.factory('Playlist', function($rootScope, Restangular, $timeout) {
     currentStatus = 'stopped';
   });
 
+  // Update playlist on track.liked
+  $rootScope.$on('track.liked', function(e, trackId, liked) {
+    _.each(_.where(tracks, { id: trackId }), function(track) {
+      track.liked = liked;
+    });
+
+    $rootScope.$broadcast('playlist.updated', angular.copy(tracks));
+  });
+
   // Service
   var service = {
     /**
@@ -35,7 +44,7 @@ App.factory('Playlist', function($rootScope, Restangular, $timeout) {
     },
 
     /**
-     * Move a track in the playlist
+     * Move a track in the playlist.
      * @param order
      * @param neworder
      */
@@ -221,12 +230,31 @@ App.factory('Playlist', function($rootScope, Restangular, $timeout) {
       if (currentTrack == null) {
         return null;
       }
-      return tracks[currentTrack];
+      return angular.copy(tracks[currentTrack]);
+    },
+
+    /**
+     * Like/unlike a track by ID.
+     * @param trackId
+     * @param liked
+     */
+    likeById: function(trackId, liked) {
+      var promise = null;
+      if (liked) {
+        promise = Restangular.one('track', trackId).post('like');
+      } else {
+        promise = Restangular.one('track/' + trackId + '/like', null).remove();
+      }
+
+      promise.then(function() {
+        // Broadcast track.liked
+        $rootScope.$broadcast('track.liked', trackId, liked);
+      });
     },
 
     currentStatus: function() { return currentStatus; },
     currentOrder: function() { return currentTrack; },
-    getTracks: function() { return tracks; },
+    getTracks: function() { return angular.copy(tracks); },
     isRepeat: function() { return repeat; },
     toggleRepeat: function() { repeat = !repeat; },
     isShuffle: function() { return shuffle; },
