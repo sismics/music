@@ -1,8 +1,11 @@
 package com.sismics.music.rest.resource;
 
 import com.sismics.music.core.dao.jpa.TrackDao;
+import com.sismics.music.core.dao.jpa.UserDao;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.jpa.Track;
+import com.sismics.music.core.model.jpa.User;
+import com.sismics.music.core.service.lastfm.LastFmService;
 import com.sismics.music.core.service.player.PlayerService;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
@@ -17,6 +20,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -71,8 +75,8 @@ public class PlayerResource extends BaseResource {
     /**
      * Post a set of tracks played before (useful for offline mode).
      *
-     * @param id An array of track ID
-     * @param dateStr An array of dates at which the track was started playing
+     * @param idList An array of track ID
+     * @param dateStrList An array of dates at which the track was started playing
      * @return Response
      * @throws org.codehaus.jettison.json.JSONException
      */
@@ -80,17 +84,35 @@ public class PlayerResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("listened")
     public Response listened(
-            @FormParam("id") List<String> id,
-            @FormParam("date") List<String> dateStr) throws JSONException {
+            @FormParam("id") List<String> idList,
+            @FormParam("date") List<String> dateStrList) throws JSONException {
 
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        if (id == null || dateStr == null || id.size() != dateStr.size()) {
+        if (idList == null || dateStrList == null || idList.size() != dateStrList.size()) {
             throw new ClientException("ValidationError", "Invalid id or dates");
         }
 
-        // TODO notify played
+        // TODO mark as played locally
+
+        // Scrobble tracks on Last.fm
+        final TrackDao trackDao = new TrackDao();
+        List<Track> trackList = new ArrayList<Track>();
+        List<Date> dateList = new ArrayList<Date>();
+        for (int i = 0; i < idList.size(); i++) {
+            Track track = trackDao.getActiveById(idList.get(i));
+            if (track != null) {
+                Date date = ValidationUtil.validateDate(dateStrList.get(i), "date", false);
+                trackList.add(track);
+                dateList.add(date);
+            }
+        }
+        final User user = new UserDao().getActiveById(principal.getId());
+        if (user != null && user.getLastFmSessionToken() != null) {
+            final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
+            lastFmService.scrobbleTrackList(user, trackList, dateList);
+        }
 
         // Always return OK
         JSONObject response = new JSONObject();

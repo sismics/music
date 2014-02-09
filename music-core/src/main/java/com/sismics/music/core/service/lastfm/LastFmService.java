@@ -14,6 +14,11 @@ import de.umass.lastfm.scrobble.ScrobbleResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 /**
  * Last.fm service.
  *
@@ -57,7 +62,7 @@ public class LastFmService {
     /**
      * Update track now playing.
      *
-     * @param track Track to nowPlayingTrack
+     * @param track Track now playing
      */
     public void nowPlayingTrack(User user, Track track) {
         Session session = restoreSession(user);
@@ -68,13 +73,13 @@ public class LastFmService {
         scrobbleData.setDuration(track.getLength());
 
         ScrobbleResult result = de.umass.lastfm.Track.updateNowPlaying(scrobbleData, session);
-        log.info("Update now playing for user {0}: {1}", user.getId(), result.toString());
+        log.info(MessageFormat.format("Update now playing for user {0}: {1}", user.getId(), result.toString()));
     }
 
     /**
      * Scrobble a track.
      *
-     * @param track Track to nowPlayingTrack
+     * @param track Track to scrobble
      */
     public void scrobbleTrack(User user, Track track) {
         Session session = restoreSession(user);
@@ -85,31 +90,52 @@ public class LastFmService {
         scrobbleData.setDuration(track.getLength());
 
         ScrobbleResult result = de.umass.lastfm.Track.scrobble(scrobbleData, session);
-        log.info("Play completed for user {0}: {1}", user.getId(), result.toString());
+        log.info(MessageFormat.format("Play completed for user {0}: {1}", user.getId(), result.toString()));
+    }
+
+    /**
+     * Scrobble a list of track.
+     *
+     * @param trackList Tracks to scrobble
+     * @param dateList Dates the tracks were played
+     */
+    public void scrobbleTrackList(User user, List<Track> trackList, List<Date> dateList) {
+        Session session = restoreSession(user);
+
+        final ArtistDao artistDao = new ArtistDao();
+        List<ScrobbleData> scrobbleDataList = new ArrayList<ScrobbleData>();
+        for (int i = 0; i < trackList.size(); i++) {
+            final Track track = trackList.get(i);
+            final Artist artist = artistDao.getActiveById(track.getArtistId());
+            ScrobbleData scrobbleData = new ScrobbleData(artist.getName(), track.getTitle(), (int) dateList.get(i).getTime());
+            scrobbleDataList.add(scrobbleData);
+        }
+        List<ScrobbleResult> result = de.umass.lastfm.Track.scrobble(scrobbleDataList, session);
+        log.info(MessageFormat.format("Scrobbled a list of tracks for user {0}", user.getId()));
     }
 
     /**
      * Love a track.
      *
-     * @param track Track to nowPlayingTrack
+     * @param track Track to love
      */
     public void loveTrack(User user, Track track) {
         Session session = restoreSession(user);
 
         final Artist artist = new ArtistDao().getActiveById(track.getArtistId());
         Result result = de.umass.lastfm.Track.love(artist.getName(), track.getTitle(), session);
-        log.info("Loved a track for user {0}: {1}", user.getId(), result.toString());
+        log.info(MessageFormat.format("Loved a track for user {0}: {1}", user.getId(), result.toString()));
     }
     /**
      * Unlove a track.
      *
-     * @param track Track to nowPlayingTrack
+     * @param track Track to unlove
      */
     public void unloveTrack(User user, Track track) {
         Session session = restoreSession(user);
 
         final Artist artist = new ArtistDao().getActiveById(track.getArtistId());
         Result result = de.umass.lastfm.Track.unlove(artist.getName(), track.getTitle(), session);
-        log.info("Unloved a track for user {0}: {1}", user.getId(), result.toString());
+        log.info(MessageFormat.format("Unloved a track for user {0}: {1}", user.getId(), result.toString()));
     }
 }
