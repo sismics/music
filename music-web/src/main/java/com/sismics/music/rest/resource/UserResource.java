@@ -490,6 +490,7 @@ public class UserResource extends BaseResource {
             response.put("email", user.getEmail());
             response.put("theme", user.getTheme());
             response.put("locale", user.getLocaleId());
+            response.put("lastfm_connected", user.getLastFmSessionToken() != null);
             response.put("first_connection", user.isFirstConnection());
             JSONArray baseFunctions = new JSONArray(((UserPrincipal) principal).getBaseFunctionSet());
             response.put("base_functions", baseFunctions);
