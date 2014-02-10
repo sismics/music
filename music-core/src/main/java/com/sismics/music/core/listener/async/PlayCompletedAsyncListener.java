@@ -1,15 +1,16 @@
 package com.sismics.music.core.listener.async;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.eventbus.Subscribe;
 import com.sismics.music.core.dao.dbi.UserDao;
-import com.sismics.music.core.event.async.PlayStartedEvent;
+import com.sismics.music.core.event.async.PlayCompletedEvent;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.model.dbi.User;
 import com.sismics.music.core.service.lastfm.LastFmService;
 import com.sismics.music.core.util.TransactionUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Play completed listener.
@@ -25,17 +26,17 @@ public class PlayCompletedAsyncListener {
     /**
      * Process the event.
      *
-     * @param playStartedEvent Play completed event
+     * @param playCompletedEvent Play completed event
      * @throws Exception
      */
     @Subscribe
-    public void onDirectoryCreated(final PlayStartedEvent playStartedEvent) throws Exception {
+    public void onPlayCompleted(final PlayCompletedEvent playCompletedEvent) throws Exception {
         if (log.isInfoEnabled()) {
-            log.info("Play completed event: " + playStartedEvent.toString());
+            log.info("Play completed event: " + playCompletedEvent.toString());
         }
 
-        final String userId = playStartedEvent.getUserId();
-        final Track track = playStartedEvent.getTrack();
+        final String userId = playCompletedEvent.getUserId();
+        final Track track = playCompletedEvent.getTrack();
 
         TransactionUtil.handle(new Runnable() {
             @Override

@@ -29,7 +29,7 @@ public class PlayStartedAsyncListener {
      * @throws Exception
      */
     @Subscribe
-    public void onDirectoryCreated(final PlayStartedEvent playStartedEvent) throws Exception {
+    public void onPlayStarted(final PlayStartedEvent playStartedEvent) throws Exception {
         if (log.isInfoEnabled()) {
             log.info("Play started event: " + playStartedEvent.toString());
         }

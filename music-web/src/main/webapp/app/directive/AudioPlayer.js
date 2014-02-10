@@ -3,7 +3,7 @@
 /**
  * Audio player directive.
  */
-App.directive('audioPlayer', function($rootScope, Playlist) {
+App.directive('audioPlayer', function($rootScope, Playlist, Restangular) {
   return {
     restrict: 'E',
     controller: function($scope) {
@@ -18,22 +18,29 @@ App.directive('audioPlayer', function($rootScope, Playlist) {
       $scope.audio.addEventListener('pause', function() { $rootScope.$broadcast('audio.pause'); });
       $scope.audio.addEventListener('ended', function() { $rootScope.$broadcast('audio.ended'); $scope.next(); });
 
+      // Ping the server
+      var pingServer = function() {
+        Restangular.one('player').post('listening', {
+          id: $scope.track.id,
+          date: $scope.startPlaying,
+          duration: parseInt($scope.audio.currentTime)
+        });
+      };
+
       // Send a server ping when we start playing the track
       $scope.audio.addEventListener('play', function() {
         if (!$scope.firstPingSent) {
-          // TODO Ping server
           $scope.startPlaying = new Date().getTime();
           $scope.firstPingSent = true;
-          console.log('First server ping (' + $scope.audio.currentTime + '), music started at: ' + $scope.startPlaying);
+          pingServer();
         }
       });
 
       // Send a server ping halfway
       $scope.audio.addEventListener('timeupdate', _.throttle(function() {
         if ($scope.firstPingSent && !$scope.halfwayPingSent && $scope.audio.currentTime > $scope.audio.duration / 2) {
-          // TODO Ping server
           $scope.halfwayPingSent = true;
-          console.log('Halfway server ping (' + $scope.audio.currentTime + '), music started at: ' + $scope.startPlaying);
+          pingServer();
         }
       }, 500));
 
