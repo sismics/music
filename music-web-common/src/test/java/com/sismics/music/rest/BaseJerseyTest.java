@@ -2,6 +2,7 @@ package com.sismics.music.rest;
 
 import com.sismics.music.rest.descriptor.JerseyTestWebAppDescriptorFactory;
 import com.sismics.music.rest.util.ClientUtil;
+import com.sismics.util.dbi.DBIF;
 import com.sun.jersey.test.framework.JerseyTest;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.StaticHttpHandler;
@@ -58,10 +59,8 @@ public abstract class BaseJerseyTest extends JerseyTest {
         wiser.setPort(2500);
         wiser.start();
 
-//        if (EMF.get() != null) {
-//            EMF.get().close();
-//            EMF.createDbi();
-//        }
+        // Force shutdown
+        DBIF.reset();
 
         String httpRoot = URLDecoder.decode(new File(getClass().getResource("/").getFile()).getAbsolutePath(), "utf-8");
         httpServer = HttpServer.createSimpleServer(httpRoot, "localhost", 9997);

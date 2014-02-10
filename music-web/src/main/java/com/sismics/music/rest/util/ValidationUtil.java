@@ -1,7 +1,7 @@
 package com.sismics.music.rest.util;
 
-import com.sismics.music.core.dao.jpa.LocaleDao;
-import com.sismics.music.core.model.jpa.Locale;
+import com.sismics.music.core.dao.dbi.LocaleDao;
+import com.sismics.music.core.model.dbi.Locale;
 import com.sismics.music.rest.dao.ThemeDao;
 import com.sismics.rest.exception.ClientException;
 import org.apache.commons.lang.StringUtils;

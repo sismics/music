@@ -1,6 +1,6 @@
 package com.sismics.music.core.service.player;
 
-import com.sismics.music.core.model.jpa.Track;
+import com.sismics.music.core.model.dbi.Track;
 
 import java.util.Date;
 

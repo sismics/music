@@ -1,7 +1,7 @@
 package com.sismics.util.dbi;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import com.sismics.music.core.dao.jpa.mapper.*;
+import com.sismics.music.core.dao.dbi.mapper.*;
 import com.sismics.music.core.util.DirectoryUtil;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
@@ -24,6 +24,8 @@ import java.util.Properties;
 public class DBIF {
     private static final Logger log = LoggerFactory.getLogger(DBIF.class);
 
+    private static ComboPooledDataSource cpds;
+
     private static DBI dbi;
 
     static {
@@ -34,7 +36,7 @@ public class DBIF {
 
     public static void createDbi() {
         try {
-            ComboPooledDataSource cpds = new ComboPooledDataSource(); // TODO use getEntityManagerProperties()
+            cpds = new ComboPooledDataSource(); // TODO use getEntityManagerProperties()
             dbi = new DBI(cpds);
             dbi.registerMapper(new AlbumMapper());
             dbi.registerMapper(new ArtistMapper());
@@ -123,4 +125,13 @@ public class DBIF {
         return dbi;
     }
 
+    public static void reset() {
+        if (cpds != null) {
+            dbi.open().createStatement("SHUTDOWN").execute();
+            cpds.close();
+            cpds = null;
+            dbi = null;
+            createDbi();
+        }
+    }
 }

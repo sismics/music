@@ -1,10 +1,10 @@
 package com.sismics.music.rest.resource;
 
-import com.sismics.music.core.dao.jpa.TrackDao;
-import com.sismics.music.core.dao.jpa.criteria.TrackCriteria;
-import com.sismics.music.core.dao.jpa.dto.TrackDto;
-import com.sismics.music.core.util.jpa.PaginatedList;
-import com.sismics.music.core.util.jpa.PaginatedLists;
+import com.sismics.music.core.dao.dbi.TrackDao;
+import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
+import com.sismics.music.core.dao.dbi.dto.TrackDto;
+import com.sismics.music.core.util.dbi.PaginatedList;
+import com.sismics.music.core.util.dbi.PaginatedLists;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.util.ValidationUtil;
 import org.codehaus.jettison.json.JSONException;

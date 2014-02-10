@@ -3,7 +3,7 @@ package com.sismics.music.core.service.player;
 import com.sismics.music.core.event.async.PlayCompletedEvent;
 import com.sismics.music.core.event.async.PlayStartedEvent;
 import com.sismics.music.core.model.context.AppContext;
-import com.sismics.music.core.model.jpa.Track;
+import com.sismics.music.core.model.dbi.Track;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

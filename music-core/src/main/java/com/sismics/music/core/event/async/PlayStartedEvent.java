@@ -1,7 +1,7 @@
 package com.sismics.music.core.event.async;
 
 import com.google.common.base.Objects;
-import com.sismics.music.core.model.jpa.Track;
+import com.sismics.music.core.model.dbi.Track;
 
 /**
  * Play started event.

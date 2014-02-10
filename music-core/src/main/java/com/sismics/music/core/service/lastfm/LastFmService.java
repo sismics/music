@@ -1,10 +1,10 @@
 package com.sismics.music.core.service.lastfm;
 
 import com.sismics.music.core.constant.ConfigType;
-import com.sismics.music.core.dao.jpa.ArtistDao;
-import com.sismics.music.core.model.jpa.Artist;
-import com.sismics.music.core.model.jpa.Track;
-import com.sismics.music.core.model.jpa.User;
+import com.sismics.music.core.dao.dbi.ArtistDao;
+import com.sismics.music.core.model.dbi.Artist;
+import com.sismics.music.core.model.dbi.Track;
+import com.sismics.music.core.model.dbi.User;
 import com.sismics.music.core.util.ConfigUtil;
 import de.umass.lastfm.Authenticator;
 import de.umass.lastfm.Result;

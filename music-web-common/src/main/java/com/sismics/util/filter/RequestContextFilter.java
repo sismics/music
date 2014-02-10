@@ -11,10 +11,12 @@ import org.apache.log4j.Level;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.RollingFileAppender;
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
@@ -88,8 +90,12 @@ public class RequestContextFilter implements Filter {
 
         ThreadLocalContext context = ThreadLocalContext.get();
         context.setHandle(handle);
-        //handle.setTransactionIsolation(TransactionIsolationLevel.READ_COMMITTED);
         handle.begin();
+
+        // Disable transaction isolation for GET requests
+        if ("GET".equals(((HttpServletRequest) request).getMethod())) {
+            handle.setTransactionIsolation(TransactionIsolationLevel.READ_UNCOMMITTED);
+        }
 
         try {
             filterChain.doFilter(request, response);

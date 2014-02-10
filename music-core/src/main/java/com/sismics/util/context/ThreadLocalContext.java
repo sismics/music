@@ -2,8 +2,6 @@ package com.sismics.util.context;
 
 import org.skife.jdbi.v2.Handle;
 
-import javax.persistence.EntityManager;
-
 /**
  * Context associated to a user request, and stored in a ThreadLocal.
  * 
@@ -19,11 +17,6 @@ public class ThreadLocalContext {
      * JDBI handle.
      */
     private Handle handle;
-    
-    /**
-     * Entity manager.
-     */
-    private EntityManager entityManager;
     
     /**
      * Private constructor.
@@ -51,33 +44,6 @@ public class ThreadLocalContext {
      */
     public static void cleanup() {
         threadLocalContext.set(null);
-    }
-    
-    /**
-     * Returns true only if the entity manager is defined.
-     * 
-     * @return Condition
-     */
-    public boolean isInTransactionalContext() {
-        return entityManager != null;
-    }
-
-    /**
-     * Getter of entityManager.
-     *
-     * @return entityManager
-     */
-    public EntityManager getEntityManager() {
-        return entityManager;
-    }
-
-    /**
-     * Setter of entityManager.
-     *
-     * @param entityManager entityManager
-     */
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
     }
     
     /**

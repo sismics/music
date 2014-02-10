@@ -3,7 +3,7 @@ package com.sismics.music.core.listener.async;
 import com.google.common.eventbus.Subscribe;
 import com.sismics.music.core.event.async.DirectoryCreatedAsyncEvent;
 import com.sismics.music.core.model.context.AppContext;
-import com.sismics.music.core.model.jpa.Directory;
+import com.sismics.music.core.model.dbi.Directory;
 import com.sismics.music.core.service.collection.CollectionService;
 import com.sismics.music.core.util.TransactionUtil;
 import org.slf4j.Logger;

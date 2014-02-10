@@ -1,6 +1,6 @@
 package com.sismics.music.core.util;
 
-import com.sismics.music.core.model.jpa.User;
+import com.sismics.music.core.model.dbi.User;
 
 /**
  * Utilitaires sur les utilisateurs.

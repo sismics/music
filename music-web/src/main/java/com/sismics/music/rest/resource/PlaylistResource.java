@@ -1,25 +1,23 @@
 package com.sismics.music.rest.resource;
 
-import com.sismics.music.core.dao.jpa.PlaylistDao;
-import com.sismics.music.core.dao.jpa.PlaylistTrackDao;
-import com.sismics.music.core.dao.jpa.TrackDao;
-import com.sismics.music.core.dao.jpa.criteria.TrackCriteria;
-import com.sismics.music.core.dao.jpa.dto.TrackDto;
-import com.sismics.music.core.model.jpa.Playlist;
-import com.sismics.music.core.model.jpa.Track;
+import com.sismics.music.core.dao.dbi.PlaylistDao;
+import com.sismics.music.core.dao.dbi.PlaylistTrackDao;
+import com.sismics.music.core.dao.dbi.TrackDao;
+import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
+import com.sismics.music.core.dao.dbi.dto.TrackDto;
+import com.sismics.music.core.model.dbi.Playlist;
+import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.util.TransactionUtil;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
 import com.sismics.rest.util.ValidationUtil;
-
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;

@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 import com.google.common.io.CharStreams;
 import com.sismics.music.core.util.ConfigUtil;
 import com.sismics.util.ResourceUtil;
-import org.hibernate.HibernateException;
 import org.skife.jdbi.v2.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.sql.Connection;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -34,14 +32,13 @@ public abstract class DbOpenHelper {
 
     private boolean haltOnError;
     
-    public DbOpenHelper(Handle handle) throws HibernateException {
+    public DbOpenHelper(Handle handle) {
         this.handle = handle;
     }
 
     public void open() {
         log.info("Opening database and executing incremental updates");
 
-        Connection connection = null;
         exceptions.clear();
 
         try {
@@ -139,7 +136,7 @@ public abstract class DbOpenHelper {
     public abstract void onCreate() throws Exception;
     
     public abstract void onUpgrade(int oldVersion, int newVersion) throws Exception;
-    
+
     /**
      * Returns a List of all Exceptions which occured during the export.
      *
@@ -155,7 +152,7 @@ public abstract class DbOpenHelper {
 
     /**
      * Format the output SQL statements.
-     * 
+     *
      * @param format True to format
      */
     public void setFormat(boolean format) {

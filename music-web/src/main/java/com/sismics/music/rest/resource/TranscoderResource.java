@@ -1,7 +1,7 @@
 package com.sismics.music.rest.resource;
 
-import com.sismics.music.core.dao.jpa.TranscoderDao;
-import com.sismics.music.core.model.jpa.Transcoder;
+import com.sismics.music.core.dao.dbi.TranscoderDao;
+import com.sismics.music.core.model.dbi.Transcoder;
 import com.sismics.music.rest.constant.BaseFunction;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;

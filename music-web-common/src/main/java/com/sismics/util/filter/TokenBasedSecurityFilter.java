@@ -1,11 +1,11 @@
 package com.sismics.util.filter;
 
 import com.sismics.music.core.constant.Constants;
-import com.sismics.music.core.dao.jpa.AuthenticationTokenDao;
-import com.sismics.music.core.dao.jpa.RoleBaseFunctionDao;
-import com.sismics.music.core.dao.jpa.UserDao;
-import com.sismics.music.core.model.jpa.AuthenticationToken;
-import com.sismics.music.core.model.jpa.User;
+import com.sismics.music.core.dao.dbi.AuthenticationTokenDao;
+import com.sismics.music.core.dao.dbi.RoleBaseFunctionDao;
+import com.sismics.music.core.dao.dbi.UserDao;
+import com.sismics.music.core.model.dbi.AuthenticationToken;
+import com.sismics.music.core.model.dbi.User;
 import com.sismics.security.AnonymousPrincipal;
 import com.sismics.security.UserPrincipal;
 import com.sismics.util.LocaleUtil;

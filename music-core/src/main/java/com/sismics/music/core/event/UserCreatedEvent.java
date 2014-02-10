@@ -1,7 +1,7 @@
 package com.sismics.music.core.event;
 
 import com.google.common.base.Objects;
-import com.sismics.music.core.model.jpa.User;
+import com.sismics.music.core.model.dbi.User;
 
 /**
  * Event raised after the creation of a user.
