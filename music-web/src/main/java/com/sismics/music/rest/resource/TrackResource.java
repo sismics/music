@@ -1,35 +1,26 @@
 package com.sismics.music.rest.resource;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.WritableByteChannel;
-import java.util.Date;
+import com.sismics.music.core.dao.dbi.TrackDao;
+import com.sismics.music.core.dao.dbi.UserDao;
+import com.sismics.music.core.model.context.AppContext;
+import com.sismics.music.core.model.dbi.Track;
+import com.sismics.music.core.model.dbi.User;
+import com.sismics.music.core.service.lastfm.LastFmService;
+import com.sismics.music.rest.util.MediaStreamer;
+import com.sismics.rest.exception.ForbiddenClientException;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-
-import com.sismics.music.core.dao.dbi.TrackDao;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
-import com.sismics.music.core.util.TransactionUtil;
-import com.sismics.music.rest.util.MediaStreamer;
-import com.sismics.rest.exception.ForbiddenClientException;
+import java.io.*;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.WritableByteChannel;
+import java.util.Date;
 
 /**
  * Track REST resources.
