@@ -1,10 +1,10 @@
 package com.sismics.music.core.util;
 
-import java.util.ResourceBundle;
-
 import com.sismics.music.core.constant.ConfigType;
-import com.sismics.music.core.dao.jpa.ConfigDao;
-import com.sismics.music.core.model.jpa.Config;
+import com.sismics.music.core.dao.dbi.ConfigDao;
+import com.sismics.music.core.model.dbi.Config;
+
+import java.util.ResourceBundle;
 
 /**
  * Configuration parameter utilities.

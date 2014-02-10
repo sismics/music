@@ -1,18 +1,22 @@
 package com.sismics.music.rest;
 
+import java.util.Locale;
+
+import javax.ws.rs.core.MultivaluedMap;
+
+import junit.framework.Assert;
+
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import com.sismics.music.rest.filter.CookieAuthenticationFilter;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-import junit.framework.Assert;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-import org.junit.Test;
-
-import javax.ws.rs.core.MultivaluedMap;
-import java.util.Locale;
 
 /**
  * Exhaustive test of the user resource.
@@ -287,5 +291,29 @@ public class TestUserResource extends BaseJerseyTest {
         Assert.assertEquals(Status.BAD_REQUEST, Status.fromStatusCode(response.getStatus()));
         json = response.getEntity(JSONObject.class);
         Assert.assertEquals("UserNotFound", json.getString("type"));
+    }
+
+    /**
+     * Test the user authentication to Last.fm.
+     *
+     * @throws JSONException
+     */
+    @Test
+    @Ignore
+    public void testUserLastFmRegistration() throws JSONException {
+        // Create and login user
+        clientUtil.createUser("user_lastfm0");
+        String lastFm0AuthenticationToken = clientUtil.login("user_lastfm0");
+
+        // User admin updates his information
+        WebResource userResource = resource().path("/user/lastfm");
+        userResource.addFilter(new CookieAuthenticationFilter(lastFm0AuthenticationToken));
+        MultivaluedMapImpl postParams = new MultivaluedMapImpl();
+        postParams.add("username", "user"); // Change to your user/pw -- don't commit ;-)
+        postParams.add("password", "password");
+        ClientResponse response = userResource.put(ClientResponse.class, postParams);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        JSONObject json = response.getEntity(JSONObject.class);
+        Assert.assertEquals("ok", json.getString("status"));
     }
 }

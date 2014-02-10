@@ -1,19 +1,17 @@
 package com.sismics.music.rest.resource;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.sismics.music.core.dao.dbi.LocaleDao;
+import com.sismics.music.core.model.dbi.Locale;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
-import com.sismics.music.core.dao.jpa.LocaleDao;
-import com.sismics.music.core.model.jpa.Locale;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Locale REST resources.

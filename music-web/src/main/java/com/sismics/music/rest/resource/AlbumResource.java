@@ -1,16 +1,15 @@
 package com.sismics.music.rest.resource;
 
-import com.sismics.music.core.dao.jpa.AlbumDao;
-import com.sismics.music.core.dao.jpa.TrackDao;
-import com.sismics.music.core.dao.jpa.criteria.AlbumCriteria;
-import com.sismics.music.core.dao.jpa.criteria.TrackCriteria;
-import com.sismics.music.core.dao.jpa.dto.AlbumDto;
-import com.sismics.music.core.dao.jpa.dto.TrackDto;
+import com.sismics.music.core.dao.dbi.AlbumDao;
+import com.sismics.music.core.dao.dbi.TrackDao;
+import com.sismics.music.core.dao.dbi.criteria.AlbumCriteria;
+import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
+import com.sismics.music.core.dao.dbi.dto.AlbumDto;
+import com.sismics.music.core.dao.dbi.dto.TrackDto;
 import com.sismics.music.core.model.context.AppContext;
-import com.sismics.music.core.model.jpa.Album;
+import com.sismics.music.core.model.dbi.Album;
 import com.sismics.music.core.service.albumart.AlbumArtService;
 import com.sismics.music.core.service.albumart.AlbumArtSize;
-import com.sismics.music.core.util.TransactionUtil;
 import com.sismics.rest.exception.ForbiddenClientException;
 
 import org.codehaus.jettison.json.JSONException;
@@ -146,8 +145,6 @@ public class AlbumResource extends BaseResource {
             }
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-
-        TransactionUtil.commit();
 
         return Response.ok(file, "image/jpeg")
                 .header("Expires", new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z").format(new Date().getTime() + 3600000 * 24 * 7))

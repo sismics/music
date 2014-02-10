@@ -1,11 +1,10 @@
 package com.sismics.util;
 
-import java.util.Locale;
-
+import com.sismics.music.core.constant.Constants;
+import com.sismics.music.core.dao.dbi.LocaleDao;
 import org.apache.commons.lang.StringUtils;
 
-import com.sismics.music.core.constant.Constants;
-import com.sismics.music.core.dao.jpa.LocaleDao;
+import java.util.Locale;
 
 /**
  * Locale utilities.
@@ -47,7 +46,7 @@ public class LocaleUtil {
         }
         if (StringUtils.isNotBlank(localeId)) {
             LocaleDao localeDao = new LocaleDao();
-            com.sismics.music.core.model.jpa.Locale locale = localeDao.getById(localeId);
+            com.sismics.music.core.model.dbi.Locale locale = localeDao.getById(localeId);
             if (locale != null) {
                 localeId = locale.getId();
             } else {

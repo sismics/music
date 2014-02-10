@@ -2,12 +2,12 @@ package com.sismics.music.core.model.context;
 
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
-import com.sismics.music.core.listener.async.CollectionReindexAsyncListener;
-import com.sismics.music.core.listener.async.DirectoryCreatedAsyncListener;
-import com.sismics.music.core.listener.async.DirectoryDeletedAsyncListener;
+import com.sismics.music.core.listener.async.*;
 import com.sismics.music.core.listener.sync.DeadEventListener;
 import com.sismics.music.core.service.albumart.AlbumArtService;
 import com.sismics.music.core.service.collection.CollectionService;
+import com.sismics.music.core.service.lastfm.LastFmService;
+import com.sismics.music.core.service.player.PlayerService;
 import com.sismics.util.EnvironmentUtil;
 
 import java.util.ArrayList;
@@ -44,6 +44,11 @@ public class AppContext {
     private EventBus collectionEventBus;
 
     /**
+     * Scrobbler asynchronous event bus.
+     */
+    private EventBus scrobblerEventBus;
+
+    /**
      * Collection service.
      */
     private CollectionService collectionService;
@@ -52,6 +57,16 @@ public class AppContext {
      * Album art service.
      */
     private AlbumArtService albumArtService;
+
+    /**
+     * Player service.
+     */
+    private PlayerService playerService;
+
+    /**
+     * Last.fm service.
+     */
+    private LastFmService lastFmService;
 
     /**
      * Asynchronous executors.
@@ -68,6 +83,8 @@ public class AppContext {
         collectionService.startAndWait();
 
         albumArtService = new AlbumArtService();
+        playerService = new PlayerService();
+        lastFmService = new LastFmService();
     }
     
     /**
@@ -84,6 +101,10 @@ public class AppContext {
         collectionEventBus.register(new DirectoryCreatedAsyncListener());
         collectionEventBus.register(new DirectoryDeletedAsyncListener());
         collectionEventBus.register(new CollectionReindexAsyncListener());
+
+        scrobblerEventBus = newAsyncEventBus();
+        scrobblerEventBus.register(new PlayStartedAsyncListener());
+        scrobblerEventBus.register(new PlayCompletedAsyncListener());
     }
 
     /**
@@ -143,6 +164,24 @@ public class AppContext {
     }
 
     /**
+     * Getter of playerService.
+     *
+     * @return playerService
+     */
+    public PlayerService getPlayerService() {
+        return playerService;
+    }
+
+    /**
+     * Getter of lastFmService.
+     *
+     * @return lastFmService
+     */
+    public LastFmService getLastFmService() {
+        return lastFmService;
+    }
+
+    /**
      * Getter of asyncEventBus.
      *
      * @return asyncEventBus
@@ -158,5 +197,14 @@ public class AppContext {
      */
     public EventBus getCollectionEventBus() {
         return collectionEventBus;
+    }
+
+    /**
+     * Getter of scrobblerEventBus.
+     *
+     * @return scrobblerEventBus
+     */
+    public EventBus getScrobblerEventBus() {
+        return scrobblerEventBus;
     }
 }

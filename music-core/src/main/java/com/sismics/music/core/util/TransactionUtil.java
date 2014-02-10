@@ -1,12 +1,10 @@
 package com.sismics.music.core.util;
 
 import com.sismics.util.context.ThreadLocalContext;
-import com.sismics.util.jpa.EMF;
+import com.sismics.util.dbi.DBIF;
+import org.skife.jdbi.v2.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 
 /**
  * Database transaction utils.
@@ -25,23 +23,22 @@ public class TransactionUtil {
      * @param runnable Runnable
      */
     public static void handle(Runnable runnable) {
-        EntityManager em = ThreadLocalContext.get().getEntityManager();
+        Handle handle = ThreadLocalContext.get().getHandle();
         
-        if (em != null) {
+        if (handle != null && handle.isInTransaction()) {
             // We are already in a transactional context, nothing to do
             runnable.run();
             return;
         }
-        
+
         try {
-            em = EMF.get().createEntityManager();
+            handle = DBIF.get().open();
         } catch (Exception e) {
-            log.error("Cannot create entity manager", e);
+            log.error("Cannot create DBI", e);
         }
         ThreadLocalContext context = ThreadLocalContext.get();
-        context.setEntityManager(em);
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
+        context.setHandle(handle);
+        handle.begin();
         
         try {
             runnable.run();
@@ -51,15 +48,13 @@ public class TransactionUtil {
             log.error("An exception occured, rolling back current transaction", e);
 
             // If an unprocessed error comes up, rollback the transaction
-            if (em.isOpen()) {
-                if (em.getTransaction() != null && em.getTransaction().isActive()) {
-                    em.getTransaction().rollback();
-                }
-                
+            if (handle.isInTransaction()) {
+                handle.rollback();
+
                 try {
-                    em.close();
+                    handle.close();
                 } catch (Exception ce) {
-                    log.error("Error closing entity manager", ce);
+                    log.error("Error closing DBI handle", ce);
                 }
             }
             return;
@@ -68,25 +63,25 @@ public class TransactionUtil {
         ThreadLocalContext.cleanup();
 
         // No error in the current request : commit the transaction
-        if (em.isOpen()) {
-            if (em.getTransaction() != null && em.getTransaction().isActive()) {
-                em.getTransaction().commit();
+        if (handle.isInTransaction()) {
+            if (handle.isInTransaction()) {
+                handle.commit();
                 
                 try {
-                    em.close();
+                    handle.close();
                 } catch (Exception e) {
-                    log.error("Error closing entity manager", e);
+                    log.error("Error closing DBI handle", e);
                 }
             }
         }
     }
     
     /**
-     * Commits the current transaction, and flushes the changes to the database.
+     * Commits the current transaction, and begins a new one.
      */
     public static void commit() {
-        EntityTransaction tx = ThreadLocalContext.get().getEntityManager().getTransaction();
-        tx.commit();
-        tx.begin();
+        Handle handle = ThreadLocalContext.get().getHandle();
+        handle.commit();
+        handle.begin();
     }
 }

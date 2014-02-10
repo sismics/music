@@ -1,6 +1,6 @@
 package com.sismics.music.core.event;
 
-import com.sismics.music.core.model.jpa.User;
+import com.sismics.music.core.model.dbi.User;
 
 /**
  * Event raised after the user changes his password.

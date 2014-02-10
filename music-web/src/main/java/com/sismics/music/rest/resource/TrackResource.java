@@ -23,11 +23,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import com.sismics.music.core.dao.dbi.TrackDao;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
-import com.sismics.music.core.dao.jpa.TrackDao;
-import com.sismics.music.core.model.jpa.Track;
 import com.sismics.music.core.util.TransactionUtil;
 import com.sismics.music.rest.util.MediaStreamer;
 import com.sismics.rest.exception.ForbiddenClientException;
@@ -66,8 +65,6 @@ public class TrackResource extends BaseResource {
         if (!file.exists() || !file.canRead()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        
-        TransactionUtil.commit();
 
         // Range not requested, serve the whole file
         if (range == null) {
@@ -131,7 +128,13 @@ public class TrackResource extends BaseResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        // TODO like track
+        // TODO update liked tracks locally
+        // Love the track on Last.fm
+        final User user = new UserDao().getActiveById(principal.getId());
+        if (user != null && user.getLastFmSessionToken() != null) {
+            final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
+            lastFmService.loveTrack(user, track);
+        }
 
         // Always return OK
         JSONObject response = new JSONObject();
@@ -160,7 +163,13 @@ public class TrackResource extends BaseResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        // TODO unlike track
+        // TODO unlike track locally
+        // Unove the track on Last.fm
+        final User user = new UserDao().getActiveById(principal.getId());
+        if (user != null && user.getLastFmSessionToken() != null) {
+            final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
+            lastFmService.unloveTrack(user, track);
+        }
 
         // Always return OK
         JSONObject response = new JSONObject();
