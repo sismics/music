@@ -3,7 +3,7 @@
 /**
  * Album controller.
  */
-App.controller('Album', function($scope, $stateParams, Restangular, Playlist, $modal) {
+App.controller('Album', function($scope, $state, $stateParams, Restangular, Playlist, $modal) {
   $scope.album = {
     tracks: []
   };
@@ -43,6 +43,13 @@ App.controller('Album', function($scope, $stateParams, Restangular, Playlist, $m
     $modal.open({
       template: '<img src="api/album/' + $scope.album.id + '/albumart/large" />',
       windowClass: 'album-art-modal'
+    });
+  };
+
+  // Edit album's tracks tags
+  $scope.editTags = function() {
+    $state.transitionTo('tag', {
+      id: $stateParams.id
     });
   };
 

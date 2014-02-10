@@ -3,7 +3,20 @@
 /**
  * Navigation controller.
  */
-App.controller('Navigation', function($rootScope, $scope, User, $state) {
+App.controller('Navigation', function($rootScope, $scope, User, $state, Playlist) {
+  // Load user data on application startup
+  User.userInfo().then(function(data) {
+    if (data.anonymous) {
+      $state.transitionTo('login');
+    } else {
+      // Update playlist on application startup
+      Playlist.update().then(function() {
+        // Open the first track without playing it
+        Playlist.open(0);
+      });
+    }
+  });
+
   // Returns true if the user is admin
   $scope.$watch('userInfo', function(userInfo) {
     $scope.isAdmin = userInfo && userInfo.base_functions && userInfo.base_functions.indexOf('ADMIN') != -1;

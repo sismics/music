@@ -24,13 +24,21 @@ var App = angular.module('music',
               }
             }
           })
+          .state('tag', {
+            url: '/album/:id/tag',
+            views: {
+              'page': {
+                templateUrl: 'partial/tag.html',
+                controller: 'Tag'
+              }
+            }
+          })
           .state('main', {
             url: '',
             abstract: true,
             views: {
               'page': {
-                templateUrl: 'partial/main.html',
-                controller: 'Main'
+                templateUrl: 'partial/main.html'
               }
             }
           })

@@ -1,5 +1,6 @@
 <h3>Last.fm scrobbling</h3>
-<p>Last.fm username and password won't be stored.</p>
+<p class="text-info" ng-if="userInfo.lastfm_connected">Your account is already linked to Last.fm.</p>
+<p class="text-danger">Last.fm username and password won't be stored.</p>
 <form class="form-horizontal" name="lastFmForm" novalidate>
   <div class="form-group" ng-class="{ success: lastFmForm.username.$valid }">
     <label class="col-sm-2 control-label" for="inputLastfmUsername">Last.fm username</label>
@@ -20,7 +21,7 @@
   <div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
       <button type="submit" class="btn btn-primary" ng-click="connectLastFm()" ng-disabled="!lastFmForm.$valid">
-        <span class="glyphicon glyphicon-pencil"></span> Connect
+        <span class="glyphicon glyphicon glyphicon-flash"></span> Connect
       </button>
     </div>
   </div>

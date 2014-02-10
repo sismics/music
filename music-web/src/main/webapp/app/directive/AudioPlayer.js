@@ -18,6 +18,17 @@ App.directive('audioPlayer', function($rootScope, Playlist, Restangular) {
       $scope.audio.addEventListener('pause', function() { $rootScope.$broadcast('audio.pause'); });
       $scope.audio.addEventListener('ended', function() { $rootScope.$broadcast('audio.ended'); $scope.next(); });
 
+      // Restart music on error
+      $scope.audio.addEventListener('error', function() {
+        var currentTime = $scope.audio.currentTime;
+        $scope.audio.play();
+        var f = function() {
+          $scope.audio.currentTime = currentTime;
+          $scope.audio.removeEventListener('loadeddata', f);
+        };
+        $scope.audio.addEventListener('loadeddata', f);
+      });
+
       // Ping the server
       var pingServer = function() {
         Restangular.one('player').post('listening', {
