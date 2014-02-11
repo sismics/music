@@ -171,4 +171,33 @@ public class TrackResource extends BaseResource {
         response.put("status", "ok");
         return Response.ok().entity(response).build();
     }
+    
+    @POST
+    @Path("{id: [a-z0-9\\-]+}")
+    public Response update(
+            @PathParam("id") String id,
+            @FormParam("order") String orderStr,
+            @FormParam("title") String title,
+            @FormParam("album") String album,
+            @FormParam("artist") String artist,
+            @FormParam("album_artist") String albumArtist,
+            @FormParam("year") String yearStr,
+            @FormParam("genre") String genre) throws JSONException {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+
+        TrackDao trackDao = new TrackDao();
+        Track track = trackDao.getActiveById(id);
+        if (track == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        
+        // TODO Update track in database/tags.
+        
+        // Always return OK
+        JSONObject response = new JSONObject();
+        response.put("status", "ok");
+        return Response.ok().entity(response).build();
+    }
 }

@@ -1,10 +1,96 @@
-<div class="row">
 <div class="panel panel-default">
   <div class="panel-body">
     <div class="page-header">
       <h1>Tagging "<span class="text-muted">{{ album.artist.name }}</span> {{ album.name }}"</h1>
-      <button class="btn btn-default" ng-click="back()">Back to album</button>
+
+      <div class="btn-group">
+        <button class="btn btn-default" ng-click="back()">Back to album</button>
+        <button class="btn btn-primary" ng-click="save()"
+                ng-disabled="saving" ng-bind="saving ? 'Saving...' : 'Save changes'"></button>
+      </div>
     </div>
 
-    <!-- cf. EasyTag : https://wiki.gnome.org/Apps/EasyTAG/Screenshots -->
+    <div class="row">
+      <div class="col-md-5">
+        <div class="list-group">
+          <a ng-click="editTrack(trk)" class="list-group-item btn-pointer" ng-class="{ active: trk == track }" ng-repeat="trk in tracks">
+            {{ trk.filename | filename }}
+            <span class="glyphicon glyphicon-asterisk" ng-show="!trackEquals(trk, album.tracks[$index])"></span>
+          </a>
+        </div>
+      </div>
+
+      <div class="col-md-7" ng-if="track">
+        <form name="trackForm" role="form" class="form-horizontal">
+          <div class="form-group">
+            <label for="inputOrder" class="col-sm-2 control-label">Order</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="inputOrder" ng-model="track.order">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputTitle" class="col-sm-2 control-label">Title</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="inputTitle" ng-model="track.title">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputAlbum" class="col-sm-2 control-label">Album</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <input type="text" class="form-control" id="inputAlbum" ng-model="track.album_name">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button" ng-click="copyMetadata('album_name', track)">
+                    <span class="glyphicon glyphicon-share-alt"></span>
+                  </button>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputArtist" class="col-sm-2 control-label">Artist</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <input type="text" class="form-control" id="inputArtist" ng-model="track.artist.name">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button" ng-click="copyMetadata('artist.name', track)">
+                    <span class="glyphicon glyphicon-share-alt"></span>
+                  </button>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputAlbumArtist" class="col-sm-2 control-label">Album artist</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <input type="text" class="form-control" id="inputAlbumArtist" ng-model="track.album_artist_name">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button" ng-click="copyMetadata('album_artist_name', track)">
+                    <span class="glyphicon glyphicon-share-alt"></span>
+                  </button>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputYear" class="col-sm-2 control-label">Year</label>
+            <div class="col-sm-10">
+              <div class="input-group">
+                <input type="number" class="form-control" id="inputYear" ng-model="track.year">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button" ng-click="copyMetadata('year', track)">
+                    <span class="glyphicon glyphicon-share-alt"></span>
+                  </button>
+                </span>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <p ng-if="">Click on a track to edit it</p>
+    </div>
+
+  </div>
 </div>

@@ -4,5 +4,5 @@
  * Main default controller.
  */
 App.controller('MainDefault', function($state) {
-  $state.transitionTo('main.playing');
+  $state.transitionTo('main.music');
 });
