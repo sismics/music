@@ -52,7 +52,7 @@ public class TranscoderResource extends BaseResource {
         source = ValidationUtil.validateLength(source, "source", 1, 1000);
         destination = ValidationUtil.validateLength(destination, "destination", 1, 100);
         step1 = ValidationUtil.validateLength(step1, "step1", 1, 1000);
-        step2 = ValidationUtil.validateLength(step2, "step2", 1, 1000);
+        step2 = ValidationUtil.validateLength(step2, "step2", 1, 1000, true);
 
         // Create the transcoder
         Transcoder transcoder = new Transcoder();
@@ -104,7 +104,7 @@ public class TranscoderResource extends BaseResource {
         source = ValidationUtil.validateLength(source, "source", 1, 1000);
         destination = ValidationUtil.validateLength(destination, "destination", 1, 100);
         step1 = ValidationUtil.validateLength(step1, "step1", 1, 1000);
-        step2 = ValidationUtil.validateLength(step2, "step2", 1, 1000);
+        step2 = ValidationUtil.validateLength(step2, "step2", 1, 1000, true);
 
         // Update the transcoder
         TranscoderDao transcoderDao = new TranscoderDao();
