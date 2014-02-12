@@ -60,7 +60,7 @@ public class TestTrackResource extends BaseJerseyTest {
         Assert.assertEquals(2, tracks.length());
         JSONObject track0 = tracks.getJSONObject(0);
         String track0Id = track0.getString("id");
-        Assert.assertFalse(track0.getBoolean("like"));
+        Assert.assertFalse(track0.getBoolean("liked"));
 
         // Get an track by its ID.
         WebResource trackResource = resource().path("/track/" + track0Id);
@@ -87,7 +87,7 @@ public class TestTrackResource extends BaseJerseyTest {
         Assert.assertNotNull(tracks);
         Assert.assertEquals(2, tracks.length());
         track0 = tracks.getJSONObject(0);
-        Assert.assertTrue(track0.getBoolean("like"));
+        Assert.assertTrue(track0.getBoolean("liked"));
 
         // Admin unlikes the track
         trackResource = resource().path("/track/" + track0Id + "/like");
@@ -107,7 +107,7 @@ public class TestTrackResource extends BaseJerseyTest {
         Assert.assertNotNull(tracks);
         Assert.assertEquals(2, tracks.length());
         track0 = tracks.getJSONObject(0);
-        Assert.assertFalse(track0.getBoolean("like"));
+        Assert.assertFalse(track0.getBoolean("liked"));
 
     }
 }

@@ -92,7 +92,7 @@ public class AlbumResource extends BaseResource {
             track.put("format", trackDto.getFormat());
             track.put("filename", trackDto.getFileName());
             track.put("play_count", trackDto.getUserTrackPlayCount());
-            track.put("like", trackDto.isUserTrackLike());
+            track.put("liked", trackDto.isUserTrackLike());
 
             JSONObject artist = new JSONObject();
             artist.put("id", trackDto.getArtistId());
