@@ -15,7 +15,7 @@ public class EnvironmentUtil {
 
     private static String MAC_OS_USER_HOME = System.getProperty("user.home");
     
-    private static String READER_HOME = System.getProperty("music.home");
+    private static String MUSIC_HOME = System.getProperty("music.home");
 
     /**
      * In a web application context.
@@ -78,12 +78,12 @@ public class EnvironmentUtil {
     }
 
     /**
-     * Returns the home directory of Reader (e.g. /var/music).
+     * Returns the home directory of Music (e.g. /var/music).
      * 
      * @return Home directory
      */
-    public static String getReaderHome() {
-        return READER_HOME;
+    public static String getMusicHome() {
+        return MUSIC_HOME;
     }
 
     /**

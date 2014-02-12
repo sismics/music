@@ -19,9 +19,9 @@ public class DirectoryUtil {
      */
     public static File getBaseDataDirectory() {
         File baseDataDir = null;
-        if (StringUtils.isNotBlank(EnvironmentUtil.getReaderHome())) {
+        if (StringUtils.isNotBlank(EnvironmentUtil.getMusicHome())) {
             // If the music.home property is set then use it
-            baseDataDir = new File(EnvironmentUtil.getReaderHome());
+            baseDataDir = new File(EnvironmentUtil.getMusicHome());
         } else if (false) {
             // TODO inject a variable from context.xml or similar (#41)
         } else if (EnvironmentUtil.isUnitTest()) {
