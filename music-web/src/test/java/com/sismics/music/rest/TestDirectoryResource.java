@@ -1,5 +1,7 @@
 package com.sismics.music.rest;
 
+import java.nio.file.Paths;
+
 import junit.framework.Assert;
 
 import org.codehaus.jettison.json.JSONArray;
@@ -151,7 +153,7 @@ public class TestDirectoryResource extends BaseJerseyTest {
         WebResource directoryResource = resource().path("/directory");
         directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         MultivaluedMapImpl postParams = new MultivaluedMapImpl();
-        postParams.putSingle("location", getClass().getResource("/music/").toURI().getPath());
+        postParams.putSingle("location", Paths.get(getClass().getResource("/music/").toURI()).toString());
         ClientResponse response = directoryResource.put(ClientResponse.class, postParams);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
         JSONObject json = response.getEntity(JSONObject.class);

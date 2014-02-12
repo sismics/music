@@ -62,6 +62,15 @@ public class DirectoryUtil {
     public static File getLogDirectory() {
         return getDataSubDirectory("log");
     }
+    
+    /**
+     * Return the album art directory.
+     * 
+     * @return Album art directory.
+     */
+    public static File getAlbumArtDirectory() {
+        return getDataSubDirectory("albumart");
+    }
 
     /**
      * Returns a subdirectory of the base data directory

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.AbstractService;
+import com.sismics.music.core.util.DirectoryUtil;
 import com.sismics.music.core.util.ImageUtil;
 
 /**
@@ -51,7 +52,7 @@ public class AlbumArtService  {
         }
         BufferedImage originalImage = ImageUtil.readImageWithoutAlphaChannel(originalFile);
         String albumArtFileName = getAlbumArtFileName(id, albumArtSize);
-        File albumArtFile = new File(getAlbumArtDir() + File.separator + albumArtFileName);
+        File albumArtFile = new File(DirectoryUtil.getAlbumArtDirectory() + File.separator + albumArtFileName);
 
         BufferedImage resizedImage = ImageUtil.resizeImage(originalImage, albumArtSize.getSize());
         ImageUtil.writeJpeg(resizedImage, albumArtFile);
@@ -92,36 +93,7 @@ public class AlbumArtService  {
      */
     public File getAlbumArtFile(String id, AlbumArtSize albumArtSize) {
         String albumArtFileName = getAlbumArtFileName(id, albumArtSize);
-        return new File(getAlbumArtDir() + File.separator + albumArtFileName);
-    }
-    /**
-     * Return the storage directory of album art files.
-     * 
-     * @return Album art directory
-     */
-    public File getAlbumArtDir() {
-        // TODO configure album art dir
-//        ConfigDao configDao = new ConfigDao();
-//        Config albumArtDirConfig = configDao.getById(ConfigType.PROFILE_PICTURE_DIR);
-        File albumArtDir = null;
-//        if (albumArtDirConfig != null) {
-//            // If the directory is specified in a configuration parameter, use this directory
-//            albumArtDir = new File(albumArtDirConfig.getValue());
-//        } else {
-            String webappRoot = System.getProperty("webapp.root");
-            if (webappRoot != null) {
-                // Or else if we are in a Jetty context, use the root directory of Jetty
-                albumArtDir = new File(webappRoot + File.separator + "albumart");
-                if (!albumArtDir.isDirectory()) {
-                    albumArtDir.mkdir();
-                }
-            } else {
-                // Or else (for unit tests), use the temporary directory
-                albumArtDir = new File(System.getProperty("java.io.tmpdir"));
-            }
-//        }
-        
-        return albumArtDir;
+        return new File(DirectoryUtil.getAlbumArtDirectory() + File.separator + albumArtFileName);
     }
 
     /**
