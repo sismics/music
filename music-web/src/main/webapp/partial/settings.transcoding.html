@@ -1,0 +1,65 @@
+<h3>Transcoders</h3>
+<table class="table table-striped" ng-show="transcoders.length > 0">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Source</th>
+    <th>Destination</th>
+    <th>Step 1</th>
+    <th>Step 2</th>
+    <th></th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr ng-repeat="transcoder in transcoders">
+    <td>{{ transcoder.name }}</td>
+    <td>{{ transcoder.source }}</td>
+    <td>{{ transcoder.destination }}</td>
+    <td>{{ transcoder.step1 }}</td>
+    <td>{{ transcoder.step2 }}</td>
+    <td><span class="glyphicon glyphicon-remove btn-pointer" ng-click="deleteTranscoder(transcoder)"></span></td>
+  </tr>
+  </tbody>
+</table>
+<p class="text-center" ng-show="transcoders.length == 0">
+  No transcoder
+</p>
+
+<h3>Add a transcoder</h3>
+<form novalidate name="editForm" role="form" class="form-horizontal">
+  <div class="form-group" ng-class="{ 'has-error': !editForm.name.$valid }">
+    <label for="inputName" class="col-sm-2 control-label">Name</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="inputName" name="name" required ng-model="transcoder.name">
+    </div>
+  </div>
+  <div class="form-group" ng-class="{ 'has-error': !editForm.source.$valid }">
+    <label for="inputSource" class="col-sm-2 control-label">Source</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="inputSource" name="source" required ng-model="transcoder.source">
+    </div>
+  </div>
+  <div class="form-group" ng-class="{ 'has-error': !editForm.destination.$valid }">
+    <label for="inputDestination" class="col-sm-2 control-label">Destination</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="inputDestination" name="destination" required ng-model="transcoder.destination">
+    </div>
+  </div>
+  <div class="form-group" ng-class="{ 'has-error': !editForm.step1.$valid }">
+    <label for="inputStep1" class="col-sm-2 control-label">Step 1</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="inputStep1" name="step1" required ng-model="transcoder.step1">
+    </div>
+  </div>
+  <div class="form-group" ng-class="{ 'has-error': !editForm.step2.$valid }">
+    <label for="inputStep2" class="col-sm-2 control-label">Step 2</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="inputStep2" name="step2" required ng-model="transcoder.step2">
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <button type="submit" class="btn btn-primary" ng-click="addTranscoder()" ng-disabled="!editForm.$valid">Add</button>
+    </div>
+  </div>
+</form>

@@ -49,10 +49,10 @@ public class TranscoderResource extends BaseResource {
 
         // Validate the input data
         name = ValidationUtil.validateLength(name, "name", 1, 100);
-        source = ValidationUtil.validateLength(name, "source", 1, 1000);
-        destination = ValidationUtil.validateLength(name, "destination", 1, 100);
-        step1 = ValidationUtil.validateLength(name, "step1", 1, 1000);
-        step2 = ValidationUtil.validateLength(name, "step2", 1, 1000);
+        source = ValidationUtil.validateLength(source, "source", 1, 1000);
+        destination = ValidationUtil.validateLength(destination, "destination", 1, 100);
+        step1 = ValidationUtil.validateLength(step1, "step1", 1, 1000);
+        step2 = ValidationUtil.validateLength(step2, "step2", 1, 1000);
 
         // Create the transcoder
         Transcoder transcoder = new Transcoder();
@@ -101,10 +101,10 @@ public class TranscoderResource extends BaseResource {
 
         // Validate the input data
         name = ValidationUtil.validateLength(name, "name", 1, 100);
-        source = ValidationUtil.validateLength(name, "source", 1, 1000);
-        destination = ValidationUtil.validateLength(name, "destination", 1, 100);
-        step1 = ValidationUtil.validateLength(name, "step1", 1, 1000);
-        step2 = ValidationUtil.validateLength(name, "step2", 1, 1000);
+        source = ValidationUtil.validateLength(source, "source", 1, 1000);
+        destination = ValidationUtil.validateLength(destination, "destination", 1, 100);
+        step1 = ValidationUtil.validateLength(step1, "step1", 1, 1000);
+        step2 = ValidationUtil.validateLength(step2, "step2", 1, 1000);
 
         // Update the transcoder
         TranscoderDao transcoderDao = new TranscoderDao();

@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Settings controller.
+ * Directories settings controller.
  */
 App.controller('SettingsDirectories', function($scope, Restangular, $dialog) {
   // Initialize add directory form
