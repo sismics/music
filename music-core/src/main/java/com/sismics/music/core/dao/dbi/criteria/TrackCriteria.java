@@ -17,6 +17,11 @@ public class TrackCriteria {
     private String userId;
 
     /**
+     * Playlist ID.
+     */
+    private String playlistId;
+
+    /**
      * Title (like).
      */
     private String titleLike;
@@ -58,6 +63,27 @@ public class TrackCriteria {
      */
     public TrackCriteria setUserId(String userId) {
         this.userId = userId;
+        return this;
+    }
+
+    /**
+    /**
+     * Getter of playlistId.
+     *
+     * @return playlistId
+     */
+    public String getPlaylistId() {
+        return this.playlistId;
+    }
+
+    /**
+     * Setter of id.
+     *
+     * @param playlistId playlistId
+     * @return Criteria
+     */
+    public TrackCriteria setPlaylistId(String playlistId) {
+        this.playlistId = playlistId;
         return this;
     }
 

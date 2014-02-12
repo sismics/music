@@ -66,7 +66,7 @@ public class TrackDao {
 
         return track;
     }
-    
+
     /**
      * Gets an active track by its file name.
      * 
@@ -137,14 +137,22 @@ public class TrackDao {
     private QueryParam getQueryParam(TrackCriteria criteria) {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-        StringBuilder sb = new StringBuilder("select t.TRK_ID_C, t.TRK_FILENAME_C, t.TRK_TITLE_C, t.TRK_YEAR_N, t.TRK_LENGTH_N, t.TRK_BITRATE_N, t.TRK_VBR_B, t.TRK_FORMAT_C, ");
+        StringBuilder sb = new StringBuilder("select t.TRK_ID_C, t.TRK_FILENAME_C, t.TRK_TITLE_C, t.TRK_YEAR_N, t.TRK_LENGTH_N, t.TRK_BITRATE_N, t.TRK_VBR_B, t.TRK_FORMAT_C,");
+        if (criteria.getUserId() != null) {
+            sb.append(" ut.UST_PLAYCOUNT_N, ut.UST_LIKE_B, ");
+        } else {
+            sb.append(" 0, false, ");
+        }
         sb.append(" a.ART_ID_C, a.ART_NAME_C, t.TRK_IDALBUM_C, alb.ALB_NAME_C ");
         sb.append(" from T_TRACK t ");
         sb.append(" join T_ARTIST a ON(a.ART_ID_C = t.TRK_IDARTIST_C) ");
         sb.append(" join T_ALBUM alb ON(t.TRK_IDALBUM_C = alb.ALB_ID_C) ");
         if (criteria.getUserId() != null) {
+            sb.append(" left join T_USER_TRACK ut ON(ut.UST_IDTRACK_C = t.TRK_ID_C and ut.UST_IDUSER_C = :userId and ut.UST_DELETEDATE_D is null) ");
+        }
+        if (criteria.getPlaylistId() != null) {
             sb.append(" join T_PLAYLIST_TRACK pt ON(pt.PLT_IDTRACK_C = t.TRK_ID_C) ");
-            sb.append(" join T_PLAYLIST p ON(p.PLL_ID_C = pt.PLT_IDPLAYLIST_C) ");
+            sb.append(" join T_PLAYLIST p ON(p.PLL_ID_C = pt.PLT_IDPLAYLIST_C and p.PLL_IDUSER_C = :userId) ");
         }
 
         // Adds search criteria
@@ -158,7 +166,6 @@ public class TrackDao {
             parameterMap.put("titleLike", "%" + criteria.getTitleLike() + "%");
         }
         if (criteria.getUserId() != null) {
-            criteriaList.add("p.PLL_IDUSER_C = :userId");
             parameterMap.put("userId", criteria.getUserId());
         }
         criteriaList.add("t.TRK_DELETEDATE_D is null");
@@ -168,7 +175,7 @@ public class TrackDao {
             sb.append(Joiner.on(" and ").join(criteriaList));
         }
 
-        if (criteria.getUserId() != null) {
+        if (criteria.getPlaylistId() != null) {
             sb.append(" order by pt.PLT_ORDER_N asc");
         } else {
             sb.append(" order by t.TRK_TITLE_C asc"); //TODO add order column
@@ -197,6 +204,15 @@ public class TrackDao {
             trackDto.setBitrate((Integer) o[i++]);
             trackDto.setVbr((Boolean) o[i++]);
             trackDto.setFormat((String) o[i++]);
+            Integer trackCount = (Integer) o[i++];
+            if (trackCount == null) {
+                trackCount = 0;
+            }
+            trackDto.setUserTrackPlayCount(trackCount);
+            Boolean favorite = (Boolean) o[i++];
+            if (favorite != null) {
+                trackDto.setUserTrackLike(favorite);
+            }
             trackDto.setArtistId((String) o[i++]);
             trackDto.setArtistName((String) o[i++]);
             trackDto.setAlbumId((String) o[i++]);

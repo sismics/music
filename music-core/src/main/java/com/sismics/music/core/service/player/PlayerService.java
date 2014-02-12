@@ -59,8 +59,6 @@ public class PlayerService {
             // Dispatch a new play completed event
             PlayCompletedEvent event = new PlayCompletedEvent(userId, track);
             AppContext.getInstance().getScrobblerEventBus().post(event);
-
-            // TODO commit nb. of track played to local DB
         }
     }
 }

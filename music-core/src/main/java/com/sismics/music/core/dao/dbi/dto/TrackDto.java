@@ -43,7 +43,17 @@ public class TrackDto {
     private boolean vbr;
 
     /**
-     * Track format.
+     * Number of times this track was played.
+     */
+    private Integer userTrackPlayCount;
+
+    /**
+     * True if this track is a like.
+     */
+    private boolean userTrackLike;
+
+    /**
+     *  format.
      */
     private String format;
 
@@ -209,6 +219,42 @@ public class TrackDto {
      */
     public void setFormat(String format) {
         this.format = format;
+    }
+
+    /**
+     * Getter of userTrackPlayCount.
+     *
+     * @return userTrackPlayCount
+     */
+    public Integer getUserTrackPlayCount() {
+        return userTrackPlayCount;
+    }
+
+    /**
+     * Setter of userTrackPlayCount.
+     *
+     * @param userTrackPlayCount userTrackPlayCount
+     */
+    public void setUserTrackPlayCount(Integer userTrackPlayCount) {
+        this.userTrackPlayCount = userTrackPlayCount;
+    }
+
+    /**
+     * Getter of userTrackLike.
+     *
+     * @return userTrackLike
+     */
+    public boolean isUserTrackLike() {
+        return userTrackLike;
+    }
+
+    /**
+     * Setter of userTrackLike.
+     *
+     * @param userTrackLike userTrackLike
+     */
+    public void setUserTrackLike(boolean userTrackLike) {
+        this.userTrackLike = userTrackLike;
     }
 
     /**

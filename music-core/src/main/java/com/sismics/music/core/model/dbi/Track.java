@@ -61,16 +61,6 @@ public class Track {
     private String format;
 
     /**
-     * Number of times this track was played.
-     */
-    private Integer playCount;
-
-    /**
-     * True if this track is a favorite.
-     */
-    private boolean favorite;
-
-    /**
      * Creation date.
      */
     private Date createDate;
@@ -83,7 +73,7 @@ public class Track {
     public Track() {
     }
 
-    public Track(String id, String albumId, String artistId, String fileName, String title, Integer year, Integer length, Integer bitrate, boolean vbr, String format, Integer playCount, Boolean favorite, Date createDate, Date deleteDate) {
+    public Track(String id, String albumId, String artistId, String fileName, String title, Integer year, Integer length, Integer bitrate, boolean vbr, String format, Date createDate, Date deleteDate) {
         this.id = id;
         this.albumId = albumId;
         this.artistId = artistId;
@@ -94,8 +84,6 @@ public class Track {
         this.bitrate = bitrate;
         this.vbr = vbr;
         this.format = format;
-        this.playCount = playCount;
-        this.favorite = favorite;
         this.createDate = createDate;
         this.deleteDate = deleteDate;
     }
@@ -278,42 +266,6 @@ public class Track {
      */
     public void setFormat(String format) {
         this.format = format;
-    }
-
-    /**
-     * Getter of playCount.
-     *
-     * @return playCount
-     */
-    public Integer getPlayCount() {
-        return playCount;
-    }
-
-    /**
-     * Setter of playCount.
-     *
-     * @param playCount playCount
-     */
-    public void setPlayCount(Integer playCount) {
-        this.playCount = playCount;
-    }
-
-    /**
-     * Getter of favorite.
-     *
-     * @return favorite
-     */
-    public boolean isFavorite() {
-        return favorite;
-    }
-
-    /**
-     * Setter of favorite.
-     *
-     * @param favorite favorite
-     */
-    public void setFavorite(boolean favorite) {
-        this.favorite = favorite;
     }
 
     /**

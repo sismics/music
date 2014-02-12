@@ -25,8 +25,6 @@ public class TrackMapper extends BaseResultSetMapper<Track> {
                 "TRK_BITRATE_N",
                 "TRK_VBR_B",
                 "TRK_FORMAT_C",
-                "TRK_PLAYCOUNT_N",
-                "TRK_FAVORITE_B",
                 "TRK_CREATEDATE_D",
                 "TRK_DELETEDATE_D"};
     }
@@ -46,8 +44,6 @@ public class TrackMapper extends BaseResultSetMapper<Track> {
                 r.getInt(columns[column++]),
                 r.getBoolean(columns[column++]),
                 r.getString(columns[column++]),
-                r.getInt(columns[column++]),
-                r.getBoolean(columns[column++]),
                 r.getDate(columns[column++]),
                 r.getDate(columns[column++]));
     }

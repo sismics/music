@@ -9,9 +9,10 @@ create cached table T_PLAYLIST ( PLL_ID_C varchar(36) not null, PLL_IDUSER_C var
 create cached table T_PLAYLIST_TRACK ( PLT_ID_C varchar(36) not null, PLT_IDPLAYLIST_C varchar(36) not null, PLT_IDTRACK_C varchar(36) not null, PLT_ORDER_N int not null, primary key (PLT_ID_C) );
 create memory table T_ROLE ( ROL_ID_C varchar(36) not null, ROL_NAME_C varchar(50) not null, ROL_CREATEDATE_D datetime not null, ROL_DELETEDATE_D datetime, primary key (ROL_ID_C) );
 create memory table T_ROLE_BASE_FUNCTION ( RBF_ID_C varchar(36) not null, RBF_IDROLE_C varchar(36), RBF_IDBASEFUNCTION_C varchar(20) not null, RBF_CREATEDATE_D datetime not null, RBF_DELETEDATE_D datetime, primary key (RBF_ID_C) );
-create cached table T_TRACK ( TRK_ID_C varchar(36) not null, TRK_IDALBUM_C varchar(36) not null, TRK_IDARTIST_C varchar(36) not null, TRK_FILENAME_C varchar(2000) not null, TRK_TITLE_C varchar(2000) not null, TRK_YEAR_N integer, TRK_LENGTH_N integer not null, TRK_BITRATE_N integer not null, TRK_VBR_B bit not null, TRK_FORMAT_C varchar(10) not null, TRK_PLAYCOUNT_N integer default 0 not null, TRK_FAVORITE_B bit default 0 not null, TRK_CREATEDATE_D datetime not null, TRK_DELETEDATE_D datetime, primary key (TRK_ID_C) );
+create cached table T_TRACK ( TRK_ID_C varchar(36) not null, TRK_IDALBUM_C varchar(36) not null, TRK_IDARTIST_C varchar(36) not null, TRK_FILENAME_C varchar(2000) not null, TRK_TITLE_C varchar(2000) not null, TRK_YEAR_N integer, TRK_LENGTH_N integer not null, TRK_BITRATE_N integer not null, TRK_VBR_B bit not null, TRK_FORMAT_C varchar(10) not null, TRK_CREATEDATE_D datetime not null, TRK_DELETEDATE_D datetime, primary key (TRK_ID_C) );
 create memory table T_TRANSCODER ( TRN_ID_C varchar(36) not null, TRN_NAME_C varchar(100) not null, TRN_SOURCE_C varchar(1000) not null, TRN_DESTINATION_C varchar(100) not null, TRN_STEP1_C varchar(1000) not null, TRN_STEP2_C varchar(1000), TRN_CREATEDATE_D datetime not null, TRN_DELETEDATE_D datetime, primary key (TRN_ID_C) );
 create memory table T_USER ( USE_ID_C varchar(36) not null, USE_IDLOCALE_C varchar(10) not null, USE_IDROLE_C varchar(36) not null, USE_USERNAME_C varchar(50) not null, USE_PASSWORD_C varchar(60) not null, USE_EMAIL_C varchar(100) not null, USE_THEME_C varchar(100) not null, USE_MAXBITRATE_N integer, USE_LASTFMSESSIONTOKEN_C varchar(100), USE_LASTFMACTIVE_B bit default 0 not null, USE_FIRSTCONNECTION_B bit default 0 not null, USE_CREATEDATE_D datetime not null, USE_DELETEDATE_D datetime, primary key (USE_ID_C) );
+create cached table T_USER_TRACK ( UST_ID_C varchar(36) not null, UST_IDUSER_C varchar(36) not null, UST_IDTRACK_C varchar(36) not null, UST_PLAYCOUNT_N integer default 0 not null, UST_LIKE_B bit default 0 not null, UST_CREATEDATE_D datetime not null, UST_DELETEDATE_D datetime, primary key (UST_ID_C) );
 alter table T_ALBUM add constraint FK_ALB_IDARTIST_C foreign key (ALB_IDARTIST_C) references T_ARTIST (ART_ID_C) on delete restrict on update restrict;
 alter table T_ALBUM add constraint FK_ALB_IDDIRECTORY_C foreign key (ALB_IDDIRECTORY_C) references T_DIRECTORY (DIR_ID_C) on delete restrict on update restrict;
 alter table T_AUTHENTICATION_TOKEN add constraint FK_AUT_IDUSER_C foreign key (AUT_IDUSER_C) references T_USER (USE_ID_C) on delete restrict on update restrict;
@@ -24,6 +25,10 @@ alter table T_TRACK add constraint FK_TRK_IDALBUM_C foreign key (TRK_IDALBUM_C) 
 alter table T_TRACK add constraint FK_TRK_IDARTIST_C foreign key (TRK_IDARTIST_C) references T_ARTIST (ART_ID_C) on delete restrict on update restrict;
 alter table T_USER add constraint FK_USE_IDLOCALE_C foreign key (USE_IDLOCALE_C) references T_LOCALE (LOC_ID_C) on delete restrict on update restrict;
 alter table T_USER add constraint FK_USE_IDROLE_C foreign key (USE_IDROLE_C) references T_ROLE (ROL_ID_C) on delete restrict on update restrict;
+alter table T_USER_TRACK add constraint FK_UST_IDUSER_C foreign key (UST_IDUSER_C) references T_USER (USE_ID_C) on delete restrict on update restrict;
+alter table T_USER_TRACK add constraint FK_UST_IDTRACK_C foreign key (UST_IDTRACK_C) references T_TRACK (TRK_ID_C) on delete restrict on update restrict;
+insert into T_CONFIG(CFG_ID_C,CFG_VALUE_C) values('LAST_FM_API_KEY','7119a7b5c4455bbe8196934e22358a27');
+insert into T_CONFIG(CFG_ID_C,CFG_VALUE_C) values('LAST_FM_API_SECRET','30dce5dfdb01b87af6038dd36f696f8a');
 insert into T_CONFIG(CFG_ID_C, CFG_VALUE_C) values('DB_VERSION', '0');
 insert into T_CONFIG(CFG_ID_C, CFG_VALUE_C) values('LUCENE_DIRECTORY_STORAGE', 'FILE');
 insert into T_BASE_FUNCTION(BAF_ID_C) values('ADMIN');
@@ -190,5 +195,3 @@ insert into T_ROLE_BASE_FUNCTION(RBF_ID_C, RBF_IDROLE_C, RBF_IDBASEFUNCTION_C, R
 insert into T_ROLE_BASE_FUNCTION(RBF_ID_C, RBF_IDROLE_C, RBF_IDBASEFUNCTION_C, RBF_CREATEDATE_D) values('user_IMPORT', 'user', 'IMPORT', NOW());
 insert into T_USER(USE_ID_C, USE_IDLOCALE_C, USE_IDROLE_C, USE_USERNAME_C, USE_PASSWORD_C, USE_EMAIL_C, USE_THEME_C, USE_FIRSTCONNECTION_B, USE_CREATEDATE_D) values('admin', 'en', 'admin', 'admin', '$2a$05$6Ny3TjrW3aVAL1or2SlcR.fhuDgPKp5jp.P9fBXwVNePgeLqb4i3C', 'admin@localhost', 'default.less', true, NOW());
 insert into T_PLAYLIST(PLL_ID_C, PLL_IDUSER_C) values('admin', 'admin');
-insert into T_CONFIG(CFG_ID_C,CFG_VALUE_C) values('LAST_FM_API_KEY','7119a7b5c4455bbe8196934e22358a27');
-insert into T_CONFIG(CFG_ID_C,CFG_VALUE_C) values('LAST_FM_API_SECRET','30dce5dfdb01b87af6038dd36f696f8a');

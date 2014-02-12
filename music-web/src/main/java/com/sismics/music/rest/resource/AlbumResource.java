@@ -11,7 +11,6 @@ import com.sismics.music.core.model.dbi.Album;
 import com.sismics.music.core.service.albumart.AlbumArtService;
 import com.sismics.music.core.service.albumart.AlbumArtSize;
 import com.sismics.rest.exception.ForbiddenClientException;
-
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
@@ -23,7 +22,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -78,7 +76,9 @@ public class AlbumResource extends BaseResource {
         // Get track info
         List<JSONObject> tracks = new ArrayList<JSONObject>();
         TrackDao trackDao = new TrackDao();
-        List<TrackDto> trackList = trackDao.findByCriteria(new TrackCriteria().setAlbumId(album.getId()));
+        List<TrackDto> trackList = trackDao.findByCriteria(new TrackCriteria()
+                .setAlbumId(album.getId())
+                .setUserId(principal.getId()));
         int i = 1;
         for (TrackDto trackDto : trackList) {
             JSONObject track = new JSONObject();
@@ -90,6 +90,8 @@ public class AlbumResource extends BaseResource {
             track.put("bitrate", trackDto.getBitrate());
             track.put("vbr", trackDto.isVbr());
             track.put("format", trackDto.getFormat());
+            track.put("play_count", trackDto.getUserTrackPlayCount());
+            track.put("like", trackDto.isUserTrackLike());
 
             JSONObject artist = new JSONObject();
             artist.put("id", trackDto.getArtistId());

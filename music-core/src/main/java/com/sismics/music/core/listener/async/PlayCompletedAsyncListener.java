@@ -1,16 +1,16 @@
 package com.sismics.music.core.listener.async;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.eventbus.Subscribe;
 import com.sismics.music.core.dao.dbi.UserDao;
+import com.sismics.music.core.dao.dbi.UserTrackDao;
 import com.sismics.music.core.event.async.PlayCompletedEvent;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.model.dbi.User;
 import com.sismics.music.core.service.lastfm.LastFmService;
 import com.sismics.music.core.util.TransactionUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Play completed listener.
@@ -41,6 +41,10 @@ public class PlayCompletedAsyncListener {
         TransactionUtil.handle(new Runnable() {
             @Override
             public void run() {
+                // Increment the play count
+                UserTrackDao userTrackDao = new UserTrackDao();
+                userTrackDao.incrementPlayCount(userId, track.getId());
+
                 final User user = new UserDao().getActiveById(userId);
                 if (user != null && user.getLastFmSessionToken() != null) {
                     final LastFmService lastFmService = AppContext.getInstance().getLastFmService();

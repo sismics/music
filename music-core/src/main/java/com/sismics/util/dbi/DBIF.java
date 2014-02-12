@@ -52,6 +52,7 @@ public class DBIF {
             dbi.registerMapper(new TrackMapper());
             dbi.registerMapper(new TranscoderMapper());
             dbi.registerMapper(new UserMapper());
+            dbi.registerMapper(new UserTrackMapper());
         } catch (Throwable t) {
             log.error("Error creating DBI", t);
         }

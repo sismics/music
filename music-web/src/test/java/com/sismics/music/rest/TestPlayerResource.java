@@ -10,12 +10,14 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Test;
 
+import java.util.Date;
+
 /**
- * Exhaustive test of the track resource.
+ * Exhaustive test of the player resource.
  * 
  * @author jtremeaux
  */
-public class TestTrackResource extends BaseJerseyTest {
+public class TestPlayerResource extends BaseJerseyTest {
     /**
      * Test the track resource.
      *
@@ -49,7 +51,7 @@ public class TestTrackResource extends BaseJerseyTest {
         String album0Id = album0.optString("id");
         Assert.assertNotNull(album0Id);
 
-        // Admin checks the tracks info
+        // Check the tracks info
         albumResource = resource().path("/album/" + album0Id);
         albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         response = albumResource.get(ClientResponse.class);
@@ -60,24 +62,22 @@ public class TestTrackResource extends BaseJerseyTest {
         Assert.assertEquals(2, tracks.length());
         JSONObject track0 = tracks.getJSONObject(0);
         String track0Id = track0.getString("id");
-        Assert.assertFalse(track0.getBoolean("like"));
+        Integer track0Length = track0.getInt("length");
+        Assert.assertEquals(0, track0.getInt("play_count"));
 
-        // Get an track by its ID.
-        WebResource trackResource = resource().path("/track/" + track0Id);
-        trackResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = trackResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-
-        // Admin likes the track
-        trackResource = resource().path("/track/" + track0Id + "/like");
-        trackResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        // Marks a track as played
+        WebResource playerResource = resource().path("/player/listening");
+        playerResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         postParams = new MultivaluedMapImpl();
-        response = trackResource.post(ClientResponse.class, postParams);
+        postParams.putSingle("id", track0Id);
+        postParams.putSingle("date", new Date().getTime());
+        postParams.putSingle("duration", track0Length / 2 + 1);
+        response = playerResource.post(ClientResponse.class, postParams);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
         json = response.getEntity(JSONObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
-        // Admin checks the tracks info
+        // Check the tracks info
         albumResource = resource().path("/album/" + album0Id);
         albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         response = albumResource.get(ClientResponse.class);
@@ -87,27 +87,6 @@ public class TestTrackResource extends BaseJerseyTest {
         Assert.assertNotNull(tracks);
         Assert.assertEquals(2, tracks.length());
         track0 = tracks.getJSONObject(0);
-        Assert.assertTrue(track0.getBoolean("like"));
-
-        // Admin unlikes the track
-        trackResource = resource().path("/track/" + track0Id + "/like");
-        trackResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = trackResource.delete(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
-
-        // Admin checks the tracks info
-        albumResource = resource().path("/album/" + album0Id);
-        albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = albumResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
-        tracks = json.optJSONArray("tracks");
-        Assert.assertNotNull(tracks);
-        Assert.assertEquals(2, tracks.length());
-        track0 = tracks.getJSONObject(0);
-        Assert.assertFalse(track0.getBoolean("like"));
-
+        Assert.assertEquals(1, track0.getInt("play_count"));
     }
 }

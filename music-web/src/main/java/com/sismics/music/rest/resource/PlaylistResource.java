@@ -200,10 +200,13 @@ public class PlaylistResource extends BaseResource {
         }
 
         // Get the list of tracks in the playlist
+        Playlist playlist = new PlaylistDao().getActiveByUserId(principal.getId());
         JSONObject response = new JSONObject();
         List<JSONObject> tracks = new ArrayList<JSONObject>();
         TrackDao trackDao = new TrackDao();
-        List<TrackDto> trackList = trackDao.findByCriteria(new TrackCriteria().setUserId(principal.getId()));
+        List<TrackDto> trackList = trackDao.findByCriteria(new TrackCriteria()
+                .setUserId(principal.getId())
+                .setPlaylistId(playlist.getId()));
         int i = 0;
         for (TrackDto trackDto : trackList) {
             JSONObject track = new JSONObject();

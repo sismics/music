@@ -2,6 +2,7 @@ package com.sismics.music.rest.resource;
 
 import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.UserDao;
+import com.sismics.music.core.dao.dbi.UserTrackDao;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.model.dbi.User;
@@ -9,7 +10,6 @@ import com.sismics.music.core.service.lastfm.LastFmService;
 import com.sismics.music.core.util.TransactionUtil;
 import com.sismics.music.rest.util.MediaStreamer;
 import com.sismics.rest.exception.ForbiddenClientException;
-
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
@@ -18,7 +18,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-
 import java.io.*;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -123,7 +122,10 @@ public class TrackResource extends BaseResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        // TODO update liked tracks locally
+        // Like the track locally
+        UserTrackDao userTrackDao = new UserTrackDao();
+        userTrackDao.like(principal.getId(), track.getId());
+
         // Love the track on Last.fm
         final User user = new UserDao().getActiveById(principal.getId());
         if (user != null && user.getLastFmSessionToken() != null) {
@@ -158,7 +160,10 @@ public class TrackResource extends BaseResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        // TODO unlike track locally
+        // Unlike the track locally
+        UserTrackDao userTrackDao = new UserTrackDao();
+        userTrackDao.unlike(principal.getId(), track.getId());
+
         // Unove the track on Last.fm
         final User user = new UserDao().getActiveById(principal.getId());
         if (user != null && user.getLastFmSessionToken() != null) {
