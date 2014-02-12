@@ -23,7 +23,7 @@ public class TestTranscoderResource extends BaseJerseyTest {
      * @throws org.codehaus.jettison.json.JSONException
      */
     @Test
-    public void testUserResource() throws JSONException {
+    public void testTranscoderResource() throws JSONException {
         // Login admin
         String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
 

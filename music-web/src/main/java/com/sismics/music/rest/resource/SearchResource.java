@@ -49,7 +49,7 @@ public class SearchResource extends BaseResource {
         // Search tracks
         PaginatedList<TrackDto> paginatedList = PaginatedLists.create(limit, offset);
         TrackDao trackDao = new TrackDao();
-        trackDao.findByCriteria(new TrackCriteria().setTitleLike(query), paginatedList);
+        trackDao.findByCriteria(new TrackCriteria().setUserId(principal.getId()).setTitleLike(query), paginatedList);
 
         List<JSONObject> tracks = new ArrayList<JSONObject>();
         int i = 1;
@@ -64,6 +64,8 @@ public class SearchResource extends BaseResource {
             track.put("bitrate", trackDto.getBitrate());
             track.put("vbr", trackDto.isVbr());
             track.put("format", trackDto.getFormat());
+            track.put("play_count", trackDto.getUserTrackPlayCount());
+            track.put("liked", trackDto.isUserTrackLike());
 
             JSONObject album = new JSONObject();
             album.put("id", trackDto.getAlbumId());

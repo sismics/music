@@ -147,6 +147,16 @@ html, body {
   }
 }
 
+.table-tracks {
+  table-layout: fixed;
+
+  > tbody td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
 .album-art-modal {
   .modal-dialog {
     width: 768px !important;

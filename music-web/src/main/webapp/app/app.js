@@ -104,6 +104,15 @@ var App = angular.module('music',
               }
             }
           })
+          .state('main.settingstranscoding', {
+            url: '/settings/transcoding',
+            views: {
+              'content': {
+                templateUrl: 'partial/settings.transcoding.html',
+                controller: 'SettingsTranscoding'
+              }
+            }
+          })
           .state('main.settingsaccount', {
             url: '/settings/account',
             views: {

@@ -11,6 +11,9 @@ App.controller('Album', function($scope, $state, $stateParams, Restangular, Play
   // Load album
   Restangular.one('album', $stateParams.id).get().then(function(data) {
     $scope.album = data;
+    $scope.album.play_count = _($scope.album.tracks).reduce(function(count, track) {
+      return count + track.play_count;
+    }, 0);
   });
 
   // Play a single track

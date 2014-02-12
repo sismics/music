@@ -218,6 +218,8 @@ public class PlaylistResource extends BaseResource {
             track.put("bitrate", trackDto.getBitrate());
             track.put("vbr", trackDto.isVbr());
             track.put("format", trackDto.getFormat());
+            track.put("play_count", trackDto.getUserTrackPlayCount());
+            track.put("liked", trackDto.isUserTrackLike());
 
             JSONObject artist = new JSONObject();
             artist.put("id", trackDto.getArtistId());
