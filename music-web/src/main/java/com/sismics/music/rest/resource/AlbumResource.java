@@ -90,6 +90,7 @@ public class AlbumResource extends BaseResource {
             track.put("bitrate", trackDto.getBitrate());
             track.put("vbr", trackDto.isVbr());
             track.put("format", trackDto.getFormat());
+            track.put("filename", trackDto.getFileName());
             track.put("play_count", trackDto.getUserTrackPlayCount());
             track.put("like", trackDto.isUserTrackLike());
 
