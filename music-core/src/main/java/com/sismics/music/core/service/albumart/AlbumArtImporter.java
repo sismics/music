@@ -2,6 +2,7 @@ package com.sismics.music.core.service.albumart;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -19,9 +20,9 @@ public class AlbumArtImporter {
      * @param directory Directory
      * @return Album art file
      */
-    public File scanDirectory(File directory) {
+    public File scanDirectory(Path directory) {
         Map<Integer, File> fileMap = new TreeMap<Integer, File>();
-        for (File file : directory.listFiles(ALBUM_ART_FILENAME_FILTER)) {
+        for (File file : directory.toFile().listFiles(ALBUM_ART_FILENAME_FILTER)) { // TODO nio-ize
             String name = file.getName().toLowerCase();
             if (name.startsWith("albumart.")) {
                 fileMap.put(0, file);

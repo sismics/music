@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -71,13 +72,8 @@ public class CollectionService extends AbstractScheduledService {
      * @param directory Directory to index
      */
     public void addDirectoryToIndex(Directory directory) {
-        // Add / update this directory to the index
-        File file = new File(directory.getLocation());
-        if (!file.exists() || !file.isDirectory()) {
-            log.error("Cannot read from directory: " + file.getAbsolutePath());
-            return;
-        }
-        indexDirectory(directory, file);
+        // Index the directory recursively
+        new CollectionVisitor(directory).index();
 
         // Delete all artists that don't have any album
         ArtistDao artistDao = new ArtistDao();
@@ -103,41 +99,26 @@ public class CollectionService extends AbstractScheduledService {
     }
 
     /**
-     * Index a directory recursively.
-     *
-     * @param rootDirectory Directory to index
-     * @param parentDirectory Directory on the FS
-     */
-    private void indexDirectory(Directory rootDirectory, File parentDirectory) {
-        for (File fileEntry : parentDirectory.listFiles()) {
-            if (fileEntry.isDirectory()) {
-                indexDirectory(rootDirectory, fileEntry);
-            } else {
-                // TODO filter media files properly
-                if (fileEntry.getName().endsWith(".mp3")) {
-                    indexFile(rootDirectory, fileEntry);
-                }
-            }
-        }
-    }
-
-    /**
      * Add / update a media file to the index.
      *
      * @param rootDirectory Directory to index
      * @param file File to add
      */
-    private void indexFile(Directory rootDirectory, File file) {
-        TrackDao trackDao = new TrackDao();
-        Track track = trackDao.getActiveByDirectoryAndFilename(rootDirectory.getId(), file.getAbsolutePath());
-        if (track != null) {
-            readTrackMetadata(rootDirectory, file, track);
-        } else {
-            track = new Track();
-            track.setFileName(file.getAbsolutePath());
+    public void indexFile(Directory rootDirectory, Path file) {
+        try {
+            TrackDao trackDao = new TrackDao();
+            Track track = trackDao.getActiveByDirectoryAndFilename(rootDirectory.getId(), file.toAbsolutePath().toString());
+            if (track != null) {
+                readTrackMetadata(rootDirectory, file, track);
+            } else {
+                track = new Track();
+                track.setFileName(file.toAbsolutePath().toString());
 
-            readTrackMetadata(rootDirectory, file, track);
-            trackDao.create(track);
+                readTrackMetadata(rootDirectory, file, track);
+                trackDao.create(track);
+            }
+        } catch (Exception e) {
+            log.error("Error extracting metadata from file: " + file, e);
         }
     }
 
@@ -148,73 +129,69 @@ public class CollectionService extends AbstractScheduledService {
      * @param file Media file to read from
      * @param track Track entity (updated)
      */
-    private void readTrackMetadata(Directory rootDirectory, File file, Track track) {
-        try {
-            AudioFile audioFile = AudioFileIO.read(file);
-            Tag tag = audioFile.getTag();
-            // TODO deal with empty tags
-            AudioHeader header = audioFile.getAudioHeader();
+    public void readTrackMetadata(Directory rootDirectory, Path file, Track track) throws Exception {
+        AudioFile audioFile = AudioFileIO.read(file.toFile());
+        Tag tag = audioFile.getTag();
+        // TODO deal with empty tags
+        AudioHeader header = audioFile.getAudioHeader();
 
-            track.setLength(header.getTrackLength());
-            track.setBitrate(header.getSampleRateAsNumber());
-            track.setFormat(header.getEncodingType());
-            track.setVbr(header.isVariableBitRate());
+        track.setLength(header.getTrackLength());
+        track.setBitrate(header.getSampleRateAsNumber());
+        track.setFormat(header.getEncodingType());
+        track.setVbr(header.isVariableBitRate());
 
-            String year = tag.getFirst(FieldKey.YEAR);
-            if (!Strings.isNullOrEmpty(year)) {
-                try {
-                    track.setYear(Integer.valueOf(year));
-                } catch (NumberFormatException e) {
-                    // Ignore parsing errors
-                }
+        String year = tag.getFirst(FieldKey.YEAR);
+        if (!Strings.isNullOrEmpty(year)) {
+            try {
+                track.setYear(Integer.valueOf(year));
+            } catch (NumberFormatException e) {
+                // Ignore parsing errors
             }
-            
-            track.setTitle(StringUtils.abbreviate(tag.getFirst(FieldKey.TITLE), 2000));
-            String artistName = StringUtils.abbreviate(tag.getFirst(FieldKey.ARTIST), 1000);
-            ArtistDao artistDao = new ArtistDao();
-            Artist artist = artistDao.getActiveByName(artistName);
-            if (artist == null) {
-                artist = new Artist();
-                artist.setName(artistName);
-                artistDao.create(artist);
-            }
-            track.setArtistId(artist.getId());
-
-            String albumArtistName = StringUtils.abbreviate(tag.getFirst(FieldKey.ALBUM_ARTIST), 1000);
-            Artist albumArtist = null;
-            if (!Strings.isNullOrEmpty(albumArtistName)) {
-                albumArtist = artistDao.getActiveByName(albumArtistName);
-                if (albumArtist == null) {
-                    albumArtist = new Artist();
-                    albumArtist.setName(albumArtistName);
-                    artistDao.create(albumArtist);
-                }
-            } else {
-                albumArtist = artist;
-            }
-
-            String albumName = StringUtils.abbreviate(tag.getFirst(FieldKey.ALBUM), 1000);
-            AlbumDao albumDao = new AlbumDao();
-            Album album = albumDao.getActiveByArtistIdAndName(albumArtist.getId(), albumName);
-            if (album == null) {
-                // Import album art
-                AlbumArtImporter albumArtImporter = new AlbumArtImporter();
-                File albumArtFile = albumArtImporter.scanDirectory(file.getParentFile());
-
-                album = new Album();
-                album.setArtistId(albumArtist.getId());
-                album.setDirectoryId(rootDirectory.getId());
-                album.setName(albumName);
-                if (albumArtFile != null) {
-                    String albumArtId = AppContext.getInstance().getAlbumArtService().importAlbumArt(albumArtFile);
-                    album.setAlbumArt(albumArtId);
-                }
-                albumDao.create(album);
-            }
-            track.setAlbumId(album.getId());
-        } catch (Exception e) {
-            log.error("Error extracting metadata from file: " + file.getAbsolutePath(), e);
         }
+
+        track.setTitle(StringUtils.abbreviate(tag.getFirst(FieldKey.TITLE), 2000));
+        String artistName = StringUtils.abbreviate(tag.getFirst(FieldKey.ARTIST), 1000);
+        ArtistDao artistDao = new ArtistDao();
+        Artist artist = artistDao.getActiveByName(artistName);
+        if (artist == null) {
+            artist = new Artist();
+            artist.setName(artistName);
+            artistDao.create(artist);
+        }
+        track.setArtistId(artist.getId());
+
+        String albumArtistName = StringUtils.abbreviate(tag.getFirst(FieldKey.ALBUM_ARTIST), 1000);
+        Artist albumArtist = null;
+        if (!Strings.isNullOrEmpty(albumArtistName)) {
+            albumArtist = artistDao.getActiveByName(albumArtistName);
+            if (albumArtist == null) {
+                albumArtist = new Artist();
+                albumArtist.setName(albumArtistName);
+                artistDao.create(albumArtist);
+            }
+        } else {
+            albumArtist = artist;
+        }
+
+        String albumName = StringUtils.abbreviate(tag.getFirst(FieldKey.ALBUM), 1000);
+        AlbumDao albumDao = new AlbumDao();
+        Album album = albumDao.getActiveByArtistIdAndName(albumArtist.getId(), albumName);
+        if (album == null) {
+            // Import album art
+            AlbumArtImporter albumArtImporter = new AlbumArtImporter();
+            File albumArtFile = albumArtImporter.scanDirectory(file.getParent());
+
+            album = new Album();
+            album.setArtistId(albumArtist.getId());
+            album.setDirectoryId(rootDirectory.getId());
+            album.setName(albumName);
+            if (albumArtFile != null) {
+                String albumArtId = AppContext.getInstance().getAlbumArtService().importAlbumArt(albumArtFile);
+                album.setAlbumArt(albumArtId);
+            }
+            albumDao.create(album);
+        }
+        track.setAlbumId(album.getId());
     }
 
     /**

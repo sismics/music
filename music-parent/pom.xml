@@ -10,8 +10,8 @@
   <name>Music Parent</name>
 
   <properties>
-    <maven.compiler.source>1.6</maven.compiler.source>
-    <maven.compiler.target>1.6</maven.compiler.target>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- Dependencies version (external) -->
@@ -372,7 +372,7 @@
         <artifactId>jersey-multipart</artifactId>
         <version>${com.sun.jersey.version}</version>
       </dependency>
-      
+
       <dependency>
         <groupId>com.sun.grizzly</groupId>
         <artifactId>grizzly-servlet-webserver</artifactId>
