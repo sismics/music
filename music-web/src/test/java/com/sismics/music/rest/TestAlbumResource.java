@@ -1,14 +1,18 @@
 package com.sismics.music.rest;
 
+import java.nio.file.Paths;
+
+import junit.framework.Assert;
+
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONObject;
+import org.junit.Test;
+
 import com.sismics.music.rest.filter.CookieAuthenticationFilter;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-import junit.framework.Assert;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONObject;
-import org.junit.Test;
 
 /**
  * Exhaustive test of the album resource.
@@ -30,7 +34,7 @@ public class TestAlbumResource extends BaseJerseyTest {
         WebResource directoryResource = resource().path("/directory");
         directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         MultivaluedMapImpl postParams = new MultivaluedMapImpl();
-        postParams.putSingle("location", getClass().getResource("/music/").toURI().getPath());
+        postParams.putSingle("location", Paths.get(getClass().getResource("/music/").toURI()).toString());
         ClientResponse response = directoryResource.put(ClientResponse.class, postParams);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
         JSONObject json = response.getEntity(JSONObject.class);
@@ -87,5 +91,13 @@ public class TestAlbumResource extends BaseJerseyTest {
         albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         response = albumResource.get(ClientResponse.class);
         Assert.assertEquals(Status.NOT_FOUND, Status.fromStatusCode(response.getStatus()));
+        
+        // Update an album art
+        albumResource = resource().path("/album/" + album0Id + "/albumart");
+        albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        postParams = new MultivaluedMapImpl();
+        postParams.putSingle("url", "http://placehold.it/300x300");
+        response = albumResource.post(ClientResponse.class, postParams);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
     }
 }

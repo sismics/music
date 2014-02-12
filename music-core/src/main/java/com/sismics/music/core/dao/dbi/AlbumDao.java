@@ -1,5 +1,15 @@
 package com.sismics.music.core.dao.dbi;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
+
 import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.dbi.criteria.AlbumCriteria;
 import com.sismics.music.core.dao.dbi.dto.AlbumDto;
@@ -8,10 +18,6 @@ import com.sismics.music.core.util.dbi.ColumnIndexMapper;
 import com.sismics.music.core.util.dbi.QueryParam;
 import com.sismics.music.core.util.dbi.QueryUtil;
 import com.sismics.util.context.ThreadLocalContext;
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.Query;
-
-import java.util.*;
 
 /**
  * Album DAO.
@@ -51,14 +57,19 @@ public class AlbumDao {
      * @return Updated album
      */
     public Album update(Album album) {
-//        EntityManager em = ThreadLocalContext.get().getEntityManager();
-//
-//        // Get the album
-//        Query q = em.createQuery("select a from Album a where a.id = :id and a.deleteDate is null");
-//        q.setParameter("id", album.getId());
-//        Album albumFromDb = (Album) q.getSingleResult();
-
-        // TODO Update the album
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("update T_ALBUM a set " +
+                " a.ALB_IDDIRECTORY_C = :directoryId," +
+                " a.ALB_IDARTIST_C = :artistId, " +
+                " a.ALB_NAME_C = :name, " +
+                " a.ALB_ALBUMART_C = :albumArt " +
+                " where a.ALB_ID_C = :id and a.ALB_DELETEDATE_D is null")
+                .bind("id", album.getId())
+                .bind("name", album.getName())
+                .bind("directoryId", album.getDirectoryId())
+                .bind("artistId", album.getArtistId())
+                .bind("albumArt", album.getAlbumArt())
+                .execute();
 
         return album;
     }

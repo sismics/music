@@ -1,5 +1,31 @@
 package com.sismics.music.rest.resource;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.io.IOUtils;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sismics.music.core.dao.dbi.AlbumDao;
 import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.criteria.AlbumCriteria;
@@ -10,23 +36,8 @@ import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Album;
 import com.sismics.music.core.service.albumart.AlbumArtService;
 import com.sismics.music.core.service.albumart.AlbumArtSize;
+import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Album REST resources.
@@ -107,7 +118,7 @@ public class AlbumResource extends BaseResource {
     }
 
     /**
-     * Returns a album cover.
+     * Returns an album cover.
      *
      * @param id Album ID
      * @param size Cover size
@@ -152,6 +163,61 @@ public class AlbumResource extends BaseResource {
         return Response.ok(file, "image/jpeg")
                 .header("Expires", new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z").format(new Date().getTime() + 3600000 * 24 * 7))
                 .build();
+    }
+    
+    /**
+     * Update an album cover.
+     *
+     * @param id Album ID
+     * @param url Image URL
+     * @return Response
+     * @throws JSONException
+     */
+    @POST
+    @Path("{id: [a-z0-9\\-]+}/albumart")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateAlbumart(
+            @PathParam("id") String id,
+            @FormParam("url") String url) throws JSONException {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+
+        // Get the album
+        AlbumDao albumDao = new AlbumDao();
+        Album album = albumDao.getActiveById(id);
+        if (album == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        // Copy the remote URL to a temporary file
+        File imageFile = null;
+        try {
+            imageFile = File.createTempFile("music_albumart", null);
+            try (InputStream urlStream = new URL(url).openStream();
+                    OutputStream imageStream = new FileOutputStream(imageFile)) {
+                IOUtils.copy(urlStream, imageStream);
+            }
+        } catch (IOException e) {
+            throw new ClientException("IOError", "Error while reading the remote URL", e);
+        }
+            
+        // Update the album art
+        try {
+            final AlbumArtService albumArtService = AppContext.getInstance().getAlbumArtService();
+            String albumArtId = albumArtService.importAlbumArt(imageFile);
+            album.setAlbumArt(albumArtId);
+            albumDao.update(album);
+        } catch (Exception e) {
+            throw new ClientException("ImageError", "The provided URL is not an image", e);
+        }
+        
+        // TODO Delete the previous album art
+
+        // Always return OK
+        JSONObject response = new JSONObject();
+        response.put("status", "ok");
+        return Response.ok().entity(response).build();
     }
 
     /**

@@ -3,7 +3,7 @@
 /**
  * Album controller.
  */
-App.controller('AlbumArt', function($scope, $stateParams, Restangular, $http) {
+App.controller('AlbumArt', function($scope, $stateParams, $state, Restangular, $http) {
   // Load album
   Restangular.one('album', $stateParams.id).get().then(function(data) {
     $scope.album = data;
@@ -24,5 +24,15 @@ App.controller('AlbumArt', function($scope, $stateParams, Restangular, $http) {
   // Select a search result
   $scope.selectResult = function(url) {
     $scope.url = url;
+    $scope.uploadLink();
+  };
+
+  // Update the album art with the given URL
+  $scope.uploadLink = function() {
+    Restangular.one('album', $stateParams.id)
+        .post('albumart', { url: $scope.url })
+        .then(function() {
+          $state.transitionTo('main.album', { id: $stateParams.id });
+        });
   };
 });
