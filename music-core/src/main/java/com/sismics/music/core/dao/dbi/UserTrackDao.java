@@ -51,7 +51,7 @@ public class UserTrackDao {
         final Handle handle = ThreadLocalContext.get().getHandle();
         return handle.createQuery("select " + new UserTrackMapper().getJoinedColumns("ut") +
                 "  from T_USER_TRACK ut" +
-                "  where ut.UST_DELETEDATE_D is null and ut.UST_IDUSER_C = :userId  ")
+                "  where ut.UST_DELETEDATE_D is null and ut.UST_IDUSER_C = :userId and ut.UST_IDTRACK_C = :trackId ")
                 .bind("userId", userId)
                 .bind("trackId", trackId)
                 .bind("deleteDate", new Date())
