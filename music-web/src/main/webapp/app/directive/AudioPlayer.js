@@ -31,6 +31,10 @@ App.directive('audioPlayer', function($rootScope, Playlist, Restangular) {
 
       // Ping the server
       var pingServer = function() {
+        if (!$scope.track) {
+          return;
+        }
+
         Restangular.one('player').post('listening', {
           id: $scope.track.id,
           date: $scope.startPlaying,
@@ -60,6 +64,7 @@ App.directive('audioPlayer', function($rootScope, Playlist, Restangular) {
         var track = Playlist.currentTrack();
         $scope.firstPingSent = false;
         $scope.halfwayPingSent = false;
+        $scope.track = track;
         $scope.audio.src = 'api/track/' + track.id;
         if (play) {
           $scope.audio.play();
@@ -67,7 +72,6 @@ App.directive('audioPlayer', function($rootScope, Playlist, Restangular) {
           $scope.audio.pause();
           $rootScope.$broadcast('audio.pause');
         }
-        $scope.track = track;
       });
 
       // Update UI on track liked
