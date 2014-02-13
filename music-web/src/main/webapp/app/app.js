@@ -6,7 +6,7 @@
 var App = angular.module('music',
         // Dependencies
         ['ui.router', 'ui.bootstrap', 'dialog', 'ui.route', 'ui.keypress',
-          'restangular', 'ui.sortable', 'pasvaz.bindonce', 'toaster'])
+          'restangular', 'ui.sortable', 'pasvaz.bindonce', 'toaster', 'infinite-scroll'])
 
     /**
      * Configuring modules.
