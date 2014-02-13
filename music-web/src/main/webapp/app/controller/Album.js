@@ -4,10 +4,6 @@
  * Album controller.
  */
 App.controller('Album', function($scope, $state, $stateParams, Restangular, Playlist, $modal) {
-  $scope.album = {
-    tracks: []
-  };
-
   // Load album
   Restangular.one('album', $stateParams.id).get().then(function(data) {
     $scope.album = data;

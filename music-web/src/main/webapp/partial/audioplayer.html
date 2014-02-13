@@ -19,11 +19,13 @@
             ng-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>
       <span class="text-muted">{{ track.artist.name }}</span><br />
       {{ track.title }}
-      <div class="progress" ng-click="seek($event)">
-        <progress max="100">
-          <bar value="timeProgress()"></bar>
-          <bar value="bufferProgress()" type="buffer"></bar>
-        </progress>
+      <div class="progress progress-audio" ng-click="seek($event)">
+        <div class="progress">
+          <div class="progress-bar progress-bar-buffer"
+               ng-repeat="buffer in bufferProgress()"
+               ng-style="{ 'left': buffer.start + '%', 'width': (buffer.end - buffer.start) + '%' }"></div>
+          <div class="progress-bar" ng-style="{ 'width': timeProgress() + '%' }"></div>
+        </div>
       </div>
     </div>
   </div>

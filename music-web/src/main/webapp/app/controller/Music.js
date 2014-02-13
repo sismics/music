@@ -16,7 +16,7 @@ App.controller('Music', function($scope, $stateParams, $state, Restangular, filt
   Restangular.all('album').getList().then(function(data) {
     $scope.allAlbums = data.albums;
     $scope.filteredAlbums = filterFilter($scope.allAlbums, $scope.filter);
-    $scope.loadMore();
+    $scope.loadMore(true);
   });
   Restangular.setDefaultHttpFields({});
 
@@ -35,7 +35,6 @@ App.controller('Music', function($scope, $stateParams, $state, Restangular, filt
 
   // Keep the filter in sync with the view state
   $scope.$watch('filter', function() {
-    console.log('filter changed');
     $scope.filteredAlbums = filterFilter($scope.allAlbums, $scope.filter);
     $scope.loadMoreDebounced(true);
 

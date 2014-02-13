@@ -1,4 +1,4 @@
-<div class="panel panel-default">
+<div class="panel panel-default" ng-show="album">
   <div class="panel-body">
     <div class="page-header">
       <h1><span class="text-muted">{{ album.artist.name }}</span> {{ album.name }}<br /><small>played {{ album.play_count }} times</small></h1>
@@ -48,5 +48,10 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="big-loader-container row" ng-show="!album">
+  <div class="big-loader">
   </div>
 </div>

@@ -63,6 +63,10 @@
     
 	    <nav class="navbar navbar-default" role="navigation" ng-controller="Navigation">
 	      <div class="container">
+          <div class="navbar-text loader">
+            <img src="img/loader.gif" ng-class="{hide: !isLoading() }" />
+          </div>
+
 	        <div class="navbar-header">
 				    <a class="navbar-brand" href="#"><span class="glyphicon glyphicon-headphones"></span> Sismics Music</a>
 				  </div>

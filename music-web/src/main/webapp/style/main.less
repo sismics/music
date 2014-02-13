@@ -107,18 +107,6 @@ html, body {
   }
 }
 
-.search {
-  .tracks {
-    table {
-      > tbody td {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-    }
-  }
-}
-
 .table-playing-tracks {
   table-layout: fixed;
   -webkit-user-select: none; /* Chrome/Safari */
@@ -181,6 +169,49 @@ html, body {
 
     .form-control {
       display: inline-block;
+    }
+  }
+}
+
+.big-loader-container {
+  height: 400px;
+}
+
+.big-loader {
+  display: block;
+  background: url(../img/big-loader.gif);
+  width: 64px;
+  height: 64px;
+  margin-top: 200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+// $http loader
+.loader {
+  top: -2px;
+  left: 12px;
+  margin-left: 0;
+  width: 16px;
+  height: 16px;
+
+  &.hide {
+    visibility: hidden;
+  }
+}
+
+.navbar-brand {
+  margin-left: 30px;
+}
+
+.progress-audio {
+  .progress {
+    position: relative;
+    
+    .progress-bar {
+      position: absolute;
+      transition: none;
+      -webkit-transition: none;
     }
   }
 }

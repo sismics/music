@@ -3,7 +3,12 @@
 /**
  * Navigation controller.
  */
-App.controller('Navigation', function($rootScope, $scope, User, $state, Playlist) {
+App.controller('Navigation', function($rootScope, $http, $scope, User, $state, Playlist) {
+  // Returns true if at least an asynchronous request is in progress
+  $scope.isLoading = function() {
+    return $http.pendingRequests.length > 0;
+  };
+
   // Load user data on application startup
   User.userInfo().then(function(data) {
     if (data.anonymous) {
@@ -29,6 +34,7 @@ App.controller('Navigation', function($rootScope, $scope, User, $state, Playlist
   
   // User logout
   $scope.logout = function($event) {
+    Playlist.reset();
     User.logout().then(function() {
       User.userInfo(true).then(function(data) {
         $rootScope.userInfo = data;

@@ -99,12 +99,15 @@ App.directive('audioPlayer', function($rootScope, Playlist, Restangular) {
 
       // Return current buffer progression
       $scope.bufferProgress = _.throttle(function() {
+        var buffers = [];
         var buff = $scope.audio.buffered;
-        if (buff.length > 0) {
-          var buffered = buff.end(buff.length - 1) - $scope.audio.currentTime;
-          return buffered / $scope.audio.duration * 100;
+        for (var i = 0; i < buff.length; i++) {
+          buffers.push({
+            start: buff.start(i) / $scope.audio.duration * 100,
+            end: buff.end(i) / $scope.audio.duration * 100
+          });
         }
-        return 0;
+        return buffers;
       }, 500);
 
       // Seek through the current track

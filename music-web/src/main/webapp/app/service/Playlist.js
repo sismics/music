@@ -33,6 +33,15 @@ App.factory('Playlist', function($rootScope, Restangular, toaster) {
   // Service
   var service = {
     /**
+     * Reset the service.
+     */
+    reset: function() {
+      $rootScope.$broadcast('audio.stop');
+      currentTrack = null;
+      tracks = [];
+    },
+
+    /**
      * Play a track from the current playlist.
      * @param _currentTrack
      */
