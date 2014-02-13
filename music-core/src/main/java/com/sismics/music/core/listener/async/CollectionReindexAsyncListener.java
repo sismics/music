@@ -1,5 +1,6 @@
 package com.sismics.music.core.listener.async;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.eventbus.Subscribe;
 import com.sismics.music.core.event.async.CollectionReindexAsyncEvent;
 import com.sismics.music.core.model.context.AppContext;
@@ -32,7 +33,7 @@ public class CollectionReindexAsyncListener {
         if (log.isInfoEnabled()) {
             log.info("Collection reindex event: " + collectionReindexAsyncEvent.toString());
         }
-        long startTime = System.currentTimeMillis();
+        Stopwatch stopwatch = Stopwatch.createStarted();
 
         TransactionUtil.handle(new Runnable() {
             @Override
@@ -43,9 +44,8 @@ public class CollectionReindexAsyncListener {
             }
         });
 
-        long endTime = System.currentTimeMillis();
         if (log.isInfoEnabled()) {
-            log.info(MessageFormat.format("Collection updated in {0}ms", endTime - startTime));
+            log.info(MessageFormat.format("Collection updated in {0}", stopwatch));
         }
     }
 }

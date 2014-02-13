@@ -1,5 +1,6 @@
 package com.sismics.music.core.service.collection;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.AbstractScheduledService;
 import com.sismics.music.core.dao.dbi.AlbumDao;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -72,12 +74,19 @@ public class CollectionService extends AbstractScheduledService {
      * @param directory Directory to index
      */
     public void addDirectoryToIndex(Directory directory) {
+        if (log.isInfoEnabled()) {
+            log.info(MessageFormat.format("Adding directory {0} to index", directory.getLocation()));
+        }
         // Index the directory recursively
         new CollectionVisitor(directory).index();
 
         // Delete all artists that don't have any album
         ArtistDao artistDao = new ArtistDao();
         artistDao.deleteEmptyArtist(directory.getId());
+
+        if (log.isInfoEnabled()) {
+            log.info(MessageFormat.format("Done adding directory {0} to index", directory.getLocation()));
+        }
     }
 
     /**
@@ -86,6 +95,9 @@ public class CollectionService extends AbstractScheduledService {
      * @param directory Directory to index
      */
     public void removeDirectoryFromIndex(Directory directory) {
+        if (log.isInfoEnabled()) {
+            log.info(MessageFormat.format("Removing directory {0} from index", directory.getLocation()));
+        }
         // Delete all albums from this directory
         AlbumDao albumDao = new AlbumDao();
         List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria().setDirectoryId(directory.getId()));
@@ -96,6 +108,10 @@ public class CollectionService extends AbstractScheduledService {
         // Delete all artists that don't have any album
         ArtistDao artistDao = new ArtistDao();
         artistDao.deleteEmptyArtist(directory.getId());
+
+        if (log.isInfoEnabled()) {
+            log.info(MessageFormat.format("Done removing directory {0} from index", directory.getLocation()));
+        }
     }
 
     /**
@@ -105,6 +121,7 @@ public class CollectionService extends AbstractScheduledService {
      * @param file File to add
      */
     public void indexFile(Directory rootDirectory, Path file) {
+        Stopwatch stopWatch = Stopwatch.createStarted();
         try {
             TrackDao trackDao = new TrackDao();
             Track track = trackDao.getActiveByDirectoryAndFilename(rootDirectory.getId(), file.toAbsolutePath().toString());
@@ -119,6 +136,9 @@ public class CollectionService extends AbstractScheduledService {
             }
         } catch (Exception e) {
             log.error("Error extracting metadata from file: " + file, e);
+        }
+        if (log.isInfoEnabled()) {
+            log.info(MessageFormat.format("File {0} indexed in {1}", file, stopWatch));
         }
     }
 

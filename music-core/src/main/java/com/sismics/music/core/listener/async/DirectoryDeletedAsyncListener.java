@@ -1,5 +1,6 @@
 package com.sismics.music.core.listener.async;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.eventbus.Subscribe;
 import com.sismics.music.core.event.async.DirectoryDeletedAsyncEvent;
 import com.sismics.music.core.model.context.AppContext;
@@ -33,7 +34,7 @@ public class DirectoryDeletedAsyncListener {
         if (log.isInfoEnabled()) {
             log.info("Directory deleted event: " + directoryDeletedAsyncEvent.toString());
         }
-        long startTime = System.currentTimeMillis();
+        Stopwatch stopwatch = Stopwatch.createStarted();
 
         final Directory directory = directoryDeletedAsyncEvent.getDirectory();
 
@@ -46,9 +47,8 @@ public class DirectoryDeletedAsyncListener {
             }
         });
 
-        long endTime = System.currentTimeMillis();
         if (log.isInfoEnabled()) {
-            log.info(MessageFormat.format("Collection updated in {0}ms", endTime - startTime));
+            log.info(MessageFormat.format("Collection updated in {0}ms", stopwatch));
         }
     }
 }
