@@ -58,7 +58,7 @@ public class ArtistDao {
         final Handle handle = ThreadLocalContext.get().getHandle();
         return handle.createQuery("select a.ART_ID_C, a.ART_NAME_C, a.ART_CREATEDATE_D, a.ART_DELETEDATE_D" +
                 "  from T_ARTIST a" +
-                "  where a.ART_NAME_C = :name and a.ART_DELETEDATE_D is null")
+                "  where lower(a.ART_NAME_C) = lower(:name) and a.ART_DELETEDATE_D is null")
                 .bind("name", name)
                 .mapTo(Artist.class)
                 .first();

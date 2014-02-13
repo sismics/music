@@ -1,15 +1,5 @@
 package com.sismics.music.core.dao.dbi;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.Query;
-
 import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.dbi.criteria.AlbumCriteria;
 import com.sismics.music.core.dao.dbi.dto.AlbumDto;
@@ -18,6 +8,10 @@ import com.sismics.music.core.util.dbi.ColumnIndexMapper;
 import com.sismics.music.core.util.dbi.QueryParam;
 import com.sismics.music.core.util.dbi.QueryUtil;
 import com.sismics.util.context.ThreadLocalContext;
+import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
+
+import java.util.*;
 
 /**
  * Album DAO.
@@ -84,7 +78,7 @@ public class AlbumDao {
         final Handle handle = ThreadLocalContext.get().getHandle();
         return handle.createQuery("select a.ALB_ID_C, a.ALB_IDDIRECTORY_C, a.ALB_IDARTIST_C, a.ALB_NAME_C, a.ALB_ALBUMART_C, a.ALB_CREATEDATE_D, a.ALB_DELETEDATE_D" +
                 "  from T_ALBUM a" +
-                "  where a.ALB_IDARTIST_C = :artistId and a.ALB_NAME_C = :name and a.ALB_DELETEDATE_D is null")
+                "  where lower(a.ALB_IDARTIST_C) = lower(:artistId) and lower(a.ALB_NAME_C) = lower(:name) and a.ALB_DELETEDATE_D is null")
                 .bind("artistId", artistId)
                 .bind("name", name)
                 .mapTo(Album.class)
