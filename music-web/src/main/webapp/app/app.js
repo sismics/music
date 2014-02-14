@@ -69,11 +69,29 @@ var App = angular.module('music',
             }
           })
           .state('main.music', {
-            url: '/music/*filter',
+            url: '/music',
             views: {
               'content': {
-                templateUrl: 'partial/music.html',
-                controller: 'Music'
+                templateUrl: 'partial/music.html'/*,
+                controller: 'Music'*/
+              }
+            }
+          })
+          .state('main.music.albums', {
+            url: '/albums/*filter',
+            views: {
+              'tab': {
+                templateUrl: 'partial/music.albums.html',
+                controller: 'MusicAlbums'
+              }
+            }
+          })
+          .state('main.music.artists', {
+            url: '/artists/*filter',
+            views: {
+              'tab': {
+                templateUrl: 'partial/music.artists.html',
+                controller: 'MusicArtists'
               }
             }
           })

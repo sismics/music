@@ -16,7 +16,7 @@ App.controller('Login', function($rootScope, $scope, $state, $dialog, User, Play
         Playlist.open(0);
       });
 
-      $state.transitionTo('main.music');
+      $state.transitionTo('main.music.albums');
     }, function() {
       var title = 'Login failed';
       var msg = 'Username or password invalid';

@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * Music library controller.
+ * Albums library controller.
  */
-App.controller('Music', function($scope, $stateParams, $state, Restangular, filterFilter) {
+App.controller('MusicAlbums', function($scope, $stateParams, $state, Restangular, filterFilter) {
   // Initialize filtering
   $scope.filter = $stateParams.filter;
   $scope.albums = [];
@@ -38,7 +38,7 @@ App.controller('Music', function($scope, $stateParams, $state, Restangular, filt
     $scope.filteredAlbums = filterFilter($scope.allAlbums, $scope.filter);
     $scope.loadMoreDebounced(true);
 
-    $state.go('main.music', {
+    $state.go('main.music.albums', {
       filter: $scope.filter
     }, {
       location: 'replace',
