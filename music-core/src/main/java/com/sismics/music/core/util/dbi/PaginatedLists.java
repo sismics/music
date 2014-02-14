@@ -1,9 +1,9 @@
 package com.sismics.music.core.util.dbi;
 
+import java.util.List;
+
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.util.IntegerMapper;
-
-import java.util.List;
 
 /**
  * Utilities for paginated lists.
@@ -74,9 +74,8 @@ public class PaginatedLists {
      * @param queryParam Query parameters
      * @return List of results
      */
-    @SuppressWarnings("unchecked")
     private static <E> List<Object[]> executeResultQuery(PaginatedList<E> paginatedList, QueryParam queryParam) {
-        Query q = QueryUtil.getNativeQuery(queryParam).map(ColumnIndexMapper.INSTANCE);
+        Query<Object[]> q = QueryUtil.getNativeQuery(queryParam).map(ColumnIndexMapper.INSTANCE);
         
         //q.setOffset(paginatedList.getOffset()); // TODO how to do offset?
         q.setMaxRows(paginatedList.getLimit());

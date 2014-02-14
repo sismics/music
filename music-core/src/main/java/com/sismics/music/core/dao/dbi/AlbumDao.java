@@ -1,5 +1,15 @@
 package com.sismics.music.core.dao.dbi;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
+
 import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.dbi.criteria.AlbumCriteria;
 import com.sismics.music.core.dao.dbi.dto.AlbumDto;
@@ -8,10 +18,6 @@ import com.sismics.music.core.util.dbi.ColumnIndexMapper;
 import com.sismics.music.core.util.dbi.QueryParam;
 import com.sismics.music.core.util.dbi.QueryUtil;
 import com.sismics.util.context.ThreadLocalContext;
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.Query;
-
-import java.util.*;
 
 /**
  * Album DAO.
@@ -107,10 +113,9 @@ public class AlbumDao {
      * @param criteria Search criteria
      * @return List of albums
      */
-    @SuppressWarnings("unchecked")
     public List<AlbumDto> findByCriteria(AlbumCriteria criteria) {
         QueryParam queryParam = getQueryParam(criteria);
-        Query q = QueryUtil.getNativeQuery(queryParam);
+        Query<Map<String, Object>> q = QueryUtil.getNativeQuery(queryParam);
         List<Object[]> l = q.map(ColumnIndexMapper.INSTANCE).list();
         return assembleResultList(l);
     }

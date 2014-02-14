@@ -7,6 +7,7 @@ import com.sismics.music.core.dao.dbi.mapper.TrackMapper;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.util.dbi.*;
 import com.sismics.util.context.ThreadLocalContext;
+
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
 
@@ -123,7 +124,7 @@ public class TrackDao {
      */
     public List<TrackDto> findByCriteria(TrackCriteria criteria) {
         QueryParam queryParam = getQueryParam(criteria);
-        Query q = QueryUtil.getNativeQuery(queryParam);
+        Query<Map<String, Object>> q = QueryUtil.getNativeQuery(queryParam);
         List<Object[]> l = q.map(ColumnIndexMapper.INSTANCE).list();
         return assembleResultList(l);
     }

@@ -1,10 +1,12 @@
 package com.sismics.music.core.util.dbi;
 
-import com.sismics.util.context.ThreadLocalContext;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
 
-import java.util.Map.Entry;
+import com.sismics.util.context.ThreadLocalContext;
 
 /**
  * Query utilities.
@@ -19,9 +21,9 @@ public class QueryUtil {
      * @param queryParam Query parameters
      * @return Native query
      */
-    public static Query<?> getNativeQuery(QueryParam queryParam) {
+    public static Query<Map<String, Object>> getNativeQuery(QueryParam queryParam) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        Query query = handle.createQuery(queryParam.getQueryString());
+        Query<Map<String, Object>> query = handle.createQuery(queryParam.getQueryString());
         for (Entry<String, Object> entry : queryParam.getParameterMap().entrySet()) {
             query.bind(entry.getKey(), entry.getValue());
         }
