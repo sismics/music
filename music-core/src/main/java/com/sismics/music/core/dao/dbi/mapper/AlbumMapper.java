@@ -1,8 +1,8 @@
 package com.sismics.music.core.dao.dbi.mapper;
 
 import com.sismics.music.core.model.dbi.Album;
+import com.sismics.util.dbi.BaseResultSetMapper;
 import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,16 +12,33 @@ import java.sql.SQLException;
  *
  * @author jtremeaux
  */
-public class AlbumMapper implements ResultSetMapper<Album> {
+public class AlbumMapper extends BaseResultSetMapper<Album> {
+    public String[] getColumns() {
+        return new String[] {
+                "ALB_ID_C",
+                "ALB_IDDIRECTORY_C",
+                "ALB_IDARTIST_C",
+                "ALB_NAME_C",
+                "ALB_ALBUMART_C",
+                "ALB_SCORE_N",
+                "ALB_UPDATEDATE_D",
+                "ALB_CREATEDATE_D",
+                "ALB_DELETEDATE_D"};
+    }
+
     @Override
     public Album map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+        final String[] columns = getColumns();
+        int column = 0;
         return new Album(
-                r.getString("ALB_ID_C"),
-                r.getString("ALB_IDDIRECTORY_C"),
-                r.getString("ALB_IDARTIST_C"),
-                r.getString("ALB_NAME_C"),
-                r.getString("ALB_ALBUMART_C"),
-                r.getDate("ALB_CREATEDATE_D"),
-                r.getDate("ALB_DELETEDATE_D"));
+                r.getString(columns[column++]),
+                r.getString(columns[column++]),
+                r.getString(columns[column++]),
+                r.getString(columns[column++]),
+                r.getString(columns[column++]),
+                r.getInt(columns[column++]),
+                r.getDate(columns[column++]),
+                r.getDate(columns[column++]),
+                r.getDate(columns[column]));
     }
 }

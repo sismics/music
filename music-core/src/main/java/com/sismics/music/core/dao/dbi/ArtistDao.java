@@ -1,23 +1,18 @@
 package com.sismics.music.core.dao.dbi;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.Query;
-
 import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.dbi.criteria.ArtistCriteria;
 import com.sismics.music.core.dao.dbi.dto.ArtistDto;
+import com.sismics.music.core.dao.dbi.mapper.ArtistMapper;
 import com.sismics.music.core.model.dbi.Artist;
 import com.sismics.music.core.util.dbi.ColumnIndexMapper;
 import com.sismics.music.core.util.dbi.QueryParam;
 import com.sismics.music.core.util.dbi.QueryUtil;
 import com.sismics.util.context.ThreadLocalContext;
+import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
+
+import java.util.*;
 
 /**
  * Artist DAO.
@@ -68,7 +63,7 @@ public class ArtistDao {
      */
     public Artist getActiveByName(String name) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select a.ART_ID_C, a.ART_NAME_C, a.ART_CREATEDATE_D, a.ART_DELETEDATE_D" +
+        return handle.createQuery("select " + new ArtistMapper().getJoinedColumns("a") +
                 "  from T_ARTIST a" +
                 "  where lower(a.ART_NAME_C) = lower(:name) and a.ART_DELETEDATE_D is null")
                 .bind("name", name)
@@ -84,7 +79,7 @@ public class ArtistDao {
      */
     public Artist getActiveById(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select a.ART_ID_C, a.ART_NAME_C, a.ART_CREATEDATE_D, a.ART_DELETEDATE_D" +
+        return handle.createQuery("select " + new ArtistMapper().getJoinedColumns("a") +
                 "  from T_ARTIST a" +
                 "  where a.ART_ID_C = :id and a.ART_DELETEDATE_D is null")
                 .bind("id", id)
