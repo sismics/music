@@ -2,11 +2,16 @@ package com.sismics.music.core.service.lastfm;
 
 import com.sismics.music.core.constant.ConfigType;
 import com.sismics.music.core.dao.dbi.ArtistDao;
+import com.sismics.music.core.dao.dbi.TrackDao;
+import com.sismics.music.core.dao.dbi.UserTrackDao;
+import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
+import com.sismics.music.core.dao.dbi.dto.TrackDto;
 import com.sismics.music.core.model.dbi.Artist;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.model.dbi.User;
 import com.sismics.music.core.util.ConfigUtil;
 import de.umass.lastfm.Authenticator;
+import de.umass.lastfm.PaginatedResult;
 import de.umass.lastfm.Result;
 import de.umass.lastfm.Session;
 import de.umass.lastfm.scrobble.ScrobbleData;
@@ -17,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -126,6 +132,7 @@ public class LastFmService {
         Result result = de.umass.lastfm.Track.love(artist.getName(), track.getTitle(), session);
         log.info(MessageFormat.format("Loved a track for user {0}: {1}", user.getId(), result.toString()));
     }
+
     /**
      * Unlove a track.
      *
@@ -137,5 +144,38 @@ public class LastFmService {
         final Artist artist = new ArtistDao().getActiveById(track.getArtistId());
         Result result = de.umass.lastfm.Track.unlove(artist.getName(), track.getTitle(), session);
         log.info(MessageFormat.format("Unloved a track for user {0}: {1}", user.getId(), result.toString()));
+    }
+
+    /**
+     * Import all loved tracks from Last.fm.
+     *
+     * @param user Track to love
+     */
+    public void updateLovedTrack(User user) {
+        Session session = restoreSession(user);
+        de.umass.lastfm.User lastFmUser = de.umass.lastfm.User.getInfo(session);
+
+        UserTrackDao userTrackDao = new UserTrackDao();
+        TrackDao trackDao = new TrackDao();
+        userTrackDao.unlikeAll(user.getId());
+        int page = 1;
+        int count = 0;
+        PaginatedResult<de.umass.lastfm.Track> result = null;
+        do {
+            result = de.umass.lastfm.User.getLovedTracks(lastFmUser.getName(), page, session.getApiKey());
+
+            for (Iterator<de.umass.lastfm.Track> it = result.iterator(); it.hasNext();) {
+                count++;
+                de.umass.lastfm.Track lastFmTrack = it.next();
+                for (TrackDto track : trackDao.findByCriteria(new TrackCriteria()
+                        .setTitle(lastFmTrack.getName())
+                        .setArtistName(lastFmTrack.getArtist())
+                       )) {
+                    userTrackDao.like(user.getId(), track.getId());
+                }
+            }
+            page++;
+        } while (result != null && page <= result.getTotalPages());
+        //System.out.println(count);
     }
 }

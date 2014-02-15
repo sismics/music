@@ -12,6 +12,11 @@ public class TrackCriteria {
     private String albumId;
 
     /**
+     * Artist name.
+     */
+    private String artistName;
+
+    /**
      * Playlist user ID.
      */
     private String userId;
@@ -20,6 +25,11 @@ public class TrackCriteria {
      * Playlist ID.
      */
     private String playlistId;
+
+    /**
+     * Title.
+     */
+    private String title;
 
     /**
      * Title (like).
@@ -43,6 +53,26 @@ public class TrackCriteria {
      */
     public TrackCriteria setAlbumId(String albumId) {
         this.albumId = albumId;
+        return this;
+    }
+    
+    /**
+     * Getter of artistName.
+     *
+     * @return artistName
+     */
+    public String getArtistName() {
+        return this.artistName;
+    }
+
+    /**
+     * Setter of id.
+     *
+     * @param artistName artistName
+     * @return Criteria
+     */
+    public TrackCriteria setArtistName(String artistName) {
+        this.artistName = artistName;
         return this;
     }
     
@@ -87,6 +117,26 @@ public class TrackCriteria {
         return this;
     }
 
+    /**
+     * Getter of title.
+     *
+     * @return title
+     */
+    public String getTitle() {
+        return this.title;
+    }
+
+    /**
+     * Setter of id.
+     *
+     * @param title title
+     * @return Criteria
+     */
+    public TrackCriteria setTitle(String title) {
+        this.title = title;
+        return this;
+    }
+    
     /**
      * Getter of titleLike.
      *

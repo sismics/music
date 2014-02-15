@@ -612,6 +612,8 @@ public class UserResource extends BaseResource {
         user.setLastFmSessionToken(session.getKey());
         userDao.updateLastFmSessionToken(user);
 
+        //lastFmService.updateLovedTrack(user);
+
         // Always return ok
         JSONObject response = new JSONObject();
         response.put("status", "ok");
