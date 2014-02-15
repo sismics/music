@@ -311,22 +311,34 @@ public class TestUserResource extends BaseJerseyTest {
         Assert.assertFalse(json.getBoolean("lastfm_connected"));
 
         // User user updates his information
-        userResource = resource().path("/user/lastfm");
-        userResource.addFilter(new CookieAuthenticationFilter(lastFm0AuthenticationToken));
+        WebResource lastfmResource = resource().path("/user/lastfm");
+        lastfmResource.addFilter(new CookieAuthenticationFilter(lastFm0AuthenticationToken));
         MultivaluedMapImpl postParams = new MultivaluedMapImpl();
         postParams.add("username", System.getenv("LASTFM_USER"));
         postParams.add("password", System.getenv("LASTFM_PASSWORD"));
-        response = userResource.put(ClientResponse.class, postParams);
+        response = lastfmResource.put(ClientResponse.class, postParams);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
         json = response.getEntity(JSONObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
-        // The user checks his informatino
+        // The user checks his information
         userResource = resource().path("/user");
         userResource.addFilter(new CookieAuthenticationFilter(lastFm0AuthenticationToken));
         response = userResource.get(ClientResponse.class);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
         json = response.getEntity(JSONObject.class);
         Assert.assertTrue(json.getBoolean("lastfm_connected"));
+
+        // The user checks his Last.fm information
+        lastfmResource = resource().path("/user/lastfm");
+        lastfmResource.addFilter(new CookieAuthenticationFilter(lastFm0AuthenticationToken));
+        response = lastfmResource.get(ClientResponse.class);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        json = response.getEntity(JSONObject.class);
+        Assert.assertEquals(System.getenv("LASTFM_USER"), json.optString("username"));
+        Assert.assertNotNull(json.optLong("registered_date"));
+        Assert.assertNotNull(json.optLong("play_count"));
+        Assert.assertNotNull(json.optString("url"));
+        Assert.assertNotNull(json.optString("image_url"));
     }
 }

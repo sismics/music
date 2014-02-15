@@ -460,6 +460,7 @@ public class UserResource extends BaseResource {
         response.put("status", "ok");
         return Response.ok().entity(response).build();
     }
+
     /**
      * Returns the information about the connected user.
      * 
@@ -615,6 +616,34 @@ public class UserResource extends BaseResource {
         // Always return ok
         JSONObject response = new JSONObject();
         response.put("status", "ok");
+        return Response.ok().entity(response).build();
+    }
+
+    /**
+     * Returns the Last.fm information about the connected user.
+     *
+     * @return Response
+     * @throws JSONException
+     */
+    @GET
+    @Path("lastfm")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response lastFmInfo() throws JSONException {
+        JSONObject response = new JSONObject();
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+
+        final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
+        User user = new UserDao().getActiveById(principal.getId());
+        de.umass.lastfm.User lastFmUser = lastFmService.getInfo(user);
+
+        response.put("username", lastFmUser.getName());
+        response.put("registered_date", lastFmUser.getRegisteredDate().getTime());
+        response.put("play_count", lastFmUser.getPlaycount());
+        response.put("url", lastFmUser.getUrl());
+        response.put("image_url", lastFmUser.getImageURL());
+
         return Response.ok().entity(response).build();
     }
 }

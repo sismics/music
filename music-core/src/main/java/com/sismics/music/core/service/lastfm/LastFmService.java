@@ -60,6 +60,18 @@ public class LastFmService {
     }
 
     /**
+     * Returns the Last.fm information.
+     *
+     * @param user User
+     * @return Last.fm information
+     */
+    public de.umass.lastfm.User getInfo(User user) {
+        Session session = restoreSession(user);
+
+        return de.umass.lastfm.User.getInfo(session);
+    }
+
+    /**
      * Update track now playing.
      *
      * @param track Track now playing
@@ -126,6 +138,7 @@ public class LastFmService {
         Result result = de.umass.lastfm.Track.love(artist.getName(), track.getTitle(), session);
         log.info(MessageFormat.format("Loved a track for user {0}: {1}", user.getId(), result.toString()));
     }
+
     /**
      * Unlove a track.
      *
