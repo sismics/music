@@ -1,8 +1,8 @@
 package com.sismics.music.core.dao.dbi.mapper;
 
 import com.sismics.music.core.model.dbi.Artist;
+import com.sismics.util.dbi.BaseResultSetMapper;
 import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,14 +12,23 @@ import java.sql.SQLException;
  *
  * @author jtremeaux
  */
-public class ArtistMapper implements ResultSetMapper<Artist> {
+public class ArtistMapper extends BaseResultSetMapper<Artist> {
+    public String[] getColumns() {
+        return new String[] {
+                "ART_ID_C",
+                "ART_NAME_C",
+                "ART_CREATEDATE_D",
+                "ART_DELETEDATE_D"};
+    }
     @Override
     public Artist map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+        final String[] columns = getColumns();
+        int column = 0;
         return new Artist(
-                r.getString("ART_ID_C"),
-                r.getString("ART_NAME_C"),
-                r.getDate("ART_CREATEDATE_D"),
-                r.getDate("ART_DELETEDATE_D")
-                );
+            r.getString(columns[column++]),
+            r.getString(columns[column++]),
+            r.getDate(columns[column++]),
+            r.getDate(columns[column])
+            );
     }
 }

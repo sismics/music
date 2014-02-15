@@ -36,9 +36,19 @@ public class Album {
     private String albumArt;
 
     /**
+     * Album Score.
+     */
+    private Integer score;
+
+    /**
      * Creation date.
      */
     private Date createDate;
+    
+    /**
+     * Last update date.
+     */
+    private Date updateDate;
     
     /**
      * Deletion date.
@@ -48,13 +58,15 @@ public class Album {
     public Album() {
     }
 
-    public Album(String id, String directoryId, String artistId, String name, String albumArt, Date createDate, Date deleteDate) {
+    public Album(String id, String directoryId, String artistId, String name, String albumArt, Integer score, Date createDate, Date updateDate, Date deleteDate) {
         this.id = id;
         this.directoryId = directoryId;
         this.artistId = artistId;
         this.name = name;
         this.albumArt = albumArt;
+        this.score = score;
         this.createDate = createDate;
+        this.updateDate = updateDate;
         this.deleteDate = deleteDate;
     }
 
@@ -149,6 +161,24 @@ public class Album {
     }
 
     /**
+     * Getter of score.
+     *
+     * @return score
+     */
+    public Integer getScore() {
+        return score;
+    }
+
+    /**
+     * Setter of score.
+     *
+     * @param score score
+     */
+    public void setScore(Integer score) {
+        this.score = score;
+    }
+
+    /**
      * Getter of createDate.
      *
      * @return createDate
@@ -164,6 +194,24 @@ public class Album {
      */
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+
+    /**
+     * Getter of updateDate.
+     *
+     * @return updateDate
+     */
+    public Date getUpdateDate() {
+        return updateDate;
+    }
+
+    /**
+     * Setter of updateDate.
+     *
+     * @param updateDate updateDate
+     */
+    public void setUpdateDate(Date updateDate) {
+        this.updateDate = updateDate;
     }
 
     /**

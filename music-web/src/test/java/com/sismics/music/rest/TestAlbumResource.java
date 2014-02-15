@@ -1,18 +1,16 @@
 package com.sismics.music.rest;
 
-import java.nio.file.Paths;
-
-import junit.framework.Assert;
-
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONObject;
-import org.junit.Test;
-
 import com.sismics.music.rest.filter.CookieAuthenticationFilter;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import junit.framework.Assert;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONObject;
+import org.junit.Test;
+
+import java.nio.file.Paths;
 
 /**
  * Exhaustive test of the album resource.
@@ -54,7 +52,7 @@ public class TestAlbumResource extends BaseJerseyTest {
         Assert.assertNotNull(album0Id);
         Assert.assertNotNull(album0.optString("name"));
         Assert.assertNotNull(album0.optBoolean("albumart"));
-        Assert.assertNotNull(album0.optLong("create_date"));
+        Assert.assertNotNull(album0.optLong("update_date"));
 
         // Get an album by its ID.
         albumResource = resource().path("/album/" + album0Id);

@@ -1,23 +1,18 @@
 package com.sismics.music.core.dao.dbi;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.Query;
-
 import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.dbi.criteria.AlbumCriteria;
 import com.sismics.music.core.dao.dbi.dto.AlbumDto;
+import com.sismics.music.core.dao.dbi.mapper.AlbumMapper;
 import com.sismics.music.core.model.dbi.Album;
 import com.sismics.music.core.util.dbi.ColumnIndexMapper;
 import com.sismics.music.core.util.dbi.QueryParam;
 import com.sismics.music.core.util.dbi.QueryUtil;
 import com.sismics.util.context.ThreadLocalContext;
+import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
+
+import java.util.*;
 
 /**
  * Album DAO.
@@ -33,17 +28,22 @@ public class AlbumDao {
      */
     public String create(Album album) {
         album.setId(UUID.randomUUID().toString());
-        album.setCreateDate(new Date());
+        final Date now = new Date();
+        album.setScore(0);
+        album.setCreateDate(now);
+        album.setUpdateDate(now);
 
         Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                " T_ALBUM(ALB_ID_C, ALB_IDDIRECTORY_C, ALB_IDARTIST_C, ALB_NAME_C, ALB_ALBUMART_C, ALB_CREATEDATE_D)" +
-                " values(:id, :directoryId, :artistId, :name, :albumArt, :createDate)")
+                " T_ALBUM(ALB_ID_C, ALB_IDDIRECTORY_C, ALB_IDARTIST_C, ALB_NAME_C, ALB_ALBUMART_C, ALB_SCORE_N, ALB_CREATEDATE_D, ALB_UPDATEDATE_D)" +
+                " values(:id, :directoryId, :artistId, :name, :albumArt, :score, :createDate, :updateDate)")
                 .bind("id", album.getId())
                 .bind("directoryId", album.getDirectoryId())
                 .bind("artistId", album.getArtistId())
                 .bind("name", album.getName())
+                .bind("score", album.getScore())
                 .bind("albumArt", album.getAlbumArt())
+                .bind("updateDate", album.getUpdateDate())
                 .bind("createDate", album.getCreateDate())
                 .execute();
 
@@ -51,7 +51,7 @@ public class AlbumDao {
     }
     
     /**
-     * Updates a album.
+     * Updates an album.
      * 
      * @param album Album to update
      * @return Updated album
@@ -62,13 +62,17 @@ public class AlbumDao {
                 " a.ALB_IDDIRECTORY_C = :directoryId," +
                 " a.ALB_IDARTIST_C = :artistId, " +
                 " a.ALB_NAME_C = :name, " +
-                " a.ALB_ALBUMART_C = :albumArt " +
+                " a.ALB_ALBUMART_C = :albumArt, " +
+                " a.ALB_SCORE_N = :score, " +
+                " a.ALB_UPDATEDATE_D = :updateDate " +
                 " where a.ALB_ID_C = :id and a.ALB_DELETEDATE_D is null")
                 .bind("id", album.getId())
                 .bind("name", album.getName())
                 .bind("directoryId", album.getDirectoryId())
                 .bind("artistId", album.getArtistId())
+                .bind("score", album.getScore())
                 .bind("albumArt", album.getAlbumArt())
+                .bind("updateDate", album.getUpdateDate())
                 .execute();
 
         return album;
@@ -82,13 +86,29 @@ public class AlbumDao {
      */
     public Album getActiveByArtistIdAndName(String artistId, String name) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select a.ALB_ID_C, a.ALB_IDDIRECTORY_C, a.ALB_IDARTIST_C, a.ALB_NAME_C, a.ALB_ALBUMART_C, a.ALB_CREATEDATE_D, a.ALB_DELETEDATE_D" +
+        return handle.createQuery("select " + new AlbumMapper().getJoinedColumns("a") +
                 "  from T_ALBUM a" +
                 "  where lower(a.ALB_IDARTIST_C) = lower(:artistId) and lower(a.ALB_NAME_C) = lower(:name) and a.ALB_DELETEDATE_D is null")
                 .bind("artistId", artistId)
                 .bind("name", name)
                 .mapTo(Album.class)
                 .first();
+    }
+    
+    /**
+     * Gets active albums by artist ID.
+     * 
+     * @param artistId Artist ID
+     * @return List of albums
+     */
+    public List<Album> getActiveByArtistId(String artistId) {
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        return handle.createQuery("select a.ALB_ID_C, a.ALB_IDDIRECTORY_C, a.ALB_IDARTIST_C, a.ALB_NAME_C, a.ALB_ALBUMART_C, a.ALB_CREATEDATE_D, a.ALB_DELETEDATE_D" +
+                "  from T_ALBUM a" +
+                "  where a.ALB_IDARTIST_C = :artistId and a.ALB_DELETEDATE_D is null")
+                .bind("artistId", artistId)
+                .mapTo(Album.class)
+                .list();
     }
     
     /**
@@ -99,7 +119,7 @@ public class AlbumDao {
      */
     public Album getActiveById(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select a.ALB_ID_C, a.ALB_IDDIRECTORY_C, a.ALB_IDARTIST_C, a.ALB_NAME_C, a.ALB_ALBUMART_C, a.ALB_CREATEDATE_D, a.ALB_DELETEDATE_D" +
+        return handle.createQuery("select " + new AlbumMapper().getJoinedColumns("a") +
                 "  from T_ALBUM a" +
                 "  where a.ALB_ID_C = :id and a.ALB_DELETEDATE_D is null")
                 .bind("id", id)
@@ -129,7 +149,7 @@ public class AlbumDao {
     private QueryParam getQueryParam(AlbumCriteria criteria) {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-        StringBuilder sb = new StringBuilder("select a.ALB_ID_C, a.ALB_NAME_C,  a.ALB_ALBUMART_C, ar.ART_ID_C, ar.ART_NAME_C, a.ALB_CREATEDATE_D ");
+        StringBuilder sb = new StringBuilder("select a.ALB_ID_C, a.ALB_NAME_C,  a.ALB_ALBUMART_C, ar.ART_ID_C, ar.ART_NAME_C, a.ALB_UPDATEDATE_D ");
         sb.append(" from T_ALBUM a ");
         sb.append(" join T_ARTIST ar on(ar.ART_ID_C = a.ALB_IDARTIST_C) ");
 
@@ -174,7 +194,7 @@ public class AlbumDao {
             albumDto.setAlbumArt((String) o[i++]);
             albumDto.setArtistId((String) o[i++]);
             albumDto.setArtistName((String) o[i++]);
-            albumDto.setCreateDate((Date) o[i++]);
+            albumDto.setUpdateDate((Date) o[i++]);
             albumDtoList.add(albumDto);
         }
         return albumDtoList;

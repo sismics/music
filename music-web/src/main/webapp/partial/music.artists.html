@@ -10,18 +10,18 @@
   </div>
 
   <div class="col-sm-12" infinite-scroll="loadMore()" infinite-scroll-distance="1">
-    <table class="table table-striped">
-      <thead>
-      <tr>
-        <th>Name</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr bindonce ng-repeat="artist in artists">
-        <td><a bo-href="'#/artist/' + artist.id" bo-text="artist.name"></a></td>
-      </tr>
-      </tbody>
-    </table>
+    <div class="col-sm-6 col-md-3" bindonce ng-repeat="artist in artists">
+      <a class="thumbnail albumart-thumbnail" bo-href="'#/artist/' + artist.id">
+        <div class="img-container">
+          <img bo-src="'api/artist/' + artist.id + '/artistart/small'" />
+        </div>
+        <div class="caption">
+          <div class="caption-container">
+            <div bo-text="artist.name"></div>
+          </div>
+        </div>
+      </a>
+    </div>
   </div>
 </div>
 

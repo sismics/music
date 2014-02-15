@@ -1,13 +1,6 @@
 package com.sismics.music.core.util;
 
-import org.imgscalr.Scalr;
-
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.FileImageOutputStream;
-
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
@@ -23,6 +16,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.List;
+
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.FileImageOutputStream;
+
+import org.imgscalr.Scalr;
 
 /**
  * Utility class to manage image files.
@@ -204,5 +206,46 @@ public class ImageUtil {
         DataBuffer buffer = new DataBufferInt((int[]) pg.getPixels(), pg.getWidth() * pg.getHeight());
         WritableRaster raster = Raster.createPackedRaster(buffer, width, height, width, RGB_MASKS, null);
         return new BufferedImage(RGB_OPAQUE, raster, false, null);
+    }
+    
+    /**
+     * Make a mosaic from 1 to 4 images.
+     * @param imageList List of images
+     * @param size Final size
+     * @return Mosaic
+     * @throws Exception
+     */
+    public static BufferedImage makeMosaic(List<BufferedImage> imageList, int size) throws Exception {
+        if (imageList.size() == 0) {
+            return null;
+        }
+        
+        if (imageList.size() == 1) {
+            return imageList.get(0);
+        }
+        
+        if (imageList.size() > 4) {
+            imageList = imageList.subList(0, 4);
+        }
+        
+        BufferedImage mosaicImage = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
+        Graphics2D mosaicGraphic = mosaicImage.createGraphics();
+        
+        int i = 0;
+        for (BufferedImage image : imageList) {
+            if (i == 0 && imageList.size() == 3 || ((i == 0 || i == 1) && imageList.size() == 2)) {
+                image = Scalr.crop(image, (image.getWidth() - size / 2) / 2, 0, size / 2, image.getHeight());
+                mosaicGraphic.drawImage(image, null, size / 2 * i, 0);
+            }
+            if (imageList.size() == 4 || imageList.size() == 3 && (i == 1 || i == 2)) {
+                image = Scalr.resize(image, Scalr.Method.AUTOMATIC, Scalr.Mode.FIT_TO_WIDTH, size / 2, Scalr.OP_ANTIALIAS);
+                mosaicGraphic.drawImage(image, null,
+                        imageList.size() == 3 && i > 0 || imageList.size() == 4 && i > 1 ? size / 2 : 0,
+                        imageList.size() == 3 && i == 1 || imageList.size() == 4 && i % 2 == 0 ? 0 : size / 2);
+            }
+            i++;
+        }
+        
+        return mosaicImage;
     }
 }

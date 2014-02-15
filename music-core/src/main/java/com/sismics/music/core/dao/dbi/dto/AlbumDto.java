@@ -34,9 +34,9 @@ public class AlbumDto {
     private String artistName;
     
     /**
-     * Creation date.
+     * Last update date.
      */
-    private Date createDate;
+    private Date updateDate;
     
     /**
      * Getter of id.
@@ -129,20 +129,20 @@ public class AlbumDto {
     }
 
     /**
-     * Getter of createDate.
+     * Getter of updateDate.
      *
-     * @return the createDate
+     * @return the updateDate
      */
-    public Date getCreateDate() {
-        return createDate;
+    public Date getUpdateDate() {
+        return updateDate;
     }
 
     /**
-     * Setter of createDate.
+     * Setter of updateDate.
      *
-     * @param createDate createDate
+     * @param updateDate updateDate
      */
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
+    public void setUpdateDate(Date updateDate) {
+        this.updateDate = updateDate;
     }
 }
