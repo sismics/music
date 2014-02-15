@@ -21,7 +21,7 @@ App.controller('MusicAlbums', function($scope, $stateParams, $state, Restangular
 
   // Refresh album filtering
   var refreshFiltering = function() {
-    var order = $scope.order == 'alpha' ? '+artist.name' : '-create_date';
+    var order = $scope.order == 'alpha' ? '+artist.name' : '-update_date';
     $scope.filteredAlbums = orderByFilter(filterFilter($scope.allAlbums, $scope.filter), order);
   };
   

@@ -629,21 +629,45 @@ public class UserResource extends BaseResource {
     @Path("lastfm")
     @Produces(MediaType.APPLICATION_JSON)
     public Response lastFmInfo() throws JSONException {
-        JSONObject response = new JSONObject();
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
 
-        final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
+        JSONObject response = new JSONObject();
         User user = new UserDao().getActiveById(principal.getId());
-        de.umass.lastfm.User lastFmUser = lastFmService.getInfo(user);
 
-        response.put("username", lastFmUser.getName());
-        response.put("registered_date", lastFmUser.getRegisteredDate().getTime());
-        response.put("play_count", lastFmUser.getPlaycount());
-        response.put("url", lastFmUser.getUrl());
-        response.put("image_url", lastFmUser.getImageURL());
+        if (user.getLastFmSessionToken() != null) {
+            final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
+            de.umass.lastfm.User lastFmUser = lastFmService.getInfo(user);
+    
+            response.put("username", lastFmUser.getName());
+            response.put("registered_date", lastFmUser.getRegisteredDate().getTime());
+            response.put("play_count", lastFmUser.getPlaycount());
+            response.put("url", lastFmUser.getUrl());
+            response.put("image_url", lastFmUser.getImageURL());
+        } else {
+            response.put("status", "not_connected");
+        }
 
+        return Response.ok().entity(response).build();
+    }
+    
+    @DELETE
+    @Path("lastfm")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response unregisterLastFm() throws JSONException {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+
+        // Remove the session token
+        UserDao userDao = new UserDao();
+        User user = userDao.getActiveById(principal.getId());
+        user.setLastFmSessionToken(null);
+        userDao.updateLastFmSessionToken(user);
+
+        JSONObject response = new JSONObject();
+        response.put("status", "ok");
         return Response.ok().entity(response).build();
     }
 }
