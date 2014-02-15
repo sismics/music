@@ -11,6 +11,7 @@ import com.sismics.music.core.util.dbi.QueryUtil;
 import com.sismics.util.context.ThreadLocalContext;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
+import org.skife.jdbi.v2.util.IntegerMapper;
 
 import java.util.*;
 
@@ -29,19 +30,17 @@ public class AlbumDao {
     public String create(Album album) {
         album.setId(UUID.randomUUID().toString());
         final Date now = new Date();
-        album.setScore(0);
         album.setCreateDate(now);
         album.setUpdateDate(now);
 
         Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                " T_ALBUM(ALB_ID_C, ALB_IDDIRECTORY_C, ALB_IDARTIST_C, ALB_NAME_C, ALB_ALBUMART_C, ALB_SCORE_N, ALB_CREATEDATE_D, ALB_UPDATEDATE_D)" +
-                " values(:id, :directoryId, :artistId, :name, :albumArt, :score, :createDate, :updateDate)")
+                " T_ALBUM(ALB_ID_C, ALB_IDDIRECTORY_C, ALB_IDARTIST_C, ALB_NAME_C, ALB_ALBUMART_C, ALB_CREATEDATE_D, ALB_UPDATEDATE_D)" +
+                " values(:id, :directoryId, :artistId, :name, :albumArt, :createDate, :updateDate)")
                 .bind("id", album.getId())
                 .bind("directoryId", album.getDirectoryId())
                 .bind("artistId", album.getArtistId())
                 .bind("name", album.getName())
-                .bind("score", album.getScore())
                 .bind("albumArt", album.getAlbumArt())
                 .bind("updateDate", album.getUpdateDate())
                 .bind("createDate", album.getCreateDate())
@@ -63,21 +62,19 @@ public class AlbumDao {
                 " a.ALB_IDARTIST_C = :artistId, " +
                 " a.ALB_NAME_C = :name, " +
                 " a.ALB_ALBUMART_C = :albumArt, " +
-                " a.ALB_SCORE_N = :score, " +
                 " a.ALB_UPDATEDATE_D = :updateDate " +
                 " where a.ALB_ID_C = :id and a.ALB_DELETEDATE_D is null")
                 .bind("id", album.getId())
                 .bind("name", album.getName())
                 .bind("directoryId", album.getDirectoryId())
                 .bind("artistId", album.getArtistId())
-                .bind("score", album.getScore())
                 .bind("albumArt", album.getAlbumArt())
                 .bind("updateDate", album.getUpdateDate())
                 .execute();
 
         return album;
     }
-    
+
     /**
      * Gets an active album by its name.
      * 
@@ -124,6 +121,22 @@ public class AlbumDao {
                 "  where a.ALB_ID_C = :id and a.ALB_DELETEDATE_D is null")
                 .bind("id", id)
                 .mapTo(Album.class)
+                .first();
+    }
+
+    /**
+     * Returns the total number of likes for this album.
+     *
+     * @param id Album ID
+     * @return Number of likes
+     */
+    public Integer getFavoriteCountByAlbum(String id) {
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        return handle.createQuery("select count(t.TRK_ID_C)" +
+                "  from T_TRACK t" +
+                "  where t.TRK_IDALBUM_C = :id and t.TRK_FAVORITE_B = :favorite and a.TRK_DELETEDATE_D is null")
+                .bind("id", id)
+                .map(IntegerMapper.FIRST)
                 .first();
     }
 

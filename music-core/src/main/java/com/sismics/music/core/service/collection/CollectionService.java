@@ -224,4 +224,23 @@ public class CollectionService extends AbstractScheduledService {
             addDirectoryToIndex(directory);
         }
     }
+
+    /**
+     * Update the album scores.
+     * TODO implement a more elaborated scoring function
+     */
+    public void updateScore() {
+        AlbumDao albumDao = new AlbumDao();
+        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria());
+        // TODO implement scoring
+//        for (AlbumDto albumDto : albumList) {
+//            Integer score = albumDao.getFavoriteCountByAlbum(albumDto.getId());
+//
+//            Album album = new Album();
+//            album.setId(albumDto.getId());
+//            album.setScore(score);
+//
+//            albumDao.updateScore(album);
+//        }
+    }
 }

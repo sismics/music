@@ -9,24 +9,24 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
- * User /track DAO.
+ * User / track DAO.
  * 
  * @author jtremeaux
  */
 public class UserTrackDao {
     /**
-     * Creates a new user /track.
+     * Creates a new user / track.
      *
-     * @param userTrack User /track to create
-     * @return User /track ID
+     * @param userTrack User / track to create
+     * @return User / track ID
      */
     public String create(UserTrack userTrack) {
-        // Init user /track data
+        // Init user / track data
         userTrack.setId(UUID.randomUUID().toString());
         userTrack.setCreateDate(new Date());
         userTrack.setPlayCount(0);
 
-        // Create user /track
+        // Create user / track
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
                 " T_USER_TRACK(UST_ID_C, UST_IDUSER_C, UST_IDTRACK_C, UST_CREATEDATE_D)" +

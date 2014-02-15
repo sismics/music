@@ -20,7 +20,6 @@ public class AlbumMapper extends BaseResultSetMapper<Album> {
                 "ALB_IDARTIST_C",
                 "ALB_NAME_C",
                 "ALB_ALBUMART_C",
-                "ALB_SCORE_N",
                 "ALB_UPDATEDATE_D",
                 "ALB_CREATEDATE_D",
                 "ALB_DELETEDATE_D"};
@@ -36,7 +35,6 @@ public class AlbumMapper extends BaseResultSetMapper<Album> {
                 r.getString(columns[column++]),
                 r.getString(columns[column++]),
                 r.getString(columns[column++]),
-                r.getInt(columns[column++]),
                 r.getDate(columns[column++]),
                 r.getDate(columns[column++]),
                 r.getDate(columns[column]));

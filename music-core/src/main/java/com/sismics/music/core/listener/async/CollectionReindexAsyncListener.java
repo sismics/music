@@ -38,9 +38,12 @@ public class CollectionReindexAsyncListener {
         TransactionUtil.handle(new Runnable() {
             @Override
             public void run() {
-                // Index new directory
+                // Reindex the whole collection
                 CollectionService collectionService = AppContext.getInstance().getCollectionService();
                 collectionService.reindex();
+
+                // Update the scores
+                collectionService.updateScore();
             }
         });
 
