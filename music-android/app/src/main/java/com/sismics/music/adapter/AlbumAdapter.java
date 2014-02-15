@@ -145,7 +145,7 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
     }
 
     /**
-     * Article ViewHolder.
+     * Album ViewHolder.
      * 
      * @author bgamard
      */

@@ -1,5 +1,7 @@
 package com.sismics.music.core.dao.dbi.dto;
 
+import java.util.Date;
+
 /**
  * Album DTO.
  *
@@ -30,6 +32,11 @@ public class AlbumDto {
      * Artist name.
      */
     private String artistName;
+    
+    /**
+     * Creation date.
+     */
+    private Date createDate;
     
     /**
      * Getter of id.
@@ -119,5 +126,23 @@ public class AlbumDto {
      */
     public void setArtistName(String artistName) {
         this.artistName = artistName;
+    }
+
+    /**
+     * Getter of createDate.
+     *
+     * @return the createDate
+     */
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    /**
+     * Setter of createDate.
+     *
+     * @param createDate createDate
+     */
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
 }

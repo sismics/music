@@ -54,6 +54,7 @@ public class TestAlbumResource extends BaseJerseyTest {
         Assert.assertNotNull(album0Id);
         Assert.assertNotNull(album0.optString("name"));
         Assert.assertNotNull(album0.optBoolean("albumart"));
+        Assert.assertNotNull(album0.optLong("create_date"));
 
         // Get an album by its ID.
         albumResource = resource().path("/album/" + album0Id);

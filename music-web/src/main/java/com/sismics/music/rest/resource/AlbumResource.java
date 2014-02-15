@@ -242,6 +242,7 @@ public class AlbumResource extends BaseResource {
             JSONObject albumJson = new JSONObject();
             albumJson.put("id", album.getId());
             albumJson.put("name", album.getName());
+            albumJson.put("create_date", album.getCreateDate().getTime());
             albumJson.put("albumart", album.getAlbumArt() != null);
 
             JSONObject artistJson = new JSONObject();

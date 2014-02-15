@@ -5,7 +5,7 @@
         <a class="list-group-item" ng-class="{ active: $uiRoute }" ui-route="/playing" href="#/playing">Now playing</a>
         <a class="list-group-item"
            ng-class="{ active: $uiRoute || $state.current.name == 'main.album' || $state.current.name == 'main.search' || $state.current.name == 'main.albumart' }"
-           ui-route="/music/.*" href="#/music/albums/">
+           ui-route="/music/.*" href="#/music/albums/:">
           My music
         </a>
       </div>
