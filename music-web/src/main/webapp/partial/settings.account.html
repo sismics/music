@@ -1,6 +1,6 @@
 <h3>Last.fm scrobbling</h3>
 <div class="well" ng-show="userInfo.lastfm_connected">
-  <p class="text-info">Your account is already linked to Last.fm.</p>
+  <p class="text-info">Your account is linked to Last.fm</p>
 
   <div class="pull-right">
     <button class="btn btn-danger" ng-click="disconnectLastFm()">
@@ -9,11 +9,11 @@
   </div>
 
   <div class="media" ng-show="lastFm">
-    <a class="pull-left" ng-href="{{ lastFm.url }}" target="_blank">
+    <a class="pull-left" ng-href="{{ lastFm.url }}" target="_blank" ng-if="lastFm.image_url">
       <img class="media-object" ng-src="{{ lastFm.image_url }}" alt="{{ lastFm.username }}">
     </a>
     <div class="media-body">
-      <h4 class="media-heading">{{ lastFm.username }}</h4>
+      <h4 class="media-heading"><a ng-href="{{ lastFm.url }}" target="_blank">{{ lastFm.username }}</a></h4>
       Scrobbled {{ lastFm.play_count }} songs since {{ lastFm.registered_date | date: 'mediumDate' }}.
     </div>
   </div>

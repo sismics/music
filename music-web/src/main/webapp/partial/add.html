@@ -1,0 +1,8 @@
+<div>
+  <ul class="nav nav-tabs">
+    <li ng-class="{ active: $state.current.name == 'main.add.upload' }"><a href="#/add/upload">Upload</a></li>
+    <li ng-class="{ active: $state.current.name == 'main.add.external' }"><a href="#/add/external">External sources</a></li>
+  </ul>
+
+  <div ui-view="tab"></div>
+</div>

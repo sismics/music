@@ -72,8 +72,7 @@ var App = angular.module('music',
             url: '/music',
             views: {
               'content': {
-                templateUrl: 'partial/music.html'/*,
-                controller: 'Music'*/
+                templateUrl: 'partial/music.html'
               }
             }
           })
@@ -92,6 +91,33 @@ var App = angular.module('music',
               'tab': {
                 templateUrl: 'partial/music.artists.html',
                 controller: 'MusicArtists'
+              }
+            }
+          })
+          .state('main.add', {
+            url: '/add',
+            views: {
+              'content': {
+                templateUrl: 'partial/add.html',
+                controller: 'Add'
+              }
+            }
+          })
+          .state('main.add.upload', {
+            url: '/upload',
+            views: {
+              'tab': {
+                templateUrl: 'partial/add.upload.html',
+                controller: 'AddUpload'
+              }
+            }
+          })
+          .state('main.add.external', {
+            url: '/external',
+            views: {
+              'tab': {
+                templateUrl: 'partial/add.external.html',
+                controller: 'AddExternal'
               }
             }
           })
