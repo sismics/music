@@ -100,7 +100,7 @@ public class AlbumDao {
      */
     public List<Album> getActiveByArtistId(String artistId) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select a.ALB_ID_C, a.ALB_IDDIRECTORY_C, a.ALB_IDARTIST_C, a.ALB_NAME_C, a.ALB_ALBUMART_C, a.ALB_CREATEDATE_D, a.ALB_DELETEDATE_D" +
+        return handle.createQuery("select a.ALB_ID_C, a.ALB_IDDIRECTORY_C, a.ALB_IDARTIST_C, a.ALB_NAME_C, a.ALB_ALBUMART_C, a.ALB_UPDATEDATE_D, a.ALB_CREATEDATE_D, a.ALB_DELETEDATE_D" +
                 "  from T_ALBUM a" +
                 "  where a.ALB_IDARTIST_C = :artistId and a.ALB_DELETEDATE_D is null")
                 .bind("artistId", artistId)

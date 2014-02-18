@@ -1,10 +1,39 @@
-<div class="results" ng-show="results">
+<div class="search-results" ng-show="results">
   <div class="albums" ng-show="results.albums">
     <h3>Albums</h3>
+    <div class="col-sm-12">
+      <div class="col-sm-6 col-md-3" bindonce ng-repeat="album in results.albums">
+        <a class="thumbnail albumart-thumbnail" bo-href="'#/album/' + album.id">
+          <div class="img-container">
+            <img bo-if="album.albumart" bo-src="'api/album/' + album.id + '/albumart/small'" />
+          </div>
+          <div class="caption">
+            <div class="caption-container">
+              <div class="text-muted" bo-text="album.artist.name"></div>
+              <div bo-text="album.name"></div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
   </div>
 
   <div class="artists" ng-show="results.artists">
     <h3>Artists</h3>
+    <div class="col-sm-12">
+      <div class="col-sm-6 col-md-3" bindonce ng-repeat="artist in results.artists">
+        <a class="thumbnail albumart-thumbnail" bo-href="'#/artist/' + artist.id">
+          <div class="img-container">
+            <img bo-src="'api/artist/' + artist.id + '/artistart/small'" />
+          </div>
+          <div class="caption">
+            <div class="caption-container">
+              <div bo-text="artist.name"></div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
   </div>
 
   <div class="tracks" ng-show="results.tracks">

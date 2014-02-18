@@ -10,7 +10,7 @@
   </div>
 
   <div class="col-md-2 albumart">
-    <img ng-if="track" ng-click="openAlbum(track.album.id)" ng-src="api/album/{{ track.album.id }}/albumart/small" />
+    <img ng-if="track.album.albumart" ng-click="openAlbum(track.album.id)" ng-src="api/album/{{ track.album.id }}/albumart/small" />
   </div>
 
   <div class="col-md-4 now-playing">
@@ -19,7 +19,7 @@
             ng-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>
       <span class="text-muted">{{ track.artist.name }}</span><br />
       {{ track.title }}
-      <div class="progress progress-audio" ng-click="seek($event)">
+      <div class="progress progress-audio btn-pointer" ng-click="seek($event)">
         <div class="progress">
           <div class="progress-bar progress-bar-buffer"
                ng-repeat="buffer in bufferProgress()"
