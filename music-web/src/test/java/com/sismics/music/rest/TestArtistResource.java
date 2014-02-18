@@ -48,7 +48,7 @@ public class TestArtistResource extends BaseJerseyTest {
         json = response.getEntity(JSONObject.class);
         JSONArray artists = json.optJSONArray("artists");
         Assert.assertNotNull(artists);
-        Assert.assertEquals(1, artists.length());
+        Assert.assertEquals(3, artists.length());
         JSONObject artist0 = artists.getJSONObject(0);
         String artist0Id = artist0.optString("id");
         Assert.assertNotNull(artist0Id);

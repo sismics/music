@@ -42,7 +42,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals("ok", json.getString("status"));
 
         // Check that the albums are correctly added
-        WebResource albumResource= resource().path("/album");
+        WebResource albumResource = resource().path("/album");
         albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         response = albumResource.get(ClientResponse.class);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));

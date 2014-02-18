@@ -1,5 +1,20 @@
 package com.sismics.music.core.service.collection;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.lang.StringUtils;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.AudioHeader;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.AbstractScheduledService;
@@ -16,20 +31,6 @@ import com.sismics.music.core.model.dbi.Directory;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.service.albumart.AlbumArtImporter;
 import com.sismics.music.core.util.TransactionUtil;
-import org.apache.commons.lang.StringUtils;
-import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.audio.AudioHeader;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.nio.file.Path;
-import java.text.MessageFormat;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Collection service.
@@ -80,9 +81,9 @@ public class CollectionService extends AbstractScheduledService {
         // Index the directory recursively
         new CollectionVisitor(directory).index();
 
-        // Delete all artists that don't have any album
+        // Delete all artists that don't have any album or track
         ArtistDao artistDao = new ArtistDao();
-        artistDao.deleteEmptyArtist(directory.getId());
+        artistDao.deleteEmptyArtist();
 
         if (log.isInfoEnabled()) {
             log.info(MessageFormat.format("Done adding directory {0} to index", directory.getLocation()));
@@ -105,9 +106,9 @@ public class CollectionService extends AbstractScheduledService {
             albumDao.delete(albumDto.getId());
         }
 
-        // Delete all artists that don't have any album
+        // Delete all artists that don't have any album or track
         ArtistDao artistDao = new ArtistDao();
-        artistDao.deleteEmptyArtist(directory.getId());
+        artistDao.deleteEmptyArtist();
 
         if (log.isInfoEnabled()) {
             log.info(MessageFormat.format("Done removing directory {0} from index", directory.getLocation()));

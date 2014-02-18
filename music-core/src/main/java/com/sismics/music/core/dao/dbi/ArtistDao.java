@@ -1,5 +1,15 @@
 package com.sismics.music.core.dao.dbi;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
+
 import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.dbi.criteria.ArtistCriteria;
 import com.sismics.music.core.dao.dbi.dto.ArtistDto;
@@ -9,10 +19,6 @@ import com.sismics.music.core.util.dbi.ColumnIndexMapper;
 import com.sismics.music.core.util.dbi.QueryParam;
 import com.sismics.music.core.util.dbi.QueryUtil;
 import com.sismics.util.context.ThreadLocalContext;
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.Query;
-
-import java.util.*;
 
 /**
  * Artist DAO.
@@ -103,20 +109,19 @@ public class ArtistDao {
     }
 
     /**
-     * Delete any artist that don't have any album.
-     *
-     * @param directoryId Directory ID
+     * Delete any artist that don't have any album or track.
      */
-    public void deleteEmptyArtist(String directoryId) {
+    public void deleteEmptyArtist() {
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("update T_ARTIST a set a.ART_DELETEDATE_D = :deleteDate where a.ART_ID_C NOT IN (" +
-                "  select al.ALB_IDARTIST_C from T_ARTIST ea " +
-                "    join T_ALBUM al on(ea.ART_ID_C = al.ALB_IDARTIST_C)" +
-                "    where ea.ART_DELETEDATE_D is null and al.ALB_DELETEDATE_D is null and al.ALB_IDDIRECTORY_C = :directoryId" +
+                "  select al.ALB_IDARTIST_C from T_ALBUM al " +
+                "    where al.ALB_DELETEDATE_D is null " +
                 "    group by al.ALB_IDARTIST_C" +
-                ")")
+                " union " +
+                "  select t.TRK_IDARTIST_C from T_TRACK t " +
+                "    where t.TRK_DELETEDATE_D is null " +
+                "    group by t.TRK_IDARTIST_C)")
                 .bind("deleteDate", new Date())
-                .bind("directoryId", directoryId)
                 .execute();
     }
     
