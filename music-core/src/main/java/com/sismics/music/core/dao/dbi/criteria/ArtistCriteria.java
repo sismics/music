@@ -10,6 +10,11 @@ public class ArtistCriteria {
      * Artist ID.
      */
     private String id;
+    
+    /**
+     * Artist name (like).
+     */
+    private String nameLike;
 
     /**
      * Getter of id.
@@ -18,6 +23,26 @@ public class ArtistCriteria {
      */
     public String getId() {
         return this.id;
+    }
+
+    /**
+     * Getter of nameLike.
+     *
+     * @return the nameLike
+     */
+    public String getNameLike() {
+        return nameLike;
+    }
+
+    /**
+     * Setter of nameLike.
+     *
+     * @param nameLike nameLike
+     * @return Criteria
+     */
+    public ArtistCriteria setNameLike(String nameLike) {
+        this.nameLike = nameLike;
+        return this;
     }
 
     /**

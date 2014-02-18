@@ -76,6 +76,11 @@ public class TrackDto {
      * Album name.
      */
     private String albumName;
+    
+    /**
+     * Album art ID.
+     */
+    private String albumArt;
 
     /**
      * Getter of id.
@@ -327,5 +332,23 @@ public class TrackDto {
      */
     public void setAlbumName(String albumName) {
         this.albumName = albumName;
+    }
+
+    /**
+     * Getter of albumArt.
+     *
+     * @return the albumArt
+     */
+    public String getAlbumArt() {
+        return albumArt;
+    }
+
+    /**
+     * Setter of albumArt.
+     *
+     * @param albumArt albumArt
+     */
+    public void setAlbumArt(String albumArt) {
+        this.albumArt = albumArt;
     }
 }

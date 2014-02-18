@@ -15,10 +15,13 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 import com.sismics.music.core.dao.dbi.AlbumDao;
+import com.sismics.music.core.dao.dbi.ArtistDao;
 import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.criteria.AlbumCriteria;
+import com.sismics.music.core.dao.dbi.criteria.ArtistCriteria;
 import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
 import com.sismics.music.core.dao.dbi.dto.AlbumDto;
+import com.sismics.music.core.dao.dbi.dto.ArtistDto;
 import com.sismics.music.core.dao.dbi.dto.TrackDto;
 import com.sismics.music.core.util.dbi.PaginatedList;
 import com.sismics.music.core.util.dbi.PaginatedLists;
@@ -79,6 +82,7 @@ public class SearchResource extends BaseResource {
             JSONObject album = new JSONObject();
             album.put("id", trackDto.getAlbumId());
             album.put("name", trackDto.getAlbumName());
+            album.put("albumart", trackDto.getAlbumArt() != null);
             track.put("album", album);
 
             JSONObject artist = new JSONObject();
@@ -108,6 +112,19 @@ public class SearchResource extends BaseResource {
             albums.add(albumJson);
         }
         response.put("albums", albums);
+        
+        // Search artists
+        ArtistDao artistDao = new ArtistDao();
+        List<ArtistDto> artistList = artistDao.findByCriteria(new ArtistCriteria().setNameLike(query));
+
+        List<JSONObject> artists = new ArrayList<JSONObject>();
+        for (ArtistDto artist : artistList) {
+            JSONObject artistJson = new JSONObject();
+            artistJson.put("id", artist.getId());
+            artistJson.put("name", artist.getName());
+            artists.add(artistJson);
+        }
+        response.put("artists", artists);
         
         return Response.ok().entity(response).build();
     }

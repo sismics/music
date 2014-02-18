@@ -7,7 +7,6 @@ import com.sismics.music.core.dao.dbi.mapper.TrackMapper;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.util.dbi.*;
 import com.sismics.util.context.ThreadLocalContext;
-
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
 
@@ -144,7 +143,7 @@ public class TrackDao {
         } else {
             sb.append(" 0, false, ");
         }
-        sb.append(" a.ART_ID_C, a.ART_NAME_C, t.TRK_IDALBUM_C, alb.ALB_NAME_C ");
+        sb.append(" a.ART_ID_C, a.ART_NAME_C, t.TRK_IDALBUM_C, alb.ALB_NAME_C, alb.ALB_ALBUMART_C ");
         sb.append(" from T_TRACK t ");
         sb.append(" join T_ARTIST a ON(a.ART_ID_C = t.TRK_IDARTIST_C) ");
         sb.append(" join T_ALBUM alb ON(t.TRK_IDALBUM_C = alb.ALB_ID_C) ");
@@ -161,6 +160,14 @@ public class TrackDao {
         if (criteria.getAlbumId() != null) {
             criteriaList.add("t.TRK_IDALBUM_C = :albumId");
             parameterMap.put("albumId", criteria.getAlbumId());
+        }
+        if (criteria.getArtistName() != null) {
+            criteriaList.add("a.ART_NAME_C = :artistName");
+            parameterMap.put("artistName", criteria.getArtistName());
+        }
+        if (criteria.getTitle() != null) {
+            criteriaList.add("lower(t.TRK_TITLE_C) = lower(:title)");
+            parameterMap.put("title", criteria.getTitle());
         }
         if (criteria.getTitleLike() != null) {
             criteriaList.add("lower(t.TRK_TITLE_C) like lower(:titleLike)");
@@ -218,6 +225,7 @@ public class TrackDao {
             trackDto.setArtistName((String) o[i++]);
             trackDto.setAlbumId((String) o[i++]);
             trackDto.setAlbumName((String) o[i++]);
+            trackDto.setAlbumArt((String) o[i++]);
             trackDtoList.add(trackDto);
         }
         return trackDtoList;

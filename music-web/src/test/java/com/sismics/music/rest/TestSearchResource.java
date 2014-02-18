@@ -41,7 +41,7 @@ public class TestSearchResource extends BaseJerseyTest {
         Assert.assertEquals("ok", json.getString("status"));
 
         // Search by track name : 1 result
-        WebResource searchResource = resource().path("/search/Revolution");
+        WebResource searchResource = resource().path("/search/revolution");
         searchResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         response = searchResource.get(ClientResponse.class);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
@@ -63,6 +63,18 @@ public class TestSearchResource extends BaseJerseyTest {
         Assert.assertEquals(1, albums.length());
         JSONObject album0 = albums.getJSONObject(0);
         Assert.assertEquals("Coachella 2010 Day 01 Mixtape", album0.optString("name"));
+        
+        // Search by artist name : 1 result
+        searchResource = resource().path("/search/proxy");
+        searchResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        response = searchResource.get(ClientResponse.class);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        json = response.getEntity(JSONObject.class);
+        JSONArray artists = json.optJSONArray("artists");
+        Assert.assertNotNull(artists);
+        Assert.assertEquals(1, artists.length());
+        JSONObject artist0 = artists.getJSONObject(0);
+        Assert.assertEquals("[A] Proxy", artist0.optString("name"));
 
         // Search by track name : no result
         searchResource = resource().path("/search/NOTRACK");

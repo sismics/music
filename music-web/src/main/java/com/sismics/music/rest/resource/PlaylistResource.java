@@ -229,6 +229,7 @@ public class PlaylistResource extends BaseResource {
             JSONObject album = new JSONObject();
             album.put("id", trackDto.getAlbumId());
             album.put("name", trackDto.getAlbumName());
+            album.put("albumart", trackDto.getAlbumArt() != null);
             track.put("album", album);
 
             tracks.add(track);

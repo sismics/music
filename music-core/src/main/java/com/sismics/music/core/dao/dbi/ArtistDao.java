@@ -151,6 +151,10 @@ public class ArtistDao {
             criteriaList.add("a.ART_ID_C = :id");
             parameterMap.put("id", criteria.getId());
         }
+        if (criteria.getNameLike() != null) {
+            criteriaList.add("lower(a.ART_NAME_C) like lower(:nameLike)");
+            parameterMap.put("nameLike", "%" + criteria.getNameLike() + "%");
+        }
         criteriaList.add("a.ART_DELETEDATE_D is null");
 
         if (!criteriaList.isEmpty()) {
