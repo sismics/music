@@ -5,9 +5,11 @@ import com.sismics.music.core.dao.dbi.AuthenticationTokenDao;
 import com.sismics.music.core.dao.dbi.PlaylistDao;
 import com.sismics.music.core.dao.dbi.RoleBaseFunctionDao;
 import com.sismics.music.core.dao.dbi.UserDao;
+import com.sismics.music.core.dao.dbi.criteria.UserCriteria;
 import com.sismics.music.core.dao.dbi.dto.UserDto;
 import com.sismics.music.core.event.PasswordChangedEvent;
 import com.sismics.music.core.event.UserCreatedEvent;
+import com.sismics.music.core.event.async.LastFmUpdateLovedTrackAsyncEvent;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.AuthenticationToken;
 import com.sismics.music.core.model.dbi.Playlist;
@@ -563,7 +565,7 @@ public class UserResource extends BaseResource {
         SortCriteria sortCriteria = new SortCriteria(sortColumn, asc);
 
         UserDao userDao = new UserDao();
-        userDao.findAll(paginatedList, sortCriteria);
+        userDao.findByCriteria(paginatedList, new UserCriteria(), sortCriteria);
         for (UserDto userDto : paginatedList.getResultList()) {
             JSONObject user = new JSONObject();
             user.put("id", userDto.getId());
@@ -612,6 +614,9 @@ public class UserResource extends BaseResource {
         User user = userDao.getActiveById(principal.getId());
         user.setLastFmSessionToken(session.getKey());
         userDao.updateLastFmSessionToken(user);
+
+        // Raise a Last.fm registered event
+        AppContext.getInstance().getLastFmEventBus().post(new LastFmUpdateLovedTrackAsyncEvent(user));
 
         // Always return ok
         JSONObject response = new JSONObject();

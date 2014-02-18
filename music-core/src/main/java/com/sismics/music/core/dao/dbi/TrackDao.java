@@ -169,6 +169,14 @@ public class TrackDao {
             criteriaList.add("lower(t.TRK_TITLE_C) = lower(:title)");
             parameterMap.put("title", criteria.getTitle());
         }
+        if (criteria.getArtistName() != null) {
+            criteriaList.add("a.ART_NAME_C = :artistName");
+            parameterMap.put("artistName", criteria.getArtistName());
+        }
+        if (criteria.getTitle() != null) {
+            criteriaList.add("lower(t.TRK_TITLE_C) = lower(:title)");
+            parameterMap.put("title", criteria.getTitle());
+        }
         if (criteria.getTitleLike() != null) {
             criteriaList.add("lower(t.TRK_TITLE_C) like lower(:titleLike)");
             parameterMap.put("titleLike", "%" + criteria.getTitleLike() + "%");

@@ -44,9 +44,9 @@ public class AppContext {
     private EventBus collectionEventBus;
 
     /**
-     * Scrobbler asynchronous event bus.
+     * Do all Last.fm operations in this thread, because of rate limitation.
      */
-    private EventBus scrobblerEventBus;
+    private EventBus lastFmEventBus;
 
     /**
      * Collection service.
@@ -102,9 +102,10 @@ public class AppContext {
         collectionEventBus.register(new DirectoryDeletedAsyncListener());
         collectionEventBus.register(new CollectionReindexAsyncListener());
 
-        scrobblerEventBus = newAsyncEventBus();
-        scrobblerEventBus.register(new PlayStartedAsyncListener());
-        scrobblerEventBus.register(new PlayCompletedAsyncListener());
+        lastFmEventBus = newAsyncEventBus();
+        lastFmEventBus.register(new PlayStartedAsyncListener());
+        lastFmEventBus.register(new PlayCompletedAsyncListener());
+        lastFmEventBus.register(new LastFmUpdateLovedTrackAsyncListener());
     }
 
     /**
@@ -200,11 +201,11 @@ public class AppContext {
     }
 
     /**
-     * Getter of scrobblerEventBus.
+     * Getter of lastFmEventBus.
      *
-     * @return scrobblerEventBus
+     * @return lastFmEventBus
      */
-    public EventBus getScrobblerEventBus() {
-        return scrobblerEventBus;
+    public EventBus getLastFmEventBus() {
+        return lastFmEventBus;
     }
 }

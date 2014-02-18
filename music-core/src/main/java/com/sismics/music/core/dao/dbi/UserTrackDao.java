@@ -103,7 +103,6 @@ public class UserTrackDao {
      *
      * @param userId User ID
      * @param trackId Track ID
-     * @return User / track
      */
     public void incrementPlayCount(String userId, String trackId) {
         UserTrack userTrack = getOrCreateUserTrack(userId, trackId);
@@ -117,7 +116,6 @@ public class UserTrackDao {
      *
      * @param userId User ID
      * @param trackId Track ID
-     * @return User / track
      */
     public void like(String userId, String trackId) {
         UserTrack userTrack = getOrCreateUserTrack(userId, trackId);
@@ -130,11 +128,25 @@ public class UserTrackDao {
      *
      * @param userId User ID
      * @param trackId Track ID
-     * @return User / track
      */
     public void unlike(String userId, String trackId) {
         UserTrack userTrack = getOrCreateUserTrack(userId, trackId);
         userTrack.setLike(false);
         update(userTrack);
+    }
+
+    /**
+     * Unlike all tracks for a use.
+     *
+     * @param userId User ID
+     */
+    public void unlikeAll(String userId) {
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("update T_USER_TRACK set " +
+                " UST_LIKE_B = :like " +
+                " where UST_IDUSER_C = :userId and UST_DELETEDATE_D is null")
+                .bind("userId", userId)
+                .bind("like", false)
+                .execute();
     }
 }
