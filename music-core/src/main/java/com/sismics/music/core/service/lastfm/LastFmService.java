@@ -1,15 +1,23 @@
 package com.sismics.music.core.service.lastfm;
 
+import com.google.common.util.concurrent.AbstractScheduledService;
 import com.sismics.music.core.constant.ConfigType;
 import com.sismics.music.core.dao.dbi.ArtistDao;
 import com.sismics.music.core.dao.dbi.TrackDao;
+import com.sismics.music.core.dao.dbi.UserDao;
 import com.sismics.music.core.dao.dbi.UserTrackDao;
 import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
+import com.sismics.music.core.dao.dbi.criteria.UserCriteria;
 import com.sismics.music.core.dao.dbi.dto.TrackDto;
+import com.sismics.music.core.dao.dbi.dto.UserDto;
+import com.sismics.music.core.event.async.LastFmUpdateLovedTrackAsyncEvent;
+import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Artist;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.model.dbi.User;
 import com.sismics.music.core.util.ConfigUtil;
+import com.sismics.music.core.util.TransactionUtil;
+import com.sismics.util.LastFmUtil;
 import de.umass.lastfm.Authenticator;
 import de.umass.lastfm.PaginatedResult;
 import de.umass.lastfm.Result;
@@ -24,19 +32,48 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Last.fm service.
  *
  * @author jtremeaux
  */
-public class LastFmService {
+public class LastFmService extends AbstractScheduledService {
     /**
      * Logger.
      */
     private static final Logger log = LoggerFactory.getLogger(LastFmService.class);
 
     public LastFmService() {
+    }
+
+    @Override
+    protected void startUp() {
+    }
+
+    @Override
+    protected void shutDown() {
+    }
+
+    @Override
+    protected void runOneIteration() throws Exception {
+        TransactionUtil.handle(new Runnable() {
+            @Override
+            public void run() {
+                UserDao userDao = new UserDao();
+                List<UserDto> userList = userDao.findByCriteria(new UserCriteria().setLastFmSessionTokenNotNull(true));
+                for (UserDto userDto : userList) {
+                    User user = userDao.getActiveById(userDto.getId());
+                    AppContext.getInstance().getLastFmEventBus().post(new LastFmUpdateLovedTrackAsyncEvent(user));
+                }
+            }
+        });
+    }
+
+    @Override
+    protected Scheduler scheduler() {
+        return Scheduler.newFixedDelaySchedule(23, 24, TimeUnit.HOURS);
     }
 
     /**
@@ -162,7 +199,9 @@ public class LastFmService {
         int count = 0;
         PaginatedResult<de.umass.lastfm.Track> result = null;
         do {
-            result = de.umass.lastfm.User.getLovedTracks(lastFmUser.getName(), page, session.getApiKey());
+            // TODO implement rate limitation, should be good around 1000*10 = 10k faves for now
+            // TODO check result, don't commit if Last.fm reports an error (current faves will be lost!)
+            result = LastFmUtil.getLovedTracks(lastFmUser.getName(), page, 1000, session.getApiKey());
 
             for (Iterator<de.umass.lastfm.Track> it = result.iterator(); it.hasNext();) {
                 count++;
@@ -176,6 +215,7 @@ public class LastFmService {
             }
             page++;
         } while (result != null && page <= result.getTotalPages());
-        //System.out.println(count);
+
+        log.info(MessageFormat.format("Imported {0} loved tracks from Last.fm", count));
     }
 }

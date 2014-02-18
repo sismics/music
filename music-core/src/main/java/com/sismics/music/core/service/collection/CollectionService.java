@@ -65,7 +65,7 @@ public class CollectionService extends AbstractScheduledService {
 
     @Override
     protected Scheduler scheduler() {
-        return Scheduler.newFixedDelaySchedule(0, 1, TimeUnit.DAYS);
+        return Scheduler.newFixedDelaySchedule(0, 24, TimeUnit.HOURS);
     }
 
     /**

@@ -51,7 +51,7 @@ public class DirectoryCreatedAsyncListener {
         });
 
         if (log.isInfoEnabled()) {
-            log.info(MessageFormat.format("Collection updated in {0}", stopwatch.toString()));
+            log.info(MessageFormat.format("Collection updated completed in {0}", stopwatch));
         }
     }
 }
