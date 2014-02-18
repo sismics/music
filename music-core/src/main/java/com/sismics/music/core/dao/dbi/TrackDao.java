@@ -7,7 +7,6 @@ import com.sismics.music.core.dao.dbi.mapper.TrackMapper;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.util.dbi.*;
 import com.sismics.util.context.ThreadLocalContext;
-
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
 
@@ -161,6 +160,14 @@ public class TrackDao {
         if (criteria.getAlbumId() != null) {
             criteriaList.add("t.TRK_IDALBUM_C = :albumId");
             parameterMap.put("albumId", criteria.getAlbumId());
+        }
+        if (criteria.getArtistName() != null) {
+            criteriaList.add("a.ART_NAME_C = :artistName");
+            parameterMap.put("artistName", criteria.getArtistName());
+        }
+        if (criteria.getTitle() != null) {
+            criteriaList.add("lower(t.TRK_TITLE_C) = lower(:title)");
+            parameterMap.put("title", criteria.getTitle());
         }
         if (criteria.getTitleLike() != null) {
             criteriaList.add("lower(t.TRK_TITLE_C) like lower(:titleLike)");

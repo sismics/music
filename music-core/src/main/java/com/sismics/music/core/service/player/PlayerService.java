@@ -48,7 +48,7 @@ public class PlayerService {
 
             // Dispatch a new play started event
             PlayStartedEvent event = new PlayStartedEvent(userId, track);
-            AppContext.getInstance().getScrobblerEventBus().post(event);
+            AppContext.getInstance().getLastFmEventBus().post(event);
         } else {
             status.setDuration(duration);
         }
@@ -58,7 +58,7 @@ public class PlayerService {
 
             // Dispatch a new play completed event
             PlayCompletedEvent event = new PlayCompletedEvent(userId, track);
-            AppContext.getInstance().getScrobblerEventBus().post(event);
+            AppContext.getInstance().getLastFmEventBus().post(event);
         }
     }
 }
