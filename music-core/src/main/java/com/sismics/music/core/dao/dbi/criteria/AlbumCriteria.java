@@ -15,6 +15,11 @@ public class AlbumCriteria {
      * Directory ID.
      */
     private String directoryId;
+    
+    /**
+     * Name (like).
+     */
+    private String nameLike;
 
     /**
      * Getter of id.
@@ -53,6 +58,24 @@ public class AlbumCriteria {
      */
     public AlbumCriteria setDirectoryId(String directoryId) {
         this.directoryId = directoryId;
+        return this;
+    }
+
+    /**
+     * Getter of nameLike.
+     * @return nameLike
+     */
+    public String getNameLike() {
+        return nameLike;
+    }
+
+    /**
+     * Setter of nameLike.
+     * @param nameLike nameLike
+     * @return Criteria
+     */
+    public AlbumCriteria setNameLike(String nameLike) {
+        this.nameLike = nameLike;
         return this;
     }
 }

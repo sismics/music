@@ -26,7 +26,7 @@ public class TestSearchResource extends BaseJerseyTest {
      * @throws Exception
      */
     @Test
-    public void testAlbumResource() throws Exception {
+    public void testSearchResource() throws Exception {
         // Login users
         String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
 
@@ -51,6 +51,18 @@ public class TestSearchResource extends BaseJerseyTest {
         Assert.assertEquals(1, tracks.length());
         JSONObject track0 = tracks.getJSONObject(0);
         Assert.assertEquals("The Revolution Will Not Be Televised", track0.optString("title"));
+        
+        // Search by album name : 1 result
+        searchResource = resource().path("/search/coachella");
+        searchResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        response = searchResource.get(ClientResponse.class);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        json = response.getEntity(JSONObject.class);
+        JSONArray albums = json.optJSONArray("albums");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(1, albums.length());
+        JSONObject album0 = albums.getJSONObject(0);
+        Assert.assertEquals("Coachella 2010 Day 01 Mixtape", album0.optString("name"));
 
         // Search by track name : no result
         searchResource = resource().path("/search/NOTRACK");

@@ -1,20 +1,29 @@
 package com.sismics.music.rest.resource;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+
+import com.sismics.music.core.dao.dbi.AlbumDao;
 import com.sismics.music.core.dao.dbi.TrackDao;
+import com.sismics.music.core.dao.dbi.criteria.AlbumCriteria;
 import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
+import com.sismics.music.core.dao.dbi.dto.AlbumDto;
 import com.sismics.music.core.dao.dbi.dto.TrackDto;
 import com.sismics.music.core.util.dbi.PaginatedList;
 import com.sismics.music.core.util.dbi.PaginatedLists;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.util.ValidationUtil;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Search REST resources.
@@ -81,6 +90,25 @@ public class SearchResource extends BaseResource {
         }
         response.put("tracks", tracks);
 
+        // Search albums
+        AlbumDao albumDao = new AlbumDao();
+        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria().setNameLike(query));
+
+        List<JSONObject> albums = new ArrayList<JSONObject>();
+        for (AlbumDto album : albumList) {
+            JSONObject albumJson = new JSONObject();
+            albumJson.put("id", album.getId());
+            albumJson.put("name", album.getName());
+            albumJson.put("albumart", album.getAlbumArt() != null);
+
+            JSONObject artistJson = new JSONObject();
+            artistJson.put("id", album.getArtistId());
+            artistJson.put("name", album.getArtistName());
+            albumJson.put("artist", artistJson);
+            albums.add(albumJson);
+        }
+        response.put("albums", albums);
+        
         return Response.ok().entity(response).build();
     }
 

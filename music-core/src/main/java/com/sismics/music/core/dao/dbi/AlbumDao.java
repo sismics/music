@@ -176,6 +176,10 @@ public class AlbumDao {
             criteriaList.add("a.ALB_IDDIRECTORY_C = :directoryId");
             parameterMap.put("directoryId", criteria.getDirectoryId());
         }
+        if (criteria.getNameLike() != null) {
+            criteriaList.add("lower(a.ALB_NAME_C) like lower(:nameLike)");
+            parameterMap.put("nameLike", "%" + criteria.getNameLike() + "%");
+        }
         criteriaList.add("ar.ART_DELETEDATE_D is null");
         criteriaList.add("a.ALB_DELETEDATE_D is null");
 

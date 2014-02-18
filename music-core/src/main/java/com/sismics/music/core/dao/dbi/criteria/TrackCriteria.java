@@ -97,7 +97,7 @@ public class TrackCriteria {
     }
 
     /**
-     * Setter of id.
+     * Setter of titleLike.
      *
      * @param titleLike titleLike
      * @return Criteria
