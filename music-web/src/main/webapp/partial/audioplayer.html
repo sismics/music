@@ -15,7 +15,7 @@
 
   <div class="col-md-4 now-playing">
     <div ng-show="track">
-      <span class="glyphicon btn-pointer" ng-click="toggleLikeTrack(track)"
+      <span class="glyphicon btn-pointer btn-like" title="{{ track.liked ? 'Loved' : '' }}" ng-click="toggleLikeTrack(track)"
             ng-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>
       <span class="text-muted">{{ track.artist.name }}</span><br />
       {{ track.title }}

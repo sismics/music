@@ -32,7 +32,7 @@
         <td bo-title="track.album.name"><a bo-href="'#/album/' + track.album.id" bo-text="track.album.name"></a></td>
         <td bo-text="track.length | duration"></td>
         <td>
-          <span class="glyphicon btn-pointer" ng-click="toggleLikeTrack(track)"
+          <span class="glyphicon btn-pointer btn-like" bo-attr bo-attr-title="track.liked ? 'Loved' : ''" ng-click="toggleLikeTrack(track)"
                 bo-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>
         </td>
         <td><span class="glyphicon glyphicon-minus btn-pointer" ng-click="removeTrack($index)"></span></td>

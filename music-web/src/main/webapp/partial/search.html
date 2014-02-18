@@ -59,7 +59,7 @@
         <td title="{{ track.album.name }}"><a ng-href="#/album/{{ track.album.id }}">{{ track.album.name }}</a></td>
         <td>{{ track.length | duration }}</td>
         <td>
-          <span class="glyphicon btn-pointer" ng-click="toggleLikeTrack(track)"
+          <span class="glyphicon btn-pointer btn-like" title="{{ track.liked ? 'Loved' : '' }}" ng-click="toggleLikeTrack(track)"
                 ng-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>
         </td>
       </tr>

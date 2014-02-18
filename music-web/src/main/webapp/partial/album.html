@@ -32,7 +32,7 @@
             <td>{{ track.title }} <span ng-if="track.artist.id != album.artist.id">({{ track.artist.name }})</span></td>
             <td title="Played {{ track.play_count }} times">{{ track.length | duration }}</td>
             <td>
-              <span class="glyphicon btn-pointer" ng-click="toggleLikeTrack(track)"
+              <span class="glyphicon btn-pointer btn-like" title="{{ track.liked ? 'Loved' : '' }}" ng-click="toggleLikeTrack(track)"
                     ng-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>
             </td>
           </tr>
