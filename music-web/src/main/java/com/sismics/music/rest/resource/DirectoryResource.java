@@ -46,7 +46,7 @@ public class DirectoryResource extends BaseResource {
         checkBaseFunction(BaseFunction.ADMIN);
 
         // Validate the input data
-        name = ValidationUtil.validateLength(name, "name", 0, 100, true);
+        name = ValidationUtil.validateLength(name, "name", 0, 1000, true);
         location = ValidationUtil.validateLength(location, "location", 1, 1000);
 
         // Create the directory

@@ -32,7 +32,7 @@ public class TestAlbumResource extends BaseJerseyTest {
         WebResource directoryResource = resource().path("/directory");
         directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         MultivaluedMapImpl postParams = new MultivaluedMapImpl();
-        postParams.putSingle("location", Paths.get(getClass().getResource("/music/").toURI()).toString());
+        postParams.putSingle("location", Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI()).toString());
         ClientResponse response = directoryResource.put(ClientResponse.class, postParams);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
         JSONObject json = response.getEntity(JSONObject.class);

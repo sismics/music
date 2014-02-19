@@ -1,19 +1,17 @@
 package com.sismics.music.rest;
 
-import java.nio.file.Paths;
-
-import junit.framework.Assert;
-
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-import org.junit.Test;
-
 import com.sismics.music.rest.filter.CookieAuthenticationFilter;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import junit.framework.Assert;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.junit.Test;
+
+import java.nio.file.Paths;
 
 /**
  * Exhaustive test of the directory resource.
@@ -179,7 +177,7 @@ public class TestDirectoryResource extends BaseJerseyTest {
         json = response.getEntity(JSONObject.class);
         JSONArray albums = json.optJSONArray("albums");
         Assert.assertNotNull(albums);
-        Assert.assertEquals(1, albums.length());
+        Assert.assertEquals(2, albums.length());
 
         // Admin deletes the directory
         directoryResource = resource().path("/directory/" + directory0Id);
