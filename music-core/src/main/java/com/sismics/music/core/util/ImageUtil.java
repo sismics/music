@@ -217,7 +217,8 @@ public class ImageUtil {
      */
     public static BufferedImage makeMosaic(List<BufferedImage> imageList, int size) throws Exception {
         if (imageList.size() == 0) {
-            return null;
+            BufferedImage mosaicImage = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
+            return mosaicImage;
         }
         
         if (imageList.size() == 1) {

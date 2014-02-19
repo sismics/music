@@ -176,6 +176,10 @@ public class AlbumDao {
             criteriaList.add("a.ALB_IDDIRECTORY_C = :directoryId");
             parameterMap.put("directoryId", criteria.getDirectoryId());
         }
+        if (criteria.getArtistId() != null) {
+            criteriaList.add("ar.ART_ID_C = :artistId");
+            parameterMap.put("artistId", criteria.getArtistId());
+        }
         if (criteria.getNameLike() != null) {
             criteriaList.add("lower(a.ALB_NAME_C) like lower(:nameLike)");
             parameterMap.put("nameLike", "%" + criteria.getNameLike() + "%");

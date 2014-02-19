@@ -32,7 +32,7 @@ public class TestAlbumResource extends BaseJerseyTest {
         WebResource directoryResource = resource().path("/directory");
         directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         MultivaluedMapImpl postParams = new MultivaluedMapImpl();
-        postParams.putSingle("location", Paths.get(getClass().getResource("/music/").toURI()).toString());
+        postParams.putSingle("location", Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI()).toString());
         ClientResponse response = directoryResource.put(ClientResponse.class, postParams);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
         JSONObject json = response.getEntity(JSONObject.class);
@@ -49,10 +49,22 @@ public class TestAlbumResource extends BaseJerseyTest {
         Assert.assertEquals(1, albums.length());
         JSONObject album0 = albums.getJSONObject(0);
         String album0Id = album0.optString("id");
+        JSONObject artist0 = album0.optJSONObject("artist");
         Assert.assertNotNull(album0Id);
         Assert.assertNotNull(album0.optString("name"));
         Assert.assertNotNull(album0.optBoolean("albumart"));
         Assert.assertNotNull(album0.optLong("update_date"));
+        Assert.assertNotNull(artist0.optString("id"));
+        
+        // Get all albums from an artist
+        albumResource = resource().path("/album").queryParam("artist", artist0.optString("id"));
+        albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        response = albumResource.get(ClientResponse.class);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        json = response.getEntity(JSONObject.class);
+        albums = json.optJSONArray("albums");
+        Assert.assertNotNull(albums);
+        Assert.assertEquals(1, albums.length());
 
         // Get an album by its ID.
         albumResource = resource().path("/album/" + album0Id);

@@ -1,18 +1,16 @@
 package com.sismics.music.rest;
 
-import java.nio.file.Paths;
-
-import junit.framework.Assert;
-
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONObject;
-import org.junit.Test;
-
 import com.sismics.music.rest.filter.CookieAuthenticationFilter;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import junit.framework.Assert;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONObject;
+import org.junit.Test;
+
+import java.nio.file.Paths;
 
 /**
  * Exhaustive test of the artist resource.
@@ -34,7 +32,7 @@ public class TestArtistResource extends BaseJerseyTest {
         WebResource directoryResource = resource().path("/directory");
         directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
         MultivaluedMapImpl postParams = new MultivaluedMapImpl();
-        postParams.putSingle("location", Paths.get(getClass().getResource("/music/").toURI()).toString());
+        postParams.putSingle("location", Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI()).toString());
         ClientResponse response = directoryResource.put(ClientResponse.class, postParams);
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
         JSONObject json = response.getEntity(JSONObject.class);
@@ -53,5 +51,13 @@ public class TestArtistResource extends BaseJerseyTest {
         String artist0Id = artist0.optString("id");
         Assert.assertNotNull(artist0Id);
         Assert.assertNotNull(artist0.optString("name"));
+        
+        // Get an artist details
+        artistResource = resource().path("/artist/" + artist0Id);
+        artistResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+        response = artistResource.get(ClientResponse.class);
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        json = response.getEntity(JSONObject.class);
+        Assert.assertEquals("Gil Scott-Heron", json.optString("name"));
     }
 }

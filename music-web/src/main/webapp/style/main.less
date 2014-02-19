@@ -65,17 +65,21 @@ html, body {
 }
 
 .albumart-thumbnail {
+  box-shadow: 2px 2px 14px #ccc;
+  border-radius: 0px;
+  padding: 0px;
+
   @media (min-width: 992px) {
     .img-container {
-      height: 134px;
-      width: 134px;
+      height: 142px;
+      width: 142px;
     }
   }
 
   @media (min-width: 1200px) {
     .img-container {
-      height: 172px;
-      width: 172px;
+      height: 180px;
+      width: 180px;
     }
   }
 
@@ -89,8 +93,13 @@ html, body {
   }
 
   .caption .caption-container {
-    overflow: hidden;
-    height: 40px
+    height: 40px;
+    white-space: nowrap;
+
+    > div {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 }
 

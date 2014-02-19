@@ -121,6 +121,15 @@ var App = angular.module('music',
               }
             }
           })
+          .state('main.artist', {
+            url: '/artist/:id',
+            views: {
+              'content': {
+                templateUrl: 'partial/artist.html',
+                controller: 'Artist'
+              }
+            }
+          })
           .state('main.album', {
             url: '/album/:id',
             views: {

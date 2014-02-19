@@ -68,6 +68,35 @@ public class ArtistResource extends BaseResource {
     }
     
     /**
+     * Returns an artist.
+     * 
+     * @param id ArtistID
+     * @return Response
+     * @throws JSONException
+     */
+    @GET
+    @Path("{id: [a-z0-9\\-]+}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response get(
+            @PathParam("id") String id) throws JSONException {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+
+        // Get the artist
+        ArtistDao artistDao = new ArtistDao();
+        Artist artist = artistDao.getActiveById(id);
+        if (artist == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        JSONObject response = new JSONObject();
+        response.put("id", artist.getId());
+        response.put("name", artist.getName());
+        return Response.ok().entity(response).build();
+    }
+    
+    /**
      * Returns an artist cover.
      *
      * @param id Artist ID

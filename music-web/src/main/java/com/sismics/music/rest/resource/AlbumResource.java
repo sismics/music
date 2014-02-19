@@ -217,13 +217,14 @@ public class AlbumResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response list() throws JSONException {
+    public Response list(
+            @QueryParam("artist") String artistId) throws JSONException {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
 
         AlbumDao albumDao = new AlbumDao();
-        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria());
+        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria().setArtistId(artistId));
 
         JSONObject response = new JSONObject();
         List<JSONObject> items = new ArrayList<JSONObject>();
