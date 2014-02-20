@@ -3,7 +3,7 @@
 /**
  * Directories settings controller.
  */
-App.controller('SettingsDirectories', function($scope, Restangular, $dialog) {
+App.controller('SettingsDirectories', function($scope, Restangular, $dialog, toaster) {
   // Initialize add directory form
   $scope.directory = {
     name: '', location: ''
@@ -50,5 +50,12 @@ App.controller('SettingsDirectories', function($scope, Restangular, $dialog) {
           // Reload directories
           $scope.loadDirectories();
         });
+  };
+
+  // Rescan all directories
+  $scope.rescan = function() {
+    Restangular.one('app/batch').post('reindex').then(function() {
+      toaster.pop('info', 'Directories', 'Rescan in progress...');
+    });
   };
 });
