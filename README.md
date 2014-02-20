@@ -1,7 +1,5 @@
-Sismics Music
-==============
-
-![](http://www.sismics.com/music/img/screenshots/big/9-big.png)
+Sismics Music [![Build Status](https://secure.travis-ci.org/sismics/music.png)](http://travis-ci.org/sismics/music)
+=============
 
 What is Music?
 ---------------
