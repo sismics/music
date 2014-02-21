@@ -74,6 +74,16 @@ module.exports = function(grunt) {
         folders: true
       },
       src: ['dist/**']
+    },
+    replace: {
+      dist: {
+        src: ['dist/music.min.js', 'dist/**/*.html'],
+        overwrite: true,
+        replacements: [{
+          from: '../api',
+          to: grunt.option('apiurl') || '../api'
+        }]
+      }
     }
   });
 
@@ -87,9 +97,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-remove');
   grunt.loadNpmTasks('grunt-ngmin');
+  grunt.loadNpmTasks('grunt-text-replace');
 
   // Default tasks.
   grunt.registerTask('default', ['clean', 'ngmin', 'concat:js', 'less', 'concat:css', 'cssmin',
-    'uglify', 'copy', 'remove', 'cleanempty', 'htmlrefs']);
+    'uglify', 'copy', 'remove', 'cleanempty', 'htmlrefs', 'replace']);
 
 };

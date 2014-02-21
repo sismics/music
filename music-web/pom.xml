@@ -273,10 +273,10 @@
 										</exec>
 										<!-- grunt -->
 										<exec executable="cmd" dir="${project.basedir}/src/main/webapp" osfamily="windows">
-											<arg line="/c grunt" />
+											<arg line="/c grunt --apiurl=api" />
 										</exec>
 										<exec executable="grunt" dir="${project.basedir}/src/main/webapp" osfamily="unix">
-											<arg line="" />
+											<arg line="--apiurl=api" />
 										</exec>
 									</target>
 								</configuration>
