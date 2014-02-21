@@ -10,6 +10,14 @@ App.factory('Playlist', function($rootScope, Restangular, toaster) {
   var repeat = true;
   var shuffle = false;
 
+  // Read Local Storage settings
+  if (!_.isUndefined(localStorage.playlistRepeat)) {
+    repeat = localStorage.playlistRepeat == 'true';
+  }
+  if (!_.isUndefined(localStorage.playlistShuffle)) {
+    shuffle = localStorage.playlistShuffle == 'true';
+  }
+
   // Maintain updated status
   $rootScope.$on('audio.play', function() {
     currentStatus = 'playing';
@@ -270,9 +278,9 @@ App.factory('Playlist', function($rootScope, Restangular, toaster) {
     currentOrder: function() { return currentTrack; },
     getTracks: function() { return angular.copy(tracks); },
     isRepeat: function() { return repeat; },
-    toggleRepeat: function() { repeat = !repeat; },
+    toggleRepeat: function() { repeat = !repeat; localStorage.playlistRepeat = repeat; },
     isShuffle: function() { return shuffle; },
-    toggleShuffle: function() { shuffle = !shuffle; }
+    toggleShuffle: function() { shuffle = !shuffle; localStorage.playlistShuffle = shuffle; }
   };
 
   return service;
