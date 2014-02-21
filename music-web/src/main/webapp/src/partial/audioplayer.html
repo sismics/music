@@ -1,0 +1,63 @@
+<div class="row">
+
+  <div class="col-md-2 text-right btn-play">
+    <button type="button" class="btn btn-primary" ng-click="playpause()">
+      <span class="glyphicon" ng-class="{ 'glyphicon-play': audio.paused, 'glyphicon-pause': !audio.paused }"></span>
+    </button>
+    <button type="button" class="btn btn-primary" ng-click="next()">
+      <span class="glyphicon glyphicon-step-forward"></span>
+    </button>
+  </div>
+
+  <div class="col-md-2 albumart">
+    <img ng-if="track.album.albumart" ng-click="openAlbum(track.album.id)" ng-src="../api/album/{{ track.album.id }}/albumart/small" />
+  </div>
+
+  <div class="col-md-4 now-playing">
+    <div ng-show="track">
+      <span class="glyphicon btn-pointer btn-like" title="{{ track.liked ? 'Loved' : '' }}" ng-click="toggleLikeTrack(track)"
+            ng-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>
+      <span class="text-muted">{{ track.artist.name }}</span><br />
+      {{ track.title }}
+      <div class="progress progress-audio btn-pointer" ng-click="seek($event)">
+        <div class="progress">
+          <div class="progress-bar progress-bar-buffer"
+               ng-repeat="buffer in bufferProgress()"
+               ng-style="{ 'left': buffer.start + '%', 'width': (buffer.end - buffer.start) + '%' }"></div>
+          <div class="progress-bar" ng-style="{ 'width': timeProgress() + '%' }"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-2 info">
+    <div ng-show="audio.duration && track">
+      {{ audio.currentTime | duration }}/{{ audio.duration | duration }}sec
+      <span class="glyphicon glyphicon-volume-up btn-pointer"
+            ng-click="mute()"
+            ng-class="{ 'glyphicon-volume-up': audio.volume == 1, 'glyphicon-volume-off': audio.volume == 0 }"></span>
+    </div>
+  </div>
+
+  <div class="col-md-2 playing">
+    <div class="btn-toolbar" role="toolbar">
+      <div class="btn-group">
+        <button type="button" class="btn btn-default" tooltip="Playing queue"
+                ng-click="openNowPlaying()" ng-class="{active: $uiRoute}" ui-route="/playing">
+          <span class="glyphicon glyphicon-list"></span>
+        </button>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-default" tooltip="Repeat playlist" tooltip-append-to-body="true"
+                ng-click="toggleRepeat()" ng-class="{active: repeat}">
+          <span class="glyphicon glyphicon-repeat"></span>
+        </button>
+        <button class="btn btn-default" tooltip="Shuffle playing" tooltip-append-to-body="true"
+                ng-click="toggleShuffle()" ng-class="{active: shuffle}">
+          <span class="glyphicon glyphicon-random"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
