@@ -268,15 +268,15 @@
 										<exec executable="cmd" dir="${project.basedir}/src/main/webapp" osfamily="windows" failonerror="true">
 											<arg line="/c npm install" />
 										</exec>
-										<exec executable="bash" dir="${project.basedir}/src/main/webapp" osfamily="unix" failonerror="true">
-											<arg line="npm install" />
+										<exec executable="npm" dir="${project.basedir}/src/main/webapp" osfamily="unix" failonerror="true">
+											<arg line="install" />
 										</exec>
 										<!-- grunt -->
 										<exec executable="cmd" dir="${project.basedir}/src/main/webapp" osfamily="windows">
 											<arg line="/c grunt" />
 										</exec>
-										<exec executable="bash" dir="${project.basedir}/src/main/webapp" osfamily="unix">
-											<arg line="grunt" />
+										<exec executable="grunt" dir="${project.basedir}/src/main/webapp" osfamily="unix">
+											<arg line="" />
 										</exec>
 									</target>
 								</configuration>
