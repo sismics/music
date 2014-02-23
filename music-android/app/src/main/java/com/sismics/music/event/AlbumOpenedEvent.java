@@ -7,11 +7,11 @@ import com.sismics.music.model.Album;
  *
  * @author bgamard
  */
-public class OpenAlbumEvent {
+public class AlbumOpenedEvent {
 
     private Album album;
 
-    public OpenAlbumEvent(Album album) {
+    public AlbumOpenedEvent(Album album) {
         this.album = album;
     }
 

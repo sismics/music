@@ -5,11 +5,11 @@ package com.sismics.music.event;
  *
  * @author bgamard.
  */
-public class MyMusicMenuVisibilityChanged {
+public class MyMusicMenuVisibilityChangedEvent {
 
-    boolean menuVisible;
+    private boolean menuVisible;
 
-    public MyMusicMenuVisibilityChanged(boolean menuVisible) {
+    public MyMusicMenuVisibilityChangedEvent(boolean menuVisible) {
         this.menuVisible = menuVisible;
     }
 

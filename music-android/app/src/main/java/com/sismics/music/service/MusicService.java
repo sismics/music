@@ -17,6 +17,7 @@ import android.media.RemoteControlClient;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
@@ -26,15 +27,18 @@ import com.loopj.android.http.FileAsyncHttpResponseHandler;
 import com.loopj.android.http.RequestHandle;
 import com.sismics.music.R;
 import com.sismics.music.activity.MainActivity;
+import com.sismics.music.event.MediaPlayerStateChangedEvent;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.model.PlaylistTrack;
 import com.sismics.music.resource.TrackResource;
 import com.sismics.music.util.CacheUtil;
+import com.sismics.music.util.ScrobbleUtil;
 
 import org.apache.http.Header;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 import de.greenrobot.event.EventBus;
 
@@ -65,6 +69,11 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     // Our media player
     MediaPlayer mPlayer = null;
 
+    // Date when the song was started
+    long songStartedAt = 0;
+
+    boolean songCompleted = false;
+
     // Our AudioFocusHelper object, always available since we target API 14
     AudioFocusHelper mAudioFocusHelper = null;
 
@@ -88,8 +97,8 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     }
     AudioFocus mAudioFocus = AudioFocus.NoFocusNoDuck;
 
-    // title of the song we are currently playing
-    String mSongTitle = "";
+    // Track currently played
+    PlaylistTrack currentPlaylistTrack = null;
 
     // Wifi lock that we hold when streaming files from the internet, in order to prevent the
     // device from shutting off the Wifi radio
@@ -114,6 +123,9 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
     // Request handle of the current download
     RequestHandle bufferRequestHandle;
+
+    // Handler to post media player state changes regulary
+    Handler mediaPlayerHandler = new Handler();
 
     /**
      * Makes sure the media player exists and has been reset. This will create the media player
@@ -155,6 +167,21 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), this);
 
         mMediaButtonReceiverComponent = new ComponentName(this, MusicIntentReceiver.class);
+
+        // Grab media player states regulary
+        mediaPlayerHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mPlayer != null) {
+                    EventBus.getDefault().post(
+                            new MediaPlayerStateChangedEvent(songStartedAt, currentPlaylistTrack,
+                                    mPlayer.getCurrentPosition(), mPlayer.getDuration()));
+                }
+                mediaPlayerHandler.postDelayed(this, 500);
+            }
+        }, 500);
+
+        EventBus.getDefault().register(this);
     }
 
     /**
@@ -218,7 +245,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         } else if (mState == State.Paused) {
             // If we're paused, just continue playback and restore the 'foreground service' state.
             mState = State.Playing;
-            setUpAsForeground(mSongTitle);
+            setUpAsForeground(currentPlaylistTrack);
             configAndStartMediaPlayer();
         }
 
@@ -431,14 +458,16 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     void doPlay(PlaylistTrack playlistTrack) {
         try {
             createMediaPlayerIfNeeded();
+            songStartedAt = new Date().getTime();
+            songCompleted = false;
             mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             File file = CacheUtil.getCompleteCacheFile(playlistTrack);
             mPlayer.setDataSource(this, Uri.fromFile(file));
 
-            mSongTitle = playlistTrack.getTitle();
+            currentPlaylistTrack = playlistTrack;
 
             mState = State.Preparing;
-            setUpAsForeground(mSongTitle);
+            setUpAsForeground(currentPlaylistTrack);
 
             // Use the media button APIs (if available) to register ourselves for media button
             // events
@@ -506,31 +535,20 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     }
 
     /**
-     * Updates the notification.
-    */
-    void updateNotification(String text) {
-        PendingIntent pi = PendingIntent.getActivity(this, 0,
-                new Intent(getApplicationContext(), MainActivity.class),
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        mNotification.setLatestEventInfo(getApplicationContext(), "Sismics Music", text, pi);
-        mNotificationManager.notify(NOTIFICATION_ID, mNotification);
-    }
-
-    /**
      * Configures service as a foreground service. A foreground service is a service that's doing
      * something the user is actively aware of (such as playing music), and must appear to the
      * user as a notification. That's why we create the notification here.
      */
-    void setUpAsForeground(String text) {
+    void setUpAsForeground(PlaylistTrack playlistTrack) {
         PendingIntent pi = PendingIntent.getActivity(this, 0,
                 new Intent(getApplicationContext(), MainActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT);
         mNotification = new Notification();
-        mNotification.tickerText = text;
+        mNotification.tickerText = playlistTrack.getTitle();
         mNotification.icon = R.drawable.ic_notification;
         mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
         mNotification.setLatestEventInfo(getApplicationContext(), "Sismics Music",
-                text, pi);
+                playlistTrack.getTitle(), pi);
         startForeground(NOTIFICATION_ID, mNotification);
     }
 
@@ -573,10 +591,33 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
     @Override
     public void onDestroy() {
+        EventBus.getDefault().unregister(this);
+
         // Service is being killed, so make sure we release our resources
         mState = State.Stopped;
         relaxResources(true);
         giveUpAudioFocus();
+    }
+
+    /**
+     * Media player state has changed.
+     * @param event Event
+     */
+    public void onEvent(MediaPlayerStateChangedEvent event) {
+        if (event.getPlaylistTrack() == null) {
+            return;
+        }
+
+        if (event.getDuration() < 0) {
+            return;
+        }
+
+        Log.d("MusicService", "Media player is progressing: " + event.getCurrentPosition() + "/" + event.getDuration());
+        if (/* TODO event.getCurrentPosition() > event.getDuration() / 2 &&*/ !songCompleted) {
+            // The song is considered completed
+            songCompleted = true;
+            ScrobbleUtil.trackCompleted(this, event.getPlaylistTrack().getId(), event.getSongStartedAt());
+        }
     }
 
     @Override

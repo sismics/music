@@ -16,8 +16,8 @@ import android.widget.ListView;
 import com.androidquery.AQuery;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
-import com.sismics.music.event.MyMusicMenuVisibilityChanged;
-import com.sismics.music.event.OpenAlbumEvent;
+import com.sismics.music.event.AlbumOpenedEvent;
+import com.sismics.music.event.MyMusicMenuVisibilityChangedEvent;
 import com.sismics.music.model.Album;
 import com.sismics.music.resource.AlbumResource;
 import com.sismics.music.adapter.AlbumAdapter;
@@ -94,7 +94,9 @@ public class AlbumListFragment extends Fragment {
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
                         AlbumAdapter adapter = (AlbumAdapter) aq.id(R.id.listAlbum).getListView().getAdapter();
-                        adapter.getFilter().filter(s);
+                        if (adapter != null) {
+                            adapter.getFilter().filter(s);
+                        }
                     }
 
                     @Override
@@ -109,7 +111,7 @@ public class AlbumListFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 AlbumAdapter adapter = (AlbumAdapter) aq.id(R.id.listAlbum).getListView().getAdapter();
-                EventBus.getDefault().post(new OpenAlbumEvent(new Album(adapter.getItem(position))));
+                EventBus.getDefault().post(new AlbumOpenedEvent(new Album(adapter.getItem(position))));
             }
         });
 
@@ -167,7 +169,7 @@ public class AlbumListFragment extends Fragment {
      * My music menu visibility fragment has changed.
      * @param event Event
      */
-    public void onEvent(MyMusicMenuVisibilityChanged event) {
+    public void onEvent(MyMusicMenuVisibilityChangedEvent event) {
         setMenuVisibility(event.isMenuVisible());
     }
 }

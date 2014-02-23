@@ -8,8 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.sismics.music.R;
-import com.sismics.music.event.MyMusicMenuVisibilityChanged;
-import com.sismics.music.event.OpenAlbumEvent;
+import com.sismics.music.event.AlbumOpenedEvent;
+import com.sismics.music.event.MyMusicMenuVisibilityChangedEvent;
 
 import de.greenrobot.event.EventBus;
 
@@ -39,7 +39,7 @@ public class MyMusicFragment extends Fragment {
     @Override
     public void setMenuVisibility(boolean menuVisible) {
         super.setMenuVisibility(menuVisible);
-        EventBus.getDefault().post(new MyMusicMenuVisibilityChanged(menuVisible));
+        EventBus.getDefault().post(new MyMusicMenuVisibilityChangedEvent(menuVisible));
     }
 
     @Override
@@ -69,7 +69,7 @@ public class MyMusicFragment extends Fragment {
      * Open an album details.
      * @param event Event
      */
-    public void onEvent(OpenAlbumEvent event) {
+    public void onEvent(AlbumOpenedEvent event) {
         // Instantiate a new fragment
         Fragment newFragment = AlbumFragment.newInstance(event.getAlbum());
 

@@ -9,7 +9,7 @@ import com.sismics.music.model.PlaylistTrack;
  */
 public class TrackCacheStatusChangedEvent {
 
-    PlaylistTrack playlistTrack;
+    private PlaylistTrack playlistTrack;
 
     public TrackCacheStatusChangedEvent(PlaylistTrack playlistTrack) {
         this.playlistTrack = playlistTrack;

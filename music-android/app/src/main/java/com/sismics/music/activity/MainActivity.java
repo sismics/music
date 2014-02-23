@@ -18,6 +18,7 @@ import com.sismics.music.fragment.MyMusicFragment;
 import com.sismics.music.fragment.PlaylistFragment;
 import com.sismics.music.model.ApplicationContext;
 import com.sismics.music.resource.UserResource;
+import com.sismics.music.util.ScrobbleUtil;
 
 import java.util.Locale;
 
@@ -123,6 +124,14 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // The main activity is resumed, it's time to try to scrobble
+        ScrobbleUtil.sync(this);
     }
 
     /**
