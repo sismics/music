@@ -31,6 +31,7 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
 
     private AQuery aq;
     private Activity activity;
+    private JSONArray allAlbums;
     private JSONArray albums;
     private String authToken;
     private String serverUrl;
@@ -42,6 +43,7 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
      */
     public AlbumAdapter(Activity activity, JSONArray albums, Set<String> cachedAlbumSet) {
         this.activity = activity;
+        this.allAlbums = albums;
         this.albums = albums;
         this.cachedAlbumSet = cachedAlbumSet;
         this.aq = new AQuery(activity);
@@ -109,6 +111,7 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
 
     public void setAlbums(JSONArray albums) {
         this.albums = albums;
+        this.allAlbums = albums;
         notifyDataSetChanged();
     }
 
@@ -119,15 +122,18 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults results = new FilterResults();
                 if (constraint == null || constraint.length() == 0) {
-                    results.values = albums;
-                    results.count = albums.length();
-                    return  results;
+                    results.values = allAlbums;
+                    results.count = allAlbums.length();
+                    return results;
                 }
 
+                // Search in album name and artist name
                 JSONArray values = new JSONArray();
-                for (int i = 0; i < albums.length(); i++) {
-                    JSONObject album = albums.optJSONObject(i);
-                    if (album.optString("name").contains(constraint)) {
+                String filter = constraint.toString().toLowerCase();
+                for (int i = 0; i < allAlbums.length(); i++) {
+                    JSONObject album = allAlbums.optJSONObject(i);
+                    if (album.optString("name").toLowerCase().contains(filter)
+                            || album.optJSONObject("artist").optString("name").toLowerCase().contains(filter)) {
                         values.put(album);
                     }
                 }

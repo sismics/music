@@ -84,4 +84,18 @@
         android:layout_height="wrap_content"
         android:id="@+id/listTracks" />
 
+    <LinearLayout
+        android:id="@+id/progress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@android:style/Widget.Holo.ProgressBar.Large"/>
+
+    </LinearLayout>
+
 </LinearLayout>

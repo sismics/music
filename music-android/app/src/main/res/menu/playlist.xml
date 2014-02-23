@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.sismics.music.activity.MainActivity" >
+    
+    <item android:id="@+id/empty_playlist"
+        android:title="@string/empty_playlist"
+        android:icon="@drawable/ic_action_discard"
+        android:showAsAction="ifRoom" />
+
+</menu>

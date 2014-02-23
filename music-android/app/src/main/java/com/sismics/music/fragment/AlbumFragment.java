@@ -84,13 +84,13 @@ public class AlbumFragment extends Fragment {
 
         // Set a new adapter to the tracks list, and attach the header to the ListView
         ListView listTracks =  aq.id(R.id.listTracks).getListView();
+        listTracks.setEmptyView(view.findViewById(R.id.progress));
         View header = aq.id(R.id.header).getView();
         ((ViewGroup) header.getParent()).removeView(header);
         header.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         listTracks.addHeaderView(header, null, false);
         tracksAdapter = new TracksAdapter(getActivity(), album, new ArrayList<Track>());
         listTracks.setAdapter(tracksAdapter);
-
 
         // Grab cached tracks for this album
         cacheTask = new AsyncTask<Album, Void, List<Track>>() {

@@ -32,6 +32,8 @@
     <string name="add_all_toast">All added to queue</string>
     <string name="play_all_toast">Playing all</string>
     <string name="add_toast">Added to queue</string>
+    <string name="playlist_empty">The playlist is empty</string>
+    <string name="empty_playlist">Clear the playlist</string>
 
     <!-- Validation -->
     <string name="validate_error_email">Invalid email</string>

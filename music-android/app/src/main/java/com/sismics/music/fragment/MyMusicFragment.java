@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.sismics.music.R;
+import com.sismics.music.event.MyMusicMenuVisibilityChanged;
 import com.sismics.music.event.OpenAlbumEvent;
 
 import de.greenrobot.event.EventBus;
@@ -18,8 +19,6 @@ import de.greenrobot.event.EventBus;
  * @author bgamard
  */
 public class MyMusicFragment extends Fragment {
-
-    private EventBus eventBus;
 
     /**
      * Returns a new instance of this fragment.
@@ -32,10 +31,21 @@ public class MyMusicFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void setMenuVisibility(boolean menuVisible) {
+        super.setMenuVisibility(menuVisible);
+        EventBus.getDefault().post(new MyMusicMenuVisibilityChanged(menuVisible));
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the view
         View view = inflater.inflate(R.layout.fragment_my_music, container, false);
-        eventBus = EventBus.getDefault();
 
         if (savedInstanceState == null) {
             // Do first time initialization, add initial fragment
@@ -45,13 +55,13 @@ public class MyMusicFragment extends Fragment {
             ft.commit();
         }
 
-        eventBus.register(this);
+        EventBus.getDefault().register(this);
         return view;
     }
 
     @Override
     public void onDestroyView() {
-        eventBus.unregister(this);
+        EventBus.getDefault().unregister(this);
         super.onDestroyView();
     }
 
