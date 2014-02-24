@@ -1,13 +1,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.sismics.music.activity.MainActivity" >
-    
+
+    <item android:id="@+id/offline_mode"
+        android:title="@string/offline_mode"
+        android:icon="@drawable/ic_action_make_available_offline_dark"
+        android:showAsAction="ifRoom" />
+
     <item android:id="@+id/settings"
         android:title="@string/settings"
         android:showAsAction="collapseActionView" />
+
     <item
         android:id="@+id/logout"
         android:showAsAction="collapseActionView"
         android:title="@string/logout">
+
     </item>
 </menu>

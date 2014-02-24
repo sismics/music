@@ -172,14 +172,14 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         mediaPlayerHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (mPlayer != null) {
+                if (mPlayer != null && mState == State.Playing) {
                     EventBus.getDefault().post(
                             new MediaPlayerStateChangedEvent(songStartedAt, currentPlaylistTrack,
                                     mPlayer.getCurrentPosition(), mPlayer.getDuration()));
                 }
-                mediaPlayerHandler.postDelayed(this, 500);
+                mediaPlayerHandler.postDelayed(this, 1000);
             }
-        }, 500);
+        }, 1000);
 
         EventBus.getDefault().register(this);
     }
@@ -558,8 +558,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
      */
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        Toast.makeText(this, "Media player error! Resetting.",
-            Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Media player error! Resetting.", Toast.LENGTH_SHORT).show();
         Log.e(TAG, "Error: what=" + String.valueOf(what) + ", extra=" + String.valueOf(extra));
 
         mState = State.Stopped;
@@ -613,7 +612,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         }
 
         Log.d("MusicService", "Media player is progressing: " + event.getCurrentPosition() + "/" + event.getDuration());
-        if (/* TODO event.getCurrentPosition() > event.getDuration() / 2 &&*/ !songCompleted) {
+        if (event.getCurrentPosition() > event.getDuration() / 2 && !songCompleted) {
             // The song is considered completed
             songCompleted = true;
             ScrobbleUtil.trackCompleted(this, event.getPlaylistTrack().getId(), event.getSongStartedAt());

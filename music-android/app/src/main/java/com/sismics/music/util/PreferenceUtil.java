@@ -23,7 +23,8 @@ public class PreferenceUtil {
         CACHED_USER_INFO_JSON,
         SERVER_URL,
         CACHED_ALBUMS_LIST_JSON,
-        SCROBBLE_JSON
+        SCROBBLE_JSON,
+        OFFLINE_MODE
     }
 
     /**

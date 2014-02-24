@@ -34,6 +34,7 @@
     <string name="add_toast">Added to queue</string>
     <string name="playlist_empty">The playlist is empty</string>
     <string name="empty_playlist">Clear the playlist</string>
+    <string name="offline_mode">Offline mode toggle</string>
 
     <!-- Validation -->
     <string name="validate_error_email">Invalid email</string>

@@ -6,7 +6,9 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
@@ -14,13 +16,17 @@ import android.view.MenuItem;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
+import com.sismics.music.event.OfflineModeChangedEvent;
 import com.sismics.music.fragment.MyMusicFragment;
 import com.sismics.music.fragment.PlaylistFragment;
 import com.sismics.music.model.ApplicationContext;
 import com.sismics.music.resource.UserResource;
+import com.sismics.music.util.PreferenceUtil;
 import com.sismics.music.util.ScrobbleUtil;
 
 import java.util.Locale;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * Main activity.
@@ -32,12 +38,12 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
     /**
      * Custom tab pager adapter.
      */
-    SectionsPagerAdapter sectionsPagerAdapter;
+    private SectionsPagerAdapter sectionsPagerAdapter;
 
     /**
      * The {@link ViewPager} that will host the tab contents.
      */
-    ViewPager viewPager;
+    private ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +93,11 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present
         getMenuInflater().inflate(R.menu.main, menu);
+        menu.findItem(R.id.offline_mode).setIcon(
+                PreferenceUtil.getBooleanPreference(this, PreferenceUtil.Pref.OFFLINE_MODE, false) ?
+                        R.drawable.ic_action_make_available_offline_dark :
+                        R.drawable.ic_action_network_wifi
+        );
         return true;
     }
 
@@ -94,6 +105,14 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.settings:
+                return true;
+
+            case R.id.offline_mode:
+                boolean offlineMode = PreferenceUtil.getBooleanPreference(this, PreferenceUtil.Pref.OFFLINE_MODE, false);
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+                sharedPreferences.edit().putBoolean(PreferenceUtil.Pref.OFFLINE_MODE.toString(), !offlineMode).commit();
+                item.setIcon(offlineMode ? R.drawable.ic_action_network_wifi : R.drawable.ic_action_make_available_offline_dark);
+                EventBus.getDefault().post(new OfflineModeChangedEvent(!offlineMode));
                 return true;
 
             case R.id.logout:

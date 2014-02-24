@@ -32,23 +32,41 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
     private AQuery aq;
     private Activity activity;
     private JSONArray allAlbums;
+    private JSONArray originalAlbums;
     private JSONArray albums;
     private String authToken;
     private String serverUrl;
     private Set<String> cachedAlbumSet;
+    private boolean offlineMode;
 
     /**
      * Constructor.
      * @param activity Context activity
      */
-    public AlbumAdapter(Activity activity, JSONArray albums, Set<String> cachedAlbumSet) {
+    public AlbumAdapter(Activity activity, JSONArray albums, Set<String> cachedAlbumSet, boolean offlineMode) {
         this.activity = activity;
-        this.allAlbums = albums;
-        this.albums = albums;
+        this.originalAlbums = albums;
         this.cachedAlbumSet = cachedAlbumSet;
+        this.offlineMode = offlineMode;
         this.aq = new AQuery(activity);
         this.authToken = PreferenceUtil.getAuthToken(activity);
         this.serverUrl = PreferenceUtil.getServerUrl(activity);
+        computeAlbumList();
+        this.albums = this.allAlbums;
+    }
+
+    private void computeAlbumList() {
+        if (offlineMode) {
+            allAlbums = new JSONArray();
+            for (int i = 0; i < originalAlbums.length(); i++) {
+                JSONObject album = originalAlbums.optJSONObject(i);
+                if (cachedAlbumSet.contains(album.optString("id"))) {
+                    allAlbums.put(album);
+                }
+            }
+        } else {
+            allAlbums = originalAlbums;
+        }
     }
 
     @Override
@@ -110,8 +128,9 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
     }
 
     public void setAlbums(JSONArray albums) {
-        this.albums = albums;
-        this.allAlbums = albums;
+        this.originalAlbums = albums;
+        computeAlbumList();
+        this.albums = allAlbums;
         notifyDataSetChanged();
     }
 
@@ -148,6 +167,12 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
                 notifyDataSetChanged();
             }
         };
+    }
+
+    public void setOfflineMode(boolean offlineMode) {
+        this.offlineMode = offlineMode;
+        computeAlbumList();
+        notifyDataSetChanged();
     }
 
     /**

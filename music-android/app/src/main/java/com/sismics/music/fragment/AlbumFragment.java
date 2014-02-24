@@ -1,10 +1,12 @@
 package com.sismics.music.fragment;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -61,7 +63,32 @@ public class AlbumFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         eventBus = EventBus.getDefault();
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        activity.getActionBar().setDisplayHomeAsUpEnabled(true);
+        activity.getActionBar().setHomeButtonEnabled(true);
+    }
+
+    @Override
+    public void onDetach() {
+        getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
+        getActivity().getActionBar().setHomeButtonEnabled(false);
+        super.onDetach();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                getActivity().getFragmentManager().popBackStack();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

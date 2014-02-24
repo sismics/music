@@ -18,6 +18,7 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
 import com.sismics.music.event.AlbumOpenedEvent;
 import com.sismics.music.event.MyMusicMenuVisibilityChangedEvent;
+import com.sismics.music.event.OfflineModeChangedEvent;
 import com.sismics.music.model.Album;
 import com.sismics.music.resource.AlbumResource;
 import com.sismics.music.adapter.AlbumAdapter;
@@ -39,6 +40,8 @@ import de.greenrobot.event.EventBus;
 public class AlbumListFragment extends Fragment {
 
     private AQuery aq;
+
+    private boolean offlineMode;
 
     /**
      * Returns a new instance of this fragment.
@@ -66,7 +69,7 @@ public class AlbumListFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refresh:
-                refreshAlbumList();
+                refreshAlbumList(true);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -76,9 +79,10 @@ public class AlbumListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the view
         View view = inflater.inflate(R.layout.fragment_album_list, container, false);
+        offlineMode = PreferenceUtil.getBooleanPreference(getActivity(), PreferenceUtil.Pref.OFFLINE_MODE, false);
         aq = new AQuery(view);
 
-        refreshAlbumList();
+        refreshAlbumList(false);
 
         // Clear the search input
         aq.id(R.id.clearSearch).clicked(new View.OnClickListener() {
@@ -121,42 +125,48 @@ public class AlbumListFragment extends Fragment {
 
     /**
      * Refresh album list.
+     * @param forceRefresh Force a refresh from the server even if there is cached data
      */
-    private void refreshAlbumList() {
+    private void refreshAlbumList(boolean forceRefresh) {
         // Get cached albums
         final Set<String> cachedAlbumSet = CacheUtil.getCachedAlbumSet();
 
         // Grab the data from the cache first
         JSONObject cache = PreferenceUtil.getCachedJson(getActivity(), PreferenceUtil.Pref.CACHED_ALBUMS_LIST_JSON);
         if (cache != null) {
-            aq.id(R.id.listAlbum).adapter(new AlbumAdapter(getActivity(), cache.optJSONArray("albums"), cachedAlbumSet));
+            AlbumAdapter adapter = new AlbumAdapter(getActivity(), cache.optJSONArray("albums"), cachedAlbumSet, offlineMode);
+            aq.id(R.id.listAlbum).adapter(adapter);
+            adapter.getFilter().filter(aq.id(R.id.search).getText());
         }
 
-        // Download the album list from server
-        AlbumResource.list(getActivity(), new JsonHttpResponseHandler() {
-            public void onSuccess(final JSONObject json) {
-                if (getActivity() == null) {
-                    // The activity is dead, and this fragment has been detached
-                    return;
+        if (cache == null || forceRefresh) {
+            // Download the album list from server
+            AlbumResource.list(getActivity(), new JsonHttpResponseHandler() {
+                public void onSuccess(final JSONObject json) {
+                    if (getActivity() == null) {
+                        // The activity is dead, and this fragment has been detached
+                        return;
+                    }
+
+                    // Cache the albums list
+                    ListView listView = aq.id(R.id.listAlbum).getListView();
+                    JSONArray albums = json.optJSONArray("albums");
+                    PreferenceUtil.setCachedJson(getActivity(), PreferenceUtil.Pref.CACHED_ALBUMS_LIST_JSON, json);
+
+                    // Publish the new albums to the adapter
+                    AlbumAdapter adapter = (AlbumAdapter) listView.getAdapter();
+                    if (adapter != null) {
+                        adapter.setAlbums(albums);
+                    } else {
+                        adapter = new AlbumAdapter(getActivity(), albums, cachedAlbumSet, offlineMode);
+                        listView.setAdapter(adapter);
+                    }
+
+                    // Apply the filter on the new result set
+                    adapter.getFilter().filter(aq.id(R.id.search).getText());
                 }
-
-                // Cache the albums list
-                ListView listView = aq.id(R.id.listAlbum).getListView();
-                JSONArray albums = json.optJSONArray("albums");
-                PreferenceUtil.setCachedJson(getActivity(), PreferenceUtil.Pref.CACHED_ALBUMS_LIST_JSON, json);
-
-                // Clear the search input
-                aq.id(R.id.search).text("");
-
-                // Publish the new albums to the adapter
-                AlbumAdapter adapter = (AlbumAdapter) listView.getAdapter();
-                if (adapter != null) {
-                    adapter.setAlbums(albums);
-                } else {
-                    listView.setAdapter(new AlbumAdapter(getActivity(), albums, cachedAlbumSet));
-                }
-            }
-        });
+            });
+        }
     }
 
     @Override
@@ -171,5 +181,18 @@ public class AlbumListFragment extends Fragment {
      */
     public void onEvent(MyMusicMenuVisibilityChangedEvent event) {
         setMenuVisibility(event.isMenuVisible());
+    }
+
+    /**
+     * Offline mode has changed.
+     * @param event Event
+     */
+    public void onEvent(OfflineModeChangedEvent event) {
+        offlineMode = event.isOfflineMode();
+        AlbumAdapter adapter = (AlbumAdapter) aq.id(R.id.listAlbum).getListView().getAdapter();
+        if (adapter != null) {
+            adapter.setOfflineMode(offlineMode);
+        }
+        aq.id(R.id.search).text("");
     }
 }
