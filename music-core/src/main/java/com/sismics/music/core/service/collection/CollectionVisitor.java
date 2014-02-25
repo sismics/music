@@ -18,7 +18,7 @@ import java.util.Set;
  */
 public class CollectionVisitor extends SimpleFileVisitor<Path> {
     private static final Set<String> supportedExtSet = ImmutableSet.of(
-            "ogg", "oga", "aac", "m4a", "flac", "wav", "wma", "aif", "aiff", "ape", "mpc", "shn");
+            "ogg", "oga", "aac", "m4a", "flac", "wav", "wma", "aif", "aiff", "ape", "mpc", "shn", "mp3");
 
     /**
      * Root directory to visit.

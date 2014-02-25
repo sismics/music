@@ -28,7 +28,7 @@ public class TranscoderService {
     public InputStream getTranscodedInputStream(Track track, int seek) throws Exception {
         final File file = new File(track.getFileName());
         ProcessBuilder pb = getProcessBuilder(track, seek);
-        return new TranscodedInputStream(pb, new FileInputStream(file), null);
+        return new TranscodedInputStream(pb, new FileInputStream(file));
     }
 
     /**
