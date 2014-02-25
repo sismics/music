@@ -158,7 +158,7 @@ public class CollectionService extends AbstractScheduledService {
 
         track.setLength(header.getTrackLength());
         track.setBitrate(header.getSampleRateAsNumber());
-        track.setFormat(header.getEncodingType());
+        track.setFormat(StringUtils.abbreviate(header.getEncodingType(), 50));
         track.setVbr(header.isVariableBitRate());
 
         String year = tag.getFirst(FieldKey.YEAR);
