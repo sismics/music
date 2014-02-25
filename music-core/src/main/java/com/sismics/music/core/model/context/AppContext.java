@@ -8,6 +8,7 @@ import com.sismics.music.core.service.albumart.AlbumArtService;
 import com.sismics.music.core.service.collection.CollectionService;
 import com.sismics.music.core.service.lastfm.LastFmService;
 import com.sismics.music.core.service.player.PlayerService;
+import com.sismics.music.core.service.transcoder.TranscoderService;
 import com.sismics.util.EnvironmentUtil;
 
 import java.util.ArrayList;
@@ -59,14 +60,19 @@ public class AppContext {
     private AlbumArtService albumArtService;
 
     /**
+     * Last.fm service.
+     */
+    private LastFmService lastFmService;
+
+    /**
      * Player service.
      */
     private PlayerService playerService;
 
     /**
-     * Last.fm service.
+     * Transcoder service.
      */
-    private LastFmService lastFmService;
+    private TranscoderService transcoderService;
 
     /**
      * Asynchronous executors.
@@ -83,8 +89,9 @@ public class AppContext {
         collectionService.startAndWait();
 
         albumArtService = new AlbumArtService();
-        playerService = new PlayerService();
         lastFmService = new LastFmService();
+        playerService = new PlayerService();
+        transcoderService = new TranscoderService();
     }
     
     /**
@@ -165,21 +172,30 @@ public class AppContext {
     }
 
     /**
-     * Getter of playerService.
-     *
-     * @return playerService
-     */
-    public PlayerService getPlayerService() {
-        return playerService;
-    }
-
-    /**
      * Getter of lastFmService.
      *
      * @return lastFmService
      */
     public LastFmService getLastFmService() {
         return lastFmService;
+    }
+
+    /**
+     * Getter of transcoderService.
+     *
+     * @return transcoderService
+     */
+    public TranscoderService getTranscoderService() {
+        return transcoderService;
+    }
+
+    /**
+     * Getter of playerService.
+     *
+     * @return playerService
+     */
+    public PlayerService getPlayerService() {
+        return playerService;
     }
 
     /**

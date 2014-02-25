@@ -1,5 +1,6 @@
 package com.sismics.music.core.service.collection;
 
+import com.google.common.collect.ImmutableSet;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Directory;
 import org.slf4j.Logger;
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Set;
 
 /**
  * Collection visitor.
@@ -15,6 +17,9 @@ import java.nio.file.attribute.BasicFileAttributes;
  * @author jtremeaux
  */
 public class CollectionVisitor extends SimpleFileVisitor<Path> {
+    private static final Set<String> supportedExtSet = ImmutableSet.of(
+            "ogg", "oga", "aac", "m4a", "flac", "wav", "wma", "aif", "aiff", "ape", "mpc", "shn");
+
     /**
      * Root directory to visit.
      */
@@ -31,7 +36,8 @@ public class CollectionVisitor extends SimpleFileVisitor<Path> {
 
     @Override
     public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-        if (path.toString().endsWith(".mp3")) {
+        String ext = com.google.common.io.Files.getFileExtension(path.toString()).toLowerCase();
+        if (supportedExtSet.contains(ext)) {
             final CollectionService collectionService = AppContext.getInstance().getCollectionService();
             collectionService.indexFile(rootDirectory, path);
         }
