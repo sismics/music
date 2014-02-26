@@ -1,7 +1,6 @@
 package com.sismics.music.rest.util;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.sismics.rest.exception.ClientException;

@@ -1,5 +1,28 @@
 package com.sismics.music.rest.resource;
 
+import java.util.Date;
+import java.util.Set;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.servlet.http.Cookie;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.sismics.music.core.constant.Constants;
 import com.sismics.music.core.dao.dbi.AuthenticationTokenDao;
 import com.sismics.music.core.dao.dbi.PlaylistDao;
@@ -27,21 +50,8 @@ import com.sismics.security.UserPrincipal;
 import com.sismics.util.EnvironmentUtil;
 import com.sismics.util.LocaleUtil;
 import com.sismics.util.filter.TokenBasedSecurityFilter;
-import de.umass.lastfm.Session;
-import org.apache.commons.lang.StringUtils;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 
-import javax.servlet.http.Cookie;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.NewCookie;
-import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import de.umass.lastfm.Session;
 
 /**
  * User REST resources.
@@ -66,7 +76,7 @@ public class UserResource extends BaseResource {
         @FormParam("username") String username,
         @FormParam("password") String password,
         @FormParam("locale") String localeId,
-        @FormParam("email") String email) throws JSONException {
+        @FormParam("email") String email) {
 
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -120,8 +130,9 @@ public class UserResource extends BaseResource {
         AppContext.getInstance().getAsyncEventBus().post(userCreatedEvent);
 
         // Always return OK
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
+        JsonObject response = Json.createObjectBuilder()
+                .add("status", "ok")
+                .build();
         return Response.ok().entity(response).build();
     }
 
@@ -152,7 +163,7 @@ public class UserResource extends BaseResource {
         @FormParam("display_unread_web") Boolean displayUnreadWeb,
         @FormParam("display_unread_mobile") Boolean displayUnreadMobile,
         @FormParam("narrow_article") Boolean narrowArticle,
-        @FormParam("first_connection") Boolean firstConnection) throws JSONException {
+        @FormParam("first_connection") Boolean firstConnection) {
         
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -195,8 +206,9 @@ public class UserResource extends BaseResource {
         }
         
         // Always return "ok"
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
+        JsonObject response = Json.createObjectBuilder()
+                .add("status", "ok")
+                .build();
         return Response.ok().entity(response).build();
     }
 
@@ -228,7 +240,7 @@ public class UserResource extends BaseResource {
         @FormParam("display_title_mobile") Boolean displayTitleMobile,
         @FormParam("display_unread_web") Boolean displayUnreadWeb,
         @FormParam("display_unread_mobile") Boolean displayUnreadMobile,
-        @FormParam("narrow_article") Boolean narrowArticle) throws JSONException {
+        @FormParam("narrow_article") Boolean narrowArticle) {
         
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -275,8 +287,9 @@ public class UserResource extends BaseResource {
         }
         
         // Always return "ok"
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
+        JsonObject response = Json.createObjectBuilder()
+                .add("status", "ok")
+                .build();
         return Response.ok().entity(response).build();
     }
 
@@ -290,20 +303,20 @@ public class UserResource extends BaseResource {
     @Path("check_username")
     @Produces(MediaType.APPLICATION_JSON)
     public Response checkUsername(
-        @QueryParam("username") String username) throws JSONException {
+        @QueryParam("username") String username) {
         
         UserDao userDao = new UserDao();
         User user = userDao.getActiveByUsername(username);
         
-        JSONObject response = new JSONObject();
+        JsonObjectBuilder response = Json.createObjectBuilder();
         if (user != null) {
-            response.put("status", "ko");
-            response.put("message", "Username already registered");
+            response.add("status", "ko");
+            response.add("message", "Username already registered");
         } else {
-            response.put("status", "ok");
+            response.add("status", "ok");
         }
         
-        return Response.ok().entity(response).build();
+        return Response.ok().entity(response.build()).build();
     }
 
     /**
@@ -321,7 +334,7 @@ public class UserResource extends BaseResource {
     public Response login(
         @FormParam("username") String username,
         @FormParam("password") String password,
-        @FormParam("remember") boolean longLasted) throws JSONException {
+        @FormParam("remember") boolean longLasted) {
         
         // Validate the input data
         username = StringUtils.strip(username);
@@ -344,10 +357,12 @@ public class UserResource extends BaseResource {
         // Cleanup old session tokens
         authenticationTokenDao.deleteOldSessionToken(userId);
 
-        JSONObject response = new JSONObject();
         int maxAge = longLasted ? TokenBasedSecurityFilter.TOKEN_LONG_LIFETIME : -1;
         NewCookie cookie = new NewCookie(TokenBasedSecurityFilter.COOKIE_NAME, token, "/", null, null, maxAge, false);
-        return Response.ok().entity(response).cookie(cookie).build();
+        return Response.ok()
+                .entity(Json.createObjectBuilder().build())
+                .cookie(cookie)
+                .build();
     }
 
     /**
@@ -358,7 +373,7 @@ public class UserResource extends BaseResource {
     @POST
     @Path("logout")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response logout() throws JSONException {
+    public Response logout() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -392,9 +407,11 @@ public class UserResource extends BaseResource {
         }
         
         // Deletes the client token in the HTTP response
-        JSONObject response = new JSONObject();
         NewCookie cookie = new NewCookie(TokenBasedSecurityFilter.COOKIE_NAME, null);
-        return Response.ok().entity(response).cookie(cookie).build();
+        return Response.ok()
+                .entity(Json.createObjectBuilder().build())
+                .cookie(cookie)
+                .build();
     }
 
     /**
@@ -404,7 +421,7 @@ public class UserResource extends BaseResource {
      */
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    public Response delete() throws JSONException {
+    public Response delete() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -419,8 +436,9 @@ public class UserResource extends BaseResource {
         userDao.delete(principal.getName());
         
         // Always return ok
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
+        JsonObject response = Json.createObjectBuilder()
+                .add("status", "ok")
+                .build();
         return Response.ok().entity(response).build();
     }
     
@@ -434,7 +452,7 @@ public class UserResource extends BaseResource {
     @DELETE
     @Path("{username: [a-zA-Z0-9_]+}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("username") String username) throws JSONException {
+    public Response delete(@PathParam("username") String username) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -458,8 +476,9 @@ public class UserResource extends BaseResource {
         userDao.delete(user.getUsername());
         
         // Always return ok
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
+        JsonObject response = Json.createObjectBuilder()
+                .add("status", "ok")
+                .build();
         return Response.ok().entity(response).build();
     }
 
@@ -471,33 +490,36 @@ public class UserResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response info() throws JSONException {
-        JSONObject response = new JSONObject();
+    public Response info() {
+        JsonObjectBuilder response = Json.createObjectBuilder();
         if (!authenticate()) {
-            response.put("anonymous", true);
+            response.add("anonymous", true);
 
             String localeId = LocaleUtil.getLocaleIdFromAcceptLanguage(request.getHeader("Accept-Language"));
-            response.put("locale", localeId);
+            response.add("locale", localeId);
             
             // Check if admin has the default password
             UserDao userDao = new UserDao();
             User adminUser = userDao.getActiveById("admin");
             if (adminUser != null && adminUser.getDeleteDate() == null) {
-                response.put("is_default_password", Constants.DEFAULT_ADMIN_PASSWORD.equals(adminUser.getPassword()));
+                response.add("is_default_password", Constants.DEFAULT_ADMIN_PASSWORD.equals(adminUser.getPassword()));
             }
         } else {
-            response.put("anonymous", false);
+            response.add("anonymous", false);
             UserDao userDao = new UserDao();
             User user = userDao.getActiveById(principal.getId());
-            response.put("username", user.getUsername());
-            response.put("email", user.getEmail());
-            response.put("theme", user.getTheme());
-            response.put("locale", user.getLocaleId());
-            response.put("lastfm_connected", user.getLastFmSessionToken() != null);
-            response.put("first_connection", user.isFirstConnection());
-            JSONArray baseFunctions = new JSONArray(((UserPrincipal) principal).getBaseFunctionSet());
-            response.put("base_functions", baseFunctions);
-            response.put("is_default_password", hasBaseFunction(BaseFunction.ADMIN) && Constants.DEFAULT_ADMIN_PASSWORD.equals(user.getPassword()));
+            response.add("username", user.getUsername());
+            response.add("email", user.getEmail());
+            response.add("theme", user.getTheme());
+            response.add("locale", user.getLocaleId());
+            response.add("lastfm_connected", user.getLastFmSessionToken() != null);
+            response.add("first_connection", user.isFirstConnection());
+            JsonArrayBuilder baseFunctions = Json.createArrayBuilder();
+            for (String baseFunction : ((UserPrincipal) principal).getBaseFunctionSet()) {
+                baseFunctions.add(baseFunction);
+            }
+            response.add("base_functions", baseFunctions);
+            response.add("is_default_password", hasBaseFunction(BaseFunction.ADMIN) && Constants.DEFAULT_ADMIN_PASSWORD.equals(user.getPassword()));
         }
         
         return Response.ok().entity(response).build();
@@ -513,13 +535,12 @@ public class UserResource extends BaseResource {
     @GET
     @Path("{username: [a-zA-Z0-9_]+}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response view(@PathParam("username") String username) throws JSONException {
+    public Response view(@PathParam("username") String username) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
         checkBaseFunction(BaseFunction.ADMIN);
         
-        JSONObject response = new JSONObject();
         
         UserDao userDao = new UserDao();
         User user = userDao.getActiveByUsername(username);
@@ -527,12 +548,13 @@ public class UserResource extends BaseResource {
             throw new ClientException("UserNotFound", "The user doesn't exist");
         }
         
-        response.put("username", user.getUsername());
-        response.put("email", user.getEmail());
-        response.put("theme", user.getTheme());
-        response.put("locale", user.getLocaleId());
+        JsonObjectBuilder response = Json.createObjectBuilder()
+                .add("username", user.getUsername())
+                .add("email", user.getEmail())
+                .add("theme", user.getTheme())
+                .add("locale", user.getLocaleId());
         
-        return Response.ok().entity(response).build();
+        return Response.ok().entity(response.build()).build();
     }
     
     /**
@@ -552,14 +574,14 @@ public class UserResource extends BaseResource {
             @QueryParam("limit") Integer limit,
             @QueryParam("offset") Integer offset,
             @QueryParam("sort_column") Integer sortColumn,
-            @QueryParam("asc") Boolean asc) throws JSONException {
+            @QueryParam("asc") Boolean asc) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
         checkBaseFunction(BaseFunction.ADMIN);
         
-        JSONObject response = new JSONObject();
-        List<JSONObject> users = new ArrayList<JSONObject>();
+        JsonObjectBuilder response = Json.createObjectBuilder();
+        JsonArrayBuilder users = Json.createArrayBuilder();
         
         PaginatedList<UserDto> paginatedList = PaginatedLists.create(limit, offset);
         SortCriteria sortCriteria = new SortCriteria(sortColumn, asc);
@@ -567,17 +589,17 @@ public class UserResource extends BaseResource {
         UserDao userDao = new UserDao();
         userDao.findByCriteria(paginatedList, new UserCriteria(), sortCriteria);
         for (UserDto userDto : paginatedList.getResultList()) {
-            JSONObject user = new JSONObject();
-            user.put("id", userDto.getId());
-            user.put("username", userDto.getUsername());
-            user.put("email", userDto.getEmail());
-            user.put("create_date", userDto.getCreateTimestamp());
+            JsonObjectBuilder user = Json.createObjectBuilder();
+            user.add("id", userDto.getId());
+            user.add("username", userDto.getUsername());
+            user.add("email", userDto.getEmail());
+            user.add("create_date", userDto.getCreateTimestamp());
             users.add(user);
         }
-        response.put("total", paginatedList.getResultCount());
-        response.put("users", users);
+        response.add("total", paginatedList.getResultCount());
+        response.add("users", users);
         
-        return Response.ok().entity(response).build();
+        return Response.ok().entity(response.build()).build();
     }
 
     /**
@@ -593,7 +615,7 @@ public class UserResource extends BaseResource {
     public Response registerLastFm(
             @FormParam("username") String lastFmUsername,
             @FormParam("password") String lastFmPassword
-            ) throws JSONException {
+            ) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -619,8 +641,9 @@ public class UserResource extends BaseResource {
         AppContext.getInstance().getLastFmEventBus().post(new LastFmUpdateLovedTrackAsyncEvent(user));
 
         // Always return ok
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
+        JsonObject response = Json.createObjectBuilder()
+                .add("status", "ok")
+                .build();
         return Response.ok().entity(response).build();
     }
 
@@ -633,34 +656,34 @@ public class UserResource extends BaseResource {
     @GET
     @Path("lastfm")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response lastFmInfo() throws JSONException {
+    public Response lastFmInfo() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
 
-        JSONObject response = new JSONObject();
+        JsonObjectBuilder response = Json.createObjectBuilder();
         User user = new UserDao().getActiveById(principal.getId());
 
         if (user.getLastFmSessionToken() != null) {
             final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
             de.umass.lastfm.User lastFmUser = lastFmService.getInfo(user);
     
-            response.put("username", lastFmUser.getName());
-            response.put("registered_date", lastFmUser.getRegisteredDate().getTime());
-            response.put("play_count", lastFmUser.getPlaycount());
-            response.put("url", lastFmUser.getUrl());
-            response.put("image_url", lastFmUser.getImageURL());
+            response.add("username", lastFmUser.getName());
+            response.add("registered_date", lastFmUser.getRegisteredDate().getTime());
+            response.add("play_count", lastFmUser.getPlaycount());
+            response.add("url", lastFmUser.getUrl());
+            response.add("image_url", lastFmUser.getImageURL());
         } else {
-            response.put("status", "not_connected");
+            response.add("status", "not_connected");
         }
 
-        return Response.ok().entity(response).build();
+        return Response.ok().entity(response.build()).build();
     }
     
     @DELETE
     @Path("lastfm")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response unregisterLastFm() throws JSONException {
+    public Response unregisterLastFm() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -671,8 +694,10 @@ public class UserResource extends BaseResource {
         user.setLastFmSessionToken(null);
         userDao.updateLastFmSessionToken(user);
 
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
+        // Always return ok
+        JsonObject response = Json.createObjectBuilder()
+                .add("status", "ok")
+                .build();
         return Response.ok().entity(response).build();
     }
 }

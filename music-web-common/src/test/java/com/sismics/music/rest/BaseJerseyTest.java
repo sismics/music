@@ -1,25 +1,30 @@
 package com.sismics.music.rest;
 
-import com.sismics.music.rest.descriptor.JerseyTestWebAppDescriptorFactory;
-import com.sismics.music.rest.util.ClientUtil;
-import com.sismics.util.dbi.DBIF;
-import com.sun.jersey.test.framework.JerseyTest;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URI;
+import java.util.List;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeUtility;
+import javax.ws.rs.core.UriBuilder;
+
 import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.http.server.StaticHttpHandler;
+import org.glassfish.jersey.test.JerseyTest;
+import org.glassfish.jersey.test.TestProperties;
+import org.glassfish.jersey.test.spi.TestContainerException;
+import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeUtility;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URLDecoder;
-import java.util.List;
+import com.sismics.music.application.Application;
+import com.sismics.music.container.GrizzlyTestContainerFactory;
+import com.sismics.music.rest.util.ClientUtil;
+import com.sismics.util.dbi.DBIF;
 
 /**
  * Base class of integration tests with Jersey.
@@ -42,12 +47,22 @@ public abstract class BaseJerseyTest extends JerseyTest {
      */
     protected ClientUtil clientUtil;
     
-    /**
-     * Constructor of BaseJerseyTest.
-     */
-    public BaseJerseyTest() {
-        super(JerseyTestWebAppDescriptorFactory.build());
-        this.clientUtil = new ClientUtil(resource());
+    @Override
+    protected TestContainerFactory getTestContainerFactory() throws TestContainerException {
+        return new GrizzlyTestContainerFactory();
+    }
+    
+    @Override
+    protected Application configure() {
+        enable(TestProperties.LOG_TRAFFIC);
+        enable(TestProperties.DUMP_ENTITY);
+        
+        return new Application();
+    }
+    
+    @Override
+    protected URI getBaseUri() {
+        return UriBuilder.fromUri(super.getBaseUri()).path("music").build();
     }
     
     @Override
@@ -55,18 +70,14 @@ public abstract class BaseJerseyTest extends JerseyTest {
     public void setUp() throws Exception {
         super.setUp();
 
+        clientUtil = new ClientUtil(target());
+        
         wiser = new Wiser();
         wiser.setPort(2500);
         wiser.start();
 
         // Force shutdown
         DBIF.reset();
-
-        String httpRoot = URLDecoder.decode(new File(getClass().getResource("/").getFile()).getAbsolutePath(), "utf-8");
-        httpServer = HttpServer.createSimpleServer(httpRoot, "localhost", 9997);
-        // Disable file cache to fix https://java.net/jira/browse/GRIZZLY-1350
-        ((StaticHttpHandler) httpServer.getServerConfiguration().getHttpHandlers().keySet().iterator().next()).setFileCacheEnabled(false);
-        httpServer.start();
     }
 
     @Override
@@ -74,7 +85,6 @@ public abstract class BaseJerseyTest extends JerseyTest {
     public void tearDown() throws Exception {
         super.tearDown();
         wiser.stop();
-        httpServer.stop();
     }
 
     /**
