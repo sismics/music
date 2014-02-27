@@ -45,6 +45,6 @@ public class ServerException extends WebApplicationException {
     public ServerException(String type, String message) {
         super(Response.status(Status.INTERNAL_SERVER_ERROR).entity(Json.createObjectBuilder()
             .add("type", type)
-            .add("message", message)).build());
+            .add("message", message).build()).build());
     }
 }

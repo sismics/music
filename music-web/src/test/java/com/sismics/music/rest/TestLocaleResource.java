@@ -4,7 +4,7 @@
 //
 //import org.codehaus.jettison.json.JSONArray;
 //import org.codehaus.jettison.json.JSONException;
-//import org.codehaus.jettison.json.JSONObject;
+//import org.codehaus.jettison.json.JsonObject;
 //import org.junit.Test;
 //
 //import com.sun.jersey.api.client.ClientResponse;
@@ -24,11 +24,11 @@
 //     */
 //    @Test
 //    public void testLocaleResource() throws JSONException {
-//        WebResource localeResource = resource().path("/locale");
+//        WebResource localeResource = target().path("/locale");
 //        ClientResponse response = localeResource.get(ClientResponse.class);
 //        response = localeResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-//        JSONObject json = response.getEntity(JSONObject.class);
+//        JsonObject json = response.readEntity(JsonObject.class);
 //        JSONArray locale = json.getJSONArray("locales");
 //        Assert.assertTrue(locale.length() > 0);
 //    }

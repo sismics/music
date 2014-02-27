@@ -522,7 +522,7 @@ public class UserResource extends BaseResource {
             response.add("is_default_password", hasBaseFunction(BaseFunction.ADMIN) && Constants.DEFAULT_ADMIN_PASSWORD.equals(user.getPassword()));
         }
         
-        return Response.ok().entity(response).build();
+        return Response.ok().entity(response.build()).build();
     }
 
     /**

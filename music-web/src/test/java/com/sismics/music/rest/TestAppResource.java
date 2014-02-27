@@ -8,7 +8,7 @@
 //import junit.framework.Assert;
 //import org.codehaus.jettison.json.JSONArray;
 //import org.codehaus.jettison.json.JSONException;
-//import org.codehaus.jettison.json.JSONObject;
+//import org.codehaus.jettison.json.JsonObject;
 //import org.junit.Ignore;
 //import org.junit.Test;
 //
@@ -28,11 +28,11 @@
 //    @Test
 //    public void testAppResource() throws JSONException {
 //        // Check the application info
-//        WebResource appResource = resource().path("/app");
+//        WebResource appResource = target().path("/app");
 //        ClientResponse response = appResource.get(ClientResponse.class);
 //        response = appResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-//        JSONObject json = response.getEntity(JSONObject.class);
+//        JsonObject json = response.readEntity(JsonObject.class);
 //        String currentVersion = json.getString("current_version");
 //        Assert.assertNotNull(currentVersion);
 //        String minVersion = json.getString("min_version");
@@ -55,8 +55,8 @@
 //        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
 //        
 //        // Map port using UPnP
-//        WebResource appResource = resource().path("/app/map_port");
-//        appResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+//        WebResource appResource = target().path("/app/map_port");
+//        appResource.addFilter(.cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken));
 //        appResource.post(ClientResponse.class);
 //    }
 //    
@@ -71,34 +71,34 @@
 //        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
 //        
 //        // Check the logs (page 1)
-//        WebResource appResource = resource()
+//        WebResource appResource = target()
 //                .path("/app/log")
 //                .queryParam("level", "DEBUG");
 //        ClientResponse response = appResource.get(ClientResponse.class);
-//        appResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+//        appResource.addFilter(.cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken));
 //        response = appResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-//        JSONObject json = response.getEntity(JSONObject.class);
+//        JsonObject json = response.readEntity(JsonObject.class);
 //        JSONArray logs = json.getJSONArray("logs");
 //        Assert.assertTrue(logs.length() == 10);
-//        Long date1 = logs.optJSONObject(0).optLong("date");
-//        Long date2 = logs.optJSONObject(9).optLong("date");
+//        Long date1 = logs.optJsonObject(0).optLong("date");
+//        Long date2 = logs.optJsonObject(9).optLong("date");
 //        Assert.assertTrue(date1 > date2);
 //        
 //        // Check the logs (page 2)
-//        appResource = resource()
+//        appResource = target()
 //                .path("/app/log")
 //                .queryParam("offset",  "10")
 //                .queryParam("level", "DEBUG");
 //        response = appResource.get(ClientResponse.class);
-//        appResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+//        appResource.addFilter(.cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken));
 //        response = appResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-//        json = response.getEntity(JSONObject.class);
+//        json = response.readEntity(JsonObject.class);
 //        logs = json.getJSONArray("logs");
 //        Assert.assertTrue(logs.length() == 10);
-//        Long date3 = logs.optJSONObject(0).optLong("date");
-//        Long date4 = logs.optJSONObject(9).optLong("date");
+//        Long date3 = logs.optJsonObject(0).optLong("date");
+//        Long date4 = logs.optJsonObject(9).optLong("date");
 //        Assert.assertTrue(date3 > date4);
 //    }
 //
@@ -113,40 +113,40 @@
 //        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
 //
 //        // Admin adds a directory to the collection
-//        WebResource directoryResource = resource().path("/directory");
-//        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+//        WebResource directoryResource = target().path("/directory");
+//        directoryResource.addFilter(.cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken));
 //        MultivaluedMapImpl postParams = new MultivaluedMapImpl();
 //        postParams.putSingle("location", Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI()).toString());
 //        ClientResponse response = directoryResource.put(ClientResponse.class, postParams);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-//        JSONObject json = response.getEntity(JSONObject.class);
+//        JsonObject json = response.readEntity(JsonObject.class);
 //        Assert.assertEquals("ok", json.getString("status"));
 //
 //        // Check that the albums are correctly added
-//        WebResource albumResource = resource().path("/album");
-//        albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+//        WebResource albumResource = target().path("/album");
+//        albumResource.addFilter(.cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken));
 //        response = albumResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-//        json = response.getEntity(JSONObject.class);
+//        json = response.readEntity(JsonObject.class);
 //        JSONArray albums = json.optJSONArray("albums");
 //        Assert.assertNotNull(albums);
 //        Assert.assertEquals(1, albums.length());
 //
 //        // Admin adds a directory to the collection
-//        WebResource appResource = resource().path("/app/batch/reindex");
-//        appResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+//        WebResource appResource = target().path("/app/batch/reindex");
+//        appResource.addFilter(.cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken));
 //        postParams = new MultivaluedMapImpl();
 //        response = appResource.post(ClientResponse.class, postParams);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-//        json = response.getEntity(JSONObject.class);
+//        json = response.readEntity(JsonObject.class);
 //        Assert.assertEquals("ok", json.getString("status"));
 //
 //        // Check that the albums are correctly indexed
-//        albumResource = resource().path("/album");
-//        albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
+//        albumResource = target().path("/album");
+//        albumResource.addFilter(.cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken));
 //        response = albumResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-//        json = response.getEntity(JSONObject.class);
+//        json = response.readEntity(JsonObject.class);
 //        albums = json.optJSONArray("albums");
 //        Assert.assertNotNull(albums);
 //        Assert.assertEquals(1, albums.length());

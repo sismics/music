@@ -4,7 +4,7 @@
 //
 //import org.codehaus.jettison.json.JSONArray;
 //import org.codehaus.jettison.json.JSONException;
-//import org.codehaus.jettison.json.JSONObject;
+//import org.codehaus.jettison.json.JsonObject;
 //import org.junit.Test;
 //
 //import com.sun.jersey.api.client.ClientResponse;
@@ -24,11 +24,11 @@
 //     */
 //    @Test
 //    public void testThemeResource() throws JSONException {
-//        WebResource themeResource = resource().path("/theme");
+//        WebResource themeResource = target().path("/theme");
 //        ClientResponse response = themeResource.get(ClientResponse.class);
 //        response = themeResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-//        JSONObject json = response.getEntity(JSONObject.class);
+//        JsonObject json = response.readEntity(JsonObject.class);
 //        JSONArray theme = json.getJSONArray("themes");
 //        Assert.assertTrue(theme.length() > 0);
 //    }

@@ -41,8 +41,7 @@ public class ClientUtil {
         form.param("email", username + "@music.com");
         form.param("password", "12345678");
         form.param("time_zone", "Asia/Tokyo");
-        resource.path("/user")
-                .request()
+        resource.path("/user").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .put(Entity.form(form), JsonObject.class);
         
@@ -63,8 +62,7 @@ public class ClientUtil {
         form.param("username", username);
         form.param("password", password);
         form.param("remember", remember.toString());
-        Response response = resource.path("/user/login")
-                .request()
+        Response response = resource.path("/user/login").request()
                 .post(Entity.form(form));
         
         return getAuthenticationCookie(response);
@@ -86,8 +84,7 @@ public class ClientUtil {
      * @param authenticationToken Authentication token
      */
     public void logout(String authenticationToken) {
-        resource.path("/user/logout")
-                .request()
+        resource.path("/user/logout").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, authenticationToken)
                 .post(null);
     }

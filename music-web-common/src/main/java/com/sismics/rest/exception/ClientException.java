@@ -46,6 +46,6 @@ public class ClientException extends WebApplicationException {
     public ClientException(String type, String message) {
         super(Response.status(Status.BAD_REQUEST).entity(Json.createObjectBuilder()
             .add("type", type)
-            .add("message", message)).build());
+            .add("message", message).build()).build());
     }
 }
