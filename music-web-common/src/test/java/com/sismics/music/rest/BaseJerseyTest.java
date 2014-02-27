@@ -73,8 +73,12 @@ public abstract class BaseJerseyTest extends JerseyTest {
     @After
     public void tearDown() throws Exception {
         super.tearDown();
-        wiser.stop();
-        httpServer.stop();
+        if (wiser != null) {
+            wiser.stop();
+        }
+        if (httpServer != null) {
+            httpServer.stop();
+        }
     }
 
     /**

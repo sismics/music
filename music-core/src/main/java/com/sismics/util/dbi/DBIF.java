@@ -36,7 +36,7 @@ public class DBIF {
 
     public static void createDbi() {
         try {
-            cpds = new ComboPooledDataSource(); // TODO use getEntityManagerProperties()
+            cpds = new ComboPooledDataSource(); // TODO use getDbProperties()
             dbi = new DBI(cpds);
             dbi.registerMapper(new AlbumMapper());
             dbi.registerMapper(new ArtistMapper());
@@ -84,14 +84,14 @@ public class DBIF {
 
     }
 
-    private static Map<Object, Object> getEntityManagerProperties() {
+    private static Map<Object, Object> getDbProperties() {
         // Use properties file if exists
         try {
-            URL hibernatePropertiesUrl = DBIF.class.getResource("/c3p0.properties");
-            if (hibernatePropertiesUrl != null) {
+            URL dbPropertiesUrl = DBIF.class.getResource("/c3p0.properties");
+            if (dbPropertiesUrl != null) {
                 log.info("Configuring connection pool from c3p0.properties");
 
-                InputStream is = hibernatePropertiesUrl.openStream();
+                InputStream is = dbPropertiesUrl.openStream();
                 Properties properties = new Properties();
                 properties.load(is);
                 return properties;
@@ -103,10 +103,10 @@ public class DBIF {
         // Use environment parameters
         log.info("Configuring EntityManager from environment parameters");
         Map<Object, Object> props = new HashMap<Object, Object>();
-        props.put("c3p0.driverClass", "org.hsqldb.jdbcDriver");
+        props.put("c3p0.driverClass", "org.h2.Driver");
         File dbDirectory = DirectoryUtil.getDbDirectory();
         String dbFile = dbDirectory.getAbsoluteFile() + File.separator + "music";
-        props.put("c3p0.jdbcUrl", "jdbc:hsqldb:file:" + dbFile + ";hsqldb.write_delay=false;shutdown=true");
+        props.put("c3p0.jdbcUrl", "jdbc:h2:file:" + dbFile + ";WRITE_DELAY=false;shutdown=true");
         props.put("c3p0.user", "sa");
         return props;
     }
@@ -128,7 +128,7 @@ public class DBIF {
 
     public static void reset() {
         if (cpds != null) {
-            dbi.open().createStatement("SHUTDOWN").execute();
+            dbi.open().createStatement("DROP ALL OBJECTS").execute();
             cpds.close();
             cpds = null;
             dbi = null;
