@@ -6,7 +6,7 @@
 //import com.sun.jersey.api.client.WebResource;
 //import com.sun.jersey.core.util.MultivaluedMapImpl;
 //import junit.framework.Assert;
-//import org.codehaus.jettison.json.JSONArray;
+//import org.codehaus.jettison.json.JsonArray;
 //import org.codehaus.jettison.json.JsonObject;
 //import org.junit.Test;
 //
@@ -44,11 +44,11 @@
 //        response = albumResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
 //        json = response.readEntity(JsonObject.class);
-//        JSONArray albums = json.optJSONArray("albums");
+//        JsonArray albums = json.getJsonArray("albums");
 //        Assert.assertNotNull(albums);
 //        Assert.assertEquals(1, albums.length());
 //        JsonObject album0 = albums.getJsonObject(0);
-//        String album0Id = album0.optString("id");
+//        String album0Id = album0.getString("id");
 //        Assert.assertNotNull(album0Id);
 //
 //        // Admin checks the tracks info
@@ -57,7 +57,7 @@
 //        response = albumResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
 //        json = response.readEntity(JsonObject.class);
-//        JSONArray tracks = json.optJSONArray("tracks");
+//        JsonArray tracks = json.getJsonArray("tracks");
 //        Assert.assertNotNull(tracks);
 //        Assert.assertEquals(2, tracks.length());
 //        JsonObject track0 = tracks.getJsonObject(0);
@@ -85,7 +85,7 @@
 //        response = albumResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
 //        json = response.readEntity(JsonObject.class);
-//        tracks = json.optJSONArray("tracks");
+//        tracks = json.getJsonArray("tracks");
 //        Assert.assertNotNull(tracks);
 //        Assert.assertEquals(2, tracks.length());
 //        track0 = tracks.getJsonObject(0);
@@ -105,7 +105,7 @@
 //        response = albumResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
 //        json = response.readEntity(JsonObject.class);
-//        tracks = json.optJSONArray("tracks");
+//        tracks = json.getJsonArray("tracks");
 //        Assert.assertNotNull(tracks);
 //        Assert.assertEquals(2, tracks.length());
 //        track0 = tracks.getJsonObject(0);

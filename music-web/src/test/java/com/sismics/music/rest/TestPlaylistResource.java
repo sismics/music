@@ -7,7 +7,7 @@
 //import com.sun.jersey.api.client.WebResource;
 //import com.sun.jersey.core.util.MultivaluedMapImpl;
 //import junit.framework.Assert;
-//import org.codehaus.jettison.json.JSONArray;
+//import org.codehaus.jettison.json.JsonArray;
 //import org.codehaus.jettison.json.JsonObject;
 //import org.junit.Test;
 //
@@ -45,11 +45,11 @@
 //        response = albumResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
 //        json = response.readEntity(JsonObject.class);
-//        JSONArray albums = json.optJSONArray("albums");
+//        JsonArray albums = json.getJsonArray("albums");
 //        Assert.assertNotNull(albums);
 //        Assert.assertEquals(1, albums.length());
 //        JsonObject album0 = albums.getJsonObject(0);
-//        String album0Id = album0.optString("id");
+//        String album0Id = album0.getString("id");
 //        Assert.assertNotNull(album0Id);
 //
 //        // Check that the album contains some tracks
@@ -58,11 +58,11 @@
 //        response = albumResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
 //        json = response.readEntity(JsonObject.class);
-//        Assert.assertEquals(album0Id, json.optString("id"));
-//        Assert.assertEquals("Coachella 2010 Day 01 Mixtape", json.optString("name"));
+//        Assert.assertEquals(album0Id, json.getString("id"));
+//        Assert.assertEquals("Coachella 2010 Day 01 Mixtape", json.getString("name"));
 //        JsonObject albumArtist = json.getJsonObject("artist");
-//        Assert.assertEquals("[A] Proxy", albumArtist.optString("name"));
-//        JSONArray tracks = json.optJSONArray("tracks");
+//        Assert.assertEquals("[A] Proxy", albumArtist.getString("name"));
+//        JsonArray tracks = json.getJsonArray("tracks");
 //        Assert.assertNotNull(tracks);
 //        Assert.assertEquals(2, tracks.length());
 //        JsonObject track0 = tracks.getJsonObject(0);
@@ -76,7 +76,7 @@
 //        response = playlistResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
 //        json = response.readEntity(JsonObject.class);
-//        tracks = json.optJSONArray("tracks");
+//        tracks = json.getJsonArray("tracks");
 //        Assert.assertNotNull(tracks);
 //        Assert.assertEquals(0, tracks.length());
 //
@@ -96,7 +96,7 @@
 //        response = playlistResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
 //        json = response.readEntity(JsonObject.class);
-//        tracks = json.optJSONArray("tracks");
+//        tracks = json.getJsonArray("tracks");
 //        Assert.assertNotNull(tracks);
 //        Assert.assertEquals(1, tracks.length());
 //        Assert.assertEquals(track1Id, tracks.getJsonObject(0).getString("id"));
@@ -118,7 +118,7 @@
 //        response = playlistResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
 //        json = response.readEntity(JsonObject.class);
-//        tracks = json.optJSONArray("tracks");
+//        tracks = json.getJsonArray("tracks");
 //        Assert.assertNotNull(tracks);
 //        Assert.assertEquals(2, tracks.length());
 //        Assert.assertEquals(track0Id, tracks.getJsonObject(0).getString("id"));
@@ -140,7 +140,7 @@
 //        response = playlistResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
 //        json = response.readEntity(JsonObject.class);
-//        tracks = json.optJSONArray("tracks");
+//        tracks = json.getJsonArray("tracks");
 //        Assert.assertNotNull(tracks);
 //        Assert.assertEquals(2, tracks.length());
 //        Assert.assertEquals(track1Id, tracks.getJsonObject(0).getString("id"));
@@ -160,7 +160,7 @@
 //        response = playlistResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
 //        json = response.readEntity(JsonObject.class);
-//        tracks = json.optJSONArray("tracks");
+//        tracks = json.getJsonArray("tracks");
 //        Assert.assertNotNull(tracks);
 //        Assert.assertEquals(1, tracks.length());
 //        Assert.assertEquals(track0Id, tracks.getJsonObject(0).getString("id"));
@@ -179,7 +179,7 @@
 //        response = playlistResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
 //        json = response.readEntity(JsonObject.class);
-//        tracks = json.optJSONArray("tracks");
+//        tracks = json.getJsonArray("tracks");
 //        Assert.assertNotNull(tracks);
 //        Assert.assertEquals(0, tracks.length());
 //        
@@ -199,7 +199,7 @@
 //        response = playlistResource.get(ClientResponse.class);
 //        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
 //        json = response.readEntity(JsonObject.class);
-//        tracks = json.optJSONArray("tracks");
+//        tracks = json.getJsonArray("tracks");
 //        Assert.assertNotNull(tracks);
 //        Assert.assertEquals(2, tracks.length());
 //        Assert.assertEquals(track0Id, tracks.getJsonObject(0).getString("id"));

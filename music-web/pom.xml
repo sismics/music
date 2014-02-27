@@ -35,7 +35,7 @@
       <groupId>org.glassfish.jersey.media</groupId>
       <artifactId>jersey-media-json-processing</artifactId>
     </dependency>
-      
+    
     <!-- Other external dependencies -->
     <dependency>
       <groupId>commons-lang</groupId>
