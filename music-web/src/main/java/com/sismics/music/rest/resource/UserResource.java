@@ -310,8 +310,8 @@ public class UserResource extends BaseResource {
         
         JsonObjectBuilder response = Json.createObjectBuilder();
         if (user != null) {
-            response.add("status", "ko");
-            response.add("message", "Username already registered");
+            response.add("status", "ko")
+                    .add("message", "Username already registered");
         } else {
             response.add("status", "ok");
         }
@@ -508,18 +508,18 @@ public class UserResource extends BaseResource {
             response.add("anonymous", false);
             UserDao userDao = new UserDao();
             User user = userDao.getActiveById(principal.getId());
-            response.add("username", user.getUsername());
-            response.add("email", user.getEmail());
-            response.add("theme", user.getTheme());
-            response.add("locale", user.getLocaleId());
-            response.add("lastfm_connected", user.getLastFmSessionToken() != null);
-            response.add("first_connection", user.isFirstConnection());
+            response.add("username", user.getUsername())
+                    .add("email", user.getEmail())
+                    .add("theme", user.getTheme())
+                    .add("locale", user.getLocaleId())
+                    .add("lastfm_connected", user.getLastFmSessionToken() != null)
+                    .add("first_connection", user.isFirstConnection());
             JsonArrayBuilder baseFunctions = Json.createArrayBuilder();
             for (String baseFunction : ((UserPrincipal) principal).getBaseFunctionSet()) {
                 baseFunctions.add(baseFunction);
             }
-            response.add("base_functions", baseFunctions);
-            response.add("is_default_password", hasBaseFunction(BaseFunction.ADMIN) && Constants.DEFAULT_ADMIN_PASSWORD.equals(user.getPassword()));
+            response.add("base_functions", baseFunctions)
+                    .add("is_default_password", hasBaseFunction(BaseFunction.ADMIN) && Constants.DEFAULT_ADMIN_PASSWORD.equals(user.getPassword()));
         }
         
         return Response.ok().entity(response.build()).build();
@@ -589,12 +589,11 @@ public class UserResource extends BaseResource {
         UserDao userDao = new UserDao();
         userDao.findByCriteria(paginatedList, new UserCriteria(), sortCriteria);
         for (UserDto userDto : paginatedList.getResultList()) {
-            JsonObjectBuilder user = Json.createObjectBuilder();
-            user.add("id", userDto.getId());
-            user.add("username", userDto.getUsername());
-            user.add("email", userDto.getEmail());
-            user.add("create_date", userDto.getCreateTimestamp());
-            users.add(user);
+            users.add(Json.createObjectBuilder()
+                    .add("id", userDto.getId())
+                    .add("username", userDto.getUsername())
+                    .add("email", userDto.getEmail())
+                    .add("create_date", userDto.getCreateTimestamp()));
         }
         response.add("total", paginatedList.getResultCount());
         response.add("users", users);
@@ -668,11 +667,11 @@ public class UserResource extends BaseResource {
             final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
             de.umass.lastfm.User lastFmUser = lastFmService.getInfo(user);
     
-            response.add("username", lastFmUser.getName());
-            response.add("registered_date", lastFmUser.getRegisteredDate().getTime());
-            response.add("play_count", lastFmUser.getPlaycount());
-            response.add("url", lastFmUser.getUrl());
-            response.add("image_url", lastFmUser.getImageURL());
+            response.add("username", lastFmUser.getName())
+                    .add("registered_date", lastFmUser.getRegisteredDate().getTime())
+                    .add("play_count", lastFmUser.getPlaycount())
+                    .add("url", lastFmUser.getUrl())
+                    .add("image_url", lastFmUser.getImageURL());
         } else {
             response.add("status", "not_connected");
         }

@@ -192,13 +192,12 @@ public class DirectoryResource extends BaseResource {
         JsonObjectBuilder response = Json.createObjectBuilder();
         JsonArrayBuilder items = Json.createArrayBuilder();
         for (Directory directory : directoryList) {
-            JsonObjectBuilder directoryJson = Json.createObjectBuilder();
-            directoryJson.add("id", directory.getId());
-            directoryJson.add("name", directory.getName());
-            directoryJson.add("location", directory.getLocation());
-            directoryJson.add("active", directory.getDisableDate() == null);
-            directoryJson.add("valid", true); // TODO test if directory valid
-            items.add(directoryJson);
+            items.add(Json.createObjectBuilder()
+                    .add("id", directory.getId())
+                    .add("name", directory.getName())
+                    .add("location", directory.getLocation())
+                    .add("active", directory.getDisableDate() == null)
+                    .add("valid", true)); // TODO test if directory valid
         }
         response.add("directories", items);
 

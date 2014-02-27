@@ -19,6 +19,7 @@ import javax.ws.rs.core.Response;
 import com.sismics.music.core.dao.dbi.TranscoderDao;
 import com.sismics.music.core.model.dbi.Transcoder;
 import com.sismics.music.rest.constant.BaseFunction;
+import com.sismics.music.rest.util.JsonUtil;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.util.ValidationUtil;
@@ -182,15 +183,13 @@ public class TranscoderResource extends BaseResource {
         JsonObjectBuilder response = Json.createObjectBuilder();
         JsonArrayBuilder items = Json.createArrayBuilder();
         for (Transcoder transcoder : transcoderList) {
-            JsonObjectBuilder transcoderJson = Json.createObjectBuilder()
+            items.add(Json.createObjectBuilder()
                     .add("id", transcoder.getId())
                     .add("name", transcoder.getName())
                     .add("source", transcoder.getSource())
                     .add("destination", transcoder.getDestination())
-                    .add("step1", transcoder.getStep1());
-            if (transcoder.getStep2() == null) transcoderJson.addNull("step2");
-            else transcoderJson.add("step2", transcoder.getStep2());
-            items.add(transcoderJson);
+                    .add("step1", transcoder.getStep1())
+                    .add("step2", JsonUtil.nullable(transcoder.getStep2())));
         }
         response.add("transcoders", items);
 

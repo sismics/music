@@ -24,6 +24,7 @@ import com.sismics.music.core.dao.dbi.dto.ArtistDto;
 import com.sismics.music.core.dao.dbi.dto.TrackDto;
 import com.sismics.music.core.util.dbi.PaginatedList;
 import com.sismics.music.core.util.dbi.PaginatedLists;
+import com.sismics.music.rest.util.JsonUtil;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.util.ValidationUtil;
 
@@ -66,30 +67,24 @@ public class SearchResource extends BaseResource {
         int i = 1;
         JsonObjectBuilder response = Json.createObjectBuilder();
         for (TrackDto trackDto : paginatedList.getResultList()) {
-            JsonObjectBuilder track = Json.createObjectBuilder();
-            track.add("order", i++);    // TODO use order from track
-            track.add("id", trackDto.getId());
-            track.add("title", trackDto.getTitle());
-            track.add("year", trackDto.getYear());
-            track.add("length", trackDto.getLength());
-            track.add("bitrate", trackDto.getBitrate());
-            track.add("vbr", trackDto.isVbr());
-            track.add("format", trackDto.getFormat());
-            track.add("play_count", trackDto.getUserTrackPlayCount());
-            track.add("liked", trackDto.isUserTrackLike());
-
-            JsonObjectBuilder album = Json.createObjectBuilder();
-            album.add("id", trackDto.getAlbumId());
-            album.add("name", trackDto.getAlbumName());
-            album.add("albumart", trackDto.getAlbumArt() != null);
-            track.add("album", album);
-
-            JsonObjectBuilder artist = Json.createObjectBuilder();
-            artist.add("id", trackDto.getArtistId());
-            artist.add("name", trackDto.getArtistName());
-            track.add("artist", artist);
-
-            tracks.add(track);
+            tracks.add(Json.createObjectBuilder()
+                    .add("order", i++)    // TODO use order from track
+                    .add("id", trackDto.getId())
+                    .add("title", trackDto.getTitle())
+                    .add("year", JsonUtil.nullable(trackDto.getYear()))
+                    .add("length", trackDto.getLength())
+                    .add("bitrate", trackDto.getBitrate())
+                    .add("vbr", trackDto.isVbr())
+                    .add("format", trackDto.getFormat())
+                    .add("play_count", trackDto.getUserTrackPlayCount())
+                    .add("liked", trackDto.isUserTrackLike())
+                    .add("album", Json.createObjectBuilder()
+                            .add("id", trackDto.getAlbumId())
+                            .add("name", trackDto.getAlbumName())
+                            .add("albumart", trackDto.getAlbumArt() != null))
+                    .add("artist", Json.createObjectBuilder()
+                            .add("id", trackDto.getArtistId())
+                            .add("name", trackDto.getArtistName())));
         }
         response.add("tracks", tracks);
 
@@ -99,16 +94,13 @@ public class SearchResource extends BaseResource {
 
         JsonArrayBuilder albums = Json.createArrayBuilder();
         for (AlbumDto album : albumList) {
-            JsonObjectBuilder albumJson = Json.createObjectBuilder();
-            albumJson.add("id", album.getId());
-            albumJson.add("name", album.getName());
-            albumJson.add("albumart", album.getAlbumArt() != null);
-
-            JsonObjectBuilder artistJson = Json.createObjectBuilder();
-            artistJson.add("id", album.getArtistId());
-            artistJson.add("name", album.getArtistName());
-            albumJson.add("artist", artistJson);
-            albums.add(albumJson);
+            albums.add(Json.createObjectBuilder()
+                    .add("id", album.getId())
+                    .add("name", album.getName())
+                    .add("albumart", album.getAlbumArt() != null)
+                    .add("artist", Json.createObjectBuilder()
+                            .add("id", album.getArtistId())
+                            .add("name", album.getArtistName())));
         }
         response.add("albums", albums);
         
@@ -118,10 +110,9 @@ public class SearchResource extends BaseResource {
 
         JsonArrayBuilder artists = Json.createArrayBuilder();
         for (ArtistDto artist : artistList) {
-            JsonObjectBuilder artistJson = Json.createObjectBuilder();
-            artistJson.add("id", artist.getId());
-            artistJson.add("name", artist.getName());
-            artists.add(artistJson);
+            artists.add(Json.createObjectBuilder()
+                    .add("id", artist.getId())
+                    .add("name", artist.getName()));
         }
         response.add("artists", artists);
         

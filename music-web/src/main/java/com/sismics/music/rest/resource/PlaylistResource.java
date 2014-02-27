@@ -25,6 +25,7 @@ import com.sismics.music.core.dao.dbi.dto.TrackDto;
 import com.sismics.music.core.model.dbi.Playlist;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.util.TransactionUtil;
+import com.sismics.music.rest.util.JsonUtil;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
@@ -221,7 +222,7 @@ public class PlaylistResource extends BaseResource {
                     .add("order", i++)
                     .add("id", trackDto.getId())
                     .add("title", trackDto.getTitle())
-                    .add("year", trackDto.getYear())
+                    .add("year", JsonUtil.nullable(trackDto.getYear()))
                     .add("length", trackDto.getLength())
                     .add("bitrate", trackDto.getBitrate())
                     .add("vbr", trackDto.isVbr())
