@@ -1,17 +1,18 @@
 package com.sismics.music.rest;
 
-import com.sismics.music.rest.filter.CookieAuthenticationFilter;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
-import junit.framework.Assert;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import java.nio.file.Paths;
+
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
+import org.junit.Assert;
 import org.junit.Test;
 
-import java.nio.file.Paths;
+import com.sismics.util.filter.TokenBasedSecurityFilter;
 
 /**
  * Exhaustive test of the directory resource.
@@ -25,7 +26,7 @@ public class TestDirectoryResource extends BaseJerseyTest {
      * @throws JSONException
      */
     @Test
-    public void testDirectoryResource() throws JSONException {
+    public void testDirectoryResource() throws Exception {
         // Create alice user
         clientUtil.createUser("alice");
 
@@ -34,107 +35,88 @@ public class TestDirectoryResource extends BaseJerseyTest {
         String aliceAuthenticationToken = clientUtil.login("alice");
 
         // Alice lists the directories: access to this resource is forbidden
-        WebResource directoryResource = resource().path("/directory");
-        directoryResource.addFilter(new CookieAuthenticationFilter(aliceAuthenticationToken));
-        ClientResponse response = directoryResource.get(ClientResponse.class);
+        Response response = target().path("/directory").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, aliceAuthenticationToken).get();
         Assert.assertEquals(Status.FORBIDDEN, Status.fromStatusCode(response.getStatus()));
 
         // Admin creates a directory : bad request (location required)
-        directoryResource = resource().path("/directory");
-        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        MultivaluedMapImpl postParams = new MultivaluedMapImpl();
-        postParams.putSingle("name", "music");
-        response = directoryResource.put(ClientResponse.class, postParams);
+        response = target().path("/directory").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .put(Entity.form(new Form()
+                        .param("name", "music")));
         Assert.assertEquals(Status.BAD_REQUEST, Status.fromStatusCode(response.getStatus()));
-        JSONObject json = response.getEntity(JSONObject.class);
+        JsonObject json = response.readEntity(JsonObject.class);
         Assert.assertEquals("ValidationError", json.getString("type"));
         Assert.assertTrue(json.getString("message"), json.getString("message").contains("location must be set"));
 
         // Admin creates a directory : OK
-        directoryResource = resource().path("/directory");
-        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        postParams = new MultivaluedMapImpl();
-        postParams.putSingle("name", "main");
-        postParams.putSingle("location", "/vartest/music/main");
-        response = directoryResource.put(ClientResponse.class, postParams);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
+        json = target().path("/directory").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .put(Entity.form(new Form()
+                        .param("name", "main")
+                        .param("location", "/vartest/music/main")), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
         // Admin creates a directory without name : OK, the name is inferred from the directory location
-        directoryResource = resource().path("/directory");
-        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        postParams = new MultivaluedMapImpl();
-        postParams.putSingle("location", "/vartest/music/mix");
-        response = directoryResource.put(ClientResponse.class, postParams);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
+        json = target().path("/directory").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .put(Entity.form(new Form()
+                        .param("location", "/vartest/music/mix")), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
         // Admin lists all directories
-        directoryResource = resource().path("/directory");
-        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = directoryResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
-        JSONArray directories = json.optJSONArray("directories");
+        json = target().path("/directory").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        JsonArray directories = json.getJsonArray("directories");
         Assert.assertNotNull(directories);
-        Assert.assertEquals(2, directories.length());
-        JSONObject directory0 = directories.getJSONObject(0);
-        String directory0Id = directory0.optString("id");
+        Assert.assertEquals(2, directories.size());
+        JsonObject directory0 = directories.getJsonObject(0);
+        String directory0Id = directory0.getString("id");
         Assert.assertNotNull(directory0Id);
-        Assert.assertNotNull("main", directory0.optString("name"));
-        Assert.assertNotNull("/var/music/main", directory0.optString("location"));
-        Assert.assertTrue(directory0.optBoolean("active"));
-        String directory1Id = directories.getJSONObject(1).getString("id");
+        Assert.assertNotNull("main", directory0.getString("name"));
+        Assert.assertNotNull("/var/music/main", directory0.getString("location"));
+        Assert.assertTrue(directory0.getBoolean("active"));
+        String directory1Id = directories.getJsonObject(1).getString("id");
 
         // Admin updates the directory info
-        directoryResource = resource().path("/directory/" + directory0Id);
-        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        postParams = new MultivaluedMapImpl();
-        postParams.add("name", "mainstream");
-        postParams.add("location", "/vartest/music/mainstream");
-        postParams.add("active", true);
-        response = directoryResource.post(ClientResponse.class, postParams);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
+        json = target().path("/directory/" + directory0Id).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .post(Entity.form(new Form()
+                        .param("name", "mainstream")
+                        .param("location", "/vartest/music/mainstream")
+                        .param("active", "true")), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
         // Check the update
-        directoryResource = resource().path("/directory");
-        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = directoryResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
-        directories = json.optJSONArray("directories");
+        json = target().path("/directory").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        directories = json.getJsonArray("directories");
         Assert.assertNotNull(directories);
-        Assert.assertEquals(2, directories.length());
-        directory0 = directories.getJSONObject(0);
-        Assert.assertNotNull(directory0.opt("id"));
-        Assert.assertNotNull("mainstream", directory0.optString("name"));
-        Assert.assertNotNull("/var/music/mainstream", directory0.optString("location"));
-        Assert.assertTrue(directory0.optBoolean("active"));
+        Assert.assertEquals(2, directories.size());
+        directory0 = directories.getJsonObject(0);
+        Assert.assertNotNull(directory0.getString("id"));
+        Assert.assertNotNull("mainstream", directory0.getString("name"));
+        Assert.assertNotNull("/var/music/mainstream", directory0.getString("location"));
+        Assert.assertTrue(directory0.getBoolean("active"));
 
         // Admin deletes the directories
-        directoryResource = resource().path("/directory/" + directory0Id);
-        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = directoryResource.delete(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        target().path("/directory/" + directory0Id).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .delete(JsonObject.class);
 
-        directoryResource = resource().path("/directory/" + directory1Id);
-        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = directoryResource.delete(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        target().path("/directory/" + directory1Id).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .delete(JsonObject.class);
 
         // Check the deletion
-        directoryResource = resource().path("/directory");
-        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = directoryResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
-        directories = json.optJSONArray("directories");
+        json = target().path("/directory").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        directories = json.getJsonArray("directories");
         Assert.assertNotNull(directories);
-        Assert.assertEquals(0, directories.length());
+        Assert.assertEquals(0, directories.size());
     }
 
     /**
@@ -148,51 +130,41 @@ public class TestDirectoryResource extends BaseJerseyTest {
         String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
 
         // Admin adds a directory to the collection
-        WebResource directoryResource = resource().path("/directory");
-        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        MultivaluedMapImpl postParams = new MultivaluedMapImpl();
-        postParams.putSingle("location", Paths.get(getClass().getResource("/music/").toURI()).toString());
-        ClientResponse response = directoryResource.put(ClientResponse.class, postParams);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        JSONObject json = response.getEntity(JSONObject.class);
+        JsonObject json = target().path("/directory").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .put(Entity.form(new Form()
+                        .param("location", Paths.get(getClass().getResource("/music/").toURI()).toString())), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
         // Admin lists all directories
-        directoryResource = resource().path("/directory");
-        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = directoryResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
-        JSONArray directories = json.optJSONArray("directories");
+        json = target().path("/directory").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        JsonArray directories = json.getJsonArray("directories");
         Assert.assertNotNull(directories);
-        Assert.assertEquals(1, directories.length());
-        JSONObject directory0 = directories.getJSONObject(0);
+        Assert.assertEquals(1, directories.size());
+        JsonObject directory0 = directories.getJsonObject(0);
         String directory0Id = directory0.getString("id");
 
         // Check that the albums are correctly added
-        WebResource albumResource = resource().path("/album");
-        albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = albumResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
-        JSONArray albums = json.optJSONArray("albums");
+        json = target().path("/album").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        JsonArray albums = json.getJsonArray("albums");
         Assert.assertNotNull(albums);
-        Assert.assertEquals(2, albums.length());
+        Assert.assertEquals(1, albums.size());
 
         // Admin deletes the directory
-        directoryResource = resource().path("/directory/" + directory0Id);
-        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = directoryResource.delete(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        target().path("/directory/" + directory0Id).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .delete(JsonObject.class);
 
         // Check that the albums are correctly removed
-        albumResource = resource().path("/album");
-        albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = albumResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
-        albums = json.optJSONArray("albums");
+        json = target().path("/album").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        albums = json.getJsonArray("albums");
         Assert.assertNotNull(albums);
-        Assert.assertEquals(0, albums.length());
+        Assert.assertEquals(0, albums.size());
     }
 }

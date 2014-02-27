@@ -1,5 +1,22 @@
 package com.sismics.music.rest.resource;
 
+import java.util.Date;
+import java.util.List;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import com.sismics.music.core.dao.dbi.DirectoryDao;
 import com.sismics.music.core.event.async.DirectoryCreatedAsyncEvent;
 import com.sismics.music.core.event.async.DirectoryDeletedAsyncEvent;
@@ -9,15 +26,6 @@ import com.sismics.music.rest.constant.BaseFunction;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.util.ValidationUtil;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Directory REST resources.
@@ -38,7 +46,7 @@ public class DirectoryResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response create(
         @FormParam("name") String name,
-        @FormParam("location") String location) throws JSONException {
+        @FormParam("location") String location) {
 
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -56,7 +64,7 @@ public class DirectoryResource extends BaseResource {
 
         // Create the directory
         DirectoryDao directoryDao = new DirectoryDao();
-        String directoryId = directoryDao.create(directory);
+        directoryDao.create(directory);
         
         // Raise a directory creation event
         DirectoryCreatedAsyncEvent directoryCreatedAsyncEvent = new DirectoryCreatedAsyncEvent();
@@ -64,9 +72,9 @@ public class DirectoryResource extends BaseResource {
         AppContext.getInstance().getCollectionEventBus().post(directoryCreatedAsyncEvent);
 
         // Always return OK
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
-        return Response.ok().entity(response).build();
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
     }
 
     /**
@@ -85,7 +93,7 @@ public class DirectoryResource extends BaseResource {
         @PathParam("id") String id,
         @FormParam("name") String name,
         @FormParam("location") String location,
-        @FormParam("active") boolean active) throws JSONException {
+        @FormParam("active") boolean active) {
 
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -122,9 +130,9 @@ public class DirectoryResource extends BaseResource {
 //        AppContext.getInstance().getCollectionEventBus().post(directoryCreatedAsyncEvent);
 
         // Always return "ok"
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
-        return Response.ok().entity(response).build();
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
     }
 
     /**
@@ -137,7 +145,7 @@ public class DirectoryResource extends BaseResource {
     @DELETE
     @Path("{id: [a-z0-9\\-]+}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("id") String id) throws JSONException {
+    public Response delete(@PathParam("id") String id) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -159,9 +167,9 @@ public class DirectoryResource extends BaseResource {
         AppContext.getInstance().getCollectionEventBus().post(directoryDeletedAsyncEvent);
 
         // Always return ok
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
-        return Response.ok().entity(response).build();
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
     }
 
     /**
@@ -172,7 +180,7 @@ public class DirectoryResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response list() throws JSONException {
+    public Response list() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -181,19 +189,19 @@ public class DirectoryResource extends BaseResource {
         DirectoryDao directoryDao = new DirectoryDao();
         List<Directory> directoryList = directoryDao.findAll();
 
-        JSONObject response = new JSONObject();
-        List<JSONObject> items = new ArrayList<JSONObject>();
+        JsonObjectBuilder response = Json.createObjectBuilder();
+        JsonArrayBuilder items = Json.createArrayBuilder();
         for (Directory directory : directoryList) {
-            JSONObject directoryJson = new JSONObject();
-            directoryJson.put("id", directory.getId());
-            directoryJson.put("name", directory.getName());
-            directoryJson.put("location", directory.getLocation());
-            directoryJson.put("active", directory.getDisableDate() == null);
-            directoryJson.put("valid", true); // TODO test if directory valid
+            JsonObjectBuilder directoryJson = Json.createObjectBuilder();
+            directoryJson.add("id", directory.getId());
+            directoryJson.add("name", directory.getName());
+            directoryJson.add("location", directory.getLocation());
+            directoryJson.add("active", directory.getDisableDate() == null);
+            directoryJson.add("valid", true); // TODO test if directory valid
             items.add(directoryJson);
         }
-        response.put("directories", items);
+        response.add("directories", items);
 
-        return Response.ok().entity(response).build();
+        return Response.ok().entity(response.build()).build();
     }
 }

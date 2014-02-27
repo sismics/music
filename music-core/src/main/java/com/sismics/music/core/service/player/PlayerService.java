@@ -1,15 +1,13 @@
 package com.sismics.music.core.service.player;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.sismics.music.core.event.async.PlayCompletedEvent;
 import com.sismics.music.core.event.async.PlayStartedEvent;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Track;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Player service.
@@ -17,11 +15,6 @@ import java.util.Map;
  * @author jtremeaux
  */
 public class PlayerService {
-    /**
-     * Logger.
-     */
-    private static final Logger log = LoggerFactory.getLogger(PlayerService.class);
-
     /**
      * Map of <user id, playing status>.
      */

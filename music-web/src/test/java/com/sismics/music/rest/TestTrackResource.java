@@ -1,16 +1,16 @@
 package com.sismics.music.rest;
 
-import com.sismics.music.rest.filter.CookieAuthenticationFilter;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
-import junit.framework.Assert;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONObject;
+import java.nio.file.Paths;
+
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Form;
+
+import org.junit.Assert;
 import org.junit.Test;
 
-import java.nio.file.Paths;
+import com.sismics.util.filter.TokenBasedSecurityFilter;
 
 /**
  * Exhaustive test of the track resource.
@@ -29,86 +29,69 @@ public class TestTrackResource extends BaseJerseyTest {
         String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
 
         // Admin adds a track to the collection
-        WebResource directoryResource = resource().path("/directory");
-        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        MultivaluedMapImpl postParams = new MultivaluedMapImpl();
-        postParams.putSingle("location", Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI()).toString());
-        ClientResponse response = directoryResource.put(ClientResponse.class, postParams);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        JSONObject json = response.getEntity(JSONObject.class);
+        JsonObject json = target().path("/directory").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .put(Entity.form(new Form()
+                        .param("location", Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI()).toString())), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
         // Check that the albums are correctly added
-        WebResource albumResource = resource().path("/album");
-        albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = albumResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
-        JSONArray albums = json.optJSONArray("albums");
+        json = target().path("/album").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        JsonArray albums = json.getJsonArray("albums");
         Assert.assertNotNull(albums);
-        Assert.assertEquals(1, albums.length());
-        JSONObject album0 = albums.getJSONObject(0);
-        String album0Id = album0.optString("id");
+        Assert.assertEquals(1, albums.size());
+        JsonObject album0 = albums.getJsonObject(0);
+        String album0Id = album0.getString("id");
         Assert.assertNotNull(album0Id);
 
         // Admin checks the tracks info
-        albumResource = resource().path("/album/" + album0Id);
-        albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = albumResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
-        JSONArray tracks = json.optJSONArray("tracks");
+        json = target().path("/album/" + album0Id).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        JsonArray tracks = json.getJsonArray("tracks");
         Assert.assertNotNull(tracks);
-        Assert.assertEquals(2, tracks.length());
-        JSONObject track0 = tracks.getJSONObject(0);
+        Assert.assertEquals(2, tracks.size());
+        JsonObject track0 = tracks.getJsonObject(0);
         String track0Id = track0.getString("id");
         Assert.assertFalse(track0.getBoolean("liked"));
 
         // Get an track by its ID.
-        WebResource trackResource = resource().path("/track/" + track0Id);
-        trackResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = trackResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        target().path("/track/" + track0Id).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get();
 
         // Admin likes the track
-        trackResource = resource().path("/track/" + track0Id + "/like");
-        trackResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        postParams = new MultivaluedMapImpl();
-        response = trackResource.post(ClientResponse.class, postParams);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
+        json = target().path("/track/" + track0Id + "/like").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .post(Entity.form(new Form()), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
         // Admin checks the tracks info
-        albumResource = resource().path("/album/" + album0Id);
-        albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = albumResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
-        tracks = json.optJSONArray("tracks");
+        json = target().path("/album/" + album0Id).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        tracks = json.getJsonArray("tracks");
         Assert.assertNotNull(tracks);
-        Assert.assertEquals(2, tracks.length());
-        track0 = tracks.getJSONObject(0);
+        Assert.assertEquals(2, tracks.size());
+        track0 = tracks.getJsonObject(0);
         Assert.assertTrue(track0.getBoolean("liked"));
 
         // Admin unlikes the track
-        trackResource = resource().path("/track/" + track0Id + "/like");
-        trackResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = trackResource.delete(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
+        json = target().path("/track/" + track0Id + "/like").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .delete(JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
         // Admin checks the tracks info
-        albumResource = resource().path("/album/" + album0Id);
-        albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = albumResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
-        tracks = json.optJSONArray("tracks");
+        json = target().path("/album/" + album0Id).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        tracks = json.getJsonArray("tracks");
         Assert.assertNotNull(tracks);
-        Assert.assertEquals(2, tracks.length());
-        track0 = tracks.getJSONObject(0);
+        Assert.assertEquals(2, tracks.size());
+        track0 = tracks.getJsonObject(0);
         Assert.assertFalse(track0.getBoolean("liked"));
 
     }

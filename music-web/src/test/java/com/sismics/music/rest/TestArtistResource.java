@@ -1,16 +1,16 @@
 package com.sismics.music.rest;
 
-import com.sismics.music.rest.filter.CookieAuthenticationFilter;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
-import junit.framework.Assert;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONObject;
+import java.nio.file.Paths;
+
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Form;
+
+import org.junit.Assert;
 import org.junit.Test;
 
-import java.nio.file.Paths;
+import com.sismics.util.filter.TokenBasedSecurityFilter;
 
 /**
  * Exhaustive test of the artist resource.
@@ -29,35 +29,28 @@ public class TestArtistResource extends BaseJerseyTest {
         String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
 
         // Admin adds an album to the collection
-        WebResource directoryResource = resource().path("/directory");
-        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        MultivaluedMapImpl postParams = new MultivaluedMapImpl();
-        postParams.putSingle("location", Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI()).toString());
-        ClientResponse response = directoryResource.put(ClientResponse.class, postParams);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        JSONObject json = response.getEntity(JSONObject.class);
+        JsonObject json = target().path("/directory").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .put(Entity.form(new Form()
+                        .param("location", Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI()).toString())), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
         // Check that the artists are correctly added
-        WebResource artistResource = resource().path("/artist");
-        artistResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = artistResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
-        JSONArray artists = json.optJSONArray("artists");
+        json = target().path("/artist").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        JsonArray artists = json.getJsonArray("artists");
         Assert.assertNotNull(artists);
-        Assert.assertEquals(3, artists.length());
-        JSONObject artist0 = artists.getJSONObject(0);
-        String artist0Id = artist0.optString("id");
+        Assert.assertEquals(3, artists.size());
+        JsonObject artist0 = artists.getJsonObject(0);
+        String artist0Id = artist0.getString("id");
         Assert.assertNotNull(artist0Id);
-        Assert.assertNotNull(artist0.optString("name"));
+        Assert.assertNotNull(artist0.getString("name"));
         
         // Get an artist details
-        artistResource = resource().path("/artist/" + artist0Id);
-        artistResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = artistResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
-        Assert.assertEquals("Gil Scott-Heron", json.optString("name"));
+        json = target().path("/artist/" + artist0Id).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        Assert.assertEquals("Gil Scott-Heron", json.getString("name"));
     }
 }

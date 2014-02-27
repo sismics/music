@@ -1,5 +1,22 @@
 package com.sismics.music.rest.resource;
 
+import java.util.ResourceBundle;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Appender;
+import org.apache.log4j.Logger;
+
 import com.sismics.music.core.event.async.CollectionReindexAsyncEvent;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.util.ConfigUtil;
@@ -12,18 +29,6 @@ import com.sismics.util.NetworkUtil;
 import com.sismics.util.log4j.LogCriteria;
 import com.sismics.util.log4j.LogEntry;
 import com.sismics.util.log4j.MemoryAppender;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Appender;
-import org.apache.log4j.Logger;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
 
 /**
  * General app REST resource.
@@ -40,17 +45,17 @@ public class AppResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response version() throws JSONException {
+    public Response version() {
         ResourceBundle configBundle = ConfigUtil.getConfigBundle();
         String currentVersion = configBundle.getString("api.current_version");
         String minVersion = configBundle.getString("api.min_version");
 
-        JSONObject response = new JSONObject();
-        response.put("current_version", currentVersion.replace("-SNAPSHOT", ""));
-        response.put("min_version", minVersion);
-        response.put("total_memory", Runtime.getRuntime().totalMemory());
-        response.put("free_memory", Runtime.getRuntime().freeMemory());
-        return Response.ok().entity(response).build();
+        JsonObjectBuilder response = Json.createObjectBuilder()
+                .add("current_version", currentVersion.replace("-SNAPSHOT", ""))
+                .add("min_version", minVersion)
+                .add("total_memory", Runtime.getRuntime().totalMemory())
+                .add("free_memory", Runtime.getRuntime().freeMemory());
+        return Response.ok().entity(response.build()).build();
     }
     
     /**
@@ -72,7 +77,7 @@ public class AppResource extends BaseResource {
             @QueryParam("tag") String tag,
             @QueryParam("message") String message,
             @QueryParam("limit") Integer limit,
-            @QueryParam("offset") Integer offset) throws JSONException {
+            @QueryParam("offset") Integer offset) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -94,20 +99,19 @@ public class AppResource extends BaseResource {
         
         PaginatedList<LogEntry> paginatedList = PaginatedLists.create(limit, offset);
         memoryAppender.find(logCriteria, paginatedList);
-        JSONObject response = new JSONObject();
-        List<JSONObject> logs = new ArrayList<JSONObject>();
+        JsonObjectBuilder response = Json.createObjectBuilder();
+        JsonArrayBuilder logs = Json.createArrayBuilder();
         for (LogEntry logEntry : paginatedList.getResultList()) {
-            JSONObject log = new JSONObject();
-            log.put("date", logEntry.getTimestamp());
-            log.put("level", logEntry.getLevel());
-            log.put("tag", logEntry.getTag());
-            log.put("message", logEntry.getMessage());
-            logs.add(log);
+            logs.add(Json.createObjectBuilder()
+                    .add("date", logEntry.getTimestamp())
+                    .add("level", logEntry.getLevel())
+                    .add("tag", logEntry.getTag())
+                    .add("message", logEntry.getMessage()));
         }
-        response.put("total", paginatedList.getResultCount());
-        response.put("logs", logs);
+        response.add("total", paginatedList.getResultCount());
+        response.add("logs", logs);
         
-        return Response.ok().entity(response).build();
+        return Response.ok().entity(response.build()).build();
     }
     
     /**
@@ -119,7 +123,7 @@ public class AppResource extends BaseResource {
     @POST
     @Path("map_port")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response mapPort() throws JSONException {
+    public Response mapPort() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -130,9 +134,9 @@ public class AppResource extends BaseResource {
         }
 
         // Always return OK
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
-        return Response.ok().entity(response).build();
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
     }
 
     /**
@@ -144,7 +148,7 @@ public class AppResource extends BaseResource {
     @POST
     @Path("batch/reindex")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response reindex() throws JSONException {
+    public Response reindex() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -155,8 +159,8 @@ public class AppResource extends BaseResource {
         AppContext.getInstance().getCollectionEventBus().post(collectionReindexAsyncEvent);
 
         // Always return OK
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
-        return Response.ok().entity(response).build();
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
     }
 }

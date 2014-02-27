@@ -1,11 +1,12 @@
 package com.sismics.music.core.service.collection;
 
-import com.sismics.music.core.service.albumart.AlbumArtImporter;
-import junit.framework.Assert;
-import org.junit.Test;
-
 import java.io.File;
 import java.nio.file.FileSystems;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.sismics.music.core.service.albumart.AlbumArtImporter;
 
 /**
  * Test of the album art importer.

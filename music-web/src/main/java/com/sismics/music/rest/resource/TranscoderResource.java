@@ -1,19 +1,27 @@
 package com.sismics.music.rest.resource;
 
+import java.util.List;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import com.sismics.music.core.dao.dbi.TranscoderDao;
 import com.sismics.music.core.model.dbi.Transcoder;
 import com.sismics.music.rest.constant.BaseFunction;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.util.ValidationUtil;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Transcoder REST resources.
@@ -40,7 +48,7 @@ public class TranscoderResource extends BaseResource {
         @FormParam("source") String source,
         @FormParam("destination") String destination,
         @FormParam("step1") String step1,
-        @FormParam("step2") String step2) throws JSONException {
+        @FormParam("step2") String step2) {
 
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -63,12 +71,12 @@ public class TranscoderResource extends BaseResource {
         transcoder.setStep2(step2);
 
         TranscoderDao transcoderDao = new TranscoderDao();
-        String transcoderId = transcoderDao.create(transcoder);
+        transcoderDao.create(transcoder);
 
         // Always return OK
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
-        return Response.ok().entity(response).build();
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
     }
 
     /**
@@ -92,7 +100,7 @@ public class TranscoderResource extends BaseResource {
             @FormParam("source") String source,
             @FormParam("destination") String destination,
             @FormParam("step1") String step1,
-            @FormParam("step2") String step2) throws JSONException {
+            @FormParam("step2") String step2) {
 
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -116,10 +124,10 @@ public class TranscoderResource extends BaseResource {
         transcoder.setStep2(step2);
         transcoder = transcoderDao.update(transcoder);
 
-        // Always return "ok"
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
-        return Response.ok().entity(response).build();
+        // Always return OK
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
     }
 
     /**
@@ -132,7 +140,7 @@ public class TranscoderResource extends BaseResource {
     @DELETE
     @Path("{id: [a-z0-9\\-]+}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("id") String id) throws JSONException {
+    public Response delete(@PathParam("id") String id) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -148,10 +156,10 @@ public class TranscoderResource extends BaseResource {
         // Delete the transcoder
         transcoderDao.delete(transcoder.getId());
 
-        // Always return ok
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
-        return Response.ok().entity(response).build();
+        // Always return OK
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
     }
 
     /**
@@ -162,7 +170,7 @@ public class TranscoderResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response list() throws JSONException {
+    public Response list() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -171,20 +179,21 @@ public class TranscoderResource extends BaseResource {
         TranscoderDao transcoderDao = new TranscoderDao();
         List<Transcoder> transcoderList = transcoderDao.findAll();
 
-        JSONObject response = new JSONObject();
-        List<JSONObject> items = new ArrayList<JSONObject>();
+        JsonObjectBuilder response = Json.createObjectBuilder();
+        JsonArrayBuilder items = Json.createArrayBuilder();
         for (Transcoder transcoder : transcoderList) {
-            JSONObject transcoderJson = new JSONObject();
-            transcoderJson.put("id", transcoder.getId());
-            transcoderJson.put("name", transcoder.getName());
-            transcoderJson.put("source", transcoder.getSource());
-            transcoderJson.put("destination", transcoder.getDestination());
-            transcoderJson.put("step1", transcoder.getStep1());
-            transcoderJson.put("step2", transcoder.getStep2());
+            JsonObjectBuilder transcoderJson = Json.createObjectBuilder()
+                    .add("id", transcoder.getId())
+                    .add("name", transcoder.getName())
+                    .add("source", transcoder.getSource())
+                    .add("destination", transcoder.getDestination())
+                    .add("step1", transcoder.getStep1());
+            if (transcoder.getStep2() == null) transcoderJson.addNull("step2");
+            else transcoderJson.add("step2", transcoder.getStep2());
             items.add(transcoderJson);
         }
-        response.put("transcoders", items);
+        response.add("transcoders", items);
 
-        return Response.ok().entity(response).build();
+        return Response.ok().entity(response.build()).build();
     }
 }

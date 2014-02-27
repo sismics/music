@@ -1,5 +1,32 @@
 package com.sismics.music.rest.resource;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sismics.music.core.dao.dbi.AlbumDao;
 import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.criteria.AlbumCriteria;
@@ -12,21 +39,6 @@ import com.sismics.music.core.service.albumart.AlbumArtService;
 import com.sismics.music.core.service.albumart.AlbumArtSize;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
-import org.apache.commons.io.IOUtils;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.*;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Album REST resources.
@@ -50,7 +62,7 @@ public class AlbumResource extends BaseResource {
     @Path("{id: [a-z0-9\\-]+}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response detail(
-            @PathParam("id") String id) throws JSONException {
+            @PathParam("id") String id) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -63,47 +75,47 @@ public class AlbumResource extends BaseResource {
         }
         AlbumDto album = albumList.iterator().next();
 
-        JSONObject response = new JSONObject();
-        response.put("id", album.getId());
-        response.put("name", album.getName());
-        response.put("albumart", album.getAlbumArt() != null);
+        JsonObjectBuilder response = Json.createObjectBuilder();
+        response.add("id", album.getId());
+        response.add("name", album.getName());
+        response.add("albumart", album.getAlbumArt() != null);
 
-        JSONObject artistJson = new JSONObject();
-        artistJson.put("id", album.getArtistId());
-        artistJson.put("name", album.getArtistName());
-        response.put("artist", artistJson);
+        JsonObjectBuilder artistJson = Json.createObjectBuilder();
+        artistJson.add("id", album.getArtistId());
+        artistJson.add("name", album.getArtistName());
+        response.add("artist", artistJson);
 
         // Get track info
-        List<JSONObject> tracks = new ArrayList<JSONObject>();
+        JsonArrayBuilder tracks = Json.createArrayBuilder();
         TrackDao trackDao = new TrackDao();
         List<TrackDto> trackList = trackDao.findByCriteria(new TrackCriteria()
                 .setAlbumId(album.getId())
                 .setUserId(principal.getId()));
         int i = 1;
         for (TrackDto trackDto : trackList) {
-            JSONObject track = new JSONObject();
-            track.put("order", i++);    // TODO use order from track
-            track.put("id", trackDto.getId());
-            track.put("title", trackDto.getTitle());
-            track.put("year", trackDto.getYear());
-            track.put("length", trackDto.getLength());
-            track.put("bitrate", trackDto.getBitrate());
-            track.put("vbr", trackDto.isVbr());
-            track.put("format", trackDto.getFormat());
-            track.put("filename", trackDto.getFileName());
-            track.put("play_count", trackDto.getUserTrackPlayCount());
-            track.put("liked", trackDto.isUserTrackLike());
+            JsonObjectBuilder track = Json.createObjectBuilder();
+            track.add("order", i++);    // TODO use order from track
+            track.add("id", trackDto.getId());
+            track.add("title", trackDto.getTitle());
+            track.add("year", trackDto.getYear());
+            track.add("length", trackDto.getLength());
+            track.add("bitrate", trackDto.getBitrate());
+            track.add("vbr", trackDto.isVbr());
+            track.add("format", trackDto.getFormat());
+            track.add("filename", trackDto.getFileName());
+            track.add("play_count", trackDto.getUserTrackPlayCount());
+            track.add("liked", trackDto.isUserTrackLike());
 
-            JSONObject artist = new JSONObject();
-            artist.put("id", trackDto.getArtistId());
-            artist.put("name", trackDto.getArtistName());
-            track.put("artist", artist);
+            JsonObjectBuilder artist = Json.createObjectBuilder();
+            artist.add("id", trackDto.getArtistId());
+            artist.add("name", trackDto.getArtistName());
+            track.add("artist", artist);
 
             tracks.add(track);
         }
-        response.put("tracks", tracks);
+        response.add("tracks", tracks);
 
-        return Response.ok().entity(response).build();
+        return Response.ok().entity(response.build()).build();
     }
 
     /**
@@ -119,7 +131,7 @@ public class AlbumResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response albumart(
             @PathParam("id") String id,
-            @PathParam("size") String size) throws JSONException {
+            @PathParam("size") String size) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -167,7 +179,7 @@ public class AlbumResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateAlbumart(
             @PathParam("id") String id,
-            @FormParam("url") String url) throws JSONException {
+            @FormParam("url") String url) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -204,9 +216,9 @@ public class AlbumResource extends BaseResource {
         // TODO Delete the previous album art
 
         // Always return OK
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
-        return Response.ok().entity(response).build();
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
     }
 
     /**
@@ -218,7 +230,7 @@ public class AlbumResource extends BaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response list(
-            @QueryParam("artist") String artistId) throws JSONException {
+            @QueryParam("artist") String artistId) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -226,25 +238,25 @@ public class AlbumResource extends BaseResource {
         AlbumDao albumDao = new AlbumDao();
         List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria().setArtistId(artistId));
 
-        JSONObject response = new JSONObject();
-        List<JSONObject> items = new ArrayList<JSONObject>();
+        JsonObjectBuilder response = Json.createObjectBuilder();
+        JsonArrayBuilder items = Json.createArrayBuilder();
         for (AlbumDto album : albumList) {
-            JSONObject albumJson = new JSONObject();
-            albumJson.put("id", album.getId());
-            albumJson.put("name", album.getName());
-            albumJson.put("update_date", album.getUpdateDate().getTime());
-            albumJson.put("albumart", album.getAlbumArt() != null);
+            JsonObjectBuilder albumJson = Json.createObjectBuilder();
+            albumJson.add("id", album.getId());
+            albumJson.add("name", album.getName());
+            albumJson.add("update_date", album.getUpdateDate().getTime());
+            albumJson.add("albumart", album.getAlbumArt() != null);
 
-            JSONObject artistJson = new JSONObject();
-            artistJson.put("id", album.getArtistId());
-            artistJson.put("name", album.getArtistName());
-            albumJson.put("artist", artistJson);
+            JsonObjectBuilder artistJson = Json.createObjectBuilder();
+            artistJson.add("id", album.getArtistId());
+            artistJson.add("name", album.getArtistName());
+            albumJson.add("artist", artistJson);
             items.add(albumJson);
         }
-        response.put("albums", items);
+        response.add("albums", items);
 
         // TODO add stats
 
-        return Response.ok().entity(response).build();
+        return Response.ok().entity(response.build()).build();
     }
 }

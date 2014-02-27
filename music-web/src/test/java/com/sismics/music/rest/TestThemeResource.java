@@ -1,15 +1,10 @@
 package com.sismics.music.rest;
 
-import junit.framework.Assert;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Test;
-
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * Test the theme resource.
@@ -23,13 +18,9 @@ public class TestThemeResource extends BaseJerseyTest {
      * @throws JSONException
      */
     @Test
-    public void testThemeResource() throws JSONException {
-        WebResource themeResource = resource().path("/theme");
-        ClientResponse response = themeResource.get(ClientResponse.class);
-        response = themeResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        JSONObject json = response.getEntity(JSONObject.class);
-        JSONArray theme = json.getJSONArray("themes");
-        Assert.assertTrue(theme.length() > 0);
+    public void testThemeResource() {
+        JsonObject json = target().path("/theme").request().get(JsonObject.class);
+        JsonArray theme = json.getJsonArray("themes");
+        Assert.assertTrue(theme.size() > 0);
     }
-}
+ }

@@ -1,5 +1,17 @@
 package com.sismics.music.rest.resource;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.json.Json;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.UserDao;
 import com.sismics.music.core.model.context.AppContext;
@@ -11,18 +23,6 @@ import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.util.ValidationUtil;
 import com.sismics.util.MathUtil;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
-import javax.ws.rs.FormParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Player REST resources.
@@ -46,7 +46,7 @@ public class PlayerResource extends BaseResource {
     public Response listening(
             @FormParam("id") String id,
             @FormParam("date") String dateStr,
-            @FormParam("duration") Integer duration) throws JSONException {
+            @FormParam("duration") Integer duration) {
 
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -67,9 +67,9 @@ public class PlayerResource extends BaseResource {
         playerService.notifyPlaying(principal.getId(), track, date, duration);
 
         // Always return OK
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
-        return Response.ok().entity(response).build();
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
     }
 
     /**
@@ -85,7 +85,7 @@ public class PlayerResource extends BaseResource {
     @Path("listened")
     public Response listened(
             @FormParam("id") List<String> idList,
-            @FormParam("date") List<String> dateStrList) throws JSONException {
+            @FormParam("date") List<String> dateStrList) {
 
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -115,8 +115,8 @@ public class PlayerResource extends BaseResource {
         }
 
         // Always return OK
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
-        return Response.ok().entity(response).build();
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
     }
 }

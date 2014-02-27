@@ -5,8 +5,8 @@
   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
   version="3.0"> 
   <display-name>Reader</display-name>
-
-  <!-- This filter is used to secure URLs -->
+  
+  <!-- This filter is used to process a couple things in the request context -->
   <filter>
     <filter-name>requestContextFilter</filter-name>
     <filter-class>com.sismics.util.filter.RequestContextFilter</filter-class>
@@ -28,24 +28,19 @@
     <filter-name>tokenBasedSecurityFilter</filter-name>
     <url-pattern>/api/*</url-pattern>
   </filter-mapping>
-
-  <!-- Welcome files -->
-  <welcome-file-list>
-    <welcome-file>index.html</welcome-file>
-  </welcome-file-list>
   
   <!-- Jersey -->
   <servlet>
-    <servlet-name>Jersey REST Service</servlet-name>
-    <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
-    <init-param>
-      <param-name>com.sun.jersey.config.property.packages</param-name>
-      <param-value>com.sismics.music.rest.resource</param-value>
+		<servlet-name>Jersey Web Application</servlet-name>
+		<servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+		<init-param>
+	    <param-name>jersey.config.server.provider.packages</param-name>
+	    <param-value>com.sismics.music.rest.resource</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>Jersey REST Service</servlet-name>
-    <url-pattern>/api/*</url-pattern>
-  </servlet-mapping>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Jersey Web Application</servlet-name>
+		<url-pattern>/api/*</url-pattern>
+	</servlet-mapping>
 </web-app>

@@ -1,5 +1,31 @@
 package com.sismics.music.rest.resource;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.WritableByteChannel;
+import java.util.Date;
+
+import javax.json.Json;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+
 import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.UserDao;
 import com.sismics.music.core.dao.dbi.UserTrackDao;
@@ -11,19 +37,6 @@ import com.sismics.music.core.service.transcoder.TranscoderService;
 import com.sismics.music.core.util.TransactionUtil;
 import com.sismics.music.rest.util.MediaStreamer;
 import com.sismics.rest.exception.ForbiddenClientException;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.*;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.WritableByteChannel;
-import java.util.Date;
 
 /**
  * Track REST resources.
@@ -91,7 +104,6 @@ public class TrackResource extends BaseResource {
                 StreamingOutput streamer = new StreamingOutput() {
                     @Override
                     public void write(final OutputStream output) throws IOException, WebApplicationException {
-                        @SuppressWarnings("resource")
                         final FileChannel inputChannel = new FileInputStream(file).getChannel();
                         final WritableByteChannel outputChannel = Channels.newChannel(output);
                         try {
@@ -138,7 +150,7 @@ public class TrackResource extends BaseResource {
     @Path("{id: [a-z0-9\\-]+}/like")
     @Produces(MediaType.APPLICATION_JSON)
     public Response like(
-            @PathParam("id") String id) throws JSONException {
+            @PathParam("id") String id) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -161,9 +173,9 @@ public class TrackResource extends BaseResource {
         }
 
         // Always return OK
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
-        return Response.ok().entity(response).build();
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
     }
 
     /**
@@ -176,7 +188,7 @@ public class TrackResource extends BaseResource {
     @Path("{id: [a-z0-9\\-]+}/like")
     @Produces(MediaType.APPLICATION_JSON)
     public Response unlike(
-            @PathParam("id") String id) throws JSONException {
+            @PathParam("id") String id) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -199,9 +211,9 @@ public class TrackResource extends BaseResource {
         }
 
         // Always return OK
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
-        return Response.ok().entity(response).build();
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
     }
     
     @POST
@@ -214,7 +226,7 @@ public class TrackResource extends BaseResource {
             @FormParam("artist") String artist,
             @FormParam("album_artist") String albumArtist,
             @FormParam("year") String yearStr,
-            @FormParam("genre") String genre) throws JSONException {
+            @FormParam("genre") String genre) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -228,8 +240,8 @@ public class TrackResource extends BaseResource {
         // TODO Update track in database/tags.
         
         // Always return OK
-        JSONObject response = new JSONObject();
-        response.put("status", "ok");
-        return Response.ok().entity(response).build();
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
     }
 }

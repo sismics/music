@@ -1,14 +1,14 @@
 package com.sismics.util;
 
-import junit.framework.Assert;
+import java.io.File;
+
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
+import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.File;
 
 /**
  *

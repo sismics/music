@@ -1,17 +1,17 @@
 package com.sismics.music.rest;
 
-import com.sismics.music.rest.filter.CookieAuthenticationFilter;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
-import junit.framework.Assert;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONObject;
-import org.junit.Test;
-
 import java.nio.file.Paths;
 import java.util.Date;
+
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Form;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.sismics.util.filter.TokenBasedSecurityFilter;
 
 /**
  * Exhaustive test of the player resource.
@@ -30,64 +30,52 @@ public class TestPlayerResource extends BaseJerseyTest {
         String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
 
         // Admin adds a track to the collection
-        WebResource directoryResource = resource().path("/directory");
-        directoryResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        MultivaluedMapImpl postParams = new MultivaluedMapImpl();
-        postParams.putSingle("location", Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI()).toString());
-        ClientResponse response = directoryResource.put(ClientResponse.class, postParams);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        JSONObject json = response.getEntity(JSONObject.class);
+        JsonObject json = target().path("/directory").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .put(Entity.form(new Form()
+                        .param("location", Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI()).toString())), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
         // Check that the albums are correctly added
-        WebResource albumResource = resource().path("/album");
-        albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = albumResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
-        JSONArray albums = json.optJSONArray("albums");
+        json = target().path("/album").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        JsonArray albums = json.getJsonArray("albums");
         Assert.assertNotNull(albums);
-        Assert.assertEquals(1, albums.length());
-        JSONObject album0 = albums.getJSONObject(0);
-        String album0Id = album0.optString("id");
+        Assert.assertEquals(1, albums.size());
+        JsonObject album0 = albums.getJsonObject(0);
+        String album0Id = album0.getString("id");
         Assert.assertNotNull(album0Id);
 
         // Check the tracks info
-        albumResource = resource().path("/album/" + album0Id);
-        albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = albumResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
-        JSONArray tracks = json.optJSONArray("tracks");
+        json = target().path("/album/" + album0Id).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        JsonArray tracks = json.getJsonArray("tracks");
         Assert.assertNotNull(tracks);
-        Assert.assertEquals(2, tracks.length());
-        JSONObject track0 = tracks.getJSONObject(0);
+        Assert.assertEquals(2, tracks.size());
+        JsonObject track0 = tracks.getJsonObject(0);
         String track0Id = track0.getString("id");
         Integer track0Length = track0.getInt("length");
         Assert.assertEquals(0, track0.getInt("play_count"));
 
         // Marks a track as played
-        WebResource playerResource = resource().path("/player/listening");
-        playerResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        postParams = new MultivaluedMapImpl();
-        postParams.putSingle("id", track0Id);
-        postParams.putSingle("date", new Date().getTime());
-        postParams.putSingle("duration", track0Length / 2 + 1);
-        response = playerResource.post(ClientResponse.class, postParams);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
+        json = target().path("/player/listening").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .post(Entity.form(new Form()
+                        .param("id", track0Id)
+                        .param("date", Long.toString(new Date().getTime()))
+                        .param("duration", Integer.toString(track0Length / 2 + 1))), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
         // Check the tracks info
-        albumResource = resource().path("/album/" + album0Id);
-        albumResource.addFilter(new CookieAuthenticationFilter(adminAuthenticationToken));
-        response = albumResource.get(ClientResponse.class);
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        json = response.getEntity(JSONObject.class);
-        tracks = json.optJSONArray("tracks");
+        json = target().path("/album/" + album0Id).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        tracks = json.getJsonArray("tracks");
         Assert.assertNotNull(tracks);
-        Assert.assertEquals(2, tracks.length());
-        track0 = tracks.getJSONObject(0);
+        Assert.assertEquals(2, tracks.size());
+        track0 = tracks.getJsonObject(0);
         Assert.assertEquals(1, track0.getInt("play_count"));
     }
 }

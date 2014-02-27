@@ -9,15 +9,15 @@ import java.util.Date;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 
 import com.sismics.music.core.dao.dbi.AlbumDao;
 import com.sismics.music.core.dao.dbi.ArtistDao;
@@ -46,7 +46,7 @@ public class ArtistResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response list() throws JSONException {
+    public Response list() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -54,17 +54,16 @@ public class ArtistResource extends BaseResource {
         ArtistDao artistDao = new ArtistDao();
         List<ArtistDto> artistList = artistDao.findByCriteria(new ArtistCriteria());
 
-        JSONObject response = new JSONObject();
-        List<JSONObject> items = new ArrayList<JSONObject>();
+        JsonObjectBuilder response = Json.createObjectBuilder();
+        JsonArrayBuilder items = Json.createArrayBuilder();
         for (ArtistDto artist : artistList) {
-            JSONObject artistJson = new JSONObject();
-            artistJson.put("id", artist.getId());
-            artistJson.put("name", artist.getName());
-            items.add(artistJson);
+            items.add(Json.createObjectBuilder()
+                    .add("id", artist.getId())
+                    .add("name", artist.getName()));
         }
-        response.put("artists", items);
+        response.add("artists", items);
 
-        return Response.ok().entity(response).build();
+        return Response.ok().entity(response.build()).build();
     }
     
     /**
@@ -78,7 +77,7 @@ public class ArtistResource extends BaseResource {
     @Path("{id: [a-z0-9\\-]+}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(
-            @PathParam("id") String id) throws JSONException {
+            @PathParam("id") String id) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -90,10 +89,10 @@ public class ArtistResource extends BaseResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        JSONObject response = new JSONObject();
-        response.put("id", artist.getId());
-        response.put("name", artist.getName());
-        return Response.ok().entity(response).build();
+        JsonObjectBuilder response = Json.createObjectBuilder()
+                .add("id", artist.getId())
+                .add("name", artist.getName());
+        return Response.ok().entity(response.build()).build();
     }
     
     /**

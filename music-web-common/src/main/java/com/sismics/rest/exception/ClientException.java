@@ -1,13 +1,12 @@
 package com.sismics.rest.exception;
 
+import javax.json.Json;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 
 /**
  * Jersey exception encapsulating an error from the client (BAD_REQUEST).
@@ -33,7 +32,7 @@ public class ClientException extends WebApplicationException {
      * @param e Readable error message
      * @throws JSONException
      */
-    public ClientException(String type, String message, Exception e) throws JSONException {
+    public ClientException(String type, String message, Exception e) {
         this(type, message);
         log.error(type + ": " + message, e);
     }
@@ -43,11 +42,10 @@ public class ClientException extends WebApplicationException {
      * 
      * @param type Error type (e.g. AlreadyExistingEmail, ValidationError)
      * @param message Human readable error message
-     * @throws JSONException
      */
-    public ClientException(String type, String message) throws JSONException {
-        super(Response.status(Status.BAD_REQUEST).entity(new JSONObject()
-            .put("type", type)
-            .put("message", message)).build());
+    public ClientException(String type, String message) {
+        super(Response.status(Status.BAD_REQUEST).entity(Json.createObjectBuilder()
+            .add("type", type)
+            .add("message", message).build()).build());
     }
 }
