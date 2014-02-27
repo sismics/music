@@ -1,114 +1,102 @@
-//package com.sismics.music.rest;
-//
-//import com.sismics.music.rest.filter.CookieAuthenticationFilter;
-//import com.sun.jersey.api.client.ClientResponse;
-//import com.sun.jersey.api.client.ClientResponse.Status;
-//import com.sun.jersey.api.client.WebResource;
-//import com.sun.jersey.core.util.MultivaluedMapImpl;
-//import junit.framework.Assert;
-//import org.codehaus.jettison.json.JSONArray;
-//import org.codehaus.jettison.json.JsonObject;
-//import org.junit.Test;
-//
-//import java.nio.file.Paths;
-//
-///**
-// * Exhaustive test of the album resource.
-// * 
-// * @author jtremeaux
-// */
-//public class TestAlbumResource extends BaseJerseyTest {
-//    /**
-//     * Test the album resource.
-//     *
-//     * @throws Exception
-//     */
-//    @Test
-//    public void testAlbumResource() throws Exception {
-//        // Login users
-//        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
-//
-//        // Admin adds an album to the collection
-//        WebResource directoryResource = target().path("/directory");
-//        directoryResource.addFilter(.cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken));
-//        MultivaluedMapImpl postParams = new MultivaluedMapImpl();
-//        postParams.putSingle("location", Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI()).toString());
-//        ClientResponse response = directoryResource.put(ClientResponse.class, postParams);
-//        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-//        JsonObject json = response.readEntity(JsonObject.class);
-//        Assert.assertEquals("ok", json.getString("status"));
-//
-//        // Check that the albums are correctly added
-//        WebResource albumResource = target().path("/album");
-//        albumResource.addFilter(.cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken));
-//        response = albumResource.get(ClientResponse.class);
-//        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-//        json = response.readEntity(JsonObject.class);
-//        JSONArray albums = json.optJSONArray("albums");
-//        Assert.assertNotNull(albums);
-//        Assert.assertEquals(1, albums.length());
-//        JsonObject album0 = albums.getJsonObject(0);
-//        String album0Id = album0.optString("id");
-//        JsonObject artist0 = album0.optJsonObject("artist");
-//        Assert.assertNotNull(album0Id);
-//        Assert.assertNotNull(album0.optString("name"));
-//        Assert.assertNotNull(album0.optBoolean("albumart"));
-//        Assert.assertNotNull(album0.optLong("update_date"));
-//        Assert.assertNotNull(artist0.optString("id"));
-//        
-//        // Get all albums from an artist
-//        albumResource = target().path("/album").queryParam("artist", artist0.optString("id"));
-//        albumResource.addFilter(.cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken));
-//        response = albumResource.get(ClientResponse.class);
-//        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-//        json = response.readEntity(JsonObject.class);
-//        albums = json.optJSONArray("albums");
-//        Assert.assertNotNull(albums);
-//        Assert.assertEquals(1, albums.length());
-//
-//        // Get an album by its ID.
-//        albumResource = target().path("/album/" + album0Id);
-//        albumResource.addFilter(.cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken));
-//        response = albumResource.get(ClientResponse.class);
-//        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-//        json = response.readEntity(JsonObject.class);
-//        Assert.assertEquals(album0Id, json.optString("id"));
-//        Assert.assertEquals("Coachella 2010 Day 01 Mixtape", json.optString("name"));
-//        Assert.assertTrue(json.optBoolean("albumart"));
-//        JsonObject albumArtist = json.getJsonObject("artist");
-//        Assert.assertEquals("[A] Proxy", albumArtist.optString("name"));
-//        JSONArray tracks = json.optJSONArray("tracks");
-//        Assert.assertNotNull(tracks);
-//        Assert.assertEquals(2, tracks.length());
-//        JsonObject track0 = tracks.getJsonObject(0);
-//        Assert.assertEquals(1, track0.optInt("order"));
-//        JsonObject artist = track0.getJsonObject("artist");
-//        Assert.assertEquals("Jay-Z", artist.optString("name"));
-//
-//        // Get an album art.
-//        albumResource = target().path("/album/" + album0Id + "/albumart/small");
-//        albumResource.addFilter(.cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken));
-//        response = albumResource.get(ClientResponse.class);
-//        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-//
-//        // Get an album art.
-//        albumResource = target().path("/album/" + album0Id + "/albumart/large");
-//        albumResource.addFilter(.cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken));
-//        response = albumResource.get(ClientResponse.class);
-//        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-//
-//        // Get an album art: KO, this size doesn't exist.
-//        albumResource = target().path("/album/" + album0Id + "/albumart/huge");
-//        albumResource.addFilter(.cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken));
-//        response = albumResource.get(ClientResponse.class);
-//        Assert.assertEquals(Status.NOT_FOUND, Status.fromStatusCode(response.getStatus()));
-//        
-//        // Update an album art
-//        albumResource = target().path("/album/" + album0Id + "/albumart");
-//        albumResource.addFilter(.cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken));
-//        postParams = new MultivaluedMapImpl();
-//        postParams.putSingle("url", "http://placehold.it/300x300");
-//        response = albumResource.post(ClientResponse.class, postParams);
-//        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-//    }
-//}
+package com.sismics.music.rest;
+
+import java.nio.file.Paths;
+
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.sismics.util.filter.TokenBasedSecurityFilter;
+
+/**
+ * Exhaustive test of the album resource.
+ * 
+ * @author jtremeaux
+ */
+public class TestAlbumResource extends BaseJerseyTest {
+    /**
+     * Test the album resource.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testAlbumResource() throws Exception {
+        // Login users
+        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+
+        // Admin adds an album to the collection
+        JsonObject json = target().path("/directory").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .put(Entity.form(new Form()
+                        .param("location", Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI()).toString())), JsonObject.class);
+        Assert.assertEquals("ok", json.getString("status"));
+
+        // Check that the albums are correctly added
+        json = target().path("/album").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        JsonArray albums = json.getJsonArray("albums");
+        Assert.assertNotNull(albums);
+        Assert.assertEquals(1, albums.size());
+        JsonObject album0 = albums.getJsonObject(0);
+        String album0Id = album0.getString("id");
+        JsonObject artist0 = album0.getJsonObject("artist");
+        Assert.assertNotNull(album0Id);
+        Assert.assertNotNull(album0.getString("name"));
+        Assert.assertNotNull(album0.getBoolean("albumart"));
+        Assert.assertNotNull(album0.getJsonNumber("update_date").longValue());
+        Assert.assertNotNull(artist0.getString("id"));
+        
+        // Get all albums from an artist
+        json = target().path("/album").queryParam("artist", artist0.getString("id")).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        albums = json.getJsonArray("albums");
+        Assert.assertNotNull(albums);
+        Assert.assertEquals(1, albums.size());
+
+        // Get an album by its ID.
+        json = target().path("/album/" + album0Id).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        Assert.assertEquals(album0Id, json.getString("id"));
+        Assert.assertEquals("Coachella 2010 Day 01 Mixtape", json.getString("name"));
+        Assert.assertTrue(json.getBoolean("albumart"));
+        JsonObject albumArtist = json.getJsonObject("artist");
+        Assert.assertEquals("[A] Proxy", albumArtist.getString("name"));
+        JsonArray tracks = json.getJsonArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(2, tracks.size());
+        JsonObject track0 = tracks.getJsonObject(0);
+        Assert.assertEquals(1, track0.getInt("order"));
+        JsonObject artist = track0.getJsonObject("artist");
+        Assert.assertEquals("Jay-Z", artist.getString("name"));
+
+        // Get an album art.
+        Response response = target().path("/album/" + album0Id + "/albumart/small").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken).get();
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+
+        // Get an album art.
+        response = target().path("/album/" + album0Id + "/albumart/large").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken).get();
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+
+        // Get an album art: KO, this size doesn't exist.
+        response = target().path("/album/" + album0Id + "/albumart/huge").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken).get();
+        Assert.assertEquals(Status.NOT_FOUND, Status.fromStatusCode(response.getStatus()));
+        
+        // Update an album art
+        json = target().path("/album/" + album0Id + "/albumart").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .post(Entity.form(new Form()
+                        .param("url", "http://placehold.it/300x300")), JsonObject.class);
+    }
+}
