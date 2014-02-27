@@ -67,7 +67,6 @@ public class UserTrackDao {
      * @return User / track
      */
     private UserTrack getOrCreateUserTrack(String userId, String trackId) {
-        final Handle handle = ThreadLocalContext.get().getHandle();
         UserTrack userTrack = getActiveUserTrack(userId, trackId);
         if (userTrack == null) {
             userTrack = new UserTrack();

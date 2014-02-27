@@ -231,9 +231,9 @@ public class CollectionService extends AbstractScheduledService {
      * TODO implement a more elaborated scoring function
      */
     public void updateScore() {
-        AlbumDao albumDao = new AlbumDao();
-        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria());
-        // TODO implement scoring
+//        AlbumDao albumDao = new AlbumDao();
+//        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria());
+//        TODO implement scoring
 //        for (AlbumDto albumDto : albumList) {
 //            Integer score = albumDao.getFavoriteCountByAlbum(albumDto.getId());
 //

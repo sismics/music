@@ -165,7 +165,7 @@ public class LastFmService extends AbstractScheduledService {
             ScrobbleData scrobbleData = new ScrobbleData(artist.getName(), track.getTitle(), (int) dateList.get(i).getTime());
             scrobbleDataList.add(scrobbleData);
         }
-        List<ScrobbleResult> result = de.umass.lastfm.Track.scrobble(scrobbleDataList, session);
+        de.umass.lastfm.Track.scrobble(scrobbleDataList, session);
         log.info(MessageFormat.format("Scrobbled a list of tracks for user {0}", user.getId()));
     }
 

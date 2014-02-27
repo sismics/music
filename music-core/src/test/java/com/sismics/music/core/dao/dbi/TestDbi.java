@@ -1,10 +1,11 @@
 package com.sismics.music.core.dao.dbi;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.sismics.music.BaseTransactionalTest;
 import com.sismics.music.core.model.dbi.User;
 import com.sismics.music.core.util.TransactionUtil;
-import junit.framework.Assert;
-import org.junit.Test;
 
 /**
  * Tests the persistance layer.
