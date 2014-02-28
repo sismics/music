@@ -55,7 +55,6 @@ public abstract class BaseResource {
      * Checks if the user has a base function. Throw an exception if the check fails.
      * 
      * @param baseFunction Base function to check
-     * @throws JSONException
      */
     protected void checkBaseFunction(BaseFunction baseFunction) {
         if (!hasBaseFunction(baseFunction)) {
@@ -68,7 +67,6 @@ public abstract class BaseResource {
      * 
      * @param baseFunction Base function to check
      * @return True if the user has the base function
-     * @throws JSONException
      */
     protected boolean hasBaseFunction(BaseFunction baseFunction) {
         if (principal == null || !(principal instanceof UserPrincipal)) {

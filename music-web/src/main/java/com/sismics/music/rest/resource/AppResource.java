@@ -41,7 +41,6 @@ public class AppResource extends BaseResource {
      * Return the information about the application.
      * 
      * @return Response
-     * @throws JSONException
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -67,7 +66,6 @@ public class AppResource extends BaseResource {
      * @param limit Page limit
      * @param offset Page offset
      * @return Response
-     * @throws JSONException
      */
     @GET
     @Path("log")
@@ -118,7 +116,6 @@ public class AppResource extends BaseResource {
      * Attempt to map a port to the gateway.
      * 
      * @return Response
-     * @throws JSONException
      */
     @POST
     @Path("map_port")
@@ -143,7 +140,6 @@ public class AppResource extends BaseResource {
      * Rebuilds the music collection index.
      *
      * @return Response
-     * @throws JSONException
      */
     @POST
     @Path("batch/reindex")

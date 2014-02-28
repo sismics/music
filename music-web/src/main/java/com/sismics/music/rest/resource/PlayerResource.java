@@ -38,7 +38,6 @@ public class PlayerResource extends BaseResource {
      * @param dateStr Date the track was started playing.
      * @param duration Duration into the track in seconds
      * @return Response
-     * @throws org.codehaus.jettison.json.JSONException
      */
     @POST
     @Produces(MediaType.APPLICATION_JSON)
@@ -78,7 +77,6 @@ public class PlayerResource extends BaseResource {
      * @param idList An array of track ID
      * @param dateStrList An array of dates at which the track was started playing
      * @return Response
-     * @throws org.codehaus.jettison.json.JSONException
      */
     @POST
     @Produces(MediaType.APPLICATION_JSON)

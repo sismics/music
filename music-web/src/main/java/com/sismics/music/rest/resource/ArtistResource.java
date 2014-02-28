@@ -42,7 +42,6 @@ public class ArtistResource extends BaseResource {
      * Returns all active artists.
      *
      * @return Response
-     * @throws JSONException
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -71,7 +70,6 @@ public class ArtistResource extends BaseResource {
      * 
      * @param id ArtistID
      * @return Response
-     * @throws JSONException
      */
     @GET
     @Path("{id: [a-z0-9\\-]+}")
@@ -101,7 +99,6 @@ public class ArtistResource extends BaseResource {
      * @param id Artist ID
      * @param size Cover size
      * @return Response
-     * @throws JSONException
      */
     @GET
     @Path("{id: [a-z0-9\\-]+}/artistart/{size: [a-z]+}")

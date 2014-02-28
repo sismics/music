@@ -44,7 +44,6 @@ public class PlaylistResource extends BaseResource {
      * @param id Track ID
      * @param order Insert at this order in the playlist
      * @return Response
-     * @throws JSONException
      */
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
@@ -90,7 +89,6 @@ public class PlaylistResource extends BaseResource {
      *
      * @param idList List of track ID
      * @return Response
-     * @throws JSONException
      */
     @PUT
     @Path("multiple")
@@ -117,7 +115,6 @@ public class PlaylistResource extends BaseResource {
      * @param order Current track order in the playlist
      * @param newOrder New track order in the playlist
      * @return Response
-     * @throws JSONException
      */
     @POST
     @Path("{order: [0-9]+}/move")
@@ -161,7 +158,6 @@ public class PlaylistResource extends BaseResource {
      *
      * @param order Current track order in the playlist
      * @return Response
-     * @throws JSONException
      */
     @DELETE
     @Path("{order: [0-9]+}")
@@ -199,7 +195,6 @@ public class PlaylistResource extends BaseResource {
      * Returns all tracks in the playlist.
      *
      * @return Response
-     * @throws JSONException
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -248,7 +243,6 @@ public class PlaylistResource extends BaseResource {
      * Removes all tracks from the playlist.
      *
      * @return Response
-     * @throws JSONException
      */
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
