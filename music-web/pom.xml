@@ -117,7 +117,6 @@
       <artifactId>subethasmtp-wiser</artifactId>
       <scope>test</scope>
     </dependency>
-    
   </dependencies>
 
   <build>
@@ -126,54 +125,6 @@
         <directory>src/main/resources</directory>
       </resource>
     </resources>
-    <plugins>
-      <plugin>
-        <groupId>org.mortbay.jetty</groupId>
-        <artifactId>jetty-maven-plugin</artifactId>
-        <configuration>
-          <systemProperties>
-            <systemProperty>
-              <name>webapp.root</name>
-              <value>${basedir}/src/main/webapp</value>
-            </systemProperty>
-          </systemProperties>
-          <scanIntervalSeconds>0</scanIntervalSeconds>
-          <webAppConfig>
-            <contextPath>/music-web</contextPath>
-            <extraClasspath>target/classes;../music-core/target/classes</extraClasspath>
-            <overrideDescriptor>src/dev/main/webapp/web-override.xml</overrideDescriptor>
-          </webAppConfig>
-        </configuration>
-      </plugin>
-
-      <!-- Cargo Plugin -->
-      <plugin>
-        <groupId>org.codehaus.cargo</groupId>
-        <artifactId>cargo-maven2-plugin</artifactId>
-        <configuration>
-          <container>
-            <containerId>jetty8x</containerId>
-            <type>remote</type>
-          </container>
-
-          <deployer>
-            <type>remote</type>
-          </deployer>
-
-          <deployables>
-            <deployable>
-              <groupId>com.sismics.music</groupId>
-              <artifactId>music-web</artifactId>
-              <type>war</type>
-              <properties>
-                <context>/music</context>
-              </properties>
-              <pingURL>http://localhost:8080/music/index.html</pingURL>
-            </deployable>
-          </deployables>
-        </configuration>
-      </plugin>
-    </plugins>
   </build>
 
   <profiles>
@@ -217,6 +168,8 @@
                 <extraClasspath>target/classes;../music-core/target/classes</extraClasspath>
                 <overrideDescriptor>src/dev/main/webapp/web-override.xml</overrideDescriptor>
               </webAppConfig>
+              <stopPort>8079</stopPort>
+              <stopKey>kthxbye</stopKey>
             </configuration>
           </plugin>
         </plugins>
