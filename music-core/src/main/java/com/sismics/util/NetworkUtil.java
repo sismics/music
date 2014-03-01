@@ -44,7 +44,7 @@ public class NetworkUtil {
                 } else {
                     // Adding mapping
                     InetAddress localAddress = device.getLocalAddress();
-                    return device.addPortMapping(port, port, localAddress.getHostAddress(), "TCP", "Sismics Reader");
+                    return device.addPortMapping(port, port, localAddress.getHostAddress(), "TCP", "Sismics Music");
                 }
             }
         } catch (Exception e) {

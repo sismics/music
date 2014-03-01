@@ -68,7 +68,6 @@ public class UserResource extends BaseResource {
      * @param email E-Mail
      * @param localeId Locale ID
      * @return Response
-     * @throws JSONException
      */
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
@@ -143,13 +142,8 @@ public class UserResource extends BaseResource {
      * @param email E-Mail
      * @param themeId Theme
      * @param localeId Locale ID
-     * @param displayTitleWeb Display only article titles (web application).
-     * @param displayTitleMobile Display only article titles (mobile application).
-     * @param displayUnreadWeb Display only unread titles (web application).
-     * @param displayUnreadMobile Display only unread titles (mobile application).
-     * @param firstConnection True if the user hasn't acknowledged the first connection wizard yet.
+     * @param firstConnection True if the user hasn't acknowledged the first connection wizard yet
      * @return Response
-     * @throws JSONException
      */
     @POST
     @Produces(MediaType.APPLICATION_JSON)
@@ -158,11 +152,6 @@ public class UserResource extends BaseResource {
         @FormParam("email") String email,
         @FormParam("theme") String themeId,
         @FormParam("locale") String localeId,
-        @FormParam("display_title_web") Boolean displayTitleWeb,
-        @FormParam("display_title_mobile") Boolean displayTitleMobile,
-        @FormParam("display_unread_web") Boolean displayUnreadWeb,
-        @FormParam("display_unread_mobile") Boolean displayUnreadMobile,
-        @FormParam("narrow_article") Boolean narrowArticle,
         @FormParam("first_connection") Boolean firstConnection) {
         
         if (!authenticate()) {
@@ -220,10 +209,6 @@ public class UserResource extends BaseResource {
      * @param email E-Mail
      * @param themeId Theme
      * @param localeId Locale ID
-     * @param displayTitleWeb Display only article titles (web application).
-     * @param displayTitleMobile Display only article titles (mobile application).
-     * @param displayUnreadWeb Display only unread titles (web application).
-     * @param displayUnreadMobile Display only unread titles (mobile application).
      * @return Response
      * @throws JSONException
      */
@@ -235,12 +220,7 @@ public class UserResource extends BaseResource {
         @FormParam("password") String password,
         @FormParam("email") String email,
         @FormParam("theme") String themeId,
-        @FormParam("locale") String localeId,
-        @FormParam("display_title_web") Boolean displayTitleWeb,
-        @FormParam("display_title_mobile") Boolean displayTitleMobile,
-        @FormParam("display_unread_web") Boolean displayUnreadWeb,
-        @FormParam("display_unread_mobile") Boolean displayUnreadMobile,
-        @FormParam("narrow_article") Boolean narrowArticle) {
+        @FormParam("locale") String localeId) {
         
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -320,12 +300,12 @@ public class UserResource extends BaseResource {
     }
 
     /**
-     * This resource is used to authenticate the user and create a user ession.
+     * This resource is used to authenticate the user and create a user session.
      * The "session" is only used to identify the user, no other data is stored in the session.
      * 
      * @param username Username
      * @param password Password
-     * @param longLasted Remember the user next time, create a long lasted session.
+     * @param longLasted Remember the user next time, create a long lasted session
      * @return Response
      */
     @POST
@@ -486,7 +466,6 @@ public class UserResource extends BaseResource {
      * Returns the information about the connected user.
      * 
      * @return Response
-     * @throws JSONException
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -530,7 +509,6 @@ public class UserResource extends BaseResource {
      * 
      * @param username Username
      * @return Response
-     * @throws JSONException
      */
     @GET
     @Path("{username: [a-zA-Z0-9_]+}")
@@ -565,7 +543,6 @@ public class UserResource extends BaseResource {
      * @param sortColumn Sort index
      * @param asc If true, ascending sorting, else descending
      * @return Response
-     * @throws JSONException
      */
     @GET
     @Path("list")
@@ -613,8 +590,7 @@ public class UserResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerLastFm(
             @FormParam("username") String lastFmUsername,
-            @FormParam("password") String lastFmPassword
-            ) {
+            @FormParam("password") String lastFmPassword) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -650,7 +626,6 @@ public class UserResource extends BaseResource {
      * Returns the Last.fm information about the connected user.
      *
      * @return Response
-     * @throws JSONException
      */
     @GET
     @Path("lastfm")
@@ -679,6 +654,11 @@ public class UserResource extends BaseResource {
         return Response.ok().entity(response.build()).build();
     }
     
+    /**
+     * Disconnect the current user from Last.fm.
+     *  
+     * @return Response
+     */
     @DELETE
     @Path("lastfm")
     @Produces(MediaType.APPLICATION_JSON)

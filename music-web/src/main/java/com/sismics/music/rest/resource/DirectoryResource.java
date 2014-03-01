@@ -40,7 +40,6 @@ public class DirectoryResource extends BaseResource {
      * @param name Directory name
      * @param location Directory location
      * @return Response
-     * @throws JSONException
      */
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
@@ -84,7 +83,6 @@ public class DirectoryResource extends BaseResource {
      * @param location Location
      * @param active True if the directory is active.
      * @return Response
-     * @throws JSONException
      */
     @POST
     @Path("{id: [a-z0-9\\-]+}")
@@ -140,7 +138,6 @@ public class DirectoryResource extends BaseResource {
      *
      * @param id Directory ID
      * @return Response
-     * @throws JSONException
      */
     @DELETE
     @Path("{id: [a-z0-9\\-]+}")
@@ -176,7 +173,6 @@ public class DirectoryResource extends BaseResource {
      * Returns all active directories.
      *
      * @return Response
-     * @throws JSONException
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)

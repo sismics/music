@@ -26,7 +26,6 @@ public class ThemeResource extends BaseResource {
      * Returns the list of all themes.
      * 
      * @return Response
-     * @throws JSONException
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)

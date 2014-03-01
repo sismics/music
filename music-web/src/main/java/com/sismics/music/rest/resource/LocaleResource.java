@@ -25,7 +25,6 @@ public class LocaleResource extends BaseResource {
      * Returns the list of all locales.
      * 
      * @return Response
-     * @throws JSONException
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)

@@ -144,7 +144,6 @@ public class TrackResource extends BaseResource {
      * Like a track.
      *
      * @return Response
-     * @throws JSONException
      */
     @POST
     @Path("{id: [a-z0-9\\-]+}/like")
@@ -182,7 +181,6 @@ public class TrackResource extends BaseResource {
      * Unlike a track.
      *
      * @return Response
-     * @throws JSONException
      */
     @DELETE
     @Path("{id: [a-z0-9\\-]+}/like")

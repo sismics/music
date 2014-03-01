@@ -42,7 +42,6 @@ public class SearchResource extends BaseResource {
      * @param limit Page limit
      * @param offset Page offset
      * @return Response
-     * @throws org.codehaus.jettison.json.JSONException
      */
     @GET
     @Path("{query: .+}")

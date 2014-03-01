@@ -57,7 +57,6 @@ public class AlbumResource extends BaseResource {
      * Returns an album detail.
      *
      * @return Response
-     * @throws JSONException
      */
     @GET
     @Path("{id: [a-z0-9\\-]+}")
@@ -120,7 +119,6 @@ public class AlbumResource extends BaseResource {
      * @param id Album ID
      * @param size Cover size
      * @return Response
-     * @throws JSONException
      */
     @GET
     @Path("{id: [a-z0-9\\-]+}/albumart/{size: [a-z]+}")
@@ -168,7 +166,6 @@ public class AlbumResource extends BaseResource {
      * @param id Album ID
      * @param url Image URL
      * @return Response
-     * @throws JSONException
      */
     @POST
     @Path("{id: [a-z0-9\\-]+}/albumart")
@@ -221,7 +218,6 @@ public class AlbumResource extends BaseResource {
      * Returns all active albums.
      *
      * @return Response
-     * @throws JSONException
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)

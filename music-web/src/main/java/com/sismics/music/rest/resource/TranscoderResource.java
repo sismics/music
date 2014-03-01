@@ -40,7 +40,6 @@ public class TranscoderResource extends BaseResource {
      * @param step1 Transcoder command (step 1)
      * @param step2 Transcoder command (step 2)
      * @return Response
-     * @throws org.codehaus.jettison.json.JSONException
      */
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
@@ -90,7 +89,6 @@ public class TranscoderResource extends BaseResource {
      * @param step1 Transcoder command (step 1)
      * @param step2 Transcoder command (step 2)
      * @return Response
-     * @throws org.codehaus.jettison.json.JSONException
      */
     @POST
     @Path("{id: [a-z0-9\\-]+}")
@@ -136,7 +134,6 @@ public class TranscoderResource extends BaseResource {
      *
      * @param id Transcoder ID
      * @return Response
-     * @throws org.codehaus.jettison.json.JSONException
      */
     @DELETE
     @Path("{id: [a-z0-9\\-]+}")
@@ -167,7 +164,6 @@ public class TranscoderResource extends BaseResource {
      * Returns all active transcoders.
      *
      * @return Response
-     * @throws JSONException
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
