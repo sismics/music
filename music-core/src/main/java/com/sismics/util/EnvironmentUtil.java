@@ -9,7 +9,7 @@ public class EnvironmentUtil {
 
     private static String OS = System.getProperty("os.name").toLowerCase();
     
-    private static String TEST_ENV = System.getProperty("test");
+    private static String APPLICATION_MODE = System.getProperty("application.mode");
 
     private static String WINDOWS_APPDATA = System.getenv("APPDATA");
 
@@ -55,8 +55,16 @@ public class EnvironmentUtil {
      * @return Unit testing environment
      */
     public static boolean isUnitTest() {
-        return !webappContext ||
-                TEST_ENV != null && "true".equals(TEST_ENV);
+        return !webappContext || isDevMode();
+    }
+
+    /**
+     * Return true if we are in dev mode.
+     *
+     * @return Dev mode
+     */
+    public static boolean isDevMode() {
+        return !"prod".equalsIgnoreCase(APPLICATION_MODE);
     }
 
     /**

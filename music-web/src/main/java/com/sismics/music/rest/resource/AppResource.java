@@ -1,22 +1,5 @@
 package com.sismics.music.rest.resource;
 
-import java.util.ResourceBundle;
-
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Appender;
-import org.apache.log4j.Logger;
-
 import com.sismics.music.core.event.async.CollectionReindexAsyncEvent;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.util.ConfigUtil;
@@ -26,9 +9,22 @@ import com.sismics.music.rest.constant.BaseFunction;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
 import com.sismics.util.NetworkUtil;
+import com.sismics.util.db.DbUtil;
 import com.sismics.util.log4j.LogCriteria;
 import com.sismics.util.log4j.LogEntry;
 import com.sismics.util.log4j.MemoryAppender;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Appender;
+import org.apache.log4j.Logger;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.util.ResourceBundle;
 
 /**
  * General app REST resource.
@@ -158,5 +154,25 @@ public class AppResource extends BaseResource {
         return Response.ok()
                 .entity(Json.createObjectBuilder().add("status", "ok").build())
                 .build();
+    }
+
+    /**
+     * Start the DB console.
+     *
+     * @return Response
+     * @throws Exception
+     */
+    @GET
+    @Path("db")
+    public Response db() throws Exception {
+        if (!DbUtil.isStarted()) {
+            DbUtil.start();
+        }
+
+        if (DbUtil.isStarted()) {
+            return Response.seeOther(new URI(DbUtil.getUrl())).build();
+        } else {
+            return Response.serverError().build();
+        }
     }
 }

@@ -183,7 +183,7 @@
       <activation>
         <activeByDefault>true</activeByDefault>
         <property>
-          <name>env</name>
+          <name>application.mode</name>
           <value>dev</value>
         </property>
       </activation>
@@ -228,7 +228,7 @@
       <id>prod</id>
       <activation>
         <property>
-          <name>env</name>
+          <name>application.mode</name>
           <value>prod</value>
         </property>
       </activation>
@@ -254,36 +254,36 @@
         <plugins>
         
           <!-- Launch NPM & Grunt -->
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<version>1.7</version>
-						<executions>
-							<execution>
-								<phase>generate-sources</phase>
-								<configuration>
-									<target name="building">
-										<!-- npm install -->
-										<exec executable="cmd" dir="${project.basedir}/src/main/webapp" osfamily="windows" failonerror="true">
-											<arg line="/c npm install" />
-										</exec>
-										<exec executable="npm" dir="${project.basedir}/src/main/webapp" osfamily="unix" failonerror="true">
-											<arg line="install" />
-										</exec>
-										<!-- grunt -->
-										<exec executable="cmd" dir="${project.basedir}/src/main/webapp" osfamily="windows">
-											<arg line="/c grunt --apiurl=api" />
-										</exec>
-										<exec executable="grunt" dir="${project.basedir}/src/main/webapp" osfamily="unix">
-											<arg line="--apiurl=api" />
-										</exec>
-									</target>
-								</configuration>
-								<goals>
-									<goal>run</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.7</version>
+            <executions>
+              <execution>
+                <phase>generate-sources</phase>
+                <configuration>
+                  <target name="building">
+                    <!-- npm install -->
+                    <exec executable="cmd" dir="${project.basedir}/src/main/webapp" osfamily="windows" failonerror="true">
+                      <arg line="/c npm install" />
+                    </exec>
+                    <exec executable="npm" dir="${project.basedir}/src/main/webapp" osfamily="unix" failonerror="true">
+                      <arg line="install" />
+                    </exec>
+                    <!-- grunt -->
+                    <exec executable="cmd" dir="${project.basedir}/src/main/webapp" osfamily="windows">
+                      <arg line="/c grunt --apiurl=api" />
+                    </exec>
+                    <exec executable="grunt" dir="${project.basedir}/src/main/webapp" osfamily="unix">
+                      <arg line="--apiurl=api" />
+                    </exec>
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
         
           <!-- WAR generation -->
           <plugin>
@@ -303,8 +303,8 @@
       <id>hosted</id>
       <activation>
         <property>
-          <name>env</name>
-          <value>hosted</value>
+          <name>application.mode</name>
+          <value>prod</value>
         </property>
       </activation>
       

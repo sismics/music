@@ -86,7 +86,7 @@ public class AppContext {
         resetEventBus();
 
         collectionService = new CollectionService();
-        collectionService.startAndWait();
+        collectionService.startAsync();
 
         albumArtService = new AlbumArtService();
         lastFmService = new LastFmService();
