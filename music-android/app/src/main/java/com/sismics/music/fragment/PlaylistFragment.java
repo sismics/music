@@ -15,6 +15,7 @@ import android.widget.SeekBar;
 import com.androidquery.AQuery;
 import com.mobeta.android.dslv.DragSortListView;
 import com.sismics.music.R;
+import com.sismics.music.event.MediaPlayerSeekEvent;
 import com.sismics.music.event.MediaPlayerStateChangedEvent;
 import com.sismics.music.event.PlaylistChangedEvent;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
@@ -141,6 +142,22 @@ public class PlaylistFragment extends Fragment {
             }
         });
 
+        // Seekbar moved
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    eventBus.post(new MediaPlayerSeekEvent(progress));
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
         eventBus = EventBus.getDefault();
         eventBus.register(this);
         return view;
@@ -167,6 +184,13 @@ public class PlaylistFragment extends Fragment {
      * @param event Event
      */
     public void onEvent(MediaPlayerStateChangedEvent event) {
+        if (event.getState() == MusicService.State.Playing || event.getState() == MusicService.State.Paused) {
+            seekBar.setEnabled(true);
+        } else {
+            seekBar.setEnabled(false);
+            seekBar.setProgress(0);
+        }
+
         if (event.getDuration() < 0) {
             return;
         }

@@ -16,7 +16,6 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
 <resources>
 
     <style name="Theme.Sismicsmusic" parent="@android:style/Theme.Holo.Light.DarkActionBar">
@@ -29,6 +28,7 @@
         <item name="android:actionModeBackground">@drawable/cab_background_top_sismicsmusic</item>
         <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_sismicsmusic</item>
         <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Sismicsmusic</item>
+        <item name="android:seekBarStyle">@style/SeekBar.Sismicsmusic</item>
         
                 <!-- Light.DarkActionBar specific -->
         <item name="android:actionBarWidgetTheme">@style/Theme.Sismicsmusic.Widget</item>
@@ -71,6 +71,12 @@
     
     <style name="ActionButton.CloseMode.Sismicsmusic" parent="@android:style/Widget.Holo.ActionButton.CloseMode">
         <item name="android:background">@drawable/btn_cab_done_sismicsmusic</item>
+    </style>
+
+    <style name="SeekBar.Sismicsmusic" parent="android:Widget.Holo.Light.SeekBar">
+        <item name="android:progressDrawable">@drawable/apptheme_scrubber_progress_horizontal_holo_light</item>
+        <item name="android:indeterminateDrawable">@drawable/apptheme_scrubber_progress_horizontal_holo_light</item>
+        <item name="android:thumb">@drawable/apptheme_scrubber_control_selector_holo_light</item>
     </style>
 
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->

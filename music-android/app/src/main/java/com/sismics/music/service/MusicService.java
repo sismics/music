@@ -27,6 +27,7 @@ import com.loopj.android.http.FileAsyncHttpResponseHandler;
 import com.loopj.android.http.RequestHandle;
 import com.sismics.music.R;
 import com.sismics.music.activity.MainActivity;
+import com.sismics.music.event.MediaPlayerSeekEvent;
 import com.sismics.music.event.MediaPlayerStateChangedEvent;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.model.PlaylistTrack;
@@ -280,8 +281,9 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
      * Rewind request.
      */
     void processRewindRequest() {
-        if (mState == State.Playing || mState == State.Paused)
+        if (mState == State.Playing || mState == State.Paused) {
             mPlayer.seekTo(0);
+        }
     }
 
     /**
@@ -619,6 +621,16 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             // The song is considered completed
             songCompleted = true;
             ScrobbleUtil.trackCompleted(this, event.getPlaylistTrack().getId(), event.getSongStartedAt());
+        }
+    }
+
+    /**
+     * Media player seeking.
+     * @param event Event
+     */
+    public void onEvent(MediaPlayerSeekEvent event) {
+        if (mState == State.Playing || mState == State.Paused) {
+            mPlayer.seekTo(event.getPosition());
         }
     }
 
