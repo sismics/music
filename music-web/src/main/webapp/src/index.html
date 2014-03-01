@@ -80,7 +80,7 @@
           </div>
 
 	        <div class="navbar-header">
-				    <a class="navbar-brand" href="#"><span class="glyphicon glyphicon-headphones"></span> Sismics Music</a>
+				    <a class="navbar-brand" href="#"><span class="glyphicon glyphicon-headphones logo"></span> <span class="text-muted">Sismics</span> Music</a>
 				  </div>
 
           <form class="navbar-form navbar-left" role="search" ng-show="!userInfo.anonymous">
@@ -94,7 +94,7 @@
 			    
           <ul class="nav navbar-nav navbar-right" ng-show="!userInfo.anonymous">
             <li class="dropdown" ng-class="{active: $uiRoute}" ui-route="/settings.*">
-			        <a href="#" class="dropdown-toggle"><span class="glyphicon glyphicon-cog"></span> Settings <b class="caret"></b></a>
+			        <a href="#" class="dropdown-toggle"><span class="glyphicon glyphicon-cog"></span> <span class="sr-only">Settings</span> <b class="caret"></b></a>
 			        <ul class="dropdown-menu">
                 <li ng-class="{active: $uiRoute}" ui-route="/settings/account"><a href="#/settings/account">My account</a></li>
                 <li ng-show="isAdmin" ng-class="{active: $uiRoute}" ui-route="/settings/directories"><a href="#/settings/directories">Directories</a></li>
