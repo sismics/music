@@ -89,8 +89,10 @@ public class PlaylistAdapter extends BaseAdapter {
         // Playing status
         if (PlaylistService.currentTrack() == playlistTrack) {
             holder.playing.setVisibility(View.VISIBLE);
+            view.setBackgroundColor(Color.argb(32, 255, 136, 0));
         } else {
             holder.playing.setVisibility(View.INVISIBLE);
+            view.setBackgroundColor(Color.argb(0, 0, 0, 0));
         }
 
         // Album cover
