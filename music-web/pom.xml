@@ -133,10 +133,6 @@
       <id>dev</id>
       <activation>
         <activeByDefault>true</activeByDefault>
-        <property>
-          <name>application.mode</name>
-          <value>dev</value>
-        </property>
       </activation>
       
       <build>
@@ -163,6 +159,12 @@
             <artifactId>jetty-maven-plugin</artifactId>
             <configuration>
               <scanIntervalSeconds>0</scanIntervalSeconds>
+              <systemProperties>
+                <systemProperty>
+                  <name>application.mode</name>
+                  <value>dev</value>
+                </systemProperty>
+              </systemProperties>
               <webAppConfig>
                 <contextPath>/music-web</contextPath>
                 <extraClasspath>target/classes;../music-core/target/classes</extraClasspath>
@@ -179,13 +181,7 @@
     <!-- Production profile -->
     <profile>
       <id>prod</id>
-      <activation>
-        <property>
-          <name>application.mode</name>
-          <value>prod</value>
-        </property>
-      </activation>
-      
+
       <build>
         <resources>
           <resource>
@@ -254,13 +250,6 @@
     <!-- Hosted version profile -->
     <profile>
       <id>hosted</id>
-      <activation>
-        <property>
-          <name>application.mode</name>
-          <value>prod</value>
-        </property>
-      </activation>
-      
       <build>
         <resources>
           <resource>
