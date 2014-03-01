@@ -39,6 +39,12 @@
         android:layout_weight="0"
         android:background="#cccccc" />
 
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar"
+        android:layout_weight="0" />
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"

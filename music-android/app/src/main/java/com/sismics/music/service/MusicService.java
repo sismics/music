@@ -78,7 +78,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     AudioFocusHelper mAudioFocusHelper = null;
 
     // indicates the state our service:
-    enum State {
+    public enum State {
         Stopped,    // media player is stopped and not prepared to play
         Preparing,  // media player is preparing...
         Playing,    // playback active (media player ready!). (but the media player may actually be
@@ -174,8 +174,11 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             public void run() {
                 if (mPlayer != null && mState == State.Playing) {
                     EventBus.getDefault().post(
-                            new MediaPlayerStateChangedEvent(songStartedAt, currentPlaylistTrack,
+                            new MediaPlayerStateChangedEvent(mState, songStartedAt, currentPlaylistTrack,
                                     mPlayer.getCurrentPosition(), mPlayer.getDuration()));
+                } else {
+                    EventBus.getDefault().post(
+                            new MediaPlayerStateChangedEvent(mState, -1, currentPlaylistTrack, -1, -1));
                 }
                 mediaPlayerHandler.postDelayed(this, 1000);
             }

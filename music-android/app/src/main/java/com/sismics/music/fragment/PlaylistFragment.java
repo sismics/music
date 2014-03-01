@@ -10,10 +10,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.SeekBar;
 
 import com.androidquery.AQuery;
 import com.mobeta.android.dslv.DragSortListView;
 import com.sismics.music.R;
+import com.sismics.music.event.MediaPlayerStateChangedEvent;
 import com.sismics.music.event.PlaylistChangedEvent;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.service.PlaylistService;
@@ -29,6 +31,7 @@ public class PlaylistFragment extends Fragment {
 
     private PlaylistAdapter playlistAdapter;
     private EventBus eventBus;
+    private SeekBar seekBar;
 
     /**
      * Returns a new instance of this fragment.
@@ -71,6 +74,7 @@ public class PlaylistFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_playlist, container, false);
         AQuery aq = new AQuery(view);
         DragSortListView listTracks = (DragSortListView)aq.id(R.id.listTracks).getView();
+        seekBar = aq.id(R.id.seekBar).getSeekBar();
 
         // Create a new playlist adapter
         playlistAdapter = new PlaylistAdapter(getActivity(), listTracks);
@@ -156,6 +160,19 @@ public class PlaylistFragment extends Fragment {
      */
     public void onEvent(TrackCacheStatusChangedEvent event) {
         playlistAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Media player state has changed.
+     * @param event Event
+     */
+    public void onEvent(MediaPlayerStateChangedEvent event) {
+        if (event.getDuration() < 0) {
+            return;
+        }
+
+        seekBar.setProgress(event.getCurrentPosition());
+        seekBar.setMax(event.getDuration());
     }
 
     @Override
