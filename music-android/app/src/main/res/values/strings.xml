@@ -28,6 +28,7 @@
     <string name="play">Play</string>
     <string name="pause">Pause</string>
     <string name="stop">Stop</string>
+    <string name="next">Skip</string>
     <string name="handle">Drag me</string>
     <string name="add_all_toast">All added to queue</string>
     <string name="play_all_toast">Playing all</string>

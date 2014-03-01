@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
@@ -20,9 +21,11 @@ import android.net.wifi.WifiManager.WifiLock;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.androidquery.AQuery;
 import com.loopj.android.http.FileAsyncHttpResponseHandler;
 import com.loopj.android.http.RequestHandle;
 import com.sismics.music.R;
@@ -33,6 +36,7 @@ import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.model.PlaylistTrack;
 import com.sismics.music.resource.TrackResource;
 import com.sismics.music.util.CacheUtil;
+import com.sismics.music.util.PreferenceUtil;
 import com.sismics.music.util.ScrobbleUtil;
 
 import org.apache.http.Header;
@@ -120,8 +124,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     AudioManager mAudioManager;
     NotificationManager mNotificationManager;
 
-    Notification mNotification = null;
-
     // Request handle of the current download
     RequestHandle bufferRequestHandle;
 
@@ -181,7 +183,10 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                     EventBus.getDefault().post(
                             new MediaPlayerStateChangedEvent(mState, -1, currentPlaylistTrack, -1, -1));
                 }
-                mediaPlayerHandler.postDelayed(this, 1000);
+
+                if (mediaPlayerHandler != null) {
+                    mediaPlayerHandler.postDelayed(this, 1000);
+                }
             }
         }, 1000);
 
@@ -249,7 +254,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         } else if (mState == State.Paused) {
             // If we're paused, just continue playback and restore the 'foreground service' state.
             mState = State.Playing;
-            setUpAsForeground(currentPlaylistTrack);
+            startForeground(NOTIFICATION_ID, getNotification());
             configAndStartMediaPlayer();
         }
 
@@ -267,8 +272,11 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             // Pause media player and cancel the 'foreground service' state.
             mState = State.Paused;
             mPlayer.pause();
-            relaxResources(false); // while paused, we always retain the MediaPlayer
-            // do not give up audio focus
+            relaxResources(false); // Wwhile paused, we always retain the MediaPlayer
+
+            // Update the notification
+            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            notificationManager.notify(NOTIFICATION_ID, getNotification());
         }
 
         // Tell any remote controls that our playback state is 'paused'.
@@ -325,10 +333,10 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
      * @param releaseMediaPlayer Indicates whether the Media Player should also be released or not
      */
     void relaxResources(boolean releaseMediaPlayer) {
-        // stop being a foreground service
-        stopForeground(true);
+        // Stop being a foreground service
+        stopForeground(false);
 
-        // stop and release the Media Player, if it's available
+        // Stop and release the Media Player, if it's available
         if (releaseMediaPlayer && mPlayer != null) {
             mPlayer.reset();
             mPlayer.release();
@@ -340,7 +348,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             bufferRequestHandle.cancel(true);
         }
 
-        // we can also release the Wifi lock, if we're holding it
+        // We can also release the Wifi lock, if we're holding it
         if (mWifiLock.isHeld()) mWifiLock.release();
     }
 
@@ -472,9 +480,9 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             currentPlaylistTrack = playlistTrack;
 
             mState = State.Preparing;
-            setUpAsForeground(currentPlaylistTrack);
+            startForeground(NOTIFICATION_ID, getNotification());
 
-            // Use the media button APIs (if available) to register ourselves for media button
+                    // Use the media button APIs (if available) to register ourselves for media button
             // events
             mAudioManager.registerMediaButtonEventReceiver(mMediaButtonReceiverComponent);
 
@@ -540,21 +548,47 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     }
 
     /**
-     * Configures service as a foreground service. A foreground service is a service that's doing
-     * something the user is actively aware of (such as playing music), and must appear to the
-     * user as a notification. That's why we create the notification here.
+     * Return a notification based on the current music playback state.
+     * @return Notification
      */
-    void setUpAsForeground(PlaylistTrack playlistTrack) {
-        PendingIntent pi = PendingIntent.getActivity(this, 0,
-                new Intent(getApplicationContext(), MainActivity.class),
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        mNotification = new Notification();
-        mNotification.tickerText = playlistTrack.getTitle();
-        mNotification.icon = R.drawable.ic_notification;
-        mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-        mNotification.setLatestEventInfo(getApplicationContext(), "Sismics Music",
-                playlistTrack.getTitle(), pi);
-        startForeground(NOTIFICATION_ID, mNotification);
+    public Notification getNotification() {
+        // Get the cached cover image
+        String coverUrl = PreferenceUtil.getServerUrl(this) + "/api/album/" + currentPlaylistTrack.getAlbumId() + "/albumart/small";
+        Bitmap coverBitmap = new AQuery(this).getCachedImage(coverUrl, 96);
+
+        // Build the notification
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle(currentPlaylistTrack.getTitle())
+                .setContentText(currentPlaylistTrack.getArtistName())
+                .setSubText(currentPlaylistTrack.getAlbumName())
+                .setTicker(currentPlaylistTrack.getTitle() + " - " + currentPlaylistTrack.getArtistName())
+                .setLargeIcon(coverBitmap)
+                .setOngoing(true)
+                .setContentIntent(PendingIntent.getActivity(this, 0,
+                        new Intent(getApplicationContext(), MainActivity.class),
+                        PendingIntent.FLAG_UPDATE_CURRENT));
+
+        // Play/pause actions
+        if (mState == State.Paused) {
+            builder.addAction(R.drawable.ic_action_play_dark, getString(R.string.play),
+                    PendingIntent.getService(this, 0, new Intent(MusicService.ACTION_PLAY, null, this, MusicService.class),
+                            PendingIntent.FLAG_UPDATE_CURRENT));
+        } else {
+            builder.addAction(R.drawable.ic_action_pause_dark, getString(R.string.pause),
+                    PendingIntent.getService(this, 0, new Intent(MusicService.ACTION_PAUSE, null, this, MusicService.class),
+                            PendingIntent.FLAG_UPDATE_CURRENT));
+        }
+
+        // Next/stop actions
+        builder.addAction(R.drawable.ic_action_next_dark, getString(R.string.next),
+                PendingIntent.getService(this, 0, new Intent(MusicService.ACTION_SKIP, null, this, MusicService.class),
+                        PendingIntent.FLAG_UPDATE_CURRENT))
+                .addAction(R.drawable.ic_action_stop_dark, getString(R.string.stop),
+                        PendingIntent.getService(this, 0, new Intent(MusicService.ACTION_STOP, null, this, MusicService.class),
+                                PendingIntent.FLAG_UPDATE_CURRENT));
+
+        return builder.build();
     }
 
     /**
@@ -595,6 +629,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
     @Override
     public void onDestroy() {
+        mediaPlayerHandler = null;
         EventBus.getDefault().unregister(this);
 
         // Service is being killed, so make sure we release our resources
