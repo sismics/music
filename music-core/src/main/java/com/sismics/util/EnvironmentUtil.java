@@ -64,7 +64,7 @@ public class EnvironmentUtil {
      * @return Dev mode
      */
     public static boolean isDevMode() {
-        return !"prod".equalsIgnoreCase(APPLICATION_MODE);
+        return "dev".equalsIgnoreCase(APPLICATION_MODE);
     }
 
     /**
