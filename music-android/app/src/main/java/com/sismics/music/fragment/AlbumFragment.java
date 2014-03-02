@@ -19,6 +19,7 @@ import com.androidquery.callback.BitmapAjaxCallback;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
 import com.sismics.music.adapter.TracksAdapter;
+import com.sismics.music.event.OfflineModeChangedEvent;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.model.Album;
 import com.sismics.music.model.PlaylistTrack;
@@ -119,43 +120,6 @@ public class AlbumFragment extends Fragment {
         tracksAdapter = new TracksAdapter(getActivity(), album, new ArrayList<Track>());
         listTracks.setAdapter(tracksAdapter);
 
-        // Grab cached tracks for this album
-        cacheTask = new AsyncTask<Album, Void, List<Track>>() {
-            @Override
-            protected List<Track> doInBackground(Album... params) {
-                return CacheUtil.getCachedTrack(params[0]);
-            }
-
-            @Override
-            protected void onPostExecute(List<Track> tracks) {
-                tracksAdapter.setTracks(tracks);
-            }
-        }.execute(album);
-
-        // Download the album details from the server
-        AlbumResource.info(getActivity(), album.getId(), new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(final JSONObject json) {
-                if (getActivity() == null) {
-                    // The activity is dead, and this fragment has been detached
-                    return;
-                }
-
-                // Cancel the cache request, should not happen
-                cacheTask.cancel(true);
-
-                // Assemble tracks
-                List<Track> tracks = new ArrayList<>();
-                JSONArray tracksJson =  json.optJSONArray("tracks");
-                for (int i = 0; i < tracksJson.length(); i++) {
-                    tracks.add(new Track(tracksJson.optJSONObject(i)));
-                }
-
-                // Populate the adapter
-                tracksAdapter.setTracks(tracks);
-            }
-        });
-
         // Add to queue on click
         listTracks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -189,9 +153,57 @@ public class AlbumFragment extends Fragment {
             }
         });
 
+        loadTracks();
         eventBus.register(this);
         return view;
     }
+
+    /**
+     * Load tracks from local device and/or server, depending on offline mode.
+     */
+    private void loadTracks() {
+        boolean offlineMode = PreferenceUtil.getBooleanPreference(getActivity(), PreferenceUtil.Pref.OFFLINE_MODE, false);
+        final Album album = (Album) getArguments().getSerializable(ARG_ALBUM);
+
+        // Grab cached tracks for this album
+        cacheTask = new AsyncTask<Album, Void, List<Track>>() {
+            @Override
+            protected List<Track> doInBackground(Album... params) {
+                return CacheUtil.getCachedTrack(params[0]);
+            }
+
+            @Override
+            protected void onPostExecute(List<Track> tracks) {
+                tracksAdapter.setTracks(tracks);
+            }
+        }.execute(album);
+
+        if (!offlineMode) {
+            // We are in online mode, download the album details from the server
+            AlbumResource.info(getActivity(), album.getId(), new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(final JSONObject json) {
+                    if (getActivity() == null) {
+                        // The activity is dead, and this fragment has been detached
+                        return;
+                    }
+
+                    // Cancel the cache request, should not happen
+                    cacheTask.cancel(true);
+
+                    // Assemble tracks
+                    List<Track> tracks = new ArrayList<>();
+                    JSONArray tracksJson =  json.optJSONArray("tracks");
+                    for (int i = 0; i < tracksJson.length(); i++) {
+                        tracks.add(new Track(tracksJson.optJSONObject(i)));
+                    }
+
+                    // Populate the adapter
+                    tracksAdapter.setTracks(tracks);
+                }
+            });
+        }
+    };
 
     /**
      * A track cache status has changed.
@@ -199,6 +211,14 @@ public class AlbumFragment extends Fragment {
      */
     public void onEvent(TrackCacheStatusChangedEvent event) {
         tracksAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Offline mode has changed.
+     * @param event Event
+     */
+    public void onEvent(OfflineModeChangedEvent event) {
+        loadTracks();
     }
 
     @Override
