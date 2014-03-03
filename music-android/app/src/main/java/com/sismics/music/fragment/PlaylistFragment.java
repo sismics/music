@@ -33,6 +33,7 @@ public class PlaylistFragment extends Fragment {
     private PlaylistAdapter playlistAdapter;
     private EventBus eventBus;
     private SeekBar seekBar;
+    private AQuery aq;
 
     /**
      * Returns a new instance of this fragment.
@@ -73,9 +74,10 @@ public class PlaylistFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the view
         View view = inflater.inflate(R.layout.fragment_playlist, container, false);
-        AQuery aq = new AQuery(view);
+        aq = new AQuery(view);
         DragSortListView listTracks = (DragSortListView)aq.id(R.id.listTracks).getView();
         seekBar = aq.id(R.id.seekBar).getSeekBar();
+        aq.id(R.id.playlistPause).gone();
 
         // Create a new playlist adapter
         playlistAdapter = new PlaylistAdapter(getActivity(), listTracks);
@@ -184,6 +186,14 @@ public class PlaylistFragment extends Fragment {
      * @param event Event
      */
     public void onEvent(MediaPlayerStateChangedEvent event) {
+        if (event.getState() == MusicService.State.Playing) {
+            aq.id(R.id.playlistPause).visible();
+            aq.id(R.id.playlistPlay).gone();
+        } else {
+            aq.id(R.id.playlistPause).gone();
+            aq.id(R.id.playlistPlay).visible();
+        }
+
         if (event.getState() == MusicService.State.Playing || event.getState() == MusicService.State.Paused) {
             seekBar.setEnabled(true);
         } else {
