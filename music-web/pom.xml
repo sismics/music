@@ -63,9 +63,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.mortbay.jetty</groupId>
-      <artifactId>servlet-api</artifactId>
-      <scope>provided</scope>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<scope>provided</scope>
     </dependency>
   
     <dependency>
@@ -155,7 +155,7 @@
 
         <plugins>
           <plugin>
-            <groupId>org.mortbay.jetty</groupId>
+            <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-maven-plugin</artifactId>
             <configuration>
               <scanIntervalSeconds>0</scanIntervalSeconds>
@@ -165,13 +165,11 @@
                   <value>dev</value>
                 </systemProperty>
               </systemProperties>
-              <webAppConfig>
+              <webApp>
                 <contextPath>/music-web</contextPath>
-                <extraClasspath>target/classes;../music-core/target/classes</extraClasspath>
+                <!-- <extraClasspath>target/classes;../music-core/target/classes</extraClasspath> -->
                 <overrideDescriptor>src/dev/main/webapp/web-override.xml</overrideDescriptor>
-              </webAppConfig>
-              <stopPort>8079</stopPort>
-              <stopKey>kthxbye</stopKey>
+              </webApp>
             </configuration>
           </plugin>
         </plugins>
