@@ -21,6 +21,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -55,89 +57,108 @@ public class TrackResource extends BaseResource {
     @GET
     @Path("{id: [a-z0-9\\-]+}")
     @Produces("audio/mpeg")
-    public Response stream(
-            @HeaderParam("Range") String range,
-            @PathParam("id") String id) throws Exception {
+    public void stream(
+            @HeaderParam("Range") final String range,
+            @PathParam("id") final String id,
+            @Suspended final AsyncResponse asyncResponse) throws Exception {
         if (!authenticate()) {
-            throw new ForbiddenClientException();
+            asyncResponse.resume(new ForbiddenClientException());
+            return;
         }
 
         TrackDao trackDao = new TrackDao();
-        Track track = trackDao.getActiveById(id);
+        final Track track = trackDao.getActiveById(id);
         TransactionUtil.commit();
         if (track == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            asyncResponse.resume(Response.status(Response.Status.NOT_FOUND).build());
+            return;
         }
 
         final File file = new File(track.getFileName());
         if (!file.exists() || !file.canRead()) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            asyncResponse.resume(Response.status(Response.Status.NOT_FOUND).build());
+            return;
         }
 
-        // TODO Transcode mp3 as well
-        final TranscoderService transcoderService = AppContext.getInstance().getTranscoderService();
-        if (!"mp3".equals(track.getFormat())) {
-            int seek = 0;
-            int from = 0;
-            int to = 0;
-            if (range != null) {
-                // Range requested, send a 206 partial content
-                String[] ranges = range.split("=")[1].split("-");
-                from = Integer.parseInt(ranges[0]);
-                seek = from / (128 * 1000 / 8);
-            }
-            int fileSize = track.getLength() * 128 * 1000 / 8;
-            InputStream is = transcoderService.getTranscodedInputStream(track, seek);
-            Response.ResponseBuilder response = Response.ok(is);
-            if (range != null) {
-                response = response.status(206);
-                final String responseRange = String.format("bytes %d-%d/%d", from, to, fileSize);
-                response.header("Accept-Ranges", "bytes");
-                response.header("Content-Range", responseRange);
-            }
-            response.header(HttpHeaders.CONTENT_LENGTH, fileSize);
-            response.header(HttpHeaders.LAST_MODIFIED, new Date(file.lastModified()));
-            return response.build();
-        } else {
-            // Range not requested, serve the whole file
-            if (range == null) {
-                StreamingOutput streamer = new StreamingOutput() {
-                    @Override
-                    public void write(final OutputStream output) throws IOException, WebApplicationException {
-                        final FileChannel inputChannel = new FileInputStream(file).getChannel();
-                        final WritableByteChannel outputChannel = Channels.newChannel(output);
-                        try {
-                            inputChannel.transferTo(0, inputChannel.size(), outputChannel);
-                        } finally {
-                            // Closing the channels
-                            inputChannel.close();
-                            outputChannel.close();
+        // Start a new thread and release the I/O thread
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // TODO Transcode mp3 as well
+                    final TranscoderService transcoderService = AppContext.getInstance().getTranscoderService();
+                    if (!"mp3".equals(track.getFormat())) {
+                        int seek = 0;
+                        int from = 0;
+                        int to = 0;
+                        if (range != null) {
+                            // Range requested, send a 206 partial content
+                            String[] ranges = range.split("=")[1].split("-");
+                            from = Integer.parseInt(ranges[0]);
+                            seek = from / (128 * 1000 / 8);
                         }
+                        int fileSize = track.getLength() * 128 * 1000 / 8;
+                        InputStream is = transcoderService.getTranscodedInputStream(track, seek);
+                        Response.ResponseBuilder response = Response.ok(is);
+                        if (range != null) {
+                            response = response.status(206);
+                            final String responseRange = String.format("bytes %d-%d/%d", from, to, fileSize);
+                            response.header("Accept-Ranges", "bytes");
+                            response.header("Content-Range", responseRange);
+                        }
+                        response.header(HttpHeaders.CONTENT_LENGTH, fileSize);
+                        response.header(HttpHeaders.LAST_MODIFIED, new Date(file.lastModified()));
+                        asyncResponse.resume(response.build());
+                    } else {
+                        // Range not requested, serve the whole file
+                        if (range == null) {
+                            StreamingOutput streamer = new StreamingOutput() {
+                                @Override
+                                public void write(final OutputStream output) throws IOException, WebApplicationException {
+                                    final FileInputStream inputStream = new FileInputStream(file);
+                                    final FileChannel inputChannel = inputStream.getChannel();
+                                    final WritableByteChannel outputChannel = Channels.newChannel(output);
+                                    try {
+                                        inputChannel.transferTo(0, inputChannel.size(), outputChannel);
+                                    } finally {
+                                        // Closing the channels
+                                        inputStream.close();
+                                        inputChannel.close();
+                                        outputChannel.close();
+                                    }
+                                }
+                            };
+                            asyncResponse.resume(Response.ok(streamer).status(200)
+                                    .header(HttpHeaders.CONTENT_LENGTH, file.length())
+                                    .build());
+                            return;
+                        }
+    
+                        // Range requested, send a 206 partial content
+                        String[] ranges = range.split("=")[1].split("-");
+                        final int from = Integer.parseInt(ranges[0]);
+    
+                        // Don't chunk the file, send content to the end
+                        final int to = (int) (file.length() - 1);
+    
+                        final String responseRange = String.format("bytes %d-%d/%d", from, to, file.length());
+                        final RandomAccessFile raf = new RandomAccessFile(file, "r");
+                        raf.seek(from);
+    
+                        final int len = to - from + 1;
+                        final MediaStreamer streamer = new MediaStreamer(len, raf);
+                        asyncResponse.resume(Response.ok(streamer).status(206)
+                                .header("Accept-Ranges", "bytes")
+                                .header("Content-Range", responseRange)
+                                .header(HttpHeaders.CONTENT_LENGTH, streamer.getLength())
+                                .header(HttpHeaders.LAST_MODIFIED, new Date(file.lastModified()))
+                                .build());
                     }
-                };
-                return Response.ok(streamer).status(200).header(HttpHeaders.CONTENT_LENGTH, file.length()).build();
+                } catch (Exception e) {
+                    asyncResponse.resume(e);
+                }
             }
-
-            // Range requested, send a 206 partial content
-            String[] ranges = range.split("=")[1].split("-");
-            final int from = Integer.parseInt(ranges[0]);
-
-            // Don't chunk the file, send content to the end
-            final int to = (int) (file.length() - 1);
-
-            final String responseRange = String.format("bytes %d-%d/%d", from, to, file.length());
-            final RandomAccessFile raf = new RandomAccessFile(file, "r");
-            raf.seek(from);
-
-            final int len = to - from + 1;
-            final MediaStreamer streamer = new MediaStreamer(len, raf);
-            return Response.ok(streamer).status(206)
-                    .header("Accept-Ranges", "bytes")
-                    .header("Content-Range", responseRange)
-                    .header(HttpHeaders.CONTENT_LENGTH, streamer.getLength())
-                    .header(HttpHeaders.LAST_MODIFIED, new Date(file.lastModified()))
-                    .build();
-        }
+        }, "TrackAsyncResponse").start();
     }
 
     /**

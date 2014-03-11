@@ -4,9 +4,7 @@ import java.net.BindException;
 import java.util.Date;
 
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.util.component.LifeCycle;
-import org.eclipse.jetty.webapp.WebAppContext;
 
 import com.sismics.music.agent.ReaderAgent;
 import com.sismics.music.agent.deployer.DeploymentStatus.ServerState;
@@ -63,33 +61,33 @@ public class ReaderDeployer implements LifeCycle.Listener {
      * Start the server.
      */
     public void start() {
-        final Setting setting = readerAgent.getSetting();
-        System.setProperty("music.home", setting.getReaderHome());
-        
-        startTime = new Date();
-        try {
-            lifeCycleStarting(null);
-
-            server = new Server();
-            SelectChannelConnector connector = new SelectChannelConnector();
-            connector.setHost(setting.getHost());
-            connector.setPort(setting.getPort());
-            server.addConnector(connector);
-
-            WebAppContext webapp = new WebAppContext();
-            webapp.setContextPath(setting.getContextPath());
-            webapp.setWar(READER_WAR);
-
-            // Start the server
-            server.addLifeCycleListener(this);
-            server.setHandler(webapp);
-            server.start();
-
-            System.out.println("Reader running on: " + getUrl());
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
-            exception = e;
-        }
+//        final Setting setting = readerAgent.getSetting();
+//        System.setProperty("music.home", setting.getReaderHome());
+//        
+//        startTime = new Date();
+//        try {
+//            lifeCycleStarting(null);
+//
+//            server = new Server();
+//            SelectChannelConnector connector = new SelectChannelConnector();
+//            connector.setHost(setting.getHost());
+//            connector.setPort(setting.getPort());
+//            server.addConnector(connector);
+//
+//            WebAppContext webapp = new WebAppContext();
+//            webapp.setContextPath(setting.getContextPath());
+//            webapp.setWar(READER_WAR);
+//
+//            // Start the server
+//            server.addLifeCycleListener(this);
+//            server.setHandler(webapp);
+//            server.start();
+//
+//            System.out.println("Reader running on: " + getUrl());
+//        } catch (Exception e) {
+//            e.printStackTrace(System.err);
+//            exception = e;
+//        }
     }
     
     /**
