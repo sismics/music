@@ -36,7 +36,7 @@
     <org.jaudiotagger.version>2.0.3</org.jaudiotagger.version>
     <de.u-mass.lastfm-java.version>0.1.2</de.u-mass.lastfm-java.version>
     <org.imgscalr.imgscalr-lib.version>4.2</org.imgscalr.imgscalr-lib.version>
-    <javax.servlet.javax.servlet-api.version>3.1.0</javax.servlet.javax.servlet-api.version>
+    <javax.servlet.javax.servlet-api.version>3.0.1</javax.servlet.javax.servlet-api.version>
 
     <commons-dbcp.version>1.4</commons-dbcp.version>
     <joda-time.joda-time.version>2.2</joda-time.joda-time.version>
@@ -52,7 +52,7 @@
     <org.codehaus.mojo.rpm-maven-plugin.version>2.1-alpha-2</org.codehaus.mojo.rpm-maven-plugin.version>
     <org.codehaus.mojo.nsis-maven-plugin.version>1.0-SNAPSHOT</org.codehaus.mojo.nsis-maven-plugin.version>
     <org.codehaus.mojo.osxappbundle-maven-plugin.version>1.0-alpha-2</org.codehaus.mojo.osxappbundle-maven-plugin.version>
-    <org.eclipse.jetty.jetty-maven-plugin.version>9.1.2.v20140210</org.eclipse.jetty.jetty-maven-plugin.version>
+    <org.eclipse.jetty.jetty-maven-plugin.version>9.1.3.v20140225</org.eclipse.jetty.jetty-maven-plugin.version>
     <org.vafer.jdeb.version>1.0.1</org.vafer.jdeb.version>
     <com.samaxes.maven.minify-maven-plugin.version>1.7</com.samaxes.maven.minify-maven-plugin.version>
   </properties> 
@@ -307,7 +307,7 @@
 
       <dependency>
         <groupId>org.glassfish.jersey.containers</groupId>
-        <artifactId>jersey-container-servlet-core</artifactId>
+        <artifactId>jersey-container-servlet</artifactId>
         <version>${org.glassfish.jersey.version}</version>
       </dependency>
       
