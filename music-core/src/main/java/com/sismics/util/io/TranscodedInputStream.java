@@ -91,14 +91,14 @@ public class TranscodedInputStream extends InputStream {
 
     @Override
     public void close() throws IOException {
+        if (process != null) {
+            process.destroy();
+        }
+        
         try {
             closer.close();
         } catch (Exception e) {
             // NOP
-        }
-
-        if (process != null) {
-            process.destroy();
         }
     }
 }

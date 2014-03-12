@@ -1,5 +1,7 @@
 package com.sismics.music.rest;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import javax.json.JsonArray;
@@ -10,6 +12,7 @@ import javax.ws.rs.core.Form;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.google.common.io.Files;
 import com.sismics.util.filter.TokenBasedSecurityFilter;
 
 /**
@@ -28,11 +31,21 @@ public class TestTrackResource extends BaseJerseyTest {
         // Login users
         String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
 
+        // This test is destructive, copy the test music to a temporary directory
+        Path sourceDir = Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI());
+        File destDir = Files.createTempDir();
+        destDir.deleteOnExit();
+        for (File sourceFile : sourceDir.toFile().listFiles()) {
+            File destFile = Paths.get(destDir.toString(), sourceFile.getName()).toFile();
+            Files.copy(sourceFile, destFile);
+            destFile.deleteOnExit();
+        }
+        
         // Admin adds a track to the collection
         JsonObject json = target().path("/directory").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .put(Entity.form(new Form()
-                        .param("location", Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI()).toString())), JsonObject.class);
+                        .param("location", destDir.toPath().toString())), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
         // Check that the albums are correctly added
@@ -127,8 +140,7 @@ public class TestTrackResource extends BaseJerseyTest {
                         .param("album", "My fake album")
                         .param("artist", "My fake artist")
                         .param("album_artist", "My fake album artist")
-                        .param("year", "2014")
-                        .param("genre", "Pop")), JsonObject.class);
+                        .param("year", "2014")), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
         
         // Admin checks the albums

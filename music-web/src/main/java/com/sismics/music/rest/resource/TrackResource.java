@@ -278,6 +278,10 @@ public class TrackResource extends BaseResource {
         }
         
         // TODO More validations
+        ValidationUtil.validateRequired(title, "title");
+        ValidationUtil.validateRequired(album, "album");
+        ValidationUtil.validateRequired(artist, "artist");
+        ValidationUtil.validateRequired(albumArtist, "album_artist");
         Integer year = ValidationUtil.validateInteger(yearStr, "year");
 
         TrackDao trackDao = new TrackDao();
@@ -302,8 +306,17 @@ public class TrackResource extends BaseResource {
             tag.setField(FieldKey.ALBUM, album);
             tag.setField(FieldKey.ARTIST, artist);
             tag.setField(FieldKey.ALBUM_ARTIST, albumArtist);
-            tag.setField(FieldKey.YEAR, yearStr);
-            tag.setField(FieldKey.GENRE, genre);
+            if (yearStr == null) {
+                tag.deleteField(FieldKey.YEAR);
+            } else {
+                tag.setField(FieldKey.YEAR, yearStr);
+            }
+            if (genre == null) {
+                tag.deleteField(FieldKey.GENRE);
+            } else {
+                tag.setField(FieldKey.GENRE, genre);
+            }
+            AudioFileIO.write(audioFile);
         } catch (Exception e) {
             throw new ServerException("TagError", "Error tagging the file", e);
         }
@@ -346,6 +359,7 @@ public class TrackResource extends BaseResource {
         // TODO Album artist
         
         trackDao.update(track);
+        artistDao.deleteEmptyArtist();
         
         // Always return OK
         return Response.ok()
