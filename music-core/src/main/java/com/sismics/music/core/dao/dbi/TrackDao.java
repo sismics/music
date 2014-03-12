@@ -30,14 +30,15 @@ public class TrackDao {
 
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                "  T_TRACK(TRK_ID_C, TRK_IDALBUM_C, TRK_IDARTIST_C, TRK_FILENAME_C, TRK_TITLE_C, TRK_YEAR_N, TRK_LENGTH_N, TRK_BITRATE_N, TRK_VBR_B, TRK_FORMAT_C, TRK_CREATEDATE_D)" +
-                "  values(:id, :albumId, :artistId, :fileName, :title, :year, :length, :bitrate, :vbr, :format, :createDate)")
+                "  T_TRACK(TRK_ID_C, TRK_IDALBUM_C, TRK_IDARTIST_C, TRK_FILENAME_C, TRK_TITLE_C, TRK_YEAR_N, TRK_GENRE_C, TRK_LENGTH_N, TRK_BITRATE_N, TRK_VBR_B, TRK_FORMAT_C, TRK_CREATEDATE_D)" +
+                "  values(:id, :albumId, :artistId, :fileName, :title, :year, :genre, :length, :bitrate, :vbr, :format, :createDate)")
                 .bind("id", track.getId())
                 .bind("albumId", track.getAlbumId())
                 .bind("artistId", track.getArtistId())
                 .bind("fileName", track.getFileName())
                 .bind("title", track.getTitle())
                 .bind("year", track.getYear())
+                .bind("genre", track.getGenre())
                 .bind("length", track.getLength())
                 .bind("bitrate", track.getBitrate())
                 .bind("vbr", track.isVbr())
@@ -55,14 +56,33 @@ public class TrackDao {
      * @return Updated track
      */
     public Track update(Track track) {
-//        EntityManager em = ThreadLocalContext.get().getEntityManager();
-//
-//        // Get the track
-//        Query q = em.createQuery("select d from Track d where d.id = :id and d.deleteDate is null");
-//        q.setParameter("id", track.getId());
-//        Track trackFromDb = (Track) q.getSingleResult();
-
-        // Update the track
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("update T_TRACK t set " +
+                " t.TRK_IDALBUM_C = :albumId, " +
+                " t.TRK_IDARTIST_C = :artistId, " +
+                " t.TRK_FILENAME_C = :fileName, " +
+                " t.TRK_TITLE_C = :title, " +
+                " t.TRK_YEAR_N = :year, " +
+                " t.TRK_GENRE_C = :genre, " +
+                " t.TRK_LENGTH_N = :length, " +
+                " t.TRK_BITRATE_N = :bitrate, " +
+                " t.TRK_VBR_B = :vbr, " +
+                " t.TRK_FORMAT_C = :format, " +
+                " t.TRK_CREATEDATE_D = :createDate " +
+                " where t.TRK_ID_C = :id and t.TRK_DELETEDATE_D is null")
+                .bind("id", track.getId())
+                .bind("albumId", track.getAlbumId())
+                .bind("artistId", track.getArtistId())
+                .bind("fileName", track.getFileName())
+                .bind("title", track.getTitle())
+                .bind("year", track.getYear())
+                .bind("genre", track.getGenre())
+                .bind("length", track.getLength())
+                .bind("bitrate", track.getBitrate())
+                .bind("vbr", track.isVbr())
+                .bind("format", track.getFormat())
+                .bind("createDate", track.getCreateDate())
+                .execute();
 
         return track;
     }
@@ -137,7 +157,7 @@ public class TrackDao {
     private QueryParam getQueryParam(TrackCriteria criteria) {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-        StringBuilder sb = new StringBuilder("select t.TRK_ID_C, t.TRK_FILENAME_C, t.TRK_TITLE_C, t.TRK_YEAR_N, t.TRK_LENGTH_N, t.TRK_BITRATE_N, t.TRK_VBR_B, t.TRK_FORMAT_C,");
+        StringBuilder sb = new StringBuilder("select t.TRK_ID_C, t.TRK_FILENAME_C, t.TRK_TITLE_C, t.TRK_YEAR_N, t.TRK_GENRE_C, t.TRK_LENGTH_N, t.TRK_BITRATE_N, t.TRK_VBR_B, t.TRK_FORMAT_C,");
         if (criteria.getUserId() != null) {
             sb.append(" ut.UST_PLAYCOUNT_N, ut.UST_LIKE_B, ");
         } else {
@@ -216,6 +236,7 @@ public class TrackDao {
             trackDto.setFileName((String) o[i++]);
             trackDto.setTitle((String) o[i++]);
             trackDto.setYear((Integer) o[i++]);
+            trackDto.setGenre((String) o[i++]);
             trackDto.setLength((Integer) o[i++]);
             trackDto.setBitrate((Integer) o[i++]);
             trackDto.setVbr((Boolean) o[i++]);

@@ -28,6 +28,11 @@ public class TrackDto {
     private Integer year;
     
     /**
+     * Track genre.
+     */
+    private String genre;
+    
+    /**
      * Track length (in seconds).
      */
     private Integer length;
@@ -152,6 +157,24 @@ public class TrackDto {
      */
     public void setYear(Integer year) {
         this.year = year;
+    }
+
+    /**
+     * Getter of genre.
+     *
+     * @return the genre
+     */
+    public String getGenre() {
+        return genre;
+    }
+
+    /**
+     * Setter of genre.
+     *
+     * @param genre genre
+     */
+    public void setGenre(String genre) {
+        this.genre = genre;
     }
 
     /**

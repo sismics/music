@@ -218,6 +218,7 @@ public class PlaylistResource extends BaseResource {
                     .add("id", trackDto.getId())
                     .add("title", trackDto.getTitle())
                     .add("year", JsonUtil.nullable(trackDto.getYear()))
+                    .add("genre", JsonUtil.nullable(trackDto.getGenre()))
                     .add("length", trackDto.getLength())
                     .add("bitrate", trackDto.getBitrate())
                     .add("vbr", trackDto.isVbr())

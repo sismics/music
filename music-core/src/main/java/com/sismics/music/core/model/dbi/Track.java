@@ -41,6 +41,11 @@ public class Track {
     private Integer year;
     
     /**
+     * Track genre.
+     */
+    private String genre;
+    
+    /**
      * Track length (in seconds).
      */
     private Integer length;
@@ -73,13 +78,14 @@ public class Track {
     public Track() {
     }
 
-    public Track(String id, String albumId, String artistId, String fileName, String title, Integer year, Integer length, Integer bitrate, boolean vbr, String format, Date createDate, Date deleteDate) {
+    public Track(String id, String albumId, String artistId, String fileName, String title, Integer year, String genre, Integer length, Integer bitrate, boolean vbr, String format, Date createDate, Date deleteDate) {
         this.id = id;
         this.albumId = albumId;
         this.artistId = artistId;
         this.fileName = fileName;
         this.title = title;
         this.year = year;
+        this.genre = genre;
         this.length = length;
         this.bitrate = bitrate;
         this.vbr = vbr;
@@ -194,6 +200,24 @@ public class Track {
      */
     public void setYear(Integer year) {
         this.year = year;
+    }
+
+    /**
+     * Getter of genre.
+     *
+     * @return the genre
+     */
+    public String getGenre() {
+        return genre;
+    }
+
+    /**
+     * Setter of genre.
+     *
+     * @param genre genre
+     */
+    public void setGenre(String genre) {
+        this.genre = genre;
     }
 
     /**

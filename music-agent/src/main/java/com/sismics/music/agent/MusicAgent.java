@@ -11,7 +11,7 @@ import javax.swing.UIManager;
 
 import com.sismics.music.agent.deployer.DeploymentStatus;
 import com.sismics.music.agent.deployer.DeploymentStatusListener;
-import com.sismics.music.agent.deployer.ReaderDeployer;
+import com.sismics.music.agent.deployer.MusicDeployer;
 import com.sismics.music.agent.model.Setting;
 import com.sismics.music.agent.ui.AgentFrame;
 import com.sismics.music.agent.ui.TrayController;
@@ -22,7 +22,7 @@ import com.sismics.util.EnvironmentUtil;
  *
  * @author jtremeaux
  */
-public class ReaderAgent {
+public class MusicAgent {
 
     private final List<DeploymentStatusListener> listeners = new ArrayList<DeploymentStatusListener>();
     
@@ -32,23 +32,23 @@ public class ReaderAgent {
     
     private boolean elevated;
     
-    private final ReaderDeployer readerDeployer;
+    private final MusicDeployer musicDeployer;
 
     private final Setting setting;
     
     /**
-     * Constructor of ReaderAgent.
+     * Constructor of MusicAgent.
      */
-    public ReaderAgent() {
+    public MusicAgent() {
         setting = new Setting();
         
-        readerDeployer = new ReaderDeployer(this);
+        musicDeployer = new MusicDeployer(this);
         setLookAndFeel();
         trayController = new TrayController(this);
     }
 
     public void notifyDeploymentInfo() {
-        final DeploymentStatus status = readerDeployer.getDeploymentStatus();
+        final DeploymentStatus status = musicDeployer.getDeploymentStatus();
         if (listeners != null) {
             for (DeploymentStatusListener listener : listeners) {
                 listener.notifyDeploymentStatus(status);
@@ -85,7 +85,7 @@ public class ReaderAgent {
                 builder.start();
                 System.exit(0);
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(frame, "Failed to elevate Reader Control Panel. " + e,
+                JOptionPane.showMessageDialog(frame, "Failed to elevate Music Control Panel. " + e,
                         "Error",
                         JOptionPane.WARNING_MESSAGE);
                 e.printStackTrace(System.err);
@@ -138,11 +138,11 @@ public class ReaderAgent {
     }
 
     /**
-     * Open Reader in a browser window.
+     * Open Music in a browser window.
      */
     public void openBrowser() {
         try {
-            Desktop.getDesktop().browse(new URI(readerDeployer.getUrl()));
+            Desktop.getDesktop().browse(new URI(musicDeployer.getUrl()));
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -163,14 +163,14 @@ public class ReaderAgent {
 
         if (setting.isAutoStart()) {
             checkElevation("-start");
-            readerDeployer.start();
+            musicDeployer.start();
         } else if (args.contains("-start")) {
             System.out.println("Starting service");
-            readerDeployer.start();
+            musicDeployer.start();
             showStatusPanel();
         } else if (args.contains("-stop")) {
             System.out.println("Stopping service");
-            readerDeployer.stop();
+            musicDeployer.stop();
             showStatusPanel();
         } 
     }
@@ -183,17 +183,17 @@ public class ReaderAgent {
     public static void main(String[] args) {
         System.out.println("Starting up Windows agent");
 
-        ReaderAgent agent = new ReaderAgent();
+        MusicAgent agent = new MusicAgent();
         agent.start(Arrays.asList(args));
     }
 
     /**
-     * Getter of readerDeployer.
+     * Getter of musicDeployer.
      *
-     * @return readerDeployer
+     * @return musicDeployer
      */
-    public ReaderDeployer getReaderDeployer() {
-        return readerDeployer;
+    public MusicDeployer getMusicDeployer() {
+        return musicDeployer;
     }
 
     /**

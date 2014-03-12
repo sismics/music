@@ -6,17 +6,17 @@ import java.util.Date;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.component.LifeCycle;
 
-import com.sismics.music.agent.ReaderAgent;
+import com.sismics.music.agent.MusicAgent;
 import com.sismics.music.agent.deployer.DeploymentStatus.ServerState;
 import com.sismics.music.agent.model.Setting;
 import com.sismics.util.MessageUtil;
 
 /**
- * Reader standalone deployer with an embedded Jetty. 
+ * Music standalone deployer with an embedded Jetty. 
  *
  * @author jtremeaux
  */
-public class ReaderDeployer implements LifeCycle.Listener {
+public class MusicDeployer implements LifeCycle.Listener {
 
     /**
      * WAR file to deploy.
@@ -36,7 +36,7 @@ public class ReaderDeployer implements LifeCycle.Listener {
     /**
      * Windows agent.
      */
-    private ReaderAgent readerAgent;
+    private MusicAgent readerAgent;
     
     /**
      * Exception occuring during server startup.
@@ -53,7 +53,7 @@ public class ReaderDeployer implements LifeCycle.Listener {
      * 
      * @param readerAgent Reader agent
      */
-    public ReaderDeployer(ReaderAgent readerAgent) {
+    public MusicDeployer(MusicAgent readerAgent) {
         this.readerAgent = readerAgent;
     }
     

@@ -15,7 +15,7 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import com.sismics.music.agent.ReaderAgent;
+import com.sismics.music.agent.MusicAgent;
 import com.sismics.music.agent.deployer.DeploymentStatus;
 import com.sismics.music.agent.deployer.DeploymentStatus.ServerState;
 import com.sismics.music.agent.deployer.DeploymentStatusListener;
@@ -35,7 +35,7 @@ public class StatusPanel extends JPanel implements DeploymentStatusListener {
 
     private static final DateFormat DATE_FORMAT = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
 
-    private final ReaderAgent readerAgent;
+    private final MusicAgent readerAgent;
 
     private JTextField statusTextField;
     
@@ -56,7 +56,7 @@ public class StatusPanel extends JPanel implements DeploymentStatusListener {
      * 
      * @param readerAgent Windows agent
      */
-    public StatusPanel(ReaderAgent readerAgent) {
+    public StatusPanel(MusicAgent readerAgent) {
         this.readerAgent = readerAgent;
         initComponent();
         readerAgent.addListener(this);
@@ -85,7 +85,7 @@ public class StatusPanel extends JPanel implements DeploymentStatusListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 readerAgent.checkElevation("-start");
-                readerAgent.getReaderDeployer().start();
+                readerAgent.getMusicDeployer().start();
             }
         });
         
@@ -94,7 +94,7 @@ public class StatusPanel extends JPanel implements DeploymentStatusListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 readerAgent.checkElevation("-stop");
-                readerAgent.getReaderDeployer().stop();
+                readerAgent.getMusicDeployer().stop();
             }
         });
         

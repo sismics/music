@@ -28,10 +28,20 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.commons.lang.StringUtils;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
+
+import com.sismics.music.core.dao.dbi.AlbumDao;
+import com.sismics.music.core.dao.dbi.ArtistDao;
 import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.UserDao;
 import com.sismics.music.core.dao.dbi.UserTrackDao;
 import com.sismics.music.core.model.context.AppContext;
+import com.sismics.music.core.model.dbi.Album;
+import com.sismics.music.core.model.dbi.Artist;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.model.dbi.User;
 import com.sismics.music.core.service.lastfm.LastFmService;
@@ -39,6 +49,8 @@ import com.sismics.music.core.service.transcoder.TranscoderService;
 import com.sismics.music.core.util.TransactionUtil;
 import com.sismics.music.rest.util.MediaStreamer;
 import com.sismics.rest.exception.ForbiddenClientException;
+import com.sismics.rest.exception.ServerException;
+import com.sismics.rest.util.ValidationUtil;
 
 /**
  * Track REST resources.
@@ -164,6 +176,7 @@ public class TrackResource extends BaseResource {
     /**
      * Like a track.
      *
+     * @param id Track ID
      * @return Response
      */
     @POST
@@ -201,6 +214,7 @@ public class TrackResource extends BaseResource {
     /**
      * Unlike a track.
      *
+     * @param id Track ID
      * @return Response
      */
     @DELETE
@@ -235,11 +249,24 @@ public class TrackResource extends BaseResource {
                 .build();
     }
     
+    /**
+     * Update a track.
+     * 
+     * @param id Track ID
+     * @param order Order
+     * @param title Title
+     * @param album Album name
+     * @param artist Artist name
+     * @param albumArtist Album artist name
+     * @param yearStr Year
+     * @param genre Genre
+     * @return Response
+     */
     @POST
     @Path("{id: [a-z0-9\\-]+}")
     public Response update(
             @PathParam("id") String id,
-            @FormParam("order") String orderStr,
+            @FormParam("order") String order,
             @FormParam("title") String title,
             @FormParam("album") String album,
             @FormParam("artist") String artist,
@@ -249,14 +276,76 @@ public class TrackResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
+        
+        // TODO More validations
+        Integer year = ValidationUtil.validateInteger(yearStr, "year");
 
         TrackDao trackDao = new TrackDao();
+        AlbumDao albumDao = new AlbumDao();
+        ArtistDao artistDao = new ArtistDao();
         Track track = trackDao.getActiveById(id);
         if (track == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         
-        // TODO Update track in database/tags.
+        // Update tags on file
+        final File file = new File(track.getFileName());
+        if (!file.exists() || !file.canWrite()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        
+        try {
+            AudioFile audioFile = AudioFileIO.read(file);
+            Tag tag = audioFile.getTag();
+            // tag.setField(FieldKey.ORDER, order); TODO Order
+            tag.setField(FieldKey.TITLE, title);
+            tag.setField(FieldKey.ALBUM, album);
+            tag.setField(FieldKey.ARTIST, artist);
+            tag.setField(FieldKey.ALBUM_ARTIST, albumArtist);
+            tag.setField(FieldKey.YEAR, yearStr);
+            tag.setField(FieldKey.GENRE, genre);
+        } catch (Exception e) {
+            throw new ServerException("TagError", "Error tagging the file", e);
+        }
+        
+        // Tagging goes well, update the database
+        track.setTitle(title);
+        track.setYear(year);
+        track.setGenre(genre);
+        
+        Album albumDb = albumDao.getActiveById(track.getAlbumId());
+        Artist artistDb = artistDao.getActiveById(track.getArtistId());
+        // Artist albumArtistDb = artistDao.getActiveById(albumDb.getArtistId());
+        
+        // Set the new artist (and create it if necessary)
+        if (!StringUtils.equals(artist, artistDb.getName())) {
+            Artist newArtistDb = artistDao.getActiveByName(artist);
+            if (newArtistDb == null) {
+                newArtistDb = new Artist();
+                newArtistDb.setName(artist);
+                artistDao.create(newArtistDb);
+            }
+            
+            track.setArtistId(newArtistDb.getId());
+        }
+        
+        // Set the new album (and create it if necessary)
+        if (!StringUtils.equals(album, albumDb.getName())) {
+            Album newAlbumDb = albumDao.getActiveByArtistIdAndName(track.getArtistId(), album);
+            if (newAlbumDb == null) {
+                newAlbumDb = new Album();
+                newAlbumDb.setName(album);
+                newAlbumDb.setDirectoryId(albumDb.getDirectoryId());
+                newAlbumDb.setArtistId(track.getArtistId());
+                albumDao.create(newAlbumDb);
+            }
+            
+            track.setAlbumId(newAlbumDb.getId());
+        }
+        
+        // TODO Album artist
+        
+        trackDao.update(track);
         
         // Always return OK
         return Response.ok()

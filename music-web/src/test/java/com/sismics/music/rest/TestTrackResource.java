@@ -40,7 +40,6 @@ public class TestTrackResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         JsonArray albums = json.getJsonArray("albums");
-        Assert.assertNotNull(albums);
         Assert.assertEquals(1, albums.size());
         JsonObject album0 = albums.getJsonObject(0);
         String album0Id = album0.getString("id");
@@ -51,7 +50,6 @@ public class TestTrackResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         JsonArray tracks = json.getJsonArray("tracks");
-        Assert.assertNotNull(tracks);
         Assert.assertEquals(2, tracks.size());
         JsonObject track0 = tracks.getJsonObject(0);
         String track0Id = track0.getString("id");
@@ -73,7 +71,6 @@ public class TestTrackResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         tracks = json.getJsonArray("tracks");
-        Assert.assertNotNull(tracks);
         Assert.assertEquals(2, tracks.size());
         track0 = tracks.getJsonObject(0);
         Assert.assertTrue(track0.getBoolean("liked"));
@@ -89,10 +86,56 @@ public class TestTrackResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         tracks = json.getJsonArray("tracks");
-        Assert.assertNotNull(tracks);
         Assert.assertEquals(2, tracks.size());
         track0 = tracks.getJsonObject(0);
         Assert.assertFalse(track0.getBoolean("liked"));
 
+        // Admin update a track info
+        json = target().path("/track/"+ track0Id).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .post(Entity.form(new Form()
+                        .param("order", "1")
+                        .param("title", "My fake title")
+                        .param("album", "My fake album")
+                        .param("artist", "My fake artist")
+                        .param("album_artist", "My fake album artist")
+                        .param("year", "2014")
+                        .param("genre", "Pop")), JsonObject.class);
+        Assert.assertEquals("ok", json.getString("status"));
+        
+        // Admin checks the tracks info
+        json = target().path("/album/" + album0Id).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        tracks = json.getJsonArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(1, tracks.size());
+        
+        // Admin checks the new album
+        json = target().path("/album").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        albums = json.getJsonArray("albums");
+        Assert.assertEquals(2, albums.size());
+        
+        // Admin update a track info
+        json = target().path("/track/"+ track0Id).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .post(Entity.form(new Form()
+                        .param("order", "1")
+                        .param("title", "My fake title 2")
+                        .param("album", "My fake album")
+                        .param("artist", "My fake artist")
+                        .param("album_artist", "My fake album artist")
+                        .param("year", "2014")
+                        .param("genre", "Pop")), JsonObject.class);
+        Assert.assertEquals("ok", json.getString("status"));
+        
+        // Admin checks the albums
+        json = target().path("/album").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        albums = json.getJsonArray("albums");
+        Assert.assertEquals(2, albums.size());
     }
 }

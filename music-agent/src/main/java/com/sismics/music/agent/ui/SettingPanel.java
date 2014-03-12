@@ -19,7 +19,7 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import com.sismics.music.agent.ReaderAgent;
+import com.sismics.music.agent.MusicAgent;
 import com.sismics.music.agent.model.Setting;
 import com.sismics.util.MessageUtil;
 
@@ -47,14 +47,14 @@ public class SettingPanel extends JPanel {
     
     private JButton saveButton;
     
-    private ReaderAgent readerAgent;
+    private MusicAgent readerAgent;
     
     /**
      * Constructor of SettingPanel.
      * 
      * @param readerAgent Reader agent
      */
-    public SettingPanel(ReaderAgent readerAgent) {
+    public SettingPanel(MusicAgent readerAgent) {
         this.readerAgent = readerAgent;
         
         initComponent();

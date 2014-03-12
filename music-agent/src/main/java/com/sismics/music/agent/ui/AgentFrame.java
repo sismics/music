@@ -14,7 +14,7 @@ import javax.swing.JTabbedPane;
 
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.ButtonBarFactory;
-import com.sismics.music.agent.ReaderAgent;
+import com.sismics.music.agent.MusicAgent;
 import com.sismics.music.agent.deployer.DeploymentStatusListener;
 import com.sismics.music.agent.deployer.DeploymentStatus;
 import com.sismics.util.MessageUtil;
@@ -54,7 +54,7 @@ public class AgentFrame extends JFrame implements DeploymentStatusListener {
      * 
      * @param readerAgent Reader agent
      */
-    public AgentFrame(ReaderAgent readerAgent) {
+    public AgentFrame(MusicAgent readerAgent) {
         super(MessageUtil.getMessage("agent.frame.title"));
         
         settingPanel = new SettingPanel(readerAgent);

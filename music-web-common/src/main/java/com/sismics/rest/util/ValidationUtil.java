@@ -132,6 +132,22 @@ public class ValidationUtil {
     }
     
     /**
+     * Checks if the string is a number.
+     * 
+     * @param s String to validate
+     * @param name Name of the parameter
+     * @return Parsed number
+     * @throws ClientException
+     */
+    public static Integer validateInteger(String s, String name) throws ClientException {
+        try {
+            return Integer.valueOf(s);
+        } catch (NumberFormatException e) {
+            throw new ClientException("Validation Error", MessageFormat.format("{0} is not a number", name));
+        }
+    }
+    
+    /**
      * Validates and parses a date.
      * 
      * @param s String to validate

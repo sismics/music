@@ -12,7 +12,7 @@ import java.net.URL;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import com.sismics.music.agent.ReaderAgent;
+import com.sismics.music.agent.MusicAgent;
 import com.sismics.music.agent.deployer.DeploymentStatusListener;
 import com.sismics.music.agent.deployer.DeploymentStatus;
 import com.sismics.music.agent.deployer.DeploymentStatus.ServerState;
@@ -25,7 +25,7 @@ import com.sismics.util.MessageUtil;
  */
 public class TrayController implements DeploymentStatusListener {
 
-    private final ReaderAgent readerAgent;
+    private final MusicAgent readerAgent;
     
     private TrayIcon trayIcon;
 
@@ -45,7 +45,7 @@ public class TrayController implements DeploymentStatusListener {
      * @param readerAgent Reader agent
      */
     @SuppressWarnings("serial")
-    public TrayController(ReaderAgent readerAgent) {
+    public TrayController(MusicAgent readerAgent) {
         this.readerAgent = readerAgent;
         try {
             openAction = new AbstractAction(MessageUtil.getMessage("agent.systray.open")) {
