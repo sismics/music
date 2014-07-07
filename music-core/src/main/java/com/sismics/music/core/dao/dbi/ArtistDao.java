@@ -55,8 +55,13 @@ public class ArtistDao {
      * @return Updated artist
      */
     public Artist update(Artist artist) {
-
-        // TODO Update the artist
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("update T_ARTIST a set " +
+                " a.ART_NAME_C = :name," +
+                " where a.ART_ID_C = :id and a.ART_DELETEDATE_D is null")
+                .bind("id", artist.getId())
+                .bind("name", artist.getName())
+                .execute();
 
         return artist;
     }
