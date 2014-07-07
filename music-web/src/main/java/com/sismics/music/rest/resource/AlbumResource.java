@@ -79,7 +79,8 @@ public class AlbumResource extends BaseResource {
                 .add("id", album.getId())
                 .add("name", album.getName())
                 .add("albumart", album.getAlbumArt() != null);
-
+        // TODO Add play_count
+        
         response.add("artist", Json.createObjectBuilder()
                 .add("id", album.getArtistId())
                 .add("name", album.getArtistName()));

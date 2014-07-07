@@ -21,7 +21,12 @@ angular.module('music').controller('MusicAlbums', function($scope, $stateParams,
 
   // Refresh album filtering
   var refreshFiltering = function() {
-    var order = $scope.order == 'alpha' ? '+artist.name' : '-update_date';
+    var order = '-play_count';
+    if ($scope.order == 'alpha') {
+      order = '+artist.name';
+    } else if ($scope.order == 'latest') {
+      order = '-update_date';
+    }
     $scope.filteredAlbums = orderByFilter(filterFilter($scope.allAlbums, $scope.filter), order);
   };
   

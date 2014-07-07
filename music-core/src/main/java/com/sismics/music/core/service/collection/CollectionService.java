@@ -128,6 +128,7 @@ public class CollectionService extends AbstractScheduledService {
             Track track = trackDao.getActiveByDirectoryAndFilename(rootDirectory.getId(), file.toAbsolutePath().toString());
             if (track != null) {
                 readTrackMetadata(rootDirectory, file, track);
+                trackDao.update(track);
             } else {
                 track = new Track();
                 track.setFileName(file.toAbsolutePath().toString());

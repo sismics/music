@@ -4,7 +4,6 @@ import java.nio.file.Paths;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.json.JsonValue.ValueType;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.Response;
@@ -75,9 +74,9 @@ public class TestAlbumResource extends BaseJerseyTest {
         Assert.assertNotNull(tracks);
         Assert.assertEquals(2, tracks.size());
         JsonObject track0 = tracks.getJsonObject(0);
-        Assert.assertEquals(ValueType.NULL, track0.get("order").getValueType());
+        Assert.assertEquals(1, track0.getInt("order"));
         JsonObject artist = track0.getJsonObject("artist");
-        Assert.assertEquals("Jay-Z", artist.getString("name"));
+        Assert.assertEquals("Gil Scott-Heron", artist.getString("name"));
 
         // Get an album art.
         Response response = target().path("/album/" + album0Id + "/albumart/small").request()

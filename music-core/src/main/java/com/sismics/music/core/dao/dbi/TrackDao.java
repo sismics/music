@@ -30,8 +30,8 @@ public class TrackDao {
 
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                "  T_TRACK(TRK_ID_C, TRK_IDALBUM_C, TRK_IDARTIST_C, TRK_FILENAME_C, TRK_TITLE_C, TRK_YEAR_N, TRK_GENRE_C, TRK_LENGTH_N, TRK_BITRATE_N, TRK_VBR_B, TRK_FORMAT_C, TRK_CREATEDATE_D)" +
-                "  values(:id, :albumId, :artistId, :fileName, :title, :year, :genre, :length, :bitrate, :vbr, :format, :createDate)")
+                "  T_TRACK(TRK_ID_C, TRK_IDALBUM_C, TRK_IDARTIST_C, TRK_FILENAME_C, TRK_TITLE_C, TRK_YEAR_N, TRK_GENRE_C, TRK_LENGTH_N, TRK_BITRATE_N, TRK_ORDER_N, TRK_VBR_B, TRK_FORMAT_C, TRK_CREATEDATE_D)" +
+                "  values(:id, :albumId, :artistId, :fileName, :title, :year, :genre, :length, :bitrate, :order, :vbr, :format, :createDate)")
                 .bind("id", track.getId())
                 .bind("albumId", track.getAlbumId())
                 .bind("artistId", track.getArtistId())
@@ -41,6 +41,7 @@ public class TrackDao {
                 .bind("genre", track.getGenre())
                 .bind("length", track.getLength())
                 .bind("bitrate", track.getBitrate())
+                .bind("order", track.getOrder())
                 .bind("vbr", track.isVbr())
                 .bind("format", track.getFormat())
                 .bind("createDate", track.getCreateDate())
@@ -66,6 +67,7 @@ public class TrackDao {
                 " t.TRK_GENRE_C = :genre, " +
                 " t.TRK_LENGTH_N = :length, " +
                 " t.TRK_BITRATE_N = :bitrate, " +
+                " t.TRK_ORDER_N = :order, " +
                 " t.TRK_VBR_B = :vbr, " +
                 " t.TRK_FORMAT_C = :format, " +
                 " t.TRK_CREATEDATE_D = :createDate " +
@@ -79,6 +81,7 @@ public class TrackDao {
                 .bind("genre", track.getGenre())
                 .bind("length", track.getLength())
                 .bind("bitrate", track.getBitrate())
+                .bind("order", track.getOrder())
                 .bind("vbr", track.isVbr())
                 .bind("format", track.getFormat())
                 .bind("createDate", track.getCreateDate())
