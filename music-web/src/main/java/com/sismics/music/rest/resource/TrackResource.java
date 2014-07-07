@@ -277,7 +277,6 @@ public class TrackResource extends BaseResource {
             throw new ForbiddenClientException();
         }
         
-        // TODO More validations
         ValidationUtil.validateRequired(title, "title");
         ValidationUtil.validateRequired(album, "album");
         ValidationUtil.validateRequired(artist, "artist");
@@ -288,13 +287,13 @@ public class TrackResource extends BaseResource {
         TrackDao trackDao = new TrackDao();
         AlbumDao albumDao = new AlbumDao();
         ArtistDao artistDao = new ArtistDao();
-        Track track = trackDao.getActiveById(id);
-        if (track == null) {
+        Track trackDb = trackDao.getActiveById(id);
+        if (trackDb == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         
         // Update tags on file
-        final File file = new File(track.getFileName());
+        final File file = new File(trackDb.getFileName());
         if (!file.exists() || !file.canWrite()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -323,14 +322,14 @@ public class TrackResource extends BaseResource {
         }
         
         // Tagging goes well, update the database
-        track.setTitle(title);
-        track.setYear(year);
-        track.setGenre(genre);
-        track.setOrder(order);
+        trackDb.setTitle(title);
+        trackDb.setYear(year);
+        trackDb.setGenre(genre);
+        trackDb.setOrder(order);
         
-        Album albumDb = albumDao.getActiveById(track.getAlbumId());
-        Artist artistDb = artistDao.getActiveById(track.getArtistId());
-        // Artist albumArtistDb = artistDao.getActiveById(albumDb.getArtistId());
+        Album albumDb = albumDao.getActiveById(trackDb.getAlbumId());
+        Artist artistDb = artistDao.getActiveById(trackDb.getArtistId());
+        Artist albumArtistDb = artistDao.getActiveById(albumDb.getArtistId());
         
         // Set the new artist (and create it if necessary)
         if (!StringUtils.equals(artist, artistDb.getName())) {
@@ -341,26 +340,37 @@ public class TrackResource extends BaseResource {
                 artistDao.create(newArtistDb);
             }
             
-            track.setArtistId(newArtistDb.getId());
+            trackDb.setArtistId(newArtistDb.getId());
         }
         
         // Set the new album (and create it if necessary)
         if (!StringUtils.equals(album, albumDb.getName())) {
-            Album newAlbumDb = albumDao.getActiveByArtistIdAndName(track.getArtistId(), album);
+            Album newAlbumDb = albumDao.getActiveByArtistIdAndName(trackDb.getArtistId(), album);
             if (newAlbumDb == null) {
                 newAlbumDb = new Album();
                 newAlbumDb.setName(album);
                 newAlbumDb.setDirectoryId(albumDb.getDirectoryId());
-                newAlbumDb.setArtistId(track.getArtistId());
+                newAlbumDb.setArtistId(trackDb.getArtistId());
                 albumDao.create(newAlbumDb);
             }
             
-            track.setAlbumId(newAlbumDb.getId());
+            trackDb.setAlbumId(newAlbumDb.getId());
         }
         
-        // TODO Album artist
+        // Set the new album artist (and create it if necessary)
+        if (!StringUtils.equals(albumArtist, albumArtistDb.getName())) {
+            Artist newAlbumArtistDb = artistDao.getActiveByName(albumArtist);
+            if (newAlbumArtistDb == null) {
+                newAlbumArtistDb = new Artist();
+                newAlbumArtistDb.setName(albumArtist);
+                artistDao.create(newAlbumArtistDb);
+            }
+            
+            albumDb.setArtistId(newAlbumArtistDb.getId());
+        }
         
-        trackDao.update(track);
+        trackDao.update(trackDb);
+        albumDao.update(albumDb);
         artistDao.deleteEmptyArtist();
         
         // Always return OK
