@@ -266,7 +266,7 @@ public class TrackResource extends BaseResource {
     @Path("{id: [a-z0-9\\-]+}")
     public Response update(
             @PathParam("id") String id,
-            @FormParam("order") String order,
+            @FormParam("order") String orderStr,
             @FormParam("title") String title,
             @FormParam("album") String album,
             @FormParam("artist") String artist,
@@ -283,6 +283,7 @@ public class TrackResource extends BaseResource {
         ValidationUtil.validateRequired(artist, "artist");
         ValidationUtil.validateRequired(albumArtist, "album_artist");
         Integer year = ValidationUtil.validateInteger(yearStr, "year");
+        Integer order = ValidationUtil.validateInteger(orderStr, "order");
 
         TrackDao trackDao = new TrackDao();
         AlbumDao albumDao = new AlbumDao();
@@ -301,7 +302,7 @@ public class TrackResource extends BaseResource {
         try {
             AudioFile audioFile = AudioFileIO.read(file);
             Tag tag = audioFile.getTag();
-            // tag.setField(FieldKey.ORDER, order); TODO Order
+            tag.setField(FieldKey.TRACK, orderStr);
             tag.setField(FieldKey.TITLE, title);
             tag.setField(FieldKey.ALBUM, album);
             tag.setField(FieldKey.ARTIST, artist);
@@ -325,6 +326,7 @@ public class TrackResource extends BaseResource {
         track.setTitle(title);
         track.setYear(year);
         track.setGenre(genre);
+        track.setOrder(order);
         
         Album albumDb = albumDao.getActiveById(track.getAlbumId());
         Artist artistDb = artistDao.getActiveById(track.getArtistId());
