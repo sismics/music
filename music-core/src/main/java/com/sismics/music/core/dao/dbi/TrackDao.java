@@ -157,7 +157,7 @@ public class TrackDao {
     private QueryParam getQueryParam(TrackCriteria criteria) {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-        StringBuilder sb = new StringBuilder("select t.TRK_ID_C, t.TRK_FILENAME_C, t.TRK_TITLE_C, t.TRK_YEAR_N, t.TRK_GENRE_C, t.TRK_LENGTH_N, t.TRK_BITRATE_N, t.TRK_VBR_B, t.TRK_FORMAT_C,");
+        StringBuilder sb = new StringBuilder("select t.TRK_ID_C, t.TRK_FILENAME_C, t.TRK_TITLE_C, t.TRK_YEAR_N, t.TRK_GENRE_C, t.TRK_LENGTH_N, t.TRK_BITRATE_N, t.TRK_ORDER_N, t.TRK_VBR_B, t.TRK_FORMAT_C,");
         if (criteria.getUserId() != null) {
             sb.append(" ut.UST_PLAYCOUNT_N, ut.UST_LIKE_B, ");
         } else {
@@ -214,7 +214,7 @@ public class TrackDao {
         if (criteria.getPlaylistId() != null) {
             sb.append(" order by pt.PLT_ORDER_N asc");
         } else {
-            sb.append(" order by t.TRK_TITLE_C asc"); //TODO add order column
+            sb.append(" order by t.TRK_ORDER_N, t.TRK_TITLE_C asc");
         }
 
         QueryParam queryParam = new QueryParam(sb.toString(), parameterMap);
@@ -239,6 +239,7 @@ public class TrackDao {
             trackDto.setGenre((String) o[i++]);
             trackDto.setLength((Integer) o[i++]);
             trackDto.setBitrate((Integer) o[i++]);
+            trackDto.setOrder((Integer) o[i++]);
             trackDto.setVbr((Boolean) o[i++]);
             trackDto.setFormat((String) o[i++]);
             Integer trackCount = (Integer) o[i++];

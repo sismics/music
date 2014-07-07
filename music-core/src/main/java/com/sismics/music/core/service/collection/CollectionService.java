@@ -161,6 +161,15 @@ public class CollectionService extends AbstractScheduledService {
         track.setFormat(StringUtils.abbreviate(header.getEncodingType(), 50));
         track.setVbr(header.isVariableBitRate());
 
+        String order = tag.getFirst(FieldKey.TRACK);
+        if (!Strings.isNullOrEmpty(order)) {
+            try {
+                track.setOrder(Integer.valueOf(order));
+            } catch (NumberFormatException e) {
+                // Ignore parsing errors
+            }
+        }
+
         String year = tag.getFirst(FieldKey.YEAR);
         if (!Strings.isNullOrEmpty(year)) {
             try {

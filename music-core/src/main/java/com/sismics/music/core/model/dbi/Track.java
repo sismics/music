@@ -54,6 +54,11 @@ public class Track {
      * Track bitrate (in kbps).
      */
     private Integer bitrate;
+    
+    /**
+     * Track order.
+     */
+    private Integer order;
 
     /**
      * Track is encoded in variable bitrate (VBR).
@@ -78,7 +83,7 @@ public class Track {
     public Track() {
     }
 
-    public Track(String id, String albumId, String artistId, String fileName, String title, Integer year, String genre, Integer length, Integer bitrate, boolean vbr, String format, Date createDate, Date deleteDate) {
+    public Track(String id, String albumId, String artistId, String fileName, String title, Integer year, String genre, Integer length, Integer bitrate, Integer order, boolean vbr, String format, Date createDate, Date deleteDate) {
         this.id = id;
         this.albumId = albumId;
         this.artistId = artistId;
@@ -88,6 +93,7 @@ public class Track {
         this.genre = genre;
         this.length = length;
         this.bitrate = bitrate;
+        this.order = order;
         this.vbr = vbr;
         this.format = format;
         this.createDate = createDate;
@@ -254,6 +260,22 @@ public class Track {
      */
     public void setBitrate(Integer bitrate) {
         this.bitrate = bitrate;
+    }
+
+    /**
+     * Getter of order.
+     * @return order
+     */
+    public Integer getOrder() {
+        return order;
+    }
+
+    /**
+     * Setter of order.
+     * @param order order
+     */
+    public void setOrder(Integer order) {
+        this.order = order;
     }
 
     /**

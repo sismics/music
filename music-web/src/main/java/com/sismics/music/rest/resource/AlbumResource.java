@@ -90,10 +90,10 @@ public class AlbumResource extends BaseResource {
         List<TrackDto> trackList = trackDao.findByCriteria(new TrackCriteria()
                 .setAlbumId(album.getId())
                 .setUserId(principal.getId()));
-        int i = 1;
+        
         for (TrackDto trackDto : trackList) {
             tracks.add(Json.createObjectBuilder()
-                    .add("order", i++)    // TODO use order from track
+                    .add("order", JsonUtil.nullable(trackDto.getOrder()))
                     .add("id", trackDto.getId())
                     .add("title", trackDto.getTitle())
                     .add("year", JsonUtil.nullable(trackDto.getYear()))

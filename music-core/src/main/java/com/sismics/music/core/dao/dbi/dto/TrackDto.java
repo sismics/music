@@ -41,6 +41,11 @@ public class TrackDto {
      * Track bitrate (in kbps).
      */
     private Integer bitrate;
+    
+    /**
+     * Track order.
+     */
+    private Integer order;
 
     /**
      * Track is encoded in variable bitrate (VBR).
@@ -211,6 +216,22 @@ public class TrackDto {
      */
     public void setBitrate(Integer bitrate) {
         this.bitrate = bitrate;
+    }
+
+    /**
+     * Getter of order.
+     * @return order
+     */
+    public Integer getOrder() {
+        return order;
+    }
+
+    /**
+     * Setter of order.
+     * @param order order
+     */
+    public void setOrder(Integer order) {
+        this.order = order;
     }
 
     /**

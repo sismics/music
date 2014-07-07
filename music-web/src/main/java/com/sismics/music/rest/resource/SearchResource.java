@@ -67,7 +67,7 @@ public class SearchResource extends BaseResource {
         JsonObjectBuilder response = Json.createObjectBuilder();
         for (TrackDto trackDto : paginatedList.getResultList()) {
             tracks.add(Json.createObjectBuilder()
-                    .add("order", i++)    // TODO use order from track
+                    .add("order", JsonUtil.nullable(trackDto.getOrder()))
                     .add("id", trackDto.getId())
                     .add("title", trackDto.getTitle())
                     .add("year", JsonUtil.nullable(trackDto.getYear()))
