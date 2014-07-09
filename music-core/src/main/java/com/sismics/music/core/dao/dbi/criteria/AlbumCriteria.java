@@ -27,6 +27,11 @@ public class AlbumCriteria {
     private String artistId;
 
     /**
+     * User ID.
+     */
+    private String userId;
+    
+    /**
      * Getter of id.
      *
      * @return id
@@ -101,6 +106,25 @@ public class AlbumCriteria {
      */
     public AlbumCriteria setNameLike(String nameLike) {
         this.nameLike = nameLike;
+        return this;
+    }
+
+    /**
+     * Getter of userId.
+     *
+     * @return the userId
+     */
+    public String getUserId() {
+        return userId;
+    }
+
+    /**
+     * Setter of userId.
+     *
+     * @param userId userId
+     */
+    public AlbumCriteria setUserId(String userId) {
+        this.userId = userId;
         return this;
     }
 }

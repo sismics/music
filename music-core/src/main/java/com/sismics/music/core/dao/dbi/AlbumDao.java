@@ -162,9 +162,18 @@ public class AlbumDao {
     private QueryParam getQueryParam(AlbumCriteria criteria) {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-        StringBuilder sb = new StringBuilder("select a.ALB_ID_C, a.ALB_NAME_C,  a.ALB_ALBUMART_C, ar.ART_ID_C, ar.ART_NAME_C, a.ALB_UPDATEDATE_D ");
+        StringBuilder sb = new StringBuilder("select a.ALB_ID_C, a.ALB_NAME_C,  a.ALB_ALBUMART_C, ar.ART_ID_C, ar.ART_NAME_C, a.ALB_UPDATEDATE_D, ");
+        if (criteria.getUserId() == null) {
+            sb.append("0");
+        } else {
+            sb.append("sum(utr.UST_PLAYCOUNT_N)");
+        }
         sb.append(" from T_ALBUM a ");
         sb.append(" join T_ARTIST ar on(ar.ART_ID_C = a.ALB_IDARTIST_C) ");
+        if (criteria.getUserId() != null) {
+            sb.append(" left join T_TRACK tr on(tr.TRK_IDALBUM_C = a.ALB_ID_C) ");
+            sb.append(" left join T_USER_TRACK utr on(tr.TRK_ID_C = utr.UST_IDTRACK_C) ");
+        }
 
         // Adds search criteria
         List<String> criteriaList = new ArrayList<String>();
@@ -192,6 +201,7 @@ public class AlbumDao {
             sb.append(Joiner.on(" and ").join(criteriaList));
         }
 
+        sb.append(" group by a.ALB_ID_C ");
         sb.append(" order by ar.ART_NAME_C, a.ALB_NAME_C asc");
 
 
@@ -216,6 +226,8 @@ public class AlbumDao {
             albumDto.setArtistId((String) o[i++]);
             albumDto.setArtistName((String) o[i++]);
             albumDto.setUpdateDate((Date) o[i++]);
+            Long playCount = (Long) o[i++];
+            albumDto.setUserPlayCount(playCount == null ? 0 : playCount);
             albumDtoList.add(albumDto);
         }
         return albumDtoList;

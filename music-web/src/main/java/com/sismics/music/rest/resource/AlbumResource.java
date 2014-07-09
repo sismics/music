@@ -69,7 +69,7 @@ public class AlbumResource extends BaseResource {
 
         // Get album info
         AlbumDao albumDao = new AlbumDao();
-        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria().setId(id));
+        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria().setUserId(principal.getId()).setId(id));
         if (albumList.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -78,8 +78,8 @@ public class AlbumResource extends BaseResource {
         JsonObjectBuilder response = Json.createObjectBuilder()
                 .add("id", album.getId())
                 .add("name", album.getName())
-                .add("albumart", album.getAlbumArt() != null);
-        // TODO Add play_count
+                .add("albumart", album.getAlbumArt() != null)
+                .add("play_count", album.getUserPlayCount());
         
         response.add("artist", Json.createObjectBuilder()
                 .add("id", album.getArtistId())
@@ -230,7 +230,7 @@ public class AlbumResource extends BaseResource {
         }
 
         AlbumDao albumDao = new AlbumDao();
-        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria().setArtistId(artistId));
+        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria().setUserId(principal.getId()).setArtistId(artistId));
 
         JsonObjectBuilder response = Json.createObjectBuilder();
         JsonArrayBuilder items = Json.createArrayBuilder();
@@ -240,6 +240,7 @@ public class AlbumResource extends BaseResource {
                     .add("name", album.getName())
                     .add("update_date", album.getUpdateDate().getTime())
                     .add("albumart", album.getAlbumArt() != null)
+                    .add("play_count", album.getUserPlayCount())
                     .add("artist", Json.createObjectBuilder()
                             .add("id", album.getArtistId())
                             .add("name", album.getArtistName())));

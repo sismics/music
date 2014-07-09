@@ -25,7 +25,7 @@ public class TestPlayerResource extends BaseJerseyTest {
      * @throws Exception
      */
     @Test
-    public void testTrackResource() throws Exception {
+    public void testPlayerResource() throws Exception {
         // Login users
         String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
 
@@ -33,7 +33,7 @@ public class TestPlayerResource extends BaseJerseyTest {
         JsonObject json = target().path("/directory").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .put(Entity.form(new Form()
-                        .param("location", Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI()).toString())), JsonObject.class);
+                        .param("location", Paths.get(getClass().getResource("/music/").toURI()).toString())), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
         // Check that the albums are correctly added
@@ -76,6 +76,7 @@ public class TestPlayerResource extends BaseJerseyTest {
         Assert.assertNotNull(tracks);
         Assert.assertEquals(2, tracks.size());
         track0 = tracks.getJsonObject(0);
+        Assert.assertEquals(1, json.getInt("play_count"));
         Assert.assertEquals(1, track0.getInt("play_count"));
     }
 }

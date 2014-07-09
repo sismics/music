@@ -3,12 +3,14 @@ package com.sismics.music.core.service.collection;
 import com.google.common.collect.ImmutableSet;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Directory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.EnumSet;
 import java.util.Set;
 
 /**
@@ -24,6 +26,11 @@ public class CollectionVisitor extends SimpleFileVisitor<Path> {
      * Root directory to visit.
      */
     private Directory rootDirectory;
+    
+    /**
+     * Root path.
+     */
+    private Path rootPath;
 
     /**
      * Logger.
@@ -32,12 +39,14 @@ public class CollectionVisitor extends SimpleFileVisitor<Path> {
 
     public CollectionVisitor(Directory rootDirectory) {
         this.rootDirectory = rootDirectory;
+        this.rootPath = Paths.get(rootDirectory.getLocation());
     }
 
     @Override
     public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
         String ext = com.google.common.io.Files.getFileExtension(path.toString()).toLowerCase();
-        if (supportedExtSet.contains(ext)) {
+        // Check that the extension is supported, and the file is not directly in the directory
+        if (supportedExtSet.contains(ext) && !rootPath.equals(path.getParent())) {
             final CollectionService collectionService = AppContext.getInstance().getCollectionService();
             collectionService.indexFile(rootDirectory, path);
         }
@@ -50,11 +59,12 @@ public class CollectionVisitor extends SimpleFileVisitor<Path> {
     }
 
     /**
-     * Index recursively the root directory.
+     * Index subfolders in the root directory.
+     * Subsubfolders are not indexed.
      */
     public void index() {
         try {
-            Files.walkFileTree(Paths.get(rootDirectory.getLocation()), this);
+            Files.walkFileTree(rootPath, EnumSet.noneOf(FileVisitOption.class), 2, this);
         } catch (IOException e) {
             log.error("Cannot read from directory: " + rootDirectory.getLocation());
             return;

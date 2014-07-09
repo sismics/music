@@ -30,6 +30,7 @@ import com.sismics.music.core.model.dbi.Artist;
 import com.sismics.music.core.model.dbi.Directory;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.service.albumart.AlbumArtImporter;
+import com.sismics.music.core.util.DirectoryNameParser;
 import com.sismics.music.core.util.TransactionUtil;
 
 /**
@@ -105,6 +106,8 @@ public class CollectionService extends AbstractScheduledService {
         for (AlbumDto albumDto : albumList) {
             albumDao.delete(albumDto.getId());
         }
+        
+        // TODO Delete non-existing tracks (and cleanup empty albums)
 
         // Delete all artists that don't have any album or track
         ArtistDao artistDao = new ArtistDao();
@@ -152,6 +155,8 @@ public class CollectionService extends AbstractScheduledService {
      * @param track Track entity (updated)
      */
     public void readTrackMetadata(Directory rootDirectory, Path file, Track track) throws Exception {
+        DirectoryNameParser nameParser = new DirectoryNameParser(file.getParent());
+        
         AudioFile audioFile = AudioFileIO.read(file.toFile());
         Tag tag = audioFile.getTag();
         // TODO deal with empty tags
@@ -191,20 +196,16 @@ public class CollectionService extends AbstractScheduledService {
         }
         track.setArtistId(artist.getId());
 
-        String albumArtistName = StringUtils.abbreviate(tag.getFirst(FieldKey.ALBUM_ARTIST), 1000);
-        Artist albumArtist = null;
-        if (!Strings.isNullOrEmpty(albumArtistName)) {
-            albumArtist = artistDao.getActiveByName(albumArtistName);
-            if (albumArtist == null) {
-                albumArtist = new Artist();
-                albumArtist.setName(albumArtistName);
-                artistDao.create(albumArtist);
-            }
-        } else {
-            albumArtist = artist;
+        String albumArtistName = StringUtils.abbreviate(nameParser.getArtistName(), 1000);
+        // The album artist can't be null, check in the directory name parser
+        Artist albumArtist = artistDao.getActiveByName(albumArtistName);
+        if (albumArtist == null) {
+            albumArtist = new Artist();
+            albumArtist.setName(albumArtistName);
+            artistDao.create(albumArtist);
         }
 
-        String albumName = StringUtils.abbreviate(tag.getFirst(FieldKey.ALBUM), 1000);
+        String albumName = StringUtils.abbreviate(nameParser.getAlbumName(), 1000);
         AlbumDao albumDao = new AlbumDao();
         Album album = albumDao.getActiveByArtistIdAndName(albumArtist.getId(), albumName);
         if (album == null) {

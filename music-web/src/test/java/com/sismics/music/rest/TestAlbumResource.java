@@ -34,7 +34,7 @@ public class TestAlbumResource extends BaseJerseyTest {
         JsonObject json = target().path("/directory").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .put(Entity.form(new Form()
-                        .param("location", Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI()).toString())), JsonObject.class);
+                        .param("location", Paths.get(getClass().getResource("/music/").toURI()).toString())), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
         // Check that the albums are correctly added
@@ -61,7 +61,7 @@ public class TestAlbumResource extends BaseJerseyTest {
         Assert.assertNotNull(albums);
         Assert.assertEquals(1, albums.size());
 
-        // Get an album by its ID.
+        // Get an album by its ID
         json = target().path("/album/" + album0Id).request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
@@ -78,17 +78,17 @@ public class TestAlbumResource extends BaseJerseyTest {
         JsonObject artist = track0.getJsonObject("artist");
         Assert.assertEquals("Gil Scott-Heron", artist.getString("name"));
 
-        // Get an album art.
+        // Get an album art
         Response response = target().path("/album/" + album0Id + "/albumart/small").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken).get();
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
 
-        // Get an album art.
+        // Get an album art
         response = target().path("/album/" + album0Id + "/albumart/large").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken).get();
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
 
-        // Get an album art: KO, this size doesn't exist.
+        // Get an album art: KO, this size doesn't exist
         response = target().path("/album/" + album0Id + "/albumart/huge").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken).get();
         Assert.assertEquals(Status.NOT_FOUND, Status.fromStatusCode(response.getStatus()));

@@ -9,6 +9,7 @@ import javax.json.JsonObject;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,14 +33,10 @@ public class TestTrackResource extends BaseJerseyTest {
         String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
 
         // This test is destructive, copy the test music to a temporary directory
-        Path sourceDir = Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI());
+        Path sourceDir = Paths.get(getClass().getResource("/music/").toURI());
         File destDir = Files.createTempDir();
+        FileUtils.copyDirectory(sourceDir.toFile(), destDir);
         destDir.deleteOnExit();
-        for (File sourceFile : sourceDir.toFile().listFiles()) {
-            File destFile = Paths.get(destDir.toString(), sourceFile.getName()).toFile();
-            Files.copy(sourceFile, destFile);
-            destFile.deleteOnExit();
-        }
         
         // Admin adds a track to the collection
         JsonObject json = target().path("/directory").request()
@@ -68,7 +65,7 @@ public class TestTrackResource extends BaseJerseyTest {
         String track0Id = track0.getString("id");
         Assert.assertFalse(track0.getBoolean("liked"));
 
-        // Get an track by its ID.
+        // Get an track by its ID
         target().path("/track/" + track0Id).request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get();

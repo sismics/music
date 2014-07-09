@@ -32,7 +32,7 @@ public class TestSearchResource extends BaseJerseyTest {
         JsonObject json  = target().path("/directory").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .put(Entity.form(new Form()
-                        .param("location", Paths.get(getClass().getResource("/music/[A] Proxy - Coachella 2010 Day 01 Mixtape").toURI()).toString())), JsonObject.class);
+                        .param("location", Paths.get(getClass().getResource("/music/").toURI()).toString())), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
         // Search by track name : 1 result

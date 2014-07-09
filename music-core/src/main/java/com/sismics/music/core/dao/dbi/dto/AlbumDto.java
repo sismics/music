@@ -39,6 +39,11 @@ public class AlbumDto {
     private Date updateDate;
     
     /**
+     * User play count.
+     */
+    private Long userPlayCount;
+    
+    /**
      * Getter of id.
      *
      * @return id
@@ -144,5 +149,23 @@ public class AlbumDto {
      */
     public void setUpdateDate(Date updateDate) {
         this.updateDate = updateDate;
+    }
+
+    /**
+     * Getter of userPlayCount.
+     *
+     * @return the userPlayCount
+     */
+    public Long getUserPlayCount() {
+        return userPlayCount;
+    }
+
+    /**
+     * Setter of userPlayCount.
+     *
+     * @param userPlayCount userPlayCount
+     */
+    public void setUserPlayCount(Long userPlayCount) {
+        this.userPlayCount = userPlayCount;
     }
 }
