@@ -14,6 +14,7 @@ import javax.ws.rs.core.Response;
 
 import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.UserDao;
+import com.sismics.music.core.dao.dbi.UserTrackDao;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.model.dbi.User;
@@ -92,10 +93,9 @@ public class PlayerResource extends BaseResource {
             throw new ClientException("ValidationError", "Invalid id or dates");
         }
 
-        // TODO mark as played locally
-
         // Scrobble tracks on Last.fm
         final TrackDao trackDao = new TrackDao();
+        final UserTrackDao userTrackDao = new UserTrackDao();
         List<Track> trackList = new ArrayList<Track>();
         List<Date> dateList = new ArrayList<Date>();
         for (int i = 0; i < idList.size(); i++) {
@@ -104,6 +104,9 @@ public class PlayerResource extends BaseResource {
                 Date date = ValidationUtil.validateDate(dateStrList.get(i), "date", false);
                 trackList.add(track);
                 dateList.add(date);
+                
+                // Increment local play count
+                userTrackDao.incrementPlayCount(principal.getId(), track.getId());
             }
         }
         final User user = new UserDao().getActiveById(principal.getId());

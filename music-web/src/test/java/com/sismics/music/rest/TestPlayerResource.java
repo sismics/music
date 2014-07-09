@@ -78,5 +78,24 @@ public class TestPlayerResource extends BaseJerseyTest {
         track0 = tracks.getJsonObject(0);
         Assert.assertEquals(1, json.getInt("play_count"));
         Assert.assertEquals(1, track0.getInt("play_count"));
+        
+        // Marks tracks as played
+        json = target().path("/player/listened").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .post(Entity.form(new Form()
+                        .param("id", track0Id)
+                        .param("date", Long.toString(new Date().getTime()))), JsonObject.class);
+        Assert.assertEquals("ok", json.getString("status"));
+        
+        // Check the tracks info
+        json = target().path("/album/" + album0Id).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        tracks = json.getJsonArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(2, tracks.size());
+        track0 = tracks.getJsonObject(0);
+        Assert.assertEquals(2, json.getInt("play_count"));
+        Assert.assertEquals(2, track0.getInt("play_count"));
     }
 }
