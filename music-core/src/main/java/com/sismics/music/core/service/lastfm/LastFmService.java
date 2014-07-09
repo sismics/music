@@ -1,14 +1,19 @@
 package com.sismics.music.core.service.lastfm;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.util.concurrent.AbstractScheduledService;
 import com.sismics.music.core.constant.ConfigType;
 import com.sismics.music.core.dao.dbi.ArtistDao;
-import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.UserDao;
-import com.sismics.music.core.dao.dbi.UserTrackDao;
-import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
 import com.sismics.music.core.dao.dbi.criteria.UserCriteria;
-import com.sismics.music.core.dao.dbi.dto.TrackDto;
 import com.sismics.music.core.dao.dbi.dto.UserDto;
 import com.sismics.music.core.event.async.LastFmUpdateLovedTrackAsyncEvent;
 import com.sismics.music.core.model.context.AppContext;
@@ -17,22 +22,12 @@ import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.model.dbi.User;
 import com.sismics.music.core.util.ConfigUtil;
 import com.sismics.music.core.util.TransactionUtil;
-import com.sismics.util.LastFmUtil;
+
 import de.umass.lastfm.Authenticator;
-import de.umass.lastfm.PaginatedResult;
 import de.umass.lastfm.Result;
 import de.umass.lastfm.Session;
 import de.umass.lastfm.scrobble.ScrobbleData;
 import de.umass.lastfm.scrobble.ScrobbleResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Last.fm service.
@@ -201,33 +196,34 @@ public class LastFmService extends AbstractScheduledService {
      * @param user Track to love
      */
     public void updateLovedTrack(User user) {
-        Session session = restoreSession(user);
-        de.umass.lastfm.User lastFmUser = de.umass.lastfm.User.getInfo(session);
-
-        UserTrackDao userTrackDao = new UserTrackDao();
-        TrackDao trackDao = new TrackDao();
-        userTrackDao.unlikeAll(user.getId());
-        int page = 1;
-        int count = 0;
-        PaginatedResult<de.umass.lastfm.Track> result = null;
-        do {
-            // TODO implement rate limitation, should be good around 1000*10 = 10k faves for now
-            // TODO check result, don't commit if Last.fm reports an error (current faves will be lost!)
-            result = LastFmUtil.getLovedTracks(lastFmUser.getName(), page, 1000, session.getApiKey());
-
-            for (Iterator<de.umass.lastfm.Track> it = result.iterator(); it.hasNext();) {
-                count++;
-                de.umass.lastfm.Track lastFmTrack = it.next();
-                for (TrackDto track : trackDao.findByCriteria(new TrackCriteria()
-                        .setTitle(lastFmTrack.getName())
-                        .setArtistName(lastFmTrack.getArtist())
-                       )) {
-                    userTrackDao.like(user.getId(), track.getId());
-                }
-            }
-            page++;
-        } while (result != null && page <= result.getTotalPages());
-
-        log.info(MessageFormat.format("Imported {0} loved tracks from Last.fm", count));
+//        Session session = restoreSession(user);
+//        de.umass.lastfm.User lastFmUser = de.umass.lastfm.User.getInfo(session);
+//
+//        UserTrackDao userTrackDao = new UserTrackDao();
+//        TrackDao trackDao = new TrackDao();
+//        userTrackDao.unlikeAll(user.getId());
+//        int page = 1;
+//        int count = 0;
+//        PaginatedResult<de.umass.lastfm.Track> result = null;
+//        do {
+//            // TODO implement rate limitation, should be good around 1000*10 = 10k faves for now
+//            // TODO check result, don't commit if Last.fm reports an error (current faves will be lost!)
+//            // TODO implement a more permissive track search on local database, if Last.fm corrected the title/artist
+//            result = LastFmUtil.getLovedTracks(lastFmUser.getName(), page, 1000, session.getApiKey());
+//
+//            for (Iterator<de.umass.lastfm.Track> it = result.iterator(); it.hasNext();) {
+//                count++;
+//                de.umass.lastfm.Track lastFmTrack = it.next();
+//                for (TrackDto track : trackDao.findByCriteria(new TrackCriteria()
+//                        .setTitle(lastFmTrack.getName())
+//                        .setArtistName(lastFmTrack.getArtist())
+//                       )) {
+//                    userTrackDao.like(user.getId(), track.getId());
+//                }
+//            }
+//            page++;
+//        } while (result != null && page <= result.getTotalPages());
+//
+//        log.info(MessageFormat.format("Imported {0} loved tracks from Last.fm", count));
     }
 }

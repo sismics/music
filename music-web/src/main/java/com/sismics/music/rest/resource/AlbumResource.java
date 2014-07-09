@@ -247,7 +247,7 @@ public class AlbumResource extends BaseResource {
         }
         response.add("albums", items);
 
-        // TODO add stats
+        // XXX add stats
 
         return Response.ok().entity(response.build()).build();
     }

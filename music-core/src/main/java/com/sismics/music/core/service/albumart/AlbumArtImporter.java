@@ -22,7 +22,7 @@ public class AlbumArtImporter {
      */
     public File scanDirectory(Path directory) {
         Map<Integer, File> fileMap = new TreeMap<Integer, File>();
-        for (File file : directory.toFile().listFiles(ALBUM_ART_FILENAME_FILTER)) { // TODO nio-ize
+        for (File file : directory.toFile().listFiles(ALBUM_ART_FILENAME_FILTER)) { // XXX nio-ize
             String name = file.getName().toLowerCase();
             if (name.startsWith("albumart.")) {
                 fileMap.put(0, file);

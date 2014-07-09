@@ -82,6 +82,8 @@ public class CollectionService extends AbstractScheduledService {
         // Index the directory recursively
         new CollectionVisitor(directory).index();
 
+        // TODO Delete non-existing tracks (and cleanup empty albums)
+        
         // Delete all artists that don't have any album or track
         ArtistDao artistDao = new ArtistDao();
         artistDao.deleteEmptyArtist();
@@ -107,8 +109,6 @@ public class CollectionService extends AbstractScheduledService {
             albumDao.delete(albumDto.getId());
         }
         
-        // TODO Delete non-existing tracks (and cleanup empty albums)
-
         // Delete all artists that don't have any album or track
         ArtistDao artistDao = new ArtistDao();
         artistDao.deleteEmptyArtist();

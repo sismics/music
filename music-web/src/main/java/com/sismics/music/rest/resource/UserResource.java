@@ -601,7 +601,7 @@ public class UserResource extends BaseResource {
         // Get the value of the session token
         final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
         Session session = lastFmService.createSession(lastFmUsername, lastFmPassword);
-        // TODO We should be able to distinguish invalid user credentials from invalid api key -- update Authenticator?
+        // XXX We should be able to distinguish invalid user credentials from invalid api key -- update Authenticator?
         if (session == null) {
             throw new ClientException("InvalidCredentials", "The supplied Last.fm credentials is invalid");
         }

@@ -164,7 +164,7 @@ public class AlbumDao {
 
         StringBuilder sb = new StringBuilder("select a.ALB_ID_C, a.ALB_NAME_C,  a.ALB_ALBUMART_C, ar.ART_ID_C, ar.ART_NAME_C, a.ALB_UPDATEDATE_D, ");
         if (criteria.getUserId() == null) {
-            sb.append("0");
+            sb.append("sum(0)");
         } else {
             sb.append("sum(utr.UST_PLAYCOUNT_N)");
         }

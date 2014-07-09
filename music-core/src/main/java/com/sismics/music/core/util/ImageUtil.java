@@ -40,9 +40,9 @@ public class ImageUtil {
         
         GIF,
         
-        PNG
+        PNG,
 
-        // TODO add BMP
+        BMP
     };
     
     // Related to alpha channel removal
@@ -77,6 +77,9 @@ public class ImageUtil {
             if (headerBytes[0] == ((byte) 0x89) && headerBytes[1] == ((byte) 0x50) && headerBytes[2] == ((byte) 0x4e) && headerBytes[3] == ((byte) 0x47) &&
                     headerBytes[4] == ((byte) 0x0d) && headerBytes[5] == ((byte) 0x0a) && headerBytes[6] == ((byte) 0x1a) && headerBytes[7] == ((byte) 0x0a)) {
                 return FileType.PNG;
+            }
+            if (headerBytes[0] == ((byte) 0x42) && headerBytes[1] == ((byte) 0x4d)) {
+                return FileType.BMP;
             }
         } finally {
             if (is != null) {

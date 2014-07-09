@@ -77,6 +77,7 @@ public class TestDirectoryResource extends BaseJerseyTest {
         Assert.assertNotNull("main", directory0.getString("name"));
         Assert.assertNotNull("/var/music/main", directory0.getString("location"));
         Assert.assertTrue(directory0.getBoolean("active"));
+        Assert.assertFalse(directory0.getBoolean("valid"));
         String directory1Id = directories.getJsonObject(1).getString("id");
 
         // Admin updates the directory info

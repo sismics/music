@@ -1,5 +1,6 @@
 package com.sismics.music.rest.resource;
 
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 
@@ -193,7 +194,7 @@ public class DirectoryResource extends BaseResource {
                     .add("name", directory.getName())
                     .add("location", directory.getLocation())
                     .add("active", directory.getDisableDate() == null)
-                    .add("valid", true)); // TODO test if directory valid
+                    .add("valid", java.nio.file.Files.exists(Paths.get(directory.getLocation()))));
         }
         response.add("directories", items);
 

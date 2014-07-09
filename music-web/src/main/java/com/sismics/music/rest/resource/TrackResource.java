@@ -372,7 +372,6 @@ public class TrackResource extends BaseResource {
         trackDao.update(trackDb);
         albumDao.update(albumDb);
         artistDao.deleteEmptyArtist();
-        // TODO Merge and delete empty albums
         
         // Always return OK
         return Response.ok()

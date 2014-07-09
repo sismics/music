@@ -7,9 +7,6 @@ angular.module('music').controller('Album', function($scope, $state, $stateParam
   // Load album
   Restangular.one('album', $stateParams.id).get().then(function(data) {
     $scope.album = data;
-    $scope.album.play_count = _($scope.album.tracks).reduce(function(count, track) {
-      return count + track.play_count;
-    }, 0);
   });
 
   // Play a single track
@@ -40,7 +37,7 @@ angular.module('music').controller('Album', function($scope, $state, $stateParam
   // Zoom the album art in a modal
   $scope.zoomAlbumArt = function() {
     $modal.open({
-      template: '<img src="api/album/' + $scope.album.id + '/albumart/large" />',
+      template: '<img src="../api/album/' + $scope.album.id + '/albumart/large" />',
       windowClass: 'album-art-modal'
     });
   };
