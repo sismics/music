@@ -206,7 +206,7 @@ public class LastFmService extends AbstractScheduledService {
 //        int count = 0;
 //        PaginatedResult<de.umass.lastfm.Track> result = null;
 //        do {
-//            // TODO implement rate limitation, should be good around 1000*10 = 10k faves for now
+//            // XXX implement rate limitation, should be good around 1000*10 = 10k faves for now
 //            // TODO check result, don't commit if Last.fm reports an error (current faves will be lost!)
 //            // TODO implement a more permissive track search on local database, if Last.fm corrected the title/artist
 //            result = LastFmUtil.getLovedTracks(lastFmUser.getName(), page, 1000, session.getApiKey());

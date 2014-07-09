@@ -63,7 +63,6 @@ public class SearchResource extends BaseResource {
         trackDao.findByCriteria(new TrackCriteria().setUserId(principal.getId()).setTitleLike(query), paginatedList);
 
         JsonArrayBuilder tracks = Json.createArrayBuilder();
-        int i = 1;
         JsonObjectBuilder response = Json.createObjectBuilder();
         for (TrackDto trackDto : paginatedList.getResultList()) {
             tracks.add(Json.createObjectBuilder()

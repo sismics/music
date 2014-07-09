@@ -66,7 +66,7 @@ public class TrayController implements DeploymentStatusListener {
             hideAction = new AbstractAction(MessageUtil.getMessage("agent.systray.quit")) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    //TODO Confirm if music is running
+                    // XXX Confirm if music is running
                     TrayController.this.readerAgent.exit();
                 }
             };

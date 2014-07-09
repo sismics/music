@@ -68,17 +68,16 @@ public class PaginatedLists {
     }
 
     /**
-     * Executes a query and returns the data of the currunt page.
+     * Executes a query and returns the data of the current page.
      * 
      * @param paginatedList Paginated list object containing parameters, and into which results are added by side effects
      * @param queryParam Query parameters
      * @return List of results
      */
     private static <E> List<Object[]> executeResultQuery(PaginatedList<E> paginatedList, QueryParam queryParam) {
-        Query<Object[]> q = QueryUtil.getNativeQuery(queryParam).map(ColumnIndexMapper.INSTANCE);
-        
-        //q.setOffset(paginatedList.getOffset()); // TODO how to do offset?
-        q.setMaxRows(paginatedList.getLimit());
+        Query<Object[]> q = QueryUtil
+                .getNativeQuery(queryParam, paginatedList.getLimit(), paginatedList.getOffset())
+                .map(ColumnIndexMapper.INSTANCE);
         return q.list();
     }
     

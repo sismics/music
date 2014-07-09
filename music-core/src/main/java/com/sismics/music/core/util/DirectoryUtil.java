@@ -23,7 +23,7 @@ public class DirectoryUtil {
             // If the music.home property is set then use it
             baseDataDir = new File(EnvironmentUtil.getMusicHome());
         } else if (false) {
-            // TODO inject a variable from context.xml or similar (#41)
+            // XXX inject a variable from context.xml or similar (#41)
         } else if (EnvironmentUtil.isUnitTest()) {
             // For unit testing, use a temporary directory
             baseDataDir = new File(System.getProperty("java.io.tmpdir"));

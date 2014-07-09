@@ -36,7 +36,7 @@ public class DBIF {
 
     public static void createDbi() {
         try {
-            cpds = new ComboPooledDataSource(); // TODO use getDbProperties()
+            cpds = new ComboPooledDataSource(); // XXX use getDbProperties()
             dbi = new DBI(cpds);
             dbi.registerMapper(new AlbumMapper());
             dbi.registerMapper(new ArtistMapper());

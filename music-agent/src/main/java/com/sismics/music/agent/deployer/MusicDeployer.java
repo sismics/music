@@ -21,7 +21,7 @@ public class MusicDeployer implements LifeCycle.Listener {
     /**
      * WAR file to deploy.
      */
-    private static final String READER_WAR = "music.war";
+    private static final String MUSIC_WAR = "music.war";
     
     /**
      * Startup time.
