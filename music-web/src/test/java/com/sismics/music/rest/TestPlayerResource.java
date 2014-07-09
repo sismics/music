@@ -42,8 +42,8 @@ public class TestPlayerResource extends BaseJerseyTest {
                 .get(JsonObject.class);
         JsonArray albums = json.getJsonArray("albums");
         Assert.assertNotNull(albums);
-        Assert.assertEquals(1, albums.size());
-        JsonObject album0 = albums.getJsonObject(0);
+        Assert.assertEquals(2, albums.size());
+        JsonObject album0 = albums.getJsonObject(1);
         String album0Id = album0.getString("id");
         Assert.assertNotNull(album0Id);
 

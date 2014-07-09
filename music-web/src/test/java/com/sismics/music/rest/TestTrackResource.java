@@ -50,7 +50,7 @@ public class TestTrackResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         JsonArray albums = json.getJsonArray("albums");
-        Assert.assertEquals(1, albums.size());
+        Assert.assertEquals(2, albums.size());
         JsonObject album0 = albums.getJsonObject(0);
         String album0Id = album0.getString("id");
         Assert.assertNotNull(album0Id);
@@ -60,7 +60,7 @@ public class TestTrackResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         JsonArray tracks = json.getJsonArray("tracks");
-        Assert.assertEquals(2, tracks.size());
+        Assert.assertEquals(1, tracks.size());
         JsonObject track0 = tracks.getJsonObject(0);
         String track0Id = track0.getString("id");
         Assert.assertFalse(track0.getBoolean("liked"));
@@ -81,7 +81,7 @@ public class TestTrackResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         tracks = json.getJsonArray("tracks");
-        Assert.assertEquals(2, tracks.size());
+        Assert.assertEquals(1, tracks.size());
         track0 = tracks.getJsonObject(0);
         Assert.assertTrue(track0.getBoolean("liked"));
 
@@ -96,7 +96,7 @@ public class TestTrackResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         tracks = json.getJsonArray("tracks");
-        Assert.assertEquals(2, tracks.size());
+        Assert.assertEquals(1, tracks.size());
         track0 = tracks.getJsonObject(0);
         Assert.assertFalse(track0.getBoolean("liked"));
 

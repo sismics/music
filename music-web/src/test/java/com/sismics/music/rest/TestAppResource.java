@@ -109,7 +109,7 @@ public class TestAppResource extends BaseJerseyTest {
                 .get(JsonObject.class);
         JsonArray albums = json.getJsonArray("albums");
         Assert.assertNotNull(albums);
-        Assert.assertEquals(1, albums.size());
+        Assert.assertEquals(2, albums.size());
 
 //        // Admin adds a directory to the collection
 //        WebResource appResource = target().path("/app/batch/reindex");

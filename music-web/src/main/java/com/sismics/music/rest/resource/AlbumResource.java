@@ -199,8 +199,9 @@ public class AlbumResource extends BaseResource {
         }
             
         // Update the album art
+        final AlbumArtService albumArtService = AppContext.getInstance().getAlbumArtService();
+        String oldAlbumArtId = album.getAlbumArt();
         try {
-            final AlbumArtService albumArtService = AppContext.getInstance().getAlbumArtService();
             String albumArtId = albumArtService.importAlbumArt(imageFile);
             album.setAlbumArt(albumArtId);
             albumDao.update(album);
@@ -208,7 +209,10 @@ public class AlbumResource extends BaseResource {
             throw new ClientException("ImageError", "The provided URL is not an image", e);
         }
         
-        // TODO Delete the previous album art
+        // Delete the previous album art
+        if (oldAlbumArtId != null) {
+            albumArtService.deleteAlbumArt(oldAlbumArtId);
+        }
 
         // Always return OK
         return Response.ok()

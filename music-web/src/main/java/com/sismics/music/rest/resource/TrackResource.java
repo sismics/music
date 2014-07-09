@@ -34,13 +34,11 @@ import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 
-import com.sismics.music.core.dao.dbi.AlbumDao;
 import com.sismics.music.core.dao.dbi.ArtistDao;
 import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.UserDao;
 import com.sismics.music.core.dao.dbi.UserTrackDao;
 import com.sismics.music.core.model.context.AppContext;
-import com.sismics.music.core.model.dbi.Album;
 import com.sismics.music.core.model.dbi.Artist;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.model.dbi.User;
@@ -97,9 +95,10 @@ public class TrackResource extends BaseResource {
             @Override
             public void run() {
                 try {
-                    // TODO Transcode mp3 as well
+                    // TODO Select a suitable transcoder, and pass it to the process builder
+                    boolean transcode = true;
                     final TranscoderService transcoderService = AppContext.getInstance().getTranscoderService();
-                    if (!"mp3".equals(track.getFormat())) {
+                    if (transcode) {
                         int seek = 0;
                         int from = 0;
                         int to = 0;
@@ -285,7 +284,6 @@ public class TrackResource extends BaseResource {
         Integer order = ValidationUtil.validateInteger(orderStr, "order");
 
         TrackDao trackDao = new TrackDao();
-        AlbumDao albumDao = new AlbumDao();
         ArtistDao artistDao = new ArtistDao();
         Track trackDb = trackDao.getActiveById(id);
         if (trackDb == null) {
@@ -326,10 +324,9 @@ public class TrackResource extends BaseResource {
         trackDb.setYear(year);
         trackDb.setGenre(genre);
         trackDb.setOrder(order);
+        trackDao.update(trackDb);
         
-        Album albumDb = albumDao.getActiveById(trackDb.getAlbumId());
         Artist artistDb = artistDao.getActiveById(trackDb.getArtistId());
-        Artist albumArtistDb = artistDao.getActiveById(albumDb.getArtistId());
         
         // Set the new artist (and create it if necessary)
         if (!StringUtils.equals(artist, artistDb.getName())) {
@@ -343,34 +340,6 @@ public class TrackResource extends BaseResource {
             trackDb.setArtistId(newArtistDb.getId());
         }
         
-        // Set the new album (and create it if necessary)
-        if (!StringUtils.equals(album, albumDb.getName())) {
-            Album newAlbumDb = albumDao.getActiveByArtistIdAndName(trackDb.getArtistId(), album);
-            if (newAlbumDb == null) {
-                newAlbumDb = new Album();
-                newAlbumDb.setName(album);
-                newAlbumDb.setDirectoryId(albumDb.getDirectoryId());
-                newAlbumDb.setArtistId(trackDb.getArtistId());
-                albumDao.create(newAlbumDb);
-            }
-            
-            trackDb.setAlbumId(newAlbumDb.getId());
-        }
-        
-        // Set the new album artist (and create it if necessary)
-        if (!StringUtils.equals(albumArtist, albumArtistDb.getName())) {
-            Artist newAlbumArtistDb = artistDao.getActiveByName(albumArtist);
-            if (newAlbumArtistDb == null) {
-                newAlbumArtistDb = new Artist();
-                newAlbumArtistDb.setName(albumArtist);
-                artistDao.create(newAlbumArtistDb);
-            }
-            
-            albumDb.setArtistId(newAlbumArtistDb.getId());
-        }
-        
-        trackDao.update(trackDb);
-        albumDao.update(albumDb);
         artistDao.deleteEmptyArtist();
         
         // Always return OK

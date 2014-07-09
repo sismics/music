@@ -43,8 +43,8 @@ public class TestAlbumResource extends BaseJerseyTest {
                 .get(JsonObject.class);
         JsonArray albums = json.getJsonArray("albums");
         Assert.assertNotNull(albums);
-        Assert.assertEquals(1, albums.size());
-        JsonObject album0 = albums.getJsonObject(0);
+        Assert.assertEquals(2, albums.size());
+        JsonObject album0 = albums.getJsonObject(1);
         String album0Id = album0.getString("id");
         JsonObject artist0 = album0.getJsonObject("artist");
         Assert.assertNotNull(album0Id);
@@ -98,5 +98,10 @@ public class TestAlbumResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .post(Entity.form(new Form()
                         .param("url", "http://placehold.it/300x300")), JsonObject.class);
+        
+        // Get an album art
+        response = target().path("/album/" + album0Id + "/albumart/large").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken).get();
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
     }
 }
