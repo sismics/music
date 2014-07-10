@@ -201,8 +201,8 @@ public class CollectionService extends AbstractScheduledService {
             }
         }
 
-        track.setTitle(StringUtils.abbreviate(tag.getFirst(FieldKey.TITLE), 2000));
-        String artistName = StringUtils.abbreviate(tag.getFirst(FieldKey.ARTIST), 1000);
+        track.setTitle(StringUtils.abbreviate(tag.getFirst(FieldKey.TITLE), 2000).trim());
+        String artistName = StringUtils.abbreviate(tag.getFirst(FieldKey.ARTIST), 1000).trim();
         ArtistDao artistDao = new ArtistDao();
         Artist artist = artistDao.getActiveByName(artistName);
         if (artist == null) {
@@ -212,7 +212,7 @@ public class CollectionService extends AbstractScheduledService {
         }
         track.setArtistId(artist.getId());
 
-        String albumArtistName = StringUtils.abbreviate(nameParser.getArtistName(), 1000);
+        String albumArtistName = StringUtils.abbreviate(nameParser.getArtistName(), 1000).trim();
         // The album artist can't be null, check in the directory name parser
         Artist albumArtist = artistDao.getActiveByName(albumArtistName);
         if (albumArtist == null) {
@@ -221,7 +221,7 @@ public class CollectionService extends AbstractScheduledService {
             artistDao.create(albumArtist);
         }
 
-        String albumName = StringUtils.abbreviate(nameParser.getAlbumName(), 1000);
+        String albumName = StringUtils.abbreviate(nameParser.getAlbumName(), 1000).trim();
         AlbumDao albumDao = new AlbumDao();
         Album album = albumDao.getActiveByArtistIdAndName(albumArtist.getId(), albumName);
         if (album == null) {

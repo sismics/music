@@ -256,11 +256,10 @@ public class AlbumDao {
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("update T_ALBUM a set a.ALB_DELETEDATE_D = :deleteDate where a.ALB_ID_C IN (" +
                 "  select al.ALB_ID_C from T_ALBUM al " +
-                "    left join T_TRACK t on t.TRK_IDALBUM_C = al.ALB_ID_C " +
+                "    left join T_TRACK t on t.TRK_IDALBUM_C = al.ALB_ID_C and t.TRK_DELETEDATE_D is null " +
                 "    where al.ALB_DELETEDATE_D is null " +
-                "    and t.TRK_DELETEDATE_D is null " +
                 "    group by al.ALB_ID_C " +
-                "    having count(t.TRK_ID_C) = 0")
+                "    having count(t.TRK_ID_C) = 0)")
                 .bind("deleteDate", new Date())
                 .execute();
     }

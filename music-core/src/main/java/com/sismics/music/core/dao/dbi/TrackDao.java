@@ -292,7 +292,7 @@ public class TrackDao {
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("update T_TRACK t" +
                 "  set t.TRK_DELETEDATE_D = :deleteDate" +
-                "  where WHERE t.TRK_DELETEDATE_D is null and t.TRK_ID_C = :id ")
+                "  where t.TRK_DELETEDATE_D is null and t.TRK_ID_C = :id ")
                 .bind("id", id)
                 .bind("deleteDate", new Date())
                 .execute();

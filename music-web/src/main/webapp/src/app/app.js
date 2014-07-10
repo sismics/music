@@ -77,7 +77,7 @@ angular.module('music',
             }
           })
           .state('main.music.albums', {
-            url: '/albums/{filter}:{order:alpha|latest|}',
+            url: '/albums/{filter}:{order:alpha|latest|playcount|}',
             views: {
               'tab': {
                 templateUrl: 'partial/music.albums.html',
