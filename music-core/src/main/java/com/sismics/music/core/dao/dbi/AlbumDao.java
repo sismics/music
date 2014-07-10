@@ -9,6 +9,7 @@ import com.sismics.music.core.util.dbi.ColumnIndexMapper;
 import com.sismics.music.core.util.dbi.QueryParam;
 import com.sismics.music.core.util.dbi.QueryUtil;
 import com.sismics.util.context.ThreadLocalContext;
+
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.util.IntegerMapper;
@@ -244,6 +245,22 @@ public class AlbumDao {
                 "  set a.ALB_DELETEDATE_D = :deleteDate" +
                 "  where a.ALB_ID_C = :id and a.ALB_DELETEDATE_D is null")
                 .bind("id", id)
+                .bind("deleteDate", new Date())
+                .execute();
+    }
+
+    /**
+     * Delete any album that don't have any tracks.
+     */
+    public void deleteEmptyAlbum() {
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("update T_ALBUM a set a.ALB_DELETEDATE_D = :deleteDate where a.ALB_ID_C IN (" +
+                "  select al.ALB_ID_C from T_ALBUM al " +
+                "    left join T_TRACK t on t.TRK_IDALBUM_C = al.ALB_ID_C " +
+                "    where al.ALB_DELETEDATE_D is null " +
+                "    and t.TRK_DELETEDATE_D is null " +
+                "    group by al.ALB_ID_C " +
+                "    having count(t.TRK_ID_C) = 0")
                 .bind("deleteDate", new Date())
                 .execute();
     }

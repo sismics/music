@@ -96,7 +96,9 @@ public class CollectionService extends AbstractScheduledService {
             }
         }
         
-        // TODO Cleanup empty albums
+        // Cleanup empty albums
+        AlbumDao albumDao = new AlbumDao();
+        albumDao.deleteEmptyAlbum();
         
         // Delete all artists that don't have any album or track
         ArtistDao artistDao = new ArtistDao();
