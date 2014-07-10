@@ -18,11 +18,11 @@ import com.sismics.util.filter.TokenBasedSecurityFilter;
 public class TestTranscoderResource extends BaseJerseyTest {
     /**
      * Test the transcoder resource.
-     *
-     * @throws org.codehaus.jettison.json.JSONException
+     * 
+     * @throws Exception
      */
     @Test
-    public void testTranscoderResource() {
+    public void testTranscoderResource() throws Exception {
         // Login admin
         String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
 

@@ -41,6 +41,7 @@ import com.sismics.music.core.dao.dbi.UserTrackDao;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Artist;
 import com.sismics.music.core.model.dbi.Track;
+import com.sismics.music.core.model.dbi.Transcoder;
 import com.sismics.music.core.model.dbi.User;
 import com.sismics.music.core.service.lastfm.LastFmService;
 import com.sismics.music.core.service.transcoder.TranscoderService;
@@ -89,38 +90,17 @@ public class TrackResource extends BaseResource {
             asyncResponse.resume(Response.status(Response.Status.NOT_FOUND).build());
             return;
         }
+        
+        // Select a suitable transcoder
+        final TranscoderService transcoderService = AppContext.getInstance().getTranscoderService();
+        final Transcoder transcoder = transcoderService.getSuitableTranscoder(track);
 
         // Start a new thread and release the I/O thread
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    // TODO Select a suitable transcoder, and pass it to the process builder
-                    boolean transcode = true;
-                    final TranscoderService transcoderService = AppContext.getInstance().getTranscoderService();
-                    if (transcode) {
-                        int seek = 0;
-                        int from = 0;
-                        int to = 0;
-                        if (range != null) {
-                            // Range requested, send a 206 partial content
-                            String[] ranges = range.split("=")[1].split("-");
-                            from = Integer.parseInt(ranges[0]);
-                            seek = from / (128 * 1000 / 8);
-                        }
-                        int fileSize = track.getLength() * 128 * 1000 / 8;
-                        InputStream is = transcoderService.getTranscodedInputStream(track, seek);
-                        Response.ResponseBuilder response = Response.ok(is);
-                        if (range != null) {
-                            response = response.status(206);
-                            final String responseRange = String.format("bytes %d-%d/%d", from, to, fileSize);
-                            response.header("Accept-Ranges", "bytes");
-                            response.header("Content-Range", responseRange);
-                        }
-                        response.header(HttpHeaders.CONTENT_LENGTH, fileSize);
-                        response.header(HttpHeaders.LAST_MODIFIED, new Date(file.lastModified()));
-                        asyncResponse.resume(response.build());
-                    } else {
+                    if (transcoder == null) {
                         // Range not requested, serve the whole file
                         if (range == null) {
                             StreamingOutput streamer = new StreamingOutput() {
@@ -164,6 +144,28 @@ public class TrackResource extends BaseResource {
                                 .header(HttpHeaders.CONTENT_LENGTH, streamer.getLength())
                                 .header(HttpHeaders.LAST_MODIFIED, new Date(file.lastModified()))
                                 .build());
+                    } else {
+                        int seek = 0;
+                        int from = 0;
+                        int to = 0;
+                        if (range != null) {
+                            // Range requested, send a 206 partial content
+                            String[] ranges = range.split("=")[1].split("-");
+                            from = Integer.parseInt(ranges[0]);
+                            seek = from / (128 * 1000 / 8);
+                        }
+                        int fileSize = track.getLength() * 128 * 1000 / 8;
+                        InputStream is = transcoderService.getTranscodedInputStream(track, seek, transcoder);
+                        Response.ResponseBuilder response = Response.ok(is);
+                        if (range != null) {
+                            response = response.status(206);
+                            final String responseRange = String.format("bytes %d-%d/%d", from, to, fileSize);
+                            response.header("Accept-Ranges", "bytes");
+                            response.header("Content-Range", responseRange);
+                        }
+                        response.header(HttpHeaders.CONTENT_LENGTH, fileSize);
+                        response.header(HttpHeaders.LAST_MODIFIED, new Date(file.lastModified()));
+                        asyncResponse.resume(response.build());
                     }
                 } catch (Exception e) {
                     asyncResponse.resume(e);

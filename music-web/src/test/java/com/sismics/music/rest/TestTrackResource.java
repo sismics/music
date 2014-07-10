@@ -8,6 +8,8 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
@@ -65,11 +67,28 @@ public class TestTrackResource extends BaseJerseyTest {
         String track0Id = track0.getString("id");
         Assert.assertFalse(track0.getBoolean("liked"));
 
-        // Get an track by its ID
-        target().path("/track/" + track0Id).request()
+        // Get an track by its ID (without transcoder)
+        Response response = target().path("/track/" + track0Id).request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get();
+        Assert.assertEquals(Status.OK.getStatusCode(), response.getStatus());
 
+        // Create a transcoder
+        json = target().path("/transcoder").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .put(Entity.form(new Form()
+                        .param("name", "mp3")
+                        .param("source", "ogg oga aac wav wma aif flac mp3")
+                        .param("destination", "mp3")
+                        .param("step1", "ffmpeg -ss %ss -i %s -ab %bk -v 0 -f mp3 -")), JsonObject.class);
+        Assert.assertEquals("ok", json.getString("status"));
+        
+        // Get an track by its ID (with transcoder)
+        response = target().path("/track/" + track0Id).request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get();
+        Assert.assertEquals(Status.OK.getStatusCode(), response.getStatus());
+        
         // Admin likes the track
         json = target().path("/track/" + track0Id + "/like").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
