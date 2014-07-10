@@ -184,6 +184,10 @@ public class TrackDao {
             criteriaList.add("t.TRK_IDALBUM_C = :albumId");
             parameterMap.put("albumId", criteria.getAlbumId());
         }
+        if (criteria.getDirectoryId() != null) {
+            criteriaList.add("alb.ALB_IDDIRECTORY_C = :directoryId");
+            parameterMap.put("directoryId", criteria.getDirectoryId());
+        }
         if (criteria.getArtistName() != null) {
             criteriaList.add("a.ART_NAME_C = :artistName");
             parameterMap.put("artistName", criteria.getArtistName());

@@ -35,6 +35,11 @@ public class TrackCriteria {
      * Title (like).
      */
     private String titleLike;
+    
+    /**
+     * Directory ID.
+     */
+    private String directoryId;
 
     /**
      * Getter of albumId.
@@ -156,4 +161,25 @@ public class TrackCriteria {
         this.titleLike = titleLike;
         return this;
     }
+
+    /**
+     * Getter of directoryId.
+     * 
+     * @return directoryId
+     */
+    public String getDirectoryId() {
+        return directoryId;
+    }
+
+    /**
+     * Setter of directoryId.
+     * 
+     * @param directoryId directoryId
+     */
+    public TrackCriteria setDirectoryId(String directoryId) {
+        this.directoryId = directoryId;
+        return this;
+    }
+    
+    
 }

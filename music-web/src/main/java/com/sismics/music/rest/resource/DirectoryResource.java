@@ -122,11 +122,10 @@ public class DirectoryResource extends BaseResource {
         }
         directoryDao.update(directory);
 
-        // TODO delete and recreate index if the location is different
         // Raise a directory creation event
-//        DirectoryCreatedAsyncEvent directoryCreatedAsyncEvent = new DirectoryCreatedAsyncEvent();
-//        directoryCreatedAsyncEvent.setDirectory(directory);
-//        AppContext.getInstance().getCollectionEventBus().post(directoryCreatedAsyncEvent);
+        DirectoryCreatedAsyncEvent directoryCreatedAsyncEvent = new DirectoryCreatedAsyncEvent();
+        directoryCreatedAsyncEvent.setDirectory(directory);
+        AppContext.getInstance().getCollectionEventBus().post(directoryCreatedAsyncEvent);
 
         // Always return "ok"
         return Response.ok()

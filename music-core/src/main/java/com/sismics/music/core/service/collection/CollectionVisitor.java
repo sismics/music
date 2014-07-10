@@ -1,17 +1,23 @@
 package com.sismics.music.core.service.collection;
 
-import com.google.common.collect.ImmutableSet;
-import com.sismics.music.core.model.context.AppContext;
-import com.sismics.music.core.model.dbi.Directory;
+import java.io.IOException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.EnumSet;
-import java.util.Set;
+import com.google.common.collect.ImmutableSet;
+import com.sismics.music.core.model.context.AppContext;
+import com.sismics.music.core.model.dbi.Directory;
 
 /**
  * Collection visitor.
@@ -31,6 +37,8 @@ public class CollectionVisitor extends SimpleFileVisitor<Path> {
      * Root path.
      */
     private Path rootPath;
+    
+    private Set<String> fileNameSet = new HashSet<>();
 
     /**
      * Logger.
@@ -49,6 +57,7 @@ public class CollectionVisitor extends SimpleFileVisitor<Path> {
         if (supportedExtSet.contains(ext) && !rootPath.equals(path.getParent())) {
             final CollectionService collectionService = AppContext.getInstance().getCollectionService();
             collectionService.indexFile(rootDirectory, path);
+            fileNameSet.add(path.toAbsolutePath().toString());
         }
         return FileVisitResult.CONTINUE;
     }
@@ -69,5 +78,14 @@ public class CollectionVisitor extends SimpleFileVisitor<Path> {
             log.error("Cannot read from directory: " + rootDirectory.getLocation());
             return;
         }
+    }
+
+    /**
+     * Getter of fileNameSet.
+     * 
+     * @return fileNameSet
+     */
+    public Set<String> getFileNameSet() {
+        return fileNameSet;
     }
 }

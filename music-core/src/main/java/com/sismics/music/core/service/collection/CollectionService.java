@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
@@ -23,7 +24,9 @@ import com.sismics.music.core.dao.dbi.ArtistDao;
 import com.sismics.music.core.dao.dbi.DirectoryDao;
 import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.criteria.AlbumCriteria;
+import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
 import com.sismics.music.core.dao.dbi.dto.AlbumDto;
+import com.sismics.music.core.dao.dbi.dto.TrackDto;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Album;
 import com.sismics.music.core.model.dbi.Artist;
@@ -60,7 +63,7 @@ public class CollectionService extends AbstractScheduledService {
         TransactionUtil.handle(new Runnable() {
             @Override
             public void run() {
-                // NOP
+                reindex();
             }
         });
     }
@@ -80,9 +83,20 @@ public class CollectionService extends AbstractScheduledService {
             log.info(MessageFormat.format("Adding directory {0} to index", directory.getLocation()));
         }
         // Index the directory recursively
-        new CollectionVisitor(directory).index();
-
-        // TODO Delete non-existing tracks (and cleanup empty albums)
+        CollectionVisitor collectionVisitor = new CollectionVisitor(directory);
+        collectionVisitor.index();
+        
+        // Delete non-existing tracks
+        Set<String> existingFileNameSet = collectionVisitor.getFileNameSet();
+        TrackDao trackDao = new TrackDao();
+        List<TrackDto> trackDtoList = trackDao.findByCriteria(new TrackCriteria().setDirectoryId(directory.getId()));
+        for (TrackDto trackDto : trackDtoList) {
+            if (!existingFileNameSet.contains(trackDto.getFileName())) {
+                trackDao.delete(trackDto.getId());
+            }
+        }
+        
+        // TODO Cleanup empty albums
         
         // Delete all artists that don't have any album or track
         ArtistDao artistDao = new ArtistDao();
@@ -146,7 +160,7 @@ public class CollectionService extends AbstractScheduledService {
             log.info(MessageFormat.format("File {0} indexed in {1}", file, stopWatch));
         }
     }
-
+    
     /**
      * Read metadata from a media file into the Track.
      *
@@ -244,7 +258,6 @@ public class CollectionService extends AbstractScheduledService {
     public void updateScore() {
 //        AlbumDao albumDao = new AlbumDao();
 //        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria());
-//        TODO implement scoring
 //        for (AlbumDto albumDto : albumList) {
 //            Integer score = albumDao.getFavoriteCountByAlbum(albumDto.getId());
 //
