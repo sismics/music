@@ -16,6 +16,8 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
@@ -52,6 +54,8 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
      */
     Map<WatchKey, Path> watchKeyMap = Maps.newConcurrentMap();
 
+    List<Directory> watchedDirectoryList = Collections.synchronizedList(new ArrayList<Directory>());
+    
     public CollectionWatchService() {
     }
 
@@ -95,6 +99,8 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
                     return FileVisitResult.CONTINUE;
                 }
             });
+            
+            watchedDirectoryList.add(directory);
         } catch (IOException e) {
             log.error("Cannot watch directory: " + directory, e);
         }
@@ -116,6 +122,8 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
                 it.remove();
             }
         }
+        
+        watchedDirectoryList.remove(directory);
     }
 
     @Override
@@ -132,19 +140,23 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
                 @SuppressWarnings("unchecked")
                 WatchEvent<Path> eventPath = (WatchEvent<Path>) event;
                 WatchEvent.Kind<Path> kind = eventPath.kind();
-                Path relativePath = eventPath.context();
-                Path fullPath = dir.resolve(relativePath);
+                Path path = dir.resolve(eventPath.context());
+                Directory directory = getParentDirectory(path);
+                Path directoryPath = Paths.get(directory.getLocation());
                 
                 if (kind == ENTRY_CREATE) {
-                    if (Files.isDirectory(fullPath, LinkOption.NOFOLLOW_LINKS)) {
-                        // TODO Watch the new subdirectory if it doesn't exceed the max depth watched (2)
+                    if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
+                        // Watch the new directory if it's not too deep
+                        if (path.getNameCount() - directoryPath.getNameCount() < 2) {
+                            watchKeyMap.put(path.register(watchService, ENTRY_CREATE, ENTRY_DELETE), path);
+                        }
                     } else {
                         // TODO New track added (refactor validation with CollectionVisitor, wait for filesize unchanged in 2sec)
                     }
                 }
                 
                 if (kind == ENTRY_DELETE) {
-                    if (!Files.isDirectory(fullPath, LinkOption.NOFOLLOW_LINKS)) {
+                    if (!Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
                         // TODO Track removed
                     }
                 }
@@ -158,5 +170,21 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
     
     @Override
     protected void shutDown() {
+    }
+    
+    /**
+     * Get the directory related with the given path.
+     * 
+     * @param path Path
+     */
+    private Directory getParentDirectory(Path path) {
+        for (Directory directory : watchedDirectoryList) {
+            Path directoryPath = Paths.get(directory.getLocation());
+            if (path.startsWith(directoryPath)) {
+                return directory;
+            }
+        }
+        
+        return null;
     }
 }
