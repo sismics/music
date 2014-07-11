@@ -137,22 +137,22 @@ public class CollectionService extends AbstractScheduledService {
     /**
      * Add / update a media file to the index.
      *
-     * @param rootDirectory Directory to index
+     * @param directory Directory to index
      * @param file File to add
      */
-    public void indexFile(Directory rootDirectory, Path file) {
+    public void indexFile(Directory directory, Path file) {
         Stopwatch stopWatch = Stopwatch.createStarted();
         try {
             TrackDao trackDao = new TrackDao();
-            Track track = trackDao.getActiveByDirectoryAndFilename(rootDirectory.getId(), file.toAbsolutePath().toString());
+            Track track = trackDao.getActiveByDirectoryAndFilename(directory.getId(), file.toAbsolutePath().toString());
             if (track != null) {
-                readTrackMetadata(rootDirectory, file, track);
+                readTrackMetadata(directory, file, track);
                 trackDao.update(track);
             } else {
                 track = new Track();
                 track.setFileName(file.toAbsolutePath().toString());
 
-                readTrackMetadata(rootDirectory, file, track);
+                readTrackMetadata(directory, file, track);
                 trackDao.create(track);
             }
         } catch (Exception e) {

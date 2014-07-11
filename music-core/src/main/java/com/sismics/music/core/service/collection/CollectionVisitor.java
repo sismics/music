@@ -38,6 +38,9 @@ public class CollectionVisitor extends SimpleFileVisitor<Path> {
      */
     private Path rootPath;
     
+    /**
+     * Files indexed during the lifetime of this visitor.
+     */
     private Set<String> fileNameSet = new HashSet<>();
 
     /**

@@ -193,7 +193,7 @@ public class Directory {
             name = "music";
         }
     }
-
+    
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
