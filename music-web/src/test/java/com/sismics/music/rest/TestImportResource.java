@@ -6,6 +6,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sismics.util.filter.TokenBasedSecurityFilter;
@@ -23,6 +24,7 @@ public class TestImportResource extends BaseJerseyTest {
      * @throws Exception
      */
     @Test
+    @Ignore
     public void testImportResource() throws Exception {
         // Login users
         String adminAuthenticationToken = clientUtil.login("admin", "admin", false);

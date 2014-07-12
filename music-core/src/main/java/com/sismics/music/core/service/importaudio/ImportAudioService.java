@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
+import com.sismics.music.core.util.DirectoryUtil;
 
 /**
  * Import audio service.
@@ -60,7 +61,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
             log.info("Start importing a new URL: " + importAudio);
             
             // Starting YouTube-DL
-            String output = /*DirectoryUtil.getImportAudioDirectory().getAbsolutePath()*/ "D:" + File.separator + "%(title)s.%(ext)s"; // TODO Change me
+            String output = DirectoryUtil.getImportAudioDirectory().getAbsolutePath() + File.separator + "%(title)s.%(ext)s";
             String command = "youtube-dl -v --newline -f bestaudio -x --audio-format " + importAudio.getFormat()
                     + " --audio-quality " + importAudio.getQuality()
                     + " -o \"" + output + "\" \"" + importAudio.getUrl() + "\"";
