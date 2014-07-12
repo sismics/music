@@ -41,6 +41,9 @@ public class DirectoryDeletedAsyncListener {
         TransactionUtil.handle(new Runnable() {
             @Override
             public void run() {
+                // Stop watching the directory
+                AppContext.getInstance().getCollectionWatchService().unwatchDirectory(directory);
+                
                 // Remove directory from index
                 CollectionService collectionService = AppContext.getInstance().getCollectionService();
                 collectionService.removeDirectoryFromIndex(directory);

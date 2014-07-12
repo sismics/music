@@ -1,22 +1,28 @@
 package com.sismics.music.core.model.context;
 
-import com.google.common.eventbus.AsyncEventBus;
-import com.google.common.eventbus.EventBus;
-import com.sismics.music.core.listener.async.*;
-import com.sismics.music.core.listener.sync.DeadEventListener;
-import com.sismics.music.core.service.albumart.AlbumArtService;
-import com.sismics.music.core.service.collection.CollectionService;
-import com.sismics.music.core.service.lastfm.LastFmService;
-import com.sismics.music.core.service.player.PlayerService;
-import com.sismics.music.core.service.transcoder.TranscoderService;
-import com.sismics.util.EnvironmentUtil;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import com.google.common.eventbus.AsyncEventBus;
+import com.google.common.eventbus.EventBus;
+import com.sismics.music.core.listener.async.CollectionReindexAsyncListener;
+import com.sismics.music.core.listener.async.DirectoryCreatedAsyncListener;
+import com.sismics.music.core.listener.async.DirectoryDeletedAsyncListener;
+import com.sismics.music.core.listener.async.LastFmUpdateLovedTrackAsyncListener;
+import com.sismics.music.core.listener.async.PlayCompletedAsyncListener;
+import com.sismics.music.core.listener.async.PlayStartedAsyncListener;
+import com.sismics.music.core.listener.sync.DeadEventListener;
+import com.sismics.music.core.service.albumart.AlbumArtService;
+import com.sismics.music.core.service.collection.CollectionService;
+import com.sismics.music.core.service.collection.CollectionWatchService;
+import com.sismics.music.core.service.lastfm.LastFmService;
+import com.sismics.music.core.service.player.PlayerService;
+import com.sismics.music.core.service.transcoder.TranscoderService;
+import com.sismics.util.EnvironmentUtil;
 
 /**
  * Global application context.
@@ -53,6 +59,11 @@ public class AppContext {
      * Collection service.
      */
     private CollectionService collectionService;
+    
+    /**
+     * Collection watch service.
+     */
+    private CollectionWatchService collectionWatchService;
 
     /**
      * Album art service.
@@ -87,6 +98,9 @@ public class AppContext {
 
         collectionService = new CollectionService();
         collectionService.startAsync();
+        
+        collectionWatchService = new CollectionWatchService();
+        collectionWatchService.startAsync();
 
         albumArtService = new AlbumArtService();
         lastFmService = new LastFmService();
@@ -160,6 +174,15 @@ public class AppContext {
      */
     public CollectionService getCollectionService() {
         return collectionService;
+    }
+    
+    /**
+     * Getter of collectionWatchService.
+     *
+     * @return the collectionWatchService
+     */
+    public CollectionWatchService getCollectionWatchService() {
+        return collectionWatchService;
     }
 
     /**

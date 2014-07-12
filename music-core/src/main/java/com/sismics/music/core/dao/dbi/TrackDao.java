@@ -110,6 +110,25 @@ public class TrackDao {
     }
     
     /**
+     * Gets active tracks included in a location.
+     * 
+     * @param directoryId Directory ID
+     * @param location Parent location
+     * @return List of tracks
+     */
+    public List<Track> getActiveByDirectoryInLocation(String directoryId, String location) {
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        return handle.createQuery("select " + new TrackMapper().getJoinedColumns("t") +
+                "  from T_TRACK t, T_ALBUM a" +
+                "  where locate(:location, t.TRK_FILENAME_C) = 1 and t.TRK_DELETEDATE_D is null " +
+                "  and a.ALB_ID_C = t.TRK_IDALBUM_C and a.ALB_IDDIRECTORY_C = :directoryId and a.ALB_DELETEDATE_D is null")
+                .bind("directoryId", directoryId)
+                .bind("location", location)
+                .mapTo(Track.class)
+                .list();
+    }
+    
+    /**
      * Gets an active track by its trackname.
      *
      * @param id Track ID

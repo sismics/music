@@ -45,6 +45,9 @@ public class DirectoryCreatedAsyncListener {
                 CollectionService collectionService = AppContext.getInstance().getCollectionService();
                 collectionService.addDirectoryToIndex(directory);
 
+                // Watch new directory
+                AppContext.getInstance().getCollectionWatchService().watchDirectory(directory);
+                
                 // Update the scores
                 collectionService.updateScore();
             }

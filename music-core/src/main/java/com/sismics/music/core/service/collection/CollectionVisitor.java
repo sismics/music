@@ -15,7 +15,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSet;
+import com.sismics.music.core.constant.Constants;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Directory;
 
@@ -25,9 +25,6 @@ import com.sismics.music.core.model.dbi.Directory;
  * @author jtremeaux
  */
 public class CollectionVisitor extends SimpleFileVisitor<Path> {
-    private static final Set<String> supportedExtSet = ImmutableSet.of(
-            "mp3", "ogg", "oga", "aac", "m4a", "flac", "wav", "wma", "aif", "aiff", "ape", "mpc", "shn");
-
     /**
      * Root directory to visit.
      */
@@ -57,7 +54,7 @@ public class CollectionVisitor extends SimpleFileVisitor<Path> {
     public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
         String ext = com.google.common.io.Files.getFileExtension(path.toString()).toLowerCase();
         // Check that the extension is supported, and the file is not directly in the directory
-        if (supportedExtSet.contains(ext) && !rootPath.equals(path.getParent())) {
+        if (Constants.SUPPORTED_AUDIO_EXTENSIONS.contains(ext) && !rootPath.equals(path.getParent())) {
             final CollectionService collectionService = AppContext.getInstance().getCollectionService();
             collectionService.indexFile(rootDirectory, path);
             fileNameSet.add(path.toAbsolutePath().toString());

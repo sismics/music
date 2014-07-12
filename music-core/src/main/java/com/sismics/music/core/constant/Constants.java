@@ -1,5 +1,9 @@
 package com.sismics.music.core.constant;
 
+import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
+
 /**
  * Application constants.
  * 
@@ -30,4 +34,10 @@ public class Constants {
      * Default generic user role.
      */
     public static final String DEFAULT_USER_ROLE = "user";
+    
+    /**
+     * Supported audio file extensions.
+     */
+    public static final Set<String> SUPPORTED_AUDIO_EXTENSIONS = ImmutableSet.of(
+            "mp3", "ogg", "oga", "aac", "m4a", "flac", "wav", "wma", "aif", "aiff", "ape", "mpc", "shn");
 }

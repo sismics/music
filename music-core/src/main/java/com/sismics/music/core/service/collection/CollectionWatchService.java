@@ -29,8 +29,14 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
+import com.sismics.music.core.constant.Constants;
+import com.sismics.music.core.dao.dbi.AlbumDao;
+import com.sismics.music.core.dao.dbi.ArtistDao;
 import com.sismics.music.core.dao.dbi.DirectoryDao;
+import com.sismics.music.core.dao.dbi.TrackDao;
+import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Directory;
+import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.util.TransactionUtil;
 
 /**
@@ -54,6 +60,9 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
      */
     Map<WatchKey, Path> watchKeyMap = Maps.newConcurrentMap();
 
+    /**
+     * Watched directories.
+     */
     List<Directory> watchedDirectoryList = Collections.synchronizedList(new ArrayList<Directory>());
     
     public CollectionWatchService() {
@@ -84,18 +93,16 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
     
     /**
      * Watch a new directory.
-     * TODO Call this from PUT /directory
      * 
      * @param directory Directory to watch
      */
     public void watchDirectory(final Directory directory) {
         try {
-            Path path = Paths.get(directory.getLocation());
+            final Path path = Paths.get(directory.getLocation());
             Files.walkFileTree(path, EnumSet.noneOf(FileVisitOption.class), 2, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                    WatchKey watchKey = dir.register(watchService, ENTRY_CREATE, ENTRY_DELETE);
-                    watchKeyMap.put(watchKey, dir);
+                    watchPath(dir);
                     return FileVisitResult.CONTINUE;
                 }
             });
@@ -108,7 +115,6 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
     
     /**
      * Unwatch a directory.
-     * TODO Call this from DELETE /directory
      * 
      * @param directory Directory to unwatch
      */
@@ -141,26 +147,28 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
                 WatchEvent<Path> eventPath = (WatchEvent<Path>) event;
                 WatchEvent.Kind<Path> kind = eventPath.kind();
                 Path path = dir.resolve(eventPath.context());
-                Directory directory = getParentDirectory(path);
+                final Directory directory = getParentDirectory(path);
                 Path directoryPath = Paths.get(directory.getLocation());
                 
                 if (kind == ENTRY_CREATE) {
                     if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
-                        // Watch the new directory if it's not too deep
-                        if (path.getNameCount() - directoryPath.getNameCount() < 2) {
-                            watchKeyMap.put(path.register(watchService, ENTRY_CREATE, ENTRY_DELETE), path);
+                        // Watch the new directory if it's not too deep, and index it fully
+                        if (path.getNameCount() - directoryPath.getNameCount() == 1) {
+                            log.info("New directory created, watching and indexing it: " + path);
+                            watchPath(path);
+                            indexFolder(directory, path);
                         }
                     } else {
-                        // TODO New track added (refactor validation with CollectionVisitor, wait for filesize unchanged in 2sec)
+                        indexNewFile(directory, path);
                     }
                 }
                 
                 if (kind == ENTRY_DELETE) {
-                    if (!Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
-                        // TODO Track removed
-                    }
+                    pathRemoved(directory, path);
                 }
             }
+            
+            cleanupOrphans();
             
             if (!watchKey.reset()) {
                 watchKeyMap.remove(watchKey);
@@ -170,6 +178,99 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
     
     @Override
     protected void shutDown() {
+        try {
+            watchService.close();
+        } catch (IOException e) {
+            log.error("Error stopping watch service", e);
+        }
+    }
+    
+    /**
+     * Watch a new path.
+     * 
+     * @param path Path
+     * @throws IOException
+     */
+    private void watchPath(Path path) throws IOException {
+        watchKeyMap.put(path.register(watchService, ENTRY_CREATE, ENTRY_DELETE), path);
+    }
+    
+    /**
+     * Index a new file if it is an audio track.
+     * 
+     * @param directory Directory
+     * @param file File
+     * @throws Exception
+     */
+    private void indexNewFile(final Directory directory, final Path file) {
+        // Validate the file for indexing
+        String ext = com.google.common.io.Files.getFileExtension(file.toString()).toLowerCase();
+        Path directoryPath = Paths.get(directory.getLocation());
+        if (!Constants.SUPPORTED_AUDIO_EXTENSIONS.contains(ext) || directoryPath.equals(file.getParent())) {
+            return;
+        }
+        
+        log.info("New audio file created, indexing it: " + file);
+        
+        // Wait until the file does not grow
+        boolean isGrowing = true;
+        do {
+            long initialWeight = file.toFile().length();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                log.error("Interrupted while sleeping", e);
+            }
+            long finalWeight = file.toFile().length();
+            isGrowing = initialWeight < finalWeight;
+        } while(isGrowing);
+        
+        // Add the audio file to the index
+        TransactionUtil.handle(new Runnable() {
+            @Override
+            public void run() {
+                AppContext.getInstance().getCollectionService().indexFile(directory, file);
+            }
+        });
+    }
+    
+    /**
+     * Index the immediate children of a folder. 
+     * 
+     * @param directory Directory
+     * @param path Path to folder
+     * @throws IOException
+     */
+    private void indexFolder(final Directory directory, final Path path) throws IOException {
+        Files.walkFileTree(path, EnumSet.noneOf(FileVisitOption.class), 1, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                indexNewFile(directory, file);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+    
+    /**
+     * A path has been removed from a watched directory.
+     * It can be a single track or a whole directory.
+     * 
+     * @param directory Directory
+     * @param path File
+     */
+    private void pathRemoved(final Directory directory, final Path path) {
+        TransactionUtil.handle(new Runnable() {
+            @Override
+            public void run() {
+                // Search all tracks included in the deleted path and remove them
+                TrackDao trackDao = new TrackDao();
+                List<Track> trackList = trackDao.getActiveByDirectoryInLocation(directory.getId(), path.toAbsolutePath().toString());
+                log.info("Path removed, deleting all related tracks (" + trackList.size() + "): " + path);
+                for (Track track : trackList) {
+                    trackDao.delete(track.getId());
+                }
+            }
+        });
     }
     
     /**
@@ -186,5 +287,23 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
         }
         
         return null;
+    }
+    
+    /**
+     * Cleanup empty albums and artists.
+     */
+    private void cleanupOrphans() {
+        TransactionUtil.handle(new Runnable() {
+            @Override
+            public void run() {
+                // Cleanup empty albums
+                AlbumDao albumDao = new AlbumDao();
+                albumDao.deleteEmptyAlbum();
+                
+                // Delete all artists that don't have any album or track
+                ArtistDao artistDao = new ArtistDao();
+                artistDao.deleteEmptyArtist();
+            }
+        });
     }
 }
