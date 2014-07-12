@@ -279,10 +279,12 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
      * @param path Path
      */
     private Directory getParentDirectory(Path path) {
-        for (Directory directory : watchedDirectoryList) {
-            Path directoryPath = Paths.get(directory.getLocation());
-            if (path.startsWith(directoryPath)) {
-                return directory;
+        synchronized (watchedDirectoryList) {
+            for (Directory directory : watchedDirectoryList) {
+                Path directoryPath = Paths.get(directory.getLocation());
+                if (path.startsWith(directoryPath)) {
+                    return directory;
+                }
             }
         }
         

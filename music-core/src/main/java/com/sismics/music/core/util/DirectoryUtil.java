@@ -71,6 +71,15 @@ public class DirectoryUtil {
     public static File getAlbumArtDirectory() {
         return getDataSubDirectory("albumart");
     }
+    
+    /**
+     * Return the import audio directory.
+     * 
+     * @return Import audio directory.
+     */
+    public static File getImportAudioDirectory() {
+        return getDataSubDirectory("importaudio");
+    }
 
     /**
      * Returns a subdirectory of the base data directory

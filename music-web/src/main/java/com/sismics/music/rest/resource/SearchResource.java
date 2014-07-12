@@ -105,6 +105,7 @@ public class SearchResource extends BaseResource {
         
         // Search artists
         ArtistDao artistDao = new ArtistDao();
+        // TODO Return only artists with at least one album
         List<ArtistDto> artistList = artistDao.findByCriteria(new ArtistCriteria().setNameLike(query));
 
         JsonArrayBuilder artists = Json.createArrayBuilder();

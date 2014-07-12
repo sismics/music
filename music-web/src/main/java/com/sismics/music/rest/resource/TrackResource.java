@@ -1,14 +1,8 @@
 package com.sismics.music.rest.resource;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.RandomAccessFile;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.WritableByteChannel;
 import java.util.Date;
 
 import javax.json.Json;
@@ -20,13 +14,11 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -98,44 +90,22 @@ public class TrackResource extends BaseResource {
             public void run() {
                 try {
                     if (transcoder == null) {
-                        // Range not requested, serve the whole file
-                        if (range == null) {
-                            StreamingOutput streamer = new StreamingOutput() {
-                                @Override
-                                public void write(final OutputStream output) throws IOException, WebApplicationException {
-                                    final FileInputStream inputStream = new FileInputStream(file);
-                                    final FileChannel inputChannel = inputStream.getChannel();
-                                    final WritableByteChannel outputChannel = Channels.newChannel(output);
-                                    try {
-                                        inputChannel.transferTo(0, inputChannel.size(), outputChannel);
-                                    } finally {
-                                        // Closing the channels
-                                        inputStream.close();
-                                        inputChannel.close();
-                                        outputChannel.close();
-                                    }
-                                }
-                            };
-                            asyncResponse.resume(Response.ok(streamer).status(200)
-                                    .header(HttpHeaders.CONTENT_LENGTH, file.length())
-                                    .build());
-                            return;
+                        // Don't chunk the file, send content to the end
+                        final RandomAccessFile raf = new RandomAccessFile(file, "r");
+                        int from = 0, to = (int) (file.length() - 1);
+                        String responseRange = null;
+                        
+                        if (range != null) {
+                            // Range requested
+                            String[] ranges = range.split("=")[1].split("-");
+                            from = Integer.parseInt(ranges[0]);
+                            
+                            responseRange = String.format("bytes %d-%d/%d", from, to, file.length());
+                            raf.seek(from);
                         }
     
-                        // Range requested, send a 206 partial content
-                        String[] ranges = range.split("=")[1].split("-");
-                        final int from = Integer.parseInt(ranges[0]);
-    
-                        // Don't chunk the file, send content to the end
-                        final int to = (int) (file.length() - 1);
-    
-                        final String responseRange = String.format("bytes %d-%d/%d", from, to, file.length());
-                        final RandomAccessFile raf = new RandomAccessFile(file, "r");
-                        raf.seek(from);
-    
-                        final int len = to - from + 1;
-                        final MediaStreamer streamer = new MediaStreamer(len, raf);
-                        asyncResponse.resume(Response.ok(streamer).status(206)
+                        final MediaStreamer streamer = new MediaStreamer(to - from + 1, raf);
+                        asyncResponse.resume(Response.ok(streamer).status(range == null ? 200 : 206)
                                 .header("Accept-Ranges", "bytes")
                                 .header("Content-Range", responseRange)
                                 .header(HttpHeaders.CONTENT_LENGTH, streamer.getLength())
@@ -145,21 +115,25 @@ public class TrackResource extends BaseResource {
                         int seek = 0;
                         int from = 0;
                         int to = 0;
+                        
                         if (range != null) {
                             // Range requested, send a 206 partial content
                             String[] ranges = range.split("=")[1].split("-");
                             from = Integer.parseInt(ranges[0]);
                             seek = from / (128 * 1000 / 8);
                         }
+                        
                         int fileSize = track.getLength() * 128 * 1000 / 8;
                         InputStream is = transcoderService.getTranscodedInputStream(track, seek, transcoder);
                         Response.ResponseBuilder response = Response.ok(is);
+                        
                         if (range != null) {
                             response = response.status(206);
                             final String responseRange = String.format("bytes %d-%d/%d", from, to, fileSize);
                             response.header("Accept-Ranges", "bytes");
                             response.header("Content-Range", responseRange);
                         }
+                        
                         response.header(HttpHeaders.CONTENT_LENGTH, fileSize);
                         response.header(HttpHeaders.LAST_MODIFIED, new Date(file.lastModified()));
                         asyncResponse.resume(response.build());

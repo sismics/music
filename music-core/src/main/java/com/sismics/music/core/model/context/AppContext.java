@@ -19,6 +19,7 @@ import com.sismics.music.core.listener.sync.DeadEventListener;
 import com.sismics.music.core.service.albumart.AlbumArtService;
 import com.sismics.music.core.service.collection.CollectionService;
 import com.sismics.music.core.service.collection.CollectionWatchService;
+import com.sismics.music.core.service.importaudio.ImportAudioService;
 import com.sismics.music.core.service.lastfm.LastFmService;
 import com.sismics.music.core.service.player.PlayerService;
 import com.sismics.music.core.service.transcoder.TranscoderService;
@@ -66,6 +67,11 @@ public class AppContext {
     private CollectionWatchService collectionWatchService;
 
     /**
+     * Import audio service.
+     */
+    private ImportAudioService importAudioService;
+    
+    /**
      * Album art service.
      */
     private AlbumArtService albumArtService;
@@ -101,6 +107,9 @@ public class AppContext {
         
         collectionWatchService = new CollectionWatchService();
         collectionWatchService.startAsync();
+        
+        importAudioService = new ImportAudioService();
+        importAudioService.startAsync();
 
         albumArtService = new AlbumArtService();
         lastFmService = new LastFmService();
@@ -246,5 +255,14 @@ public class AppContext {
      */
     public EventBus getLastFmEventBus() {
         return lastFmEventBus;
+    }
+
+    /**
+     * Getter of importAudioService.
+     *
+     * @return the importAudioService
+     */
+    public ImportAudioService getImportAudioService() {
+        return importAudioService;
     }
 }
