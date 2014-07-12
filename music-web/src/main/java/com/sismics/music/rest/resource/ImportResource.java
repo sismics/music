@@ -75,7 +75,7 @@ public class ImportResource extends BaseResource {
      */
     @GET
     @Path("progress")
-    public Response list() {
+    public Response progress() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -96,4 +96,19 @@ public class ImportResource extends BaseResource {
 
         return Response.ok().entity(response.build()).build();
     }
+    
+    /**
+     * List imported tracks.
+     * @return
+     */
+    @GET
+    public Response list() {
+        // TODO List imported tracks
+        
+        return Response.ok().build();
+    }
+    
+    // TODO Resource to tag an imported track
+    
+    // TODO Resource to transfer an imported track to a directory
 }
