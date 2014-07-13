@@ -189,7 +189,7 @@ public class ImportResource extends BaseResource {
         // Tag the file
         try {
             AudioFile audioFile = AudioFileIO.read(file);
-            Tag tag = audioFile.getTag();
+            Tag tag = audioFile.getTagOrCreateAndSetDefault();
             tag.setField(FieldKey.TITLE, title);
             tag.setField(FieldKey.ALBUM, album);
             tag.setField(FieldKey.ARTIST, artist);
@@ -198,10 +198,16 @@ public class ImportResource extends BaseResource {
             throw new ServerException("TagError", "Error tagging the file", e);
         }
         
+        // Create album directory
+        String albumDirectory = FilenameUtil.cleanFileName(artist) + " - " + FilenameUtil.cleanFileName(album);
+        if (!Paths.get(directory.getLocation(), albumDirectory).toFile().mkdirs()) {
+            throw new ServerException("IOError", "Cannot create new album directory");
+        }
+        
         // Move the file to the right place and let to collection watch service index it
         String extension = Files.getFileExtension(fileName);
         java.nio.file.Path path = Paths.get(directory.getLocation(),
-                FilenameUtil.cleanFileName(artist) + " - " + FilenameUtil.cleanFileName(album),
+                albumDirectory,
                 FilenameUtil.cleanFileName(title) + "." + extension);
         try {
             Files.move(file, path.toFile());

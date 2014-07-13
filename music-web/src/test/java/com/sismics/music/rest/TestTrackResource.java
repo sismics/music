@@ -40,7 +40,7 @@ public class TestTrackResource extends BaseJerseyTest {
         FileUtils.copyDirectory(sourceDir.toFile(), destDir);
         destDir.deleteOnExit();
         
-        // Admin adds a track to the collection
+        // Admin adds a directory to the collection
         JsonObject json = target().path("/directory").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .put(Entity.form(new Form()
