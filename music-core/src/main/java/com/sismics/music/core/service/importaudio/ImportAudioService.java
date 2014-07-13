@@ -2,9 +2,11 @@ package com.sismics.music.core.service.importaudio;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -16,7 +18,9 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.io.Files;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
+import com.sismics.music.core.constant.Constants;
 import com.sismics.music.core.util.DirectoryUtil;
 
 /**
@@ -150,5 +154,20 @@ public class ImportAudioService extends AbstractExecutionThreadService {
         }
         
         return copy;
+    }
+
+    /**
+     * Return imported files.
+     * 
+     * @return List of imported files
+     */
+    public List<File> getImportedFileList() {
+        return Arrays.asList(DirectoryUtil.getImportAudioDirectory().listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String fileName) {
+                String extension = Files.getFileExtension(fileName);
+                return Constants.SUPPORTED_AUDIO_EXTENSIONS.contains(extension);
+            }
+        }));
     }
 }

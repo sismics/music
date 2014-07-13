@@ -1,5 +1,8 @@
 package com.sismics.music.rest.resource;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
 import javax.json.Json;
@@ -7,17 +10,27 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
+
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
+import com.sismics.music.core.dao.dbi.DirectoryDao;
 import com.sismics.music.core.model.context.AppContext;
+import com.sismics.music.core.model.dbi.Directory;
 import com.sismics.music.core.service.importaudio.ImportAudio;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
 import com.sismics.rest.util.ValidationUtil;
+import com.sismics.util.FilenameUtil;
 
 /**
  * Import REST resources.
@@ -99,16 +112,106 @@ public class ImportResource extends BaseResource {
     
     /**
      * List imported tracks.
-     * @return
+     * 
+     * @return Response
      */
     @GET
     public Response list() {
-        // TODO List imported tracks
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
         
-        return Response.ok().build();
+        List<File> importedFileList = AppContext.getInstance().getImportAudioService().getImportedFileList();
+        
+        JsonObjectBuilder response = Json.createObjectBuilder();
+        JsonArrayBuilder items = Json.createArrayBuilder();
+        for (File importedFile : importedFileList) {
+            items.add(Json.createObjectBuilder()
+                    .add("file", importedFile.getName()));
+        }
+        response.add("files", items);
+        
+        return Response.ok().entity(response.build()).build();
     }
     
-    // TODO Resource to tag an imported track
-    
-    // TODO Resource to transfer an imported track to a directory
+    /**
+     * Tag & transfer an imported file.
+     * 
+     * @return Response
+     */
+    @POST
+    public Response tag(
+            @FormParam("file") String fileName,
+            @FormParam("artist") String artist,
+            @FormParam("album") String album,
+            @FormParam("title") String title,
+            @FormParam("directory") String directoryId) {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+        
+        // Validate input
+        ValidationUtil.validateRequired(fileName, "file");
+        ValidationUtil.validateLength(artist, "artist", 1, 1000);
+        ValidationUtil.validateLength(album, "album", 1, 1000);
+        ValidationUtil.validateLength(title, "title", 1, 2000);
+        
+        // Validate directory
+        DirectoryDao directoryDao = new DirectoryDao();
+        Directory directory = null;
+        if (directoryId == null) {
+            List<Directory> directoryList = directoryDao.findAllEnabled();
+            if (directoryList.size() == 0) {
+                throw new ClientException("NoDirectory", "No configured directory available");
+            }
+            directory = directoryList.iterator().next();
+        } else {
+            directory = directoryDao.getActiveById(directoryId);
+            if (directory == null) {
+                throw new ClientException("ValidationError", "This directory cannot be found");
+            }
+        }
+        
+        // Retrieve the file from imported files
+        List<File> importedFileList = AppContext.getInstance().getImportAudioService().getImportedFileList();
+        File file = null;
+        for (File importedFile : importedFileList) {
+            if (importedFile.getName().equals(fileName)) {
+                file = importedFile;
+                break;
+            }
+        }
+        
+        if (file == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        
+        // Tag the file
+        try {
+            AudioFile audioFile = AudioFileIO.read(file);
+            Tag tag = audioFile.getTag();
+            tag.setField(FieldKey.TITLE, title);
+            tag.setField(FieldKey.ALBUM, album);
+            tag.setField(FieldKey.ARTIST, artist);
+            AudioFileIO.write(audioFile);
+        } catch (Exception e) {
+            throw new ServerException("TagError", "Error tagging the file", e);
+        }
+        
+        // Move the file to the right place and let to collection watch service index it
+        String extension = Files.getFileExtension(fileName);
+        java.nio.file.Path path = Paths.get(directory.getLocation(),
+                FilenameUtil.cleanFileName(artist) + " - " + FilenameUtil.cleanFileName(album),
+                FilenameUtil.cleanFileName(title) + "." + extension);
+        try {
+            Files.move(file, path.toFile());
+        } catch (IOException e) {
+            throw new ServerException("FileError", "Cannot move the imported file to the music directory", e);
+        }
+        
+        // Always return OK
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
+    }
 }
