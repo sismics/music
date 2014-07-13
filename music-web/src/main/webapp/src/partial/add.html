@@ -1,7 +1,8 @@
-<div>
+<div class="music-add">
   <ul class="nav nav-tabs">
-    <li ng-class="{ active: $state.current.name == 'main.add.upload' }"><a href="#/add/upload">Upload</a></li>
+    <li style="display: none;" ng-class="{ active: $state.current.name == 'main.add.upload' }"><a href="#/add/upload">Upload</a></li>
     <li ng-class="{ active: $state.current.name == 'main.add.external' }"><a href="#/add/external">External sources</a></li>
+    <li ng-class="{ active: $state.current.name == 'main.add.import' }"><a href="#/add/import">Add imported music</a></li>
   </ul>
 
   <div ui-view="tab"></div>

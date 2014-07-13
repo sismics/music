@@ -8,11 +8,13 @@ import java.util.List;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.jaudiotagger.audio.AudioFile;
@@ -200,9 +202,7 @@ public class ImportResource extends BaseResource {
         
         // Create album directory
         String albumDirectory = FilenameUtil.cleanFileName(artist) + " - " + FilenameUtil.cleanFileName(album);
-        if (!Paths.get(directory.getLocation(), albumDirectory).toFile().mkdirs()) {
-            throw new ServerException("IOError", "Cannot create new album directory");
-        }
+        Paths.get(directory.getLocation(), albumDirectory).toFile().mkdirs();
         
         // Move the file to the right place and let to collection watch service index it
         String extension = Files.getFileExtension(fileName);
@@ -219,5 +219,66 @@ public class ImportResource extends BaseResource {
         return Response.ok()
                 .entity(Json.createObjectBuilder().add("status", "ok").build())
                 .build();
+    }
+    
+    /**
+     * Cleanup finished imports.
+     * 
+     * @return Response
+     */
+    @POST
+    @Path("progress/cleanup")
+    public Response cleanup() {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+        
+        AppContext.getInstance().getImportAudioService().cleanup();
+        
+        // Always return OK
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build(); 
+    };
+    
+    /**
+     * Delete an imported file.
+     * 
+     * @param fileName File to delete
+     * @return Response
+     */
+    @DELETE
+    public Response delete(
+            @QueryParam("file") String fileName) {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+        
+        // Validate input
+        ValidationUtil.validateRequired(fileName, "file");
+        
+        // Retrieve the file from imported files
+        List<File> importedFileList = AppContext.getInstance().getImportAudioService().getImportedFileList();
+        File file = null;
+        for (File importedFile : importedFileList) {
+            if (importedFile.getName().equals(fileName)) {
+                file = importedFile;
+                break;
+            }
+        }
+        
+        if (file == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        
+        // Delete the file
+        if (!file.delete()) {
+            throw new ServerException("IOError", "Error deleting the file");
+        }
+        
+        // Always return OK
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build(); 
     }
 }

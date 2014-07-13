@@ -121,6 +121,15 @@ angular.module('music',
               }
             }
           })
+          .state('main.add.import', {
+            url: '/import',
+            views: {
+              'tab': {
+                templateUrl: 'partial/add.import.html',
+                controller: 'AddImport'
+              }
+            }
+          })
           .state('main.artist', {
             url: '/artist/:id',
             views: {

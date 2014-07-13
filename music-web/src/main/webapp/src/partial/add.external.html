@@ -1,3 +1,74 @@
 <div class="row">
-  Upload music from external sources
+  <div class="col-md-12">
+    <h3>
+      Import URLs <small>from external sites</small>
+      <div class="btn-group pull-right">
+        <button class="btn btn-default" ng-click="cleanup()">
+          <span class="glyphicon glyphicon-trash"></span>
+        </button>
+        <button class="btn btn-default" ng-click="refresh()">
+          <span class="glyphicon glyphicon-refresh"></span>
+        </button>
+      </div>
+    </h3>
+
+    <form role="form" name="importForm" novalidate class="form-horizontal">
+      <div class="form-group" ng-class="{ 'has-error': !importForm.url.$valid }">
+        <label for="inputUrl" class="col-sm-2 control-label">URLs to import</label>
+        <div class="col-sm-10">
+          <textarea class="form-control" name="url" id="inputUrl" rows="4" wrap="off" required ng-model="import.url"
+                    placeholder="Enter one URL by line. See http://rg3.github.io/youtube-dl/supportedsites.html for supported sites."></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="inputQuality" class="col-sm-2 control-label">Quality</label>
+        <div class="col-sm-3">
+          <select name="quality" id="inputQuality" class="form-control" ng-model="import.quality">
+            <option value="128K">128 kbps</option>
+            <option value="192K">192 kbps</option>
+            <option value="256K">256 kbps</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="inputFormat" class="col-sm-2 control-label">Format</label>
+        <div class="col-sm-3">
+          <select name="format" id="inputFormat" class="form-control" ng-model="import.format">
+            <option value="mp3">MP3</option>
+            <option value="aac">AAC</option>
+            <option value="vorbis">Vorbis</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <button type="submit" class="btn btn-primary" ng-click="startImport()" ng-disabled="!importForm.$valid">Import</button>
+        </div>
+      </div>
+    </form>
+
+    <table class="table" ng-show="imports.length > 0">
+      <tr>
+        <th>URL</th>
+        <th>Progress</th>
+        <th>Speed</th>
+        <th>Total size</th>
+        <th>Message</th>
+      </tr>
+      <tr ng-repeat="import in imports"
+          ng-class="{ 'success': import.status == 'DONE', 'danger': import.status == 'ERROR', 'info': import.status == 'INPROGRESS' }">
+        <td>{{ import.url }}</td>
+        <td><span ng-show="import.progress">{{ import.progress | number: 0 }}%</span></td>
+        <td>{{ import.speed }}</td>
+        <td>{{ import.total_size }}</td>
+        <td ng-init="import.show = false">
+          <span class="btn btn-link" ng-click="import.show = true" ng-show="!import.show">Click to show</span>
+          <p ng-click="import.show = false" ng-show="import.show">{{ import.message }}</p>
+        </td>
+      </tr>
+    </table>
+    <p class="text-center" ng-show="imports.length == 0">
+      No import in progress
+    </p>
+  </div>
 </div>

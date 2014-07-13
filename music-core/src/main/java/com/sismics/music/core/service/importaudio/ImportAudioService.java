@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -66,7 +67,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
             
             // Starting YouTube-DL
             String output = DirectoryUtil.getImportAudioDirectory().getAbsolutePath() + File.separator + "%(title)s.%(ext)s";
-            String command = "youtube-dl -v --newline -f bestaudio -x --audio-format " + importAudio.getFormat()
+            String command = "youtube-dl -v --encoding utf8 --prefer-ffmpeg --newline -f bestaudio -x --audio-format " + importAudio.getFormat()
                     + " --audio-quality " + importAudio.getQuality()
                     + " -o \"" + output + "\" \"" + importAudio.getUrl() + "\"";
             Process process = new ProcessBuilder(StringUtils.split(command))
@@ -169,5 +170,19 @@ public class ImportAudioService extends AbstractExecutionThreadService {
                 return Constants.SUPPORTED_AUDIO_EXTENSIONS.contains(extension);
             }
         }));
+    }
+
+    /**
+     * Cleanup finished imports.
+     */
+    public void cleanup() {
+        synchronized (importAudioList) {
+            for (Iterator<ImportAudio> it = importAudioList.iterator(); it.hasNext();) {
+                ImportAudio importAudio = it.next();
+                if (importAudio.getStatus() == ImportAudio.Status.DONE || importAudio.getStatus() == ImportAudio.Status.ERROR) {
+                    it.remove();
+                }
+            }
+        }
     }
 }
