@@ -138,6 +138,7 @@ public class ImportResource extends BaseResource {
     
     /**
      * Tag & transfer an imported file.
+     * TODO Add album artist (for folder name) & keep artist for track
      * 
      * @return Response
      */

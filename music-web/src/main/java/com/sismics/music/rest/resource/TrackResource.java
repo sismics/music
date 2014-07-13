@@ -298,6 +298,8 @@ public class TrackResource extends BaseResource {
         trackDb.setOrder(order);
         trackDao.update(trackDb);
         
+        // TODO Update artist
+        
         // Always return OK
         return Response.ok()
                 .entity(Json.createObjectBuilder().add("status", "ok").build())
