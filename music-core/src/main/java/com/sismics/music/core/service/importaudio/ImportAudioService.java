@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -67,10 +68,12 @@ public class ImportAudioService extends AbstractExecutionThreadService {
             
             // Starting YouTube-DL
             String output = DirectoryUtil.getImportAudioDirectory().getAbsolutePath() + File.separator + "%(title)s.%(ext)s";
-            String command = "youtube-dl -v --encoding utf8 --prefer-ffmpeg --newline -f bestaudio -x --audio-format " + importAudio.getFormat()
-                    + " --audio-quality " + importAudio.getQuality()
-                    + " -o \"" + output + "\" \"" + importAudio.getUrl() + "\"";
-            Process process = new ProcessBuilder(StringUtils.split(command))
+            String command = "youtube-dl -v --prefer-ffmpeg --newline -f bestaudio -x --audio-format " + importAudio.getFormat()
+                    + " --audio-quality " + importAudio.getQuality() + " -o";
+            List<String> commandList = new LinkedList<String>(Arrays.asList(StringUtils.split(command)));
+            commandList.add(output);
+            commandList.add(importAudio.getUrl());
+            Process process = new ProcessBuilder(commandList)
                     .redirectErrorStream(true)
                     .start();
 
