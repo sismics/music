@@ -58,9 +58,9 @@ public class SearchResource extends BaseResource {
         ValidationUtil.validateRequired(query, "query");
 
         // Search tracks
-        PaginatedList<TrackDto> paginatedList = PaginatedLists.create(limit, offset);
         TrackDao trackDao = new TrackDao();
-        trackDao.findByCriteria(new TrackCriteria().setUserId(principal.getId()).setTitleLike(query), paginatedList);
+        PaginatedList<TrackDto> paginatedList = PaginatedLists.create(limit, offset);
+        trackDao.findByCriteria(new TrackCriteria().setUserId(principal.getId()).setLike(query), paginatedList);
 
         JsonArrayBuilder tracks = Json.createArrayBuilder();
         JsonObjectBuilder response = Json.createObjectBuilder();
@@ -89,7 +89,7 @@ public class SearchResource extends BaseResource {
 
         // Search albums
         AlbumDao albumDao = new AlbumDao();
-        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria().setUserId(principal.getId()).setNameLike(query));
+        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria().setUserId(principal.getId()).setLike(query));
 
         JsonArrayBuilder albums = Json.createArrayBuilder();
         for (AlbumDto album : albumList) {
@@ -105,7 +105,6 @@ public class SearchResource extends BaseResource {
         
         // Search artists
         ArtistDao artistDao = new ArtistDao();
-        // TODO Return only artists with at least one album
         List<ArtistDto> artistList = artistDao.findByCriteria(new ArtistCriteria().setNameLike(query));
 
         JsonArrayBuilder artists = Json.createArrayBuilder();

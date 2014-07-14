@@ -12,9 +12,9 @@ public class TrackCriteria {
     private String albumId;
 
     /**
-     * Artist name.
+     * Artist ID.
      */
-    private String artistName;
+    private String artistId;
 
     /**
      * Playlist user ID.
@@ -27,20 +27,15 @@ public class TrackCriteria {
     private String playlistId;
 
     /**
-     * Title.
+     * Like.
      */
-    private String title;
-
-    /**
-     * Title (like).
-     */
-    private String titleLike;
+    private String like;
     
     /**
      * Directory ID.
      */
     private String directoryId;
-
+    
     /**
      * Getter of albumId.
      *
@@ -58,26 +53,6 @@ public class TrackCriteria {
      */
     public TrackCriteria setAlbumId(String albumId) {
         this.albumId = albumId;
-        return this;
-    }
-    
-    /**
-     * Getter of artistName.
-     *
-     * @return artistName
-     */
-    public String getArtistName() {
-        return this.artistName;
-    }
-
-    /**
-     * Setter of id.
-     *
-     * @param artistName artistName
-     * @return Criteria
-     */
-    public TrackCriteria setArtistName(String artistName) {
-        this.artistName = artistName;
         return this;
     }
     
@@ -121,44 +96,24 @@ public class TrackCriteria {
         this.playlistId = playlistId;
         return this;
     }
-
-    /**
-     * Getter of title.
-     *
-     * @return title
-     */
-    public String getTitle() {
-        return this.title;
-    }
-
-    /**
-     * Setter of id.
-     *
-     * @param title title
-     * @return Criteria
-     */
-    public TrackCriteria setTitle(String title) {
-        this.title = title;
-        return this;
-    }
     
     /**
-     * Getter of titleLike.
+     * Getter of like.
      *
-     * @return titleLike
+     * @return like
      */
-    public String getTitleLike() {
-        return this.titleLike;
+    public String getLike() {
+        return this.like;
     }
 
     /**
-     * Setter of titleLike.
+     * Setter of like.
      *
-     * @param titleLike titleLike
+     * @param like like
      * @return Criteria
      */
-    public TrackCriteria setTitleLike(String titleLike) {
-        this.titleLike = titleLike;
+    public TrackCriteria setLike(String like) {
+        this.like = like;
         return this;
     }
 
@@ -180,6 +135,23 @@ public class TrackCriteria {
         this.directoryId = directoryId;
         return this;
     }
-    
-    
+
+    /**
+     * Getter of artistId.
+     *
+     * @return the artistId
+     */
+    public String getArtistId() {
+        return artistId;
+    }
+
+    /**
+     * Setter of artistId.
+     *
+     * @param artistId artistId
+     */
+    public TrackCriteria setArtistId(String artistId) {
+        this.artistId = artistId;
+        return this;
+    }
 }

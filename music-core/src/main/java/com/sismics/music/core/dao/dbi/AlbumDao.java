@@ -190,9 +190,9 @@ public class AlbumDao {
             criteriaList.add("ar.ART_ID_C = :artistId");
             parameterMap.put("artistId", criteria.getArtistId());
         }
-        if (criteria.getNameLike() != null) {
-            criteriaList.add("lower(a.ALB_NAME_C) like lower(:nameLike)");
-            parameterMap.put("nameLike", "%" + criteria.getNameLike() + "%");
+        if (criteria.getLike() != null) {
+            criteriaList.add("(lower(a.ALB_NAME_C) like lower(:like) or lower(ar.ART_NAME_C) like lower(:like))");
+            parameterMap.put("like", "%" + criteria.getLike() + "%");
         }
         criteriaList.add("ar.ART_DELETEDATE_D is null");
         criteriaList.add("a.ALB_DELETEDATE_D is null");

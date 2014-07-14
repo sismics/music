@@ -17,9 +17,9 @@ public class AlbumCriteria {
     private String directoryId;
     
     /**
-     * Name (like).
+     * Like.
      */
-    private String nameLike;
+    private String like;
     
     /**
      * Artist ID.
@@ -92,20 +92,20 @@ public class AlbumCriteria {
     }
 
     /**
-     * Getter of nameLike.
-     * @return nameLike
+     * Getter of like.
+     * @return like
      */
-    public String getNameLike() {
-        return nameLike;
+    public String getLike() {
+        return like;
     }
 
     /**
-     * Setter of nameLike.
-     * @param nameLike nameLike
+     * Setter of like.
+     * @param like like
      * @return Criteria
      */
-    public AlbumCriteria setNameLike(String nameLike) {
-        this.nameLike = nameLike;
+    public AlbumCriteria setLike(String like) {
+        this.like = like;
         return this;
     }
 

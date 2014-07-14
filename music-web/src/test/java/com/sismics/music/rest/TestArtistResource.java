@@ -52,5 +52,9 @@ public class TestArtistResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         Assert.assertEquals("Gil Scott-Heron", json.getString("name"));
+        JsonArray albums = json.getJsonArray("albums");
+        Assert.assertEquals(0, albums.size());
+        JsonArray tracks = json.getJsonArray("tracks");
+        Assert.assertEquals(1, tracks.size());
     }
 }

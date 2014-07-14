@@ -1,16 +1,26 @@
 package com.sismics.music.core.dao.dbi;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
+
 import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
 import com.sismics.music.core.dao.dbi.dto.TrackDto;
 import com.sismics.music.core.dao.dbi.mapper.TrackMapper;
 import com.sismics.music.core.model.dbi.Track;
-import com.sismics.music.core.util.dbi.*;
+import com.sismics.music.core.util.dbi.ColumnIndexMapper;
+import com.sismics.music.core.util.dbi.PaginatedList;
+import com.sismics.music.core.util.dbi.PaginatedLists;
+import com.sismics.music.core.util.dbi.QueryParam;
+import com.sismics.music.core.util.dbi.QueryUtil;
 import com.sismics.util.context.ThreadLocalContext;
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.Query;
-
-import java.util.*;
 
 /**
  * Track DAO.
@@ -207,25 +217,13 @@ public class TrackDao {
             criteriaList.add("alb.ALB_IDDIRECTORY_C = :directoryId");
             parameterMap.put("directoryId", criteria.getDirectoryId());
         }
-        if (criteria.getArtistName() != null) {
-            criteriaList.add("a.ART_NAME_C = :artistName");
-            parameterMap.put("artistName", criteria.getArtistName());
+        if (criteria.getArtistId() != null) {
+            criteriaList.add("a.ART_ID_C = :artistId");
+            parameterMap.put("artistId", criteria.getArtistId());
         }
-        if (criteria.getTitle() != null) {
-            criteriaList.add("lower(t.TRK_TITLE_C) = lower(:title)");
-            parameterMap.put("title", criteria.getTitle());
-        }
-        if (criteria.getArtistName() != null) {
-            criteriaList.add("a.ART_NAME_C = :artistName");
-            parameterMap.put("artistName", criteria.getArtistName());
-        }
-        if (criteria.getTitle() != null) {
-            criteriaList.add("lower(t.TRK_TITLE_C) = lower(:title)");
-            parameterMap.put("title", criteria.getTitle());
-        }
-        if (criteria.getTitleLike() != null) {
-            criteriaList.add("lower(t.TRK_TITLE_C) like lower(:titleLike)");
-            parameterMap.put("titleLike", "%" + criteria.getTitleLike() + "%");
+        if (criteria.getLike() != null) {
+            criteriaList.add("(lower(t.TRK_TITLE_C) like lower(:like) or lower(alb.ALB_NAME_C) like lower(:like) or lower(a.ART_NAME_C) like lower(:like))");
+            parameterMap.put("like", "%" + criteria.getLike() + "%");
         }
         if (criteria.getUserId() != null) {
             parameterMap.put("userId", criteria.getUserId());
@@ -239,6 +237,8 @@ public class TrackDao {
 
         if (criteria.getPlaylistId() != null) {
             sb.append(" order by pt.PLT_ORDER_N asc");
+        } else if (criteria.getLike() != null || criteria.getArtistId() != null) {
+            sb.append(" order by alb.ALB_NAME_C, t.TRK_ORDER_N, t.TRK_TITLE_C asc");
         } else {
             sb.append(" order by t.TRK_ORDER_N, t.TRK_TITLE_C asc");
         }
@@ -285,21 +285,6 @@ public class TrackDao {
             trackDtoList.add(trackDto);
         }
         return trackDtoList;
-    }
-
-    /**
-     * Deletes all tracks from an album.
-     * 
-     * @param albumId Album ID
-     */
-    public void deleteFromAlbum(String albumId) {
-        final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_TRACK t" +
-                "  set t.TRK_DELETEDATE_D = :deleteDate" +
-                "  where WHERE t.TRK_DELETEDATE_D is null and t.TRK_IDALBUM_C = :albumId ")
-                .bind("albumId", albumId)
-                .bind("deleteDate", new Date())
-                .execute();
     }
 
     /**

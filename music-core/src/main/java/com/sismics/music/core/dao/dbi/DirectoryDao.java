@@ -105,11 +105,6 @@ public class DirectoryDao {
                 .bind("id", id)
                 .bind("deleteDate", new Date())
                 .execute();
-            
-        // TODO Delete linked data (albums + tracks + artists?)
-//        q = em.createQuery("delete from AuthenticationToken at where at.directoryId = :directoryId");
-//        q.setParameter("directoryId", directoryFromDb.getId());
-//        q.executeUpdate();
     }
 
     /**

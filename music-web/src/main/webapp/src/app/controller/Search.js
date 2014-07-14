@@ -6,7 +6,7 @@
 angular.module('music').controller('Search', function($rootScope, $scope, $stateParams, Restangular, Playlist) {
   // Server call debounced
   var search = _.debounce(function(query) {
-    Restangular.one('search', query).get().then(function(data) {
+    Restangular.one('search', query).get({ limit: 100 }).then(function(data) {
       $scope.results = data;
     });
   }, 300);

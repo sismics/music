@@ -35,42 +35,60 @@ public class TestSearchResource extends BaseJerseyTest {
                         .param("location", Paths.get(getClass().getResource("/music/").toURI()).toString())), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
-        // Search by track name : 1 result
+        // Search by track name
         json = target().path("/search/revolution").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         JsonArray tracks = json.getJsonArray("tracks");
-        Assert.assertNotNull(tracks);
+        JsonArray albums = json.getJsonArray("albums");
+        JsonArray artists = json.getJsonArray("artists");
         Assert.assertEquals(1, tracks.size());
-        JsonObject track0 = tracks.getJsonObject(0);
-        Assert.assertEquals("The Revolution Will Not Be Televised", track0.getString("title"));
+        Assert.assertEquals(0, albums.size());
+        Assert.assertEquals(0, artists.size());
+        Assert.assertEquals("The Revolution Will Not Be Televised", tracks.getJsonObject(0).getString("title"));
         
-        // Search by album name : 1 result
+        // Search by album name
         json = target().path("/search/coachella").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
-        JsonArray albums = json.getJsonArray("albums");
-        Assert.assertNotNull(tracks);
+        albums = json.getJsonArray("albums");
+        tracks = json.getJsonArray("tracks");
+        artists = json.getJsonArray("artists");
         Assert.assertEquals(1, albums.size());
-        JsonObject album0 = albums.getJsonObject(0);
-        Assert.assertEquals("Coachella 2010 Day 01 Mixtape", album0.getString("name"));
+        Assert.assertEquals(2, tracks.size());
+        Assert.assertEquals(0, artists.size());
+        Assert.assertEquals("Coachella 2010 Day 01 Mixtape", albums.getJsonObject(0).getString("name"));
         
-        // Search by artist name : 1 result
+        // Search by artist name
         json = target().path("/search/proxy").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
-        JsonArray artists = json.getJsonArray("artists");
-        Assert.assertNotNull(artists);
+        albums = json.getJsonArray("albums");
+        tracks = json.getJsonArray("tracks");
+        artists = json.getJsonArray("artists");
         Assert.assertEquals(1, artists.size());
-        JsonObject artist0 = artists.getJsonObject(0);
-        Assert.assertEquals("[A] Proxy", artist0.getString("name"));
+        Assert.assertEquals(0, tracks.size());
+        Assert.assertEquals(1, albums.size());
+        Assert.assertEquals("[A] Proxy", artists.getJsonObject(0).getString("name"));
+        
+        // Search by artist name
+        json = target().path("/search/scott").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        albums = json.getJsonArray("albums");
+        tracks = json.getJsonArray("tracks");
+        artists = json.getJsonArray("artists");
+        Assert.assertEquals(1, artists.size());
+        Assert.assertEquals(1, tracks.size());
+        Assert.assertEquals(0, albums.size());
+        Assert.assertEquals("Gil Scott-Heron", artists.getJsonObject(0).getString("name"));
 
         // Search by track name : no result
         json = target().path("/search/NOTRACK").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
-        tracks = json.getJsonArray("tracks");
-        Assert.assertNotNull(tracks);
-        Assert.assertEquals(0, tracks.size());
+        Assert.assertEquals(0, json.getJsonArray("tracks").size());
+        Assert.assertEquals(0, json.getJsonArray("albums").size());
+        Assert.assertEquals(0, json.getJsonArray("artists").size());
     }
 }

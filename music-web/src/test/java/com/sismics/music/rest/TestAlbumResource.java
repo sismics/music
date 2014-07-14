@@ -52,14 +52,6 @@ public class TestAlbumResource extends BaseJerseyTest {
         Assert.assertNotNull(album0.getBoolean("albumart"));
         Assert.assertNotNull(album0.getJsonNumber("update_date").longValue());
         Assert.assertNotNull(artist0.getString("id"));
-        
-        // Get all albums from an artist
-        json = target().path("/album").queryParam("artist", artist0.getString("id")).request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
-        albums = json.getJsonArray("albums");
-        Assert.assertNotNull(albums);
-        Assert.assertEquals(1, albums.size());
 
         // Get an album by its ID
         json = target().path("/album/" + album0Id).request()

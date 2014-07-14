@@ -95,6 +95,7 @@ public class TestImportResource extends BaseJerseyTest {
                 .post(Entity.form(new Form()
                         .param("file", "Au5 - Follow You (feat Danyka Nadeau) (Volant Remix).mp3")
                         .param("artist", "Au5")
+                        .param("album_artist", "Remixer")
                         .param("album", "Unsorted")
                         .param("title", "Follow You (feat Danyka Nadeau)")), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));

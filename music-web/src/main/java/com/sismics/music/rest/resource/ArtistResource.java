@@ -21,14 +21,20 @@ import javax.ws.rs.core.Response;
 
 import com.sismics.music.core.dao.dbi.AlbumDao;
 import com.sismics.music.core.dao.dbi.ArtistDao;
+import com.sismics.music.core.dao.dbi.TrackDao;
+import com.sismics.music.core.dao.dbi.criteria.AlbumCriteria;
 import com.sismics.music.core.dao.dbi.criteria.ArtistCriteria;
+import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
+import com.sismics.music.core.dao.dbi.dto.AlbumDto;
 import com.sismics.music.core.dao.dbi.dto.ArtistDto;
+import com.sismics.music.core.dao.dbi.dto.TrackDto;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Album;
 import com.sismics.music.core.model.dbi.Artist;
 import com.sismics.music.core.service.albumart.AlbumArtService;
 import com.sismics.music.core.service.albumart.AlbumArtSize;
 import com.sismics.music.core.util.ImageUtil;
+import com.sismics.music.rest.util.JsonUtil;
 import com.sismics.rest.exception.ForbiddenClientException;
 
 /**
@@ -51,7 +57,6 @@ public class ArtistResource extends BaseResource {
         }
 
         ArtistDao artistDao = new ArtistDao();
-        // TODO Return only artists with at least one album
         List<ArtistDto> artistList = artistDao.findByCriteria(new ArtistCriteria());
 
         JsonObjectBuilder response = Json.createObjectBuilder();
@@ -87,10 +92,62 @@ public class ArtistResource extends BaseResource {
         if (artist == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-
+        
+        // Artist informations
         JsonObjectBuilder response = Json.createObjectBuilder()
                 .add("id", artist.getId())
                 .add("name", artist.getName());
+        
+        // Artist's albums
+        AlbumDao albumDao = new AlbumDao();
+        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria()
+                .setUserId(principal.getId())
+                .setArtistId(artist.getId()));
+
+        JsonArrayBuilder albums = Json.createArrayBuilder();
+        for (AlbumDto albumDto : albumList) {
+            albums.add(Json.createObjectBuilder()
+                    .add("id", albumDto.getId())
+                    .add("name", albumDto.getName())
+                    .add("update_date", albumDto.getUpdateDate().getTime())
+                    .add("albumart", albumDto.getAlbumArt() != null)
+                    .add("play_count", albumDto.getUserPlayCount())
+                    .add("artist", Json.createObjectBuilder()
+                            .add("id", albumDto.getArtistId())
+                            .add("name", albumDto.getArtistName())));
+        }
+        response.add("albums", albums);
+        
+        // Artist's tracks
+        TrackDao trackDao = new TrackDao();
+        List<TrackDto> trackList = trackDao.findByCriteria(new TrackCriteria()
+                .setUserId(principal.getId())
+                .setArtistId(artist.getId()));
+        
+        JsonArrayBuilder tracks = Json.createArrayBuilder();
+        for (TrackDto trackDto : trackList) {
+            tracks.add(Json.createObjectBuilder()
+                    .add("order", JsonUtil.nullable(trackDto.getOrder()))
+                    .add("id", trackDto.getId())
+                    .add("title", trackDto.getTitle())
+                    .add("year", JsonUtil.nullable(trackDto.getYear()))
+                    .add("genre", JsonUtil.nullable(trackDto.getGenre()))
+                    .add("length", trackDto.getLength())
+                    .add("bitrate", trackDto.getBitrate())
+                    .add("vbr", trackDto.isVbr())
+                    .add("format", trackDto.getFormat())
+                    .add("filename", trackDto.getFileName())
+                    .add("play_count", trackDto.getUserTrackPlayCount())
+                    .add("liked", trackDto.isUserTrackLike())
+                    .add("album", Json.createObjectBuilder()
+                            .add("id", trackDto.getAlbumId())
+                            .add("name", trackDto.getAlbumName()))
+                    .add("artist", Json.createObjectBuilder()
+                            .add("id", trackDto.getArtistId())
+                            .add("name", trackDto.getArtistName())));
+        }
+        response.add("tracks", tracks);
+
         return Response.ok().entity(response.build()).build();
     }
     

@@ -2,7 +2,7 @@
   <div class="col-md-12">
     <h3>
       Add imported music <small>to my collection</small>
-      <button class="btn btn-default pull-right" ng-click="refresh()">
+      <button class="btn btn-default pull-right" ng-click="refresh()" title="Refresh">
         <span class="glyphicon glyphicon-refresh"></span>
       </button>
     </h3>
@@ -10,17 +10,20 @@
     <form name="tagForm">
       <table class="table" ng-show="files.length > 0">
         <tr>
-          <th>File</th>
-          <th>Artist</th>
+          <th>Album artist</th>
           <th>Album</th>
+          <th>Artist</th>
           <th>Title</th>
           <th></th>
           <th></th>
         </tr>
-        <tr ng-repeat="file in files">
-          <td>{{ file.file }}</td>
-          <td><input type="text" class="form-control" placeholder="Artist" ng-model="file.artist" /></td>
+        <tr ng-repeat-start="file in files">
+          <td colspan="6">{{ file.file }}</td>
+        </tr>
+        <tr ng-repeat-end>
+          <td><input type="text" class="form-control" placeholder="Album artist" ng-model="file.album_artist" /></td>
           <td><input type="text" class="form-control" placeholder="Album" ng-model="file.album" /></td>
+          <td><input type="text" class="form-control" placeholder="Artist" ng-model="file.artist" /></td>
           <td><input type="text" class="form-control" placeholder="Title" ng-model="file.title" /></td>
           <td>
             <button class="btn btn-default" ng-click="moveFile(file)">

@@ -20,15 +20,18 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang.StringUtils;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 
+import com.sismics.music.core.dao.dbi.ArtistDao;
 import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.UserDao;
 import com.sismics.music.core.dao.dbi.UserTrackDao;
 import com.sismics.music.core.model.context.AppContext;
+import com.sismics.music.core.model.dbi.Artist;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.model.dbi.Transcoder;
 import com.sismics.music.core.model.dbi.User;
@@ -257,6 +260,7 @@ public class TrackResource extends BaseResource {
         Integer order = ValidationUtil.validateInteger(orderStr, "order");
 
         TrackDao trackDao = new TrackDao();
+        ArtistDao artistDao = new ArtistDao();
         Track trackDb = trackDao.getActiveById(id);
         if (trackDb == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -296,9 +300,22 @@ public class TrackResource extends BaseResource {
         trackDb.setYear(year);
         trackDb.setGenre(genre);
         trackDb.setOrder(order);
-        trackDao.update(trackDb);
         
-        // TODO Update artist
+        // Set the new artist (and create it if necessary)
+        Artist artistDb = artistDao.getActiveById(trackDb.getArtistId());
+        if (!StringUtils.equals(artist, artistDb.getName())) {
+            Artist newArtistDb = artistDao.getActiveByName(artist);
+            if (newArtistDb == null) {
+                newArtistDb = new Artist();
+                newArtistDb.setName(artist);
+                artistDao.create(newArtistDb);
+            }
+            
+            trackDb.setArtistId(newArtistDb.getId());
+        }
+        
+        trackDao.update(trackDb);
+        artistDao.deleteEmptyArtist();
         
         // Always return OK
         return Response.ok()

@@ -14,6 +14,7 @@ angular.module('music').controller('AddImport', function($scope, Restangular, $d
         var sep = file.file.indexOf(' - ');
         if (sep > -1) {
           file.artist = file.file.substring(0, sep);
+          file.album_artist = file.artist;
           file.title = file.file.substring(sep + 3, file.file.lastIndexOf('.'));
         } else {
           file.title = file.file.substring(0, file.file.lastIndexOf('.'));

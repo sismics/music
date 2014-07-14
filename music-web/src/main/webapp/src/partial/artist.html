@@ -3,8 +3,9 @@
 </div>
 
 <div class="row">
-  <div class="col-sm-12">
-    <div class="col-sm-6 col-md-3" bindonce ng-repeat="album in albums">
+  <div class="col-sm-12" ng-show="artist.albums.length > 0">
+    <h3>Albums</h3>
+    <div class="col-sm-6 col-md-3" bindonce ng-repeat="album in artist.albums">
       <a class="thumbnail albumart-thumbnail" bo-href="'#/album/' + album.id">
         <div class="img-container">
           <img bo-if="album.albumart" bo-src="'../api/album/' + album.id + '/albumart/small'" />
@@ -18,9 +19,40 @@
       </a>
     </div>
   </div>
+
+  <div class="col-sm-12" ng-show="artist.tracks.length > 0">
+    <h3>Tracks</h3>
+    <table class="table table-striped table-tracks">
+      <thead>
+      <tr>
+        <th style="width: 4%;" class="col-md-1"></th>
+        <th style="width: 4%;" class="col-md-1"></th>
+        <th>Title</th>
+        <th>Artist</th>
+        <th>Album</th>
+        <th style="width: 7%"><span class="glyphicon glyphicon-time"></span></th>
+        <th style="width: 4%;"></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr bindonce ng-repeat="track in artist.tracks">
+        <td><span class="glyphicon glyphicon-play btn-pointer" ng-click="playTrack(track)"></span></td>
+        <td><span class="glyphicon glyphicon-plus btn-pointer" ng-click="addTrack(track)"></span></td>
+        <td bo-title="track.title" bo-text="track.title"></td>
+        <td bo-title="track.artist.name"><a bo-href="'#/artist/' + track.artist.id" bo-text="track.artist.name"></a></td>
+        <td bo-title="track.album.name"><a bo-href="'#/album/' + track.album.id" bo-text="track.album.name"></a></td>
+        <td bo-text="track.length | duration"></td>
+        <td>
+          <span class="glyphicon btn-pointer btn-like" title="{{ track.liked ? 'Loved' : '' }}" ng-click="toggleLikeTrack(track)"
+                ng-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
-<div class="big-loader-container row" ng-show="!albums">
+<div class="big-loader-container row" ng-show="!artist.albums">
   <div class="big-loader">
   </div>
 </div>

@@ -138,7 +138,6 @@ public class ImportResource extends BaseResource {
     
     /**
      * Tag & transfer an imported file.
-     * TODO Add album artist (for folder name) & keep artist for track
      * 
      * @return Response
      */
@@ -146,6 +145,7 @@ public class ImportResource extends BaseResource {
     public Response tag(
             @FormParam("file") String fileName,
             @FormParam("artist") String artist,
+            @FormParam("album_artist") String albumArtist,
             @FormParam("album") String album,
             @FormParam("title") String title,
             @FormParam("directory") String directoryId) {
@@ -156,6 +156,7 @@ public class ImportResource extends BaseResource {
         // Validate input
         ValidationUtil.validateRequired(fileName, "file");
         ValidationUtil.validateLength(artist, "artist", 1, 1000);
+        ValidationUtil.validateLength(albumArtist, "album_artist", 1, 1000);
         ValidationUtil.validateLength(album, "album", 1, 1000);
         ValidationUtil.validateLength(title, "title", 1, 2000);
         
@@ -196,13 +197,14 @@ public class ImportResource extends BaseResource {
             tag.setField(FieldKey.TITLE, title);
             tag.setField(FieldKey.ALBUM, album);
             tag.setField(FieldKey.ARTIST, artist);
+            tag.setField(FieldKey.ALBUM_ARTIST, albumArtist);
             AudioFileIO.write(audioFile);
         } catch (Exception e) {
             throw new ServerException("TagError", "Error tagging the file", e);
         }
         
         // Create album directory
-        String albumDirectory = FilenameUtil.cleanFileName(artist) + " - " + FilenameUtil.cleanFileName(album);
+        String albumDirectory = FilenameUtil.cleanFileName(albumArtist) + " - " + FilenameUtil.cleanFileName(album);
         Paths.get(directory.getLocation(), albumDirectory).toFile().mkdirs();
         
         // Move the file to the right place and let to collection watch service index it

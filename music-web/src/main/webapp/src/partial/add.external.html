@@ -3,10 +3,10 @@
     <h3>
       Import URLs <small>from external sites</small>
       <div class="btn-group pull-right">
-        <button class="btn btn-default" ng-click="cleanup()">
+        <button class="btn btn-default" ng-click="cleanup()" title="Cleanup imported files">
           <span class="glyphicon glyphicon-trash"></span>
         </button>
-        <button class="btn btn-default" ng-click="refresh()">
+        <button class="btn btn-default" ng-click="refresh()" title="Refresh">
           <span class="glyphicon glyphicon-refresh"></span>
         </button>
       </div>
@@ -63,7 +63,7 @@
         <td>{{ import.total_size }}</td>
         <td ng-init="import.show = false">
           <span class="btn btn-link" ng-click="import.show = true" ng-show="!import.show">Click to show</span>
-          <p ng-click="import.show = false" ng-show="import.show">{{ import.message }}</p>
+          <pre ng-click="import.show = false" ng-show="import.show">{{ import.message }}</pre>
         </td>
       </tr>
     </table>

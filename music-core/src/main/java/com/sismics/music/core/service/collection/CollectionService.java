@@ -118,6 +118,14 @@ public class CollectionService extends AbstractScheduledService {
         if (log.isInfoEnabled()) {
             log.info(MessageFormat.format("Removing directory {0} from index", directory.getLocation()));
         }
+        
+        // Search all tracks included in the deleted path and remove them
+        TrackDao trackDao = new TrackDao();
+        List<Track> trackList = trackDao.getActiveByDirectoryInLocation(directory.getId(), directory.getLocation());
+        for (Track track : trackList) {
+            trackDao.delete(track.getId());
+        }
+        
         // Delete all albums from this directory
         AlbumDao albumDao = new AlbumDao();
         List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria().setDirectoryId(directory.getId()));
