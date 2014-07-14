@@ -27,7 +27,7 @@ public class DirectoryNameParser {
      * @param file File path
      */
     public DirectoryNameParser(Path file) throws Exception {
-        String[] data = file.getFileName().toString().split(" - ");
+        String[] data = file.getFileName().toString().split(" - ", 2);
         if (data.length == 2) {
             artistName = data[0].trim();
             albumName = data[1].trim();
