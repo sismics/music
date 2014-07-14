@@ -39,5 +39,5 @@ public class Constants {
      * Supported audio file extensions.
      */
     public static final Set<String> SUPPORTED_AUDIO_EXTENSIONS = ImmutableSet.of(
-            "mp3", "ogg", "oga", "aac", "m4a", "flac", "wav", "wma", "aif", "aiff", "ape", "mpc", "shn");
+            "ogg", "mp3", "flac", "mp4", "m4a", "m4p", "wma", "wav", "ra", "rm", "m4b");
 }
