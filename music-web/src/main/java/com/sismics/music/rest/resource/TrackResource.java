@@ -292,7 +292,7 @@ public class TrackResource extends BaseResource {
             }
             AudioFileIO.write(audioFile);
         } catch (Exception e) {
-            throw new ServerException("TagError", "Error tagging the file", e);
+            throw new ServerException("TagError", "Error tagging the file: " + file, e);
         }
         
         // Tagging goes well, update the database

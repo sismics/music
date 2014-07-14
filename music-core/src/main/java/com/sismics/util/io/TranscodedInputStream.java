@@ -42,7 +42,7 @@ public class TranscodedInputStream extends InputStream {
             for (String s : processBuilder.command()) {
                 sb.append(s).append(" ");
             }
-            log.debug(sb.toString());
+            log.info(sb.toString());
         }
 
         // Start the transcoding process process
