@@ -184,7 +184,7 @@ public class CollectionService extends AbstractScheduledService {
         AudioFile audioFile = AudioFileIO.read(file.toFile());
         Tag tag = audioFile.getTag();
         if (tag == null) {
-            // No tag, no music
+            // TODO Use filename as title and move on
             throw new Exception("No tag in file: " + file);
         }
 
