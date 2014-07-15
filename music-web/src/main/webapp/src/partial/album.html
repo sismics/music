@@ -29,7 +29,7 @@
             <td><span class="glyphicon glyphicon-play btn-pointer" ng-click="playTrack(track)"></span></td>
             <td><span class="glyphicon glyphicon-plus btn-pointer" ng-click="addTrack(track)"></span></td>
             <td>{{ track.order }}</td>
-            <td>{{ track.title }} <span ng-if="track.artist.id != album.artist.id">({{ track.artist.name }})</span></td>
+            <td title="{{ track.title }}">{{ track.title }} <span ng-if="track.artist.id != album.artist.id">({{ track.artist.name }})</span></td>
             <td title="Played {{ track.play_count }} times">{{ track.length | duration }}</td>
             <td>
               <span class="glyphicon btn-pointer btn-like" title="{{ track.liked ? 'Loved' : '' }}" ng-click="toggleLikeTrack(track)"

@@ -66,6 +66,12 @@ public class CollectionVisitor extends SimpleFileVisitor<Path> {
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
         return FileVisitResult.CONTINUE;
     }
+    
+    @Override
+    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+        log.error("Error visiting: " + file, exc);
+        return FileVisitResult.SKIP_SUBTREE;
+    }
 
     /**
      * Index subfolders in the root directory.
@@ -75,7 +81,7 @@ public class CollectionVisitor extends SimpleFileVisitor<Path> {
         try {
             Files.walkFileTree(rootPath, EnumSet.noneOf(FileVisitOption.class), 2, this);
         } catch (IOException e) {
-            log.error("Cannot read from directory: " + rootDirectory.getLocation());
+            log.error("Cannot read from directory: " + rootDirectory.getLocation(), e);
             return;
         }
     }
