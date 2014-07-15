@@ -30,7 +30,7 @@ public class TestImportResource extends BaseJerseyTest {
      * @throws Exception
      */
     @Test
-    @Ignore
+    @Ignore // youtube-dl is not installed on Travis
     public void testImportResource() throws Exception {
         // Login users
         String adminAuthenticationToken = clientUtil.login("admin", "admin", false);

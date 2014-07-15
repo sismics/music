@@ -114,13 +114,14 @@ public class ImportAudioService extends AbstractExecutionThreadService {
 
     /**
      * Check import audio prerequisites.
+     * 
+     * @return youtube-dl version
+     * @throws IOException 
      */
-    public boolean checkPrerequisites() {
-        try {
-            Runtime.getRuntime().exec("youtube-dl");
-            return true;
-        } catch (IOException e) {
-            return false;
+    public String checkPrerequisites() throws IOException {
+        Process process = Runtime.getRuntime().exec("youtube-dl --version");
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            return reader.readLine();
         }
     }
 

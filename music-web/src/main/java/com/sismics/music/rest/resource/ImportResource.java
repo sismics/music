@@ -68,11 +68,6 @@ public class ImportResource extends BaseResource {
             throw new ClientException("ValidationError", "format must be mp3, aac or vorbis");
         }
         
-        // Check if youtube-dl is present
-        if (!AppContext.getInstance().getImportAudioService().checkPrerequisites()) {
-            throw new ServerException("DependencyError", "youtube-dl is necessary to import audio. Download and install it at: http://rg3.github.io/youtube-dl/");
-        }
-        
         // Add the URL to the import queue
         AppContext.getInstance().getImportAudioService().downloadAudio(urlList, quality, format);
         
@@ -82,6 +77,28 @@ public class ImportResource extends BaseResource {
                 .build();
     }
     
+    /**
+     * Check import prerequisites.
+     * 
+     * @return Response
+     */
+    @GET
+    @Path("check")
+    public Response check() {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+        
+        // Check and retrieve youtube-dl version
+        try {
+            String version = AppContext.getInstance().getImportAudioService().checkPrerequisites();
+            return Response.ok()
+                    .entity(Json.createObjectBuilder().add("youtube-dl.version", version).build())
+                    .build();
+        } catch (Exception e) {
+            throw new ServerException("CheckError", "youtube-dl is necessary to import audio. Download and install it at: http://rg3.github.io/youtube-dl/download.html", e);
+        }
+    }
     
     /**
      * List imports in progress.
