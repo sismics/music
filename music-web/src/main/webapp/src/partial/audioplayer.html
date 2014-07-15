@@ -11,6 +11,7 @@
 
   <div class="col-md-2 albumart">
     <img ng-if="track.album.albumart" ng-click="openAlbum(track.album.id)" ng-src="../api/album/{{ track.album.id }}/albumart/small" />
+    <div ng-if="track && !track.album.albumart" class="placeholder"></div>
   </div>
 
   <div class="col-md-4 now-playing">

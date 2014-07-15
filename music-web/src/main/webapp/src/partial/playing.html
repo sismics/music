@@ -28,7 +28,7 @@
           </span>
         </td>
         <td bo-title="track.title" bo-text="track.title"></td>
-        <td bo-title="track.artist.name" bo-text="track.artist.name"></td>
+        <td bo-title="track.artist.name"><a bo-href="'#/artist/' + track.artist.id" bo-text="track.artist.name"></a></td>
         <td bo-title="track.album.name"><a bo-href="'#/album/' + track.album.id" bo-text="track.album.name"></a></td>
         <td bo-text="track.length | duration"></td>
         <td>

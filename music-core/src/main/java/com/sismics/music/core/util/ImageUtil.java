@@ -1,5 +1,6 @@
 package com.sismics.music.core.util;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -221,6 +222,9 @@ public class ImageUtil {
     public static BufferedImage makeMosaic(List<BufferedImage> imageList, int size) throws Exception {
         if (imageList.size() == 0) {
             BufferedImage mosaicImage = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
+            Graphics2D mosaicGraphic = mosaicImage.createGraphics();
+            mosaicGraphic.setColor(new Color(68, 68, 68));
+            mosaicGraphic.fillRect(0, 0, size, size);
             return mosaicImage;
         }
         
