@@ -22,7 +22,8 @@ public class DirectoryNameParser {
     private String albumName;
     
     /**
-     * Parse a file path.
+     * Parse a file path into artist name and album name.
+     * Never fails.
      * 
      * @param file File path
      */
@@ -34,7 +35,8 @@ public class DirectoryNameParser {
         }
         
         if (Strings.isNullOrEmpty(artistName) || Strings.isNullOrEmpty(albumName)) {
-            throw new Exception("Directory name invalid: " + file.getFileName().toString());
+            artistName = "Unknown";
+            albumName = file.getFileName().toString();
         }
     }
 

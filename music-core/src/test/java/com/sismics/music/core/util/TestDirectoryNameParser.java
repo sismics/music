@@ -22,18 +22,10 @@ public class TestDirectoryNameParser {
         Assert.assertEquals("La Rumeur", new DirectoryNameParser(Paths.get("La Rumeur - 2ème Volet - Le Franc Tireur")).getArtistName());
         Assert.assertEquals("2ème Volet - Le Franc Tireur", new DirectoryNameParser(Paths.get("La Rumeur - 2ème Volet - Le Franc Tireur")).getAlbumName());
         
-        try {
-            new DirectoryNameParser(Paths.get("_divers"));
-            Assert.fail();
-        } catch (Exception e) {
-            // NOP
-        }
+        Assert.assertEquals("Unknown", new DirectoryNameParser(Paths.get("_divers")).getArtistName());
+        Assert.assertEquals("_divers", new DirectoryNameParser(Paths.get("_divers")).getAlbumName());
         
-        try {
-            new DirectoryNameParser(Paths.get("Artist-Album"));
-            Assert.fail();
-        } catch (Exception e) {
-            // NOP
-        }
+        Assert.assertEquals("Unknown", new DirectoryNameParser(Paths.get("Ran-Dom")).getArtistName());
+        Assert.assertEquals("Ran-Dom", new DirectoryNameParser(Paths.get("Ran-Dom")).getAlbumName());
     }
 }
