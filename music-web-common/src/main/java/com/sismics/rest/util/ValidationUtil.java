@@ -16,7 +16,7 @@ import com.sismics.rest.exception.ClientException;
  * @author jtremeaux
  */
 public class ValidationUtil {
-    private static Pattern EMAIL_PATTERN = Pattern.compile(".+@.+\\..+");
+    private static Pattern EMAIL_PATTERN = Pattern.compile(".+@.+");
     
     private static Pattern HTTP_URL_PATTERN = Pattern.compile("https?://.+");
     
