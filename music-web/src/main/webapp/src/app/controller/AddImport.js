@@ -45,5 +45,15 @@ angular.module('music').controller('AddImport', function($scope, Restangular, $d
     });
   };
 
+  // Copy a file's metadata to all others
+  $scope.copyMetadata = function(property, file) {
+    var value = propByPath(file, property);
+    _.each(_.reject($scope.files, function(t) {
+      return t == file;
+    }), function(t) {
+      propByPath(t, property, value);
+    });
+  };
+
   $scope.refresh();
 });

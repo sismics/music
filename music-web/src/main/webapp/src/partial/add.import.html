@@ -10,21 +10,50 @@
     <form name="tagForm">
       <table class="table" ng-show="files.length > 0">
         <tr>
-          <th>Album artist</th>
-          <th>Album</th>
-          <th>Artist</th>
-          <th>Title</th>
-          <th></th>
-          <th></th>
+          <th style="width: 22%;">Album artist</th>
+          <th style="width: 22%;">Album</th>
+          <th style="width: 22%;">Artist</th>
+          <th style="width: 24%;">Title</th>
+          <th style="width: 5%;"></th>
+          <th style="width: 5%;"></th>
         </tr>
         <tr ng-repeat-start="file in files">
           <td colspan="6">{{ file.file }}</td>
         </tr>
         <tr ng-repeat-end>
-          <td><input type="text" class="form-control" placeholder="Album artist" ng-model="file.album_artist" /></td>
-          <td><input type="text" class="form-control" placeholder="Album" ng-model="file.album" /></td>
-          <td><input type="text" class="form-control" placeholder="Artist" ng-model="file.artist" /></td>
-          <td><input type="text" class="form-control" placeholder="Title" ng-model="file.title" /></td>
+          <td>
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Album artist" ng-model="file.album_artist" />
+              <span class="input-group-btn">
+                <button class="btn btn-default" type="button" ng-click="copyMetadata('album_artist', file)" ng-if="$first">
+                  <span class="glyphicon glyphicon-share-alt"></span>
+                </button>
+              </span>
+            </div>
+          </td>
+          <td>
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Album" ng-model="file.album" />
+              <span class="input-group-btn">
+                <button class="btn btn-default" type="button" ng-click="copyMetadata('album', file)" ng-if="$first">
+                  <span class="glyphicon glyphicon-share-alt"></span>
+                </button>
+              </span>
+            </div>
+          </td>
+          <td>
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Artist" ng-model="file.artist" />
+              <span class="input-group-btn">
+                <button class="btn btn-default" type="button" ng-click="copyMetadata('artist', file)" ng-if="$first">
+                  <span class="glyphicon glyphicon-share-alt"></span>
+                </button>
+              </span>
+            </div>
+          </td>
+          <td>
+            <input type="text" class="form-control" placeholder="Title" ng-model="file.title" />
+          </td>
           <td>
             <button class="btn btn-default" ng-click="moveFile(file)">
               <span class="glyphicon glyphicon-ok"></span>
