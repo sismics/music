@@ -197,9 +197,13 @@ public class CollectionService extends AbstractScheduledService {
         }
         
         if (tag == null) {
-            // No tag available, use filename as title and album artist as artist
+            // No tag available, use filename as title and album artist as artist, and guess the rest
             track.setTitle(Files.getNameWithoutExtension(file.getFileName().toString()));
             track.setArtistId(albumArtist.getId());
+            track.setLength((int) (file.toFile().length() / 128000));
+            track.setBitrate(128);
+            track.setFormat(Files.getFileExtension(file.getFileName().toString()));
+            track.setVbr(true);
         } else {
             AudioHeader header = audioFile.getAudioHeader();
     
