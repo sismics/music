@@ -47,7 +47,6 @@ import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
 import com.sismics.rest.util.ValidationUtil;
 import com.sismics.security.UserPrincipal;
-import com.sismics.util.EnvironmentUtil;
 import com.sismics.util.LocaleUtil;
 import com.sismics.util.filter.TokenBasedSecurityFilter;
 
@@ -150,7 +149,6 @@ public class UserResource extends BaseResource {
     public Response update(
         @FormParam("password") String password,
         @FormParam("email") String email,
-        @FormParam("theme") String themeId,
         @FormParam("locale") String localeId,
         @FormParam("first_connection") Boolean firstConnection) {
         
@@ -162,16 +160,12 @@ public class UserResource extends BaseResource {
         password = ValidationUtil.validateLength(password, "password", 8, 50, true);
         email = ValidationUtil.validateLength(email, "email", null, 100, true);
         localeId = com.sismics.music.rest.util.ValidationUtil.validateLocale(localeId, "locale", true);
-        themeId = com.sismics.music.rest.util.ValidationUtil.validateTheme(EnvironmentUtil.isUnitTest() ? null : request.getServletContext(), themeId, "theme", true);
         
         // Update the user
         UserDao userDao = new UserDao();
         User user = userDao.getActiveByUsername(principal.getName());
         if (email != null) {
             user.setEmail(email);
-        }
-        if (themeId != null) {
-            user.setTheme(themeId);
         }
         if (localeId != null) {
             user.setLocaleId(localeId);
@@ -231,7 +225,6 @@ public class UserResource extends BaseResource {
         password = ValidationUtil.validateLength(password, "password", 8, 50, true);
         email = ValidationUtil.validateLength(email, "email", null, 100, true);
         localeId = com.sismics.music.rest.util.ValidationUtil.validateLocale(localeId, "locale", true);
-        themeId = com.sismics.music.rest.util.ValidationUtil.validateTheme(request.getServletContext(), themeId, "theme", true);
         
         // Check if the user exists
         UserDao userDao = new UserDao();
@@ -243,9 +236,6 @@ public class UserResource extends BaseResource {
         // Update the user
         if (email != null) {
             user.setEmail(email);
-        }
-        if (themeId != null) {
-            user.setTheme(themeId);
         }
         if (localeId != null) {
             user.setLocaleId(localeId);
@@ -489,7 +479,6 @@ public class UserResource extends BaseResource {
             User user = userDao.getActiveById(principal.getId());
             response.add("username", user.getUsername())
                     .add("email", user.getEmail())
-                    .add("theme", user.getTheme())
                     .add("locale", user.getLocaleId())
                     .add("lastfm_connected", user.getLastFmSessionToken() != null)
                     .add("first_connection", user.isFirstConnection());
@@ -529,7 +518,6 @@ public class UserResource extends BaseResource {
         JsonObjectBuilder response = Json.createObjectBuilder()
                 .add("username", user.getUsername())
                 .add("email", user.getEmail())
-                .add("theme", user.getTheme())
                 .add("locale", user.getLocaleId());
         
         return Response.ok().entity(response.build()).build();

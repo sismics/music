@@ -1,19 +1,29 @@
 package com.sismics.music.core.dao.dbi;
 
-import com.google.common.base.Joiner;
-import com.sismics.music.core.constant.Constants;
-import com.sismics.music.core.dao.dbi.criteria.UserCriteria;
-import com.sismics.music.core.dao.dbi.dto.UserDto;
-import com.sismics.music.core.dao.dbi.mapper.UserMapper;
-import com.sismics.music.core.model.dbi.User;
-import com.sismics.music.core.util.dbi.*;
-import com.sismics.util.context.ThreadLocalContext;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import org.mindrot.jbcrypt.BCrypt;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
 
-import java.sql.Timestamp;
-import java.util.*;
+import com.google.common.base.Joiner;
+import com.sismics.music.core.dao.dbi.criteria.UserCriteria;
+import com.sismics.music.core.dao.dbi.dto.UserDto;
+import com.sismics.music.core.dao.dbi.mapper.UserMapper;
+import com.sismics.music.core.model.dbi.User;
+import com.sismics.music.core.util.dbi.ColumnIndexMapper;
+import com.sismics.music.core.util.dbi.PaginatedList;
+import com.sismics.music.core.util.dbi.PaginatedLists;
+import com.sismics.music.core.util.dbi.QueryParam;
+import com.sismics.music.core.util.dbi.QueryUtil;
+import com.sismics.music.core.util.dbi.SortCriteria;
+import com.sismics.util.context.ThreadLocalContext;
 
 /**
  * User DAO.
@@ -53,7 +63,6 @@ public class UserDao {
         // Init user data
         user.setId(UUID.randomUUID().toString());
         user.setPassword(hashPassword(user.getPassword()));
-        user.setTheme(Constants.DEFAULT_THEME_ID);
         user.setCreateDate(new Date());
 
         // Checks for user unicity
@@ -64,15 +73,14 @@ public class UserDao {
         // Create user
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                " T_USER(USE_ID_C, USE_IDLOCALE_C, USE_IDROLE_C, USE_USERNAME_C, USE_PASSWORD_C, USE_EMAIL_C, USE_THEME_C, USE_FIRSTCONNECTION_B, USE_CREATEDATE_D)" +
-                " values(:id, :localeId, :roleId, :username, :password, :email, :theme, :firstConnection, :createDate)")
+                " T_USER(USE_ID_C, USE_IDLOCALE_C, USE_IDROLE_C, USE_USERNAME_C, USE_PASSWORD_C, USE_EMAIL_C, USE_FIRSTCONNECTION_B, USE_CREATEDATE_D)" +
+                " values(:id, :localeId, :roleId, :username, :password, :email, :firstConnection, :createDate)")
                 .bind("id", user.getId())
                 .bind("localeId", user.getLocaleId())
                 .bind("roleId", user.getRoleId())
                 .bind("username", user.getUsername())
                 .bind("password", user.getPassword())
                 .bind("email", user.getEmail())
-                .bind("theme", user.getTheme())
                 .bind("firstConnection", user.isFirstConnection())
                 .bind("createDate", user.getCreateDate())
                 .execute();
@@ -91,13 +99,11 @@ public class UserDao {
         handle.createStatement("update T_USER u set " +
                 " u.USE_IDLOCALE_C = :localeId," +
                 " u.USE_EMAIL_C = :email, " +
-                " u.USE_THEME_C = :theme, " +
                 " u.USE_FIRSTCONNECTION_B = :firstConnection " +
                 " where u.USE_ID_C = :id and u.USE_DELETEDATE_D is null")
                 .bind("id", user.getId())
                 .bind("localeId", user.getLocaleId())
                 .bind("email", user.getEmail())
-                .bind("theme", user.getTheme())
                 .bind("firstConnection", user.isFirstConnection())
                 .execute();
 

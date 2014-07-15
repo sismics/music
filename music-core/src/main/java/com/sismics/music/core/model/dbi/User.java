@@ -1,8 +1,8 @@
 package com.sismics.music.core.model.dbi;
 
-import com.google.common.base.Objects;
-
 import java.util.Date;
+
+import com.google.common.base.Objects;
 
 /**
  * User entity.
@@ -41,11 +41,6 @@ public class User {
     private String email;
     
     /**
-     * Theme.
-     */
-    private String theme;
-    
-    /**
      * Maximum bitrate in kbps (null if unlimited).
      */
     private Integer maxBitrate;
@@ -78,14 +73,13 @@ public class User {
     public User() {
     }
 
-    public User(String id, String localeId, String roleId, String username, String password, String email, String theme, Integer maxBitrate, String lastFmSessionToken, boolean lastFmActive, boolean firstConnection, Date createDate, Date deleteDate) {
+    public User(String id, String localeId, String roleId, String username, String password, String email, Integer maxBitrate, String lastFmSessionToken, boolean lastFmActive, boolean firstConnection, Date createDate, Date deleteDate) {
         this.id = id;
         this.localeId = localeId;
         this.roleId = roleId;
         this.username = username;
         this.password = password;
         this.email = email;
-        this.theme = theme;
         this.maxBitrate = maxBitrate;
         this.lastFmSessionToken = lastFmSessionToken;
         this.lastFmActive = lastFmActive;
@@ -200,24 +194,6 @@ public class User {
      */
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    /**
-     * Getter of theme.
-     *
-     * @return theme
-     */
-    public String getTheme() {
-        return theme;
-    }
-
-    /**
-     * Setter of theme.
-     *
-     * @param theme theme
-     */
-    public void setTheme(String theme) {
-        this.theme = theme;
     }
 
     /**

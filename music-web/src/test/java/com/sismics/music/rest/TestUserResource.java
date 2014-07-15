@@ -130,7 +130,6 @@ public class TestUserResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, aliceAuthToken)
                 .get(JsonObject.class);
         Assert.assertEquals("alice@music.com", json.getString("email"));
-        Assert.assertEquals("default.less", json.getString("theme"));
         Assert.assertFalse(json.getBoolean("first_connection"));
         Assert.assertFalse(json.getBoolean("is_default_password"));
         
@@ -160,7 +159,6 @@ public class TestUserResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, aliceAuthToken)
                 .post(Entity.form(new Form()
                         .param("email", " alice2@music.com ")
-                        .param("theme", " highcontrast.less ")
                         .param("locale", " en ")), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
         
@@ -168,7 +166,7 @@ public class TestUserResource extends BaseJerseyTest {
         json = target().path("/user").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, aliceAuthToken)
                 .get(JsonObject.class);
-        Assert.assertEquals("highcontrast.less", json.getString("theme"));
+        Assert.assertEquals("alice2@music.com", json.getString("email"));
         
         // Delete user alice
         target().path("/user").request()
@@ -221,7 +219,6 @@ public class TestUserResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .post(Entity.form(new Form()
                         .param("email", " alice2@music.com ")
-                        .param("theme", " highcontrast.less")
                         .param("locale", " en ")), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
         

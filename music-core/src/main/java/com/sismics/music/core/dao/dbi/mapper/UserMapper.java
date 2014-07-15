@@ -21,7 +21,6 @@ public class UserMapper extends BaseResultSetMapper<User> {
             "USE_USERNAME_C",
             "USE_PASSWORD_C",
             "USE_EMAIL_C",
-            "USE_THEME_C",
             "USE_MAXBITRATE_N",
             "USE_LASTFMSESSIONTOKEN_C",
             "USE_LASTFMACTIVE_B",
@@ -35,7 +34,6 @@ public class UserMapper extends BaseResultSetMapper<User> {
         final String[] columns = getColumns();
         int column = 0;
         return new User(
-                r.getString(columns[column++]),
                 r.getString(columns[column++]),
                 r.getString(columns[column++]),
                 r.getString(columns[column++]),
