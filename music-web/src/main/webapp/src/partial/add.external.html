@@ -12,12 +12,22 @@
       </div>
     </h3>
 
+    <div ng-show="check">
+      <p ng-show="check['youtube-dl.version']" class="text-success"><a href="http://rg3.github.io/youtube-dl/">youtube-dl ({{ check['youtube-dl.version'] }})</a> is installed on your system.</p>
+      <p ng-show="!check['youtube-dl.version']" class="text-danger">
+        <a href="http://rg3.github.io/youtube-dl/">youtube-dl</a> is <strong>not</strong> installed on your system.<br />
+        See <a href="http://rg3.github.io/youtube-dl/download.html">http://rg3.github.io/youtube-dl/download.html</a> to download and install it.
+      </p>
+    </div>
+    <p ng-show="!check"><em>Check prerequisites...</em></p>
+    <p>Enter one URL by line. See <a href="http://rg3.github.io/youtube-dl/supportedsites.html">http://rg3.github.io/youtube-dl/supportedsites.html</a> for supported sites.</p>
+
     <form role="form" name="importForm" novalidate class="form-horizontal">
       <div class="form-group" ng-class="{ 'has-error': !importForm.url.$valid }">
         <label for="inputUrl" class="col-sm-2 control-label">URLs to import</label>
         <div class="col-sm-10">
           <textarea class="form-control" name="url" id="inputUrl" rows="4" wrap="off" required ng-model="import.url"
-                    placeholder="Enter one URL by line. See http://rg3.github.io/youtube-dl/supportedsites.html for supported sites."></textarea>
+                    placeholder="One URL by line"></textarea>
         </div>
       </div>
       <div class="form-group">
