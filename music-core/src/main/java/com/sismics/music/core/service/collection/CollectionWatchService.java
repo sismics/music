@@ -105,6 +105,12 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
                     watchPath(dir);
                     return FileVisitResult.CONTINUE;
                 }
+                
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                    log.error("Error visiting: " + file, exc);
+                    return FileVisitResult.SKIP_SUBTREE;
+                }
             });
             
             watchedDirectoryList.add(directory);
@@ -247,6 +253,12 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 indexNewFile(directory, file);
                 return FileVisitResult.CONTINUE;
+            }
+            
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                log.error("Error visiting: " + file, exc);
+                return FileVisitResult.SKIP_SUBTREE;
             }
         });
     }
