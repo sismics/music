@@ -1,12 +1,13 @@
 package com.sismics.music.core.dao.dbi;
 
-import com.sismics.music.core.dao.dbi.mapper.UserAlbumMapper;
-import com.sismics.music.core.model.dbi.UserAlbum;
-import com.sismics.util.context.ThreadLocalContext;
-import org.skife.jdbi.v2.Handle;
-
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.UUID;
+
+import org.skife.jdbi.v2.Handle;
+
+import com.sismics.music.core.model.dbi.UserAlbum;
+import com.sismics.util.context.ThreadLocalContext;
 
 /**
  * User / album DAO.
@@ -34,28 +35,9 @@ public class UserAlbumDao {
                 .bind("id", userAlbum.getId())
                 .bind("userId", userAlbum.getUserId())
                 .bind("albumId", userAlbum.getAlbumId())
-                .bind("createDate", userAlbum.getCreateDate())
+                .bind("createDate", new Timestamp(userAlbum.getCreateDate().getTime()))
                 .execute();
 
         return userAlbum.getId();
-    }
-
-    /**
-     * Gets an active user / album.
-     *
-     * @param userId User ID
-     * @param albumId Album ID
-     * @return User / album
-     */
-    public UserAlbum getActiveUserAlbum(String userId, String albumId) {
-        final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select " + new UserAlbumMapper().getJoinedColumns("ut") +
-                "  from T_USER_ALBUM ua" +
-                "  where ua.USA_DELETEDATE_D is null and ua.USA_IDUSER_C = :userId and ua.USA_IDALBUM_C = :albumId ")
-                .bind("userId", userId)
-                .bind("albumId", albumId)
-                .bind("deleteDate", new Date())
-                .mapTo(UserAlbum.class)
-                .first();
     }
 }

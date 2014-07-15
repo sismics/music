@@ -44,7 +44,7 @@ public class UserMapper extends BaseResultSetMapper<User> {
                 r.getString(columns[column++]),
                 r.getBoolean(columns[column++]),
                 r.getBoolean(columns[column++]),
-                r.getDate(columns[column++]),
-                r.getDate(columns[column++]));
+                r.getTimestamp(columns[column++]),
+                r.getTimestamp(columns[column++]));
     }
 }

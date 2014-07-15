@@ -14,6 +14,7 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.util.IntegerMapper;
 
+import java.sql.Timestamp;
 import java.util.*;
 
 /**
@@ -43,8 +44,8 @@ public class AlbumDao {
                 .bind("artistId", album.getArtistId())
                 .bind("name", album.getName())
                 .bind("albumArt", album.getAlbumArt())
-                .bind("updateDate", album.getUpdateDate())
-                .bind("createDate", album.getCreateDate())
+                .bind("updateDate", new Timestamp(album.getUpdateDate().getTime()))
+                .bind("createDate", new Timestamp(album.getCreateDate().getTime()))
                 .execute();
 
         return album.getId();
@@ -70,7 +71,7 @@ public class AlbumDao {
                 .bind("directoryId", album.getDirectoryId())
                 .bind("artistId", album.getArtistId())
                 .bind("albumArt", album.getAlbumArt())
-                .bind("updateDate", album.getUpdateDate())
+                .bind("updateDate", new Timestamp(album.getUpdateDate().getTime()))
                 .execute();
 
         return album;
@@ -226,7 +227,7 @@ public class AlbumDao {
             albumDto.setAlbumArt((String) o[i++]);
             albumDto.setArtistId((String) o[i++]);
             albumDto.setArtistName((String) o[i++]);
-            albumDto.setUpdateDate((Date) o[i++]);
+            albumDto.setUpdateDate((Timestamp) o[i++]);
             Long playCount = (Long) o[i++];
             albumDto.setUserPlayCount(playCount == null ? 0 : playCount);
             albumDtoList.add(albumDto);
@@ -245,7 +246,7 @@ public class AlbumDao {
                 "  set a.ALB_DELETEDATE_D = :deleteDate" +
                 "  where a.ALB_ID_C = :id and a.ALB_DELETEDATE_D is null")
                 .bind("id", id)
-                .bind("deleteDate", new Date())
+                .bind("deleteDate", new Timestamp(new Date().getTime()))
                 .execute();
     }
 
@@ -260,7 +261,7 @@ public class AlbumDao {
                 "    where al.ALB_DELETEDATE_D is null " +
                 "    group by al.ALB_ID_C " +
                 "    having count(t.TRK_ID_C) = 0)")
-                .bind("deleteDate", new Date())
+                .bind("deleteDate", new Timestamp(new Date().getTime()))
                 .execute();
     }
 }

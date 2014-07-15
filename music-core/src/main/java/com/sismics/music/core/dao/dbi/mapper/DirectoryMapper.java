@@ -19,8 +19,8 @@ public class DirectoryMapper implements ResultSetMapper<Directory> {
                 r.getString("DIR_ID_C"),
                 r.getString("DIR_NAME_C"),
                 r.getString("DIR_LOCATION_C"),
-                r.getDate("DIR_DISABLEDATE_D"),
-                r.getDate("DIR_CREATEDATE_D"),
-                r.getDate("DIR_DELETEDATE_D"));
+                r.getTimestamp("DIR_DISABLEDATE_D"),
+                r.getTimestamp("DIR_CREATEDATE_D"),
+                r.getTimestamp("DIR_DELETEDATE_D"));
     }
 }

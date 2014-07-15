@@ -35,8 +35,8 @@ public class AlbumMapper extends BaseResultSetMapper<Album> {
                 r.getString(columns[column++]),
                 r.getString(columns[column++]),
                 r.getString(columns[column++]),
-                r.getDate(columns[column++]),
-                r.getDate(columns[column++]),
-                r.getDate(columns[column]));
+                r.getTimestamp(columns[column++]),
+                r.getTimestamp(columns[column++]),
+                r.getTimestamp(columns[column]));
     }
 }

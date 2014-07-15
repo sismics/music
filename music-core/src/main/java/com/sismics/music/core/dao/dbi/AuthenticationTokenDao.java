@@ -2,9 +2,11 @@ package com.sismics.music.core.dao.dbi;
 
 import com.sismics.music.core.model.dbi.AuthenticationToken;
 import com.sismics.util.context.ThreadLocalContext;
+
 import org.joda.time.DateTime;
 import org.skife.jdbi.v2.Handle;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.UUID;
 
@@ -47,7 +49,7 @@ public class AuthenticationTokenDao {
                 .bind("id", authenticationToken.getId())
                 .bind("userId", authenticationToken.getUserId())
                 .bind("longLasted", authenticationToken.isLongLasted())
-                .bind("createDate", authenticationToken.getCreateDate())
+                .bind("createDate", new Timestamp(authenticationToken.getCreateDate().getTime()))
                 .execute();
             
         return authenticationToken.getId();
@@ -85,7 +87,7 @@ public class AuthenticationTokenDao {
                 "  and ato.AUT_LASTCONNECTIONDATE_D < :minDate")
                 .bind("userId", userId)
                 .bind("longLasted", false)
-                .bind("minDate", DateTime.now().minusDays(1).toDate())
+                .bind("minDate", new Timestamp(DateTime.now().minusDays(1).getMillis()))
                 .execute();
     }
 
@@ -99,7 +101,7 @@ public class AuthenticationTokenDao {
         handle.createStatement("update T_AUTHENTICATION_TOKEN ato " +
                 "  set ato.AUT_LASTCONNECTIONDATE_D = :currentDate" +
                 "  where ato.AUT_ID_C = :id ")
-                .bind("currentDate", new Date())
+                .bind("currentDate", new Timestamp(new Date().getTime()))
                 .bind("id", id)
                 .execute();
     }

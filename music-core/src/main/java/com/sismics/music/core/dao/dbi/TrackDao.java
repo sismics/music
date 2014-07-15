@@ -1,5 +1,6 @@
 package com.sismics.music.core.dao.dbi;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public class TrackDao {
                 .bind("order", track.getOrder())
                 .bind("vbr", track.isVbr())
                 .bind("format", track.getFormat())
-                .bind("createDate", track.getCreateDate())
+                .bind("createDate", new Timestamp(track.getCreateDate().getTime()))
                 .execute();
 
         return track.getId();
@@ -94,7 +95,7 @@ public class TrackDao {
                 .bind("order", track.getOrder())
                 .bind("vbr", track.isVbr())
                 .bind("format", track.getFormat())
-                .bind("createDate", track.getCreateDate())
+                .bind("createDate", new Timestamp(track.getCreateDate().getTime()))
                 .execute();
 
         return track;
@@ -298,7 +299,7 @@ public class TrackDao {
                 "  set t.TRK_DELETEDATE_D = :deleteDate" +
                 "  where t.TRK_DELETEDATE_D is null and t.TRK_ID_C = :id ")
                 .bind("id", id)
-                .bind("deleteDate", new Date())
+                .bind("deleteDate", new Timestamp(new Date().getTime()))
                 .execute();
     }
 }

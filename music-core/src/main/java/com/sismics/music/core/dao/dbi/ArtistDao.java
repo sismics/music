@@ -1,5 +1,6 @@
 package com.sismics.music.core.dao.dbi;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,7 +43,7 @@ public class ArtistDao {
                 "  values(:id, :name, :createDate)")
                 .bind("id", artist.getId())
                 .bind("name", artist.getName())
-                .bind("createDate", artist.getCreateDate())
+                .bind("createDate", new Timestamp(artist.getCreateDate().getTime()))
                 .execute();
 
         return artist.getId();
@@ -109,7 +110,7 @@ public class ArtistDao {
                 "  set a.ART_DELETEDATE_D = :deleteDate" +
                 "  where a.ART_ID_C = :id and a.ART_DELETEDATE_D is null")
                 .bind("id", id)
-                .bind("deleteDate", new Date())
+                .bind("deleteDate", new Timestamp(new Date().getTime()))
                 .execute();
     }
 
@@ -126,7 +127,7 @@ public class ArtistDao {
                 "  select t.TRK_IDARTIST_C from T_TRACK t " +
                 "    where t.TRK_DELETEDATE_D is null " +
                 "    group by t.TRK_IDARTIST_C)")
-                .bind("deleteDate", new Date())
+                .bind("deleteDate", new Timestamp(new Date().getTime()))
                 .execute();
     }
     

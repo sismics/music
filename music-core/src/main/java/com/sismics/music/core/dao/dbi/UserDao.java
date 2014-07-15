@@ -82,7 +82,7 @@ public class UserDao {
                 .bind("password", user.getPassword())
                 .bind("email", user.getEmail())
                 .bind("firstConnection", user.isFirstConnection())
-                .bind("createDate", user.getCreateDate())
+                .bind("createDate", new Timestamp(user.getCreateDate().getTime()))
                 .execute();
 
         return user.getId();
@@ -205,7 +205,7 @@ public class UserDao {
                 "  set u.USE_DELETEDATE_D = :deleteDate" +
                 "  where u.USE_USERNAME_C = :username and u.USE_DELETEDATE_D is null")
                 .bind("username", username)
-                .bind("deleteDate", new Date())
+                .bind("deleteDate", new Timestamp(new Date().getTime()))
                 .execute();
     }
 

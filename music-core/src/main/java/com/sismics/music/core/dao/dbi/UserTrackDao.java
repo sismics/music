@@ -3,8 +3,10 @@ package com.sismics.music.core.dao.dbi;
 import com.sismics.music.core.dao.dbi.mapper.UserTrackMapper;
 import com.sismics.music.core.model.dbi.UserTrack;
 import com.sismics.util.context.ThreadLocalContext;
+
 import org.skife.jdbi.v2.Handle;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.UUID;
 
@@ -34,7 +36,7 @@ public class UserTrackDao {
                 .bind("id", userTrack.getId())
                 .bind("userId", userTrack.getUserId())
                 .bind("trackId", userTrack.getTrackId())
-                .bind("createDate", userTrack.getCreateDate())
+                .bind("createDate", new Timestamp(userTrack.getCreateDate().getTime()))
                 .execute();
 
         return userTrack.getId();
@@ -54,7 +56,7 @@ public class UserTrackDao {
                 "  where ut.UST_DELETEDATE_D is null and ut.UST_IDUSER_C = :userId and ut.UST_IDTRACK_C = :trackId ")
                 .bind("userId", userId)
                 .bind("trackId", trackId)
-                .bind("deleteDate", new Date())
+                .bind("deleteDate", new Timestamp(new Date().getTime()))
                 .mapTo(UserTrack.class)
                 .first();
     }

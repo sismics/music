@@ -3,9 +3,11 @@ package com.sismics.music.core.dao.dbi;
 import com.sismics.music.core.dao.dbi.mapper.TranscoderMapper;
 import com.sismics.music.core.model.dbi.Transcoder;
 import com.sismics.util.context.ThreadLocalContext;
+
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -38,7 +40,7 @@ public class TranscoderDao {
                 .bind("destination", transcoder.getDestination())
                 .bind("step1", transcoder.getStep1())
                 .bind("step2", transcoder.getStep2())
-                .bind("createDate", transcoder.getCreateDate())
+                .bind("createDate", new Timestamp(transcoder.getCreateDate().getTime()))
                 .execute();
 
         return transcoder.getId();

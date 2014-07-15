@@ -18,7 +18,7 @@ public class RoleMapper implements ResultSetMapper<Role> {
         return new Role(
                 r.getString("ROL_ID_C"),
                 r.getString("ROL_NAME_C"),
-                r.getDate("ROL_CREATEDATE_D"),
-                r.getDate("ROL_DELETEDATE_D"));
+                r.getTimestamp("ROL_CREATEDATE_D"),
+                r.getTimestamp("ROL_DELETEDATE_D"));
     }
 }

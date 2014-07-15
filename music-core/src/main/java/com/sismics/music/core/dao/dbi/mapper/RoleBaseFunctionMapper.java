@@ -19,7 +19,7 @@ public class RoleBaseFunctionMapper implements ResultSetMapper<RoleBaseFunction>
                 r.getString("RBF_ID_C"),
                 r.getString("RBF_IDROLE_C"),
                 r.getString("RBF_IDBASEFUNCTION_C"),
-                r.getDate("RBF_CREATEDATE_D"),
-                r.getDate("RBF_DELETEDATE_D"));
+                r.getTimestamp("RBF_CREATEDATE_D"),
+                r.getTimestamp("RBF_DELETEDATE_D"));
     }
 }

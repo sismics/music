@@ -19,7 +19,7 @@ public class AuthenticationTokenMapper implements ResultSetMapper<Authentication
                 r.getString("AUT_ID_C"),
                 r.getString("AUT_IDUSER_C"),
                 r.getBoolean("AUT_LONGLASTED_B"),
-                r.getDate("AUT_CREATEDATE_D"),
-                r.getDate("AUT_LASTCONNECTIONDATE_D"));
+                r.getTimestamp("AUT_CREATEDATE_D"),
+                r.getTimestamp("AUT_LASTCONNECTIONDATE_D"));
     }
 }

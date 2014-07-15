@@ -2,8 +2,10 @@ package com.sismics.music.core.dao.dbi;
 
 import com.sismics.music.core.model.dbi.Directory;
 import com.sismics.util.context.ThreadLocalContext;
+
 import org.skife.jdbi.v2.Handle;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -43,7 +45,7 @@ public class DirectoryDao {
                 .bind("id", directory.getId())
                 .bind("name", directory.getName())
                 .bind("location", directory.getLocation())
-                .bind("createDate", directory.getCreateDate())
+                .bind("createDate", new Timestamp(directory.getCreateDate().getTime()))
                 .execute();
 
         return directory.getId();
@@ -70,7 +72,7 @@ public class DirectoryDao {
                 .bind("id", directory.getId())
                 .bind("name", directory.getName())
                 .bind("location", directory.getLocation())
-                .bind("disableDate", directory.getDisableDate())
+                .bind("disableDate", directory.getDisableDate() == null ? null : new Timestamp(directory.getDisableDate().getTime()))
                 .execute();
 
         return directory;
@@ -103,7 +105,7 @@ public class DirectoryDao {
                 "  set d.DIR_DELETEDATE_D = :deleteDate" +
                 "  where d.DIR_ID_C = :id and d.DIR_DELETEDATE_D is null")
                 .bind("id", id)
-                .bind("deleteDate", new Date())
+                .bind("deleteDate", new Timestamp(new Date().getTime()))
                 .execute();
     }
 

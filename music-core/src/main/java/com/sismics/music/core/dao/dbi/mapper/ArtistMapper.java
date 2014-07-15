@@ -27,8 +27,8 @@ public class ArtistMapper extends BaseResultSetMapper<Artist> {
         return new Artist(
             r.getString(columns[column++]),
             r.getString(columns[column++]),
-            r.getDate(columns[column++]),
-            r.getDate(columns[column])
+            r.getTimestamp(columns[column++]),
+            r.getTimestamp(columns[column])
             );
     }
 }

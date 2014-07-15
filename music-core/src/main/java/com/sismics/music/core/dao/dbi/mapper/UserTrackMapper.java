@@ -34,7 +34,7 @@ public class UserTrackMapper extends BaseResultSetMapper<UserTrack> {
                 r.getString(columns[column++]),
                 r.getInt(columns[column++]),
                 r.getBoolean(columns[column++]),
-                r.getDate(columns[column++]),
-                r.getDate(columns[column++]));
+                r.getTimestamp(columns[column++]),
+                r.getTimestamp(columns[column++]));
     }
 }
