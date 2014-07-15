@@ -1,20 +1,26 @@
 package com.sismics.util.dbi;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-import com.sismics.music.core.dao.dbi.mapper.*;
-import com.sismics.music.core.util.DirectoryUtil;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.sismics.music.core.dao.dbi.mapper.AlbumMapper;
+import com.sismics.music.core.dao.dbi.mapper.ArtistMapper;
+import com.sismics.music.core.dao.dbi.mapper.AuthenticationTokenMapper;
+import com.sismics.music.core.dao.dbi.mapper.BaseFunctionMapper;
+import com.sismics.music.core.dao.dbi.mapper.ConfigMapper;
+import com.sismics.music.core.dao.dbi.mapper.DirectoryMapper;
+import com.sismics.music.core.dao.dbi.mapper.LocaleMapper;
+import com.sismics.music.core.dao.dbi.mapper.PlaylistMapper;
+import com.sismics.music.core.dao.dbi.mapper.PlaylistTrackMapper;
+import com.sismics.music.core.dao.dbi.mapper.RoleBaseFunctionMapper;
+import com.sismics.music.core.dao.dbi.mapper.RoleMapper;
+import com.sismics.music.core.dao.dbi.mapper.TrackMapper;
+import com.sismics.music.core.dao.dbi.mapper.TranscoderMapper;
+import com.sismics.music.core.dao.dbi.mapper.UserMapper;
+import com.sismics.music.core.dao.dbi.mapper.UserTrackMapper;
 
 /**
  * DBI factory.
@@ -84,32 +90,32 @@ public class DBIF {
 
     }
 
-    private static Map<Object, Object> getDbProperties() {
-        // Use properties file if exists
-        try {
-            URL dbPropertiesUrl = DBIF.class.getResource("/c3p0.properties");
-            if (dbPropertiesUrl != null) {
-                log.info("Configuring connection pool from c3p0.properties");
-
-                InputStream is = dbPropertiesUrl.openStream();
-                Properties properties = new Properties();
-                properties.load(is);
-                return properties;
-            }
-        } catch (IOException e) {
-            log.error("Error reading c3p0.properties", e);
-        }
-
-        // Use environment parameters
-        log.info("Configuring EntityManager from environment parameters");
-        Map<Object, Object> props = new HashMap<Object, Object>();
-        props.put("c3p0.driverClass", "org.h2.Driver");
-        File dbDirectory = DirectoryUtil.getDbDirectory();
-        String dbFile = dbDirectory.getAbsoluteFile() + File.separator + "music";
-        props.put("c3p0.jdbcUrl", "jdbc:h2:file:" + dbFile + ";WRITE_DELAY=false;shutdown=true");
-        props.put("c3p0.user", "sa");
-        return props;
-    }
+//    private static Map<Object, Object> getDbProperties() {
+//        // Use properties file if exists
+//        try {
+//            URL dbPropertiesUrl = DBIF.class.getResource("/c3p0.properties");
+//            if (dbPropertiesUrl != null) {
+//                log.info("Configuring connection pool from c3p0.properties");
+//
+//                InputStream is = dbPropertiesUrl.openStream();
+//                Properties properties = new Properties();
+//                properties.load(is);
+//                return properties;
+//            }
+//        } catch (IOException e) {
+//            log.error("Error reading c3p0.properties", e);
+//        }
+//
+//        // Use environment parameters
+//        log.info("Configuring EntityManager from environment parameters");
+//        Map<Object, Object> props = new HashMap<Object, Object>();
+//        props.put("c3p0.driverClass", "org.h2.Driver");
+//        File dbDirectory = DirectoryUtil.getDbDirectory();
+//        String dbFile = dbDirectory.getAbsoluteFile() + File.separator + "music";
+//        props.put("c3p0.jdbcUrl", "jdbc:h2:file:" + dbFile + ";WRITE_DELAY=false;shutdown=true");
+//        props.put("c3p0.user", "sa");
+//        return props;
+//    }
 
     /**
      * Private constructor.

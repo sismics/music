@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
+import com.google.common.io.Files;
 import com.google.common.util.concurrent.AbstractScheduledService;
 import com.sismics.music.core.dao.dbi.AlbumDao;
 import com.sismics.music.core.dao.dbi.ArtistDao;
@@ -180,60 +181,66 @@ public class CollectionService extends AbstractScheduledService {
      */
     public void readTrackMetadata(Directory rootDirectory, Path file, Track track) throws Exception {
         DirectoryNameParser nameParser = new DirectoryNameParser(file.getParent());
+        String albumArtistName = StringUtils.abbreviate(nameParser.getArtistName(), 1000).trim();
+        String albumName = StringUtils.abbreviate(nameParser.getAlbumName(), 1000).trim();
+        ArtistDao artistDao = new ArtistDao();
         
         AudioFile audioFile = AudioFileIO.read(file.toFile());
         Tag tag = audioFile.getTag();
-        if (tag == null) {
-            // TODO Use filename as title and move on
-            throw new Exception("No tag in file: " + file);
-        }
-
-        AudioHeader header = audioFile.getAudioHeader();
-
-        track.setLength(header.getTrackLength());
-        track.setBitrate(header.getSampleRateAsNumber());
-        track.setFormat(StringUtils.abbreviate(header.getEncodingType(), 50));
-        track.setVbr(header.isVariableBitRate());
-
-        String order = tag.getFirst(FieldKey.TRACK);
-        if (!Strings.isNullOrEmpty(order)) {
-            try {
-                track.setOrder(Integer.valueOf(order));
-            } catch (NumberFormatException e) {
-                // Ignore parsing errors
-            }
-        }
-
-        String year = tag.getFirst(FieldKey.YEAR);
-        if (!Strings.isNullOrEmpty(year)) {
-            try {
-                track.setYear(Integer.valueOf(year));
-            } catch (NumberFormatException e) {
-                // Ignore parsing errors
-            }
-        }
-
-        track.setTitle(StringUtils.abbreviate(tag.getFirst(FieldKey.TITLE), 2000).trim());
-        String artistName = StringUtils.abbreviate(tag.getFirst(FieldKey.ARTIST), 1000).trim();
-        ArtistDao artistDao = new ArtistDao();
-        Artist artist = artistDao.getActiveByName(artistName);
-        if (artist == null) {
-            artist = new Artist();
-            artist.setName(artistName);
-            artistDao.create(artist);
-        }
-        track.setArtistId(artist.getId());
-
-        String albumArtistName = StringUtils.abbreviate(nameParser.getArtistName(), 1000).trim();
-        // The album artist can't be null, check in the directory name parser
+        
+        // The album artist can't be null, check is in the directory name parser
         Artist albumArtist = artistDao.getActiveByName(albumArtistName);
         if (albumArtist == null) {
             albumArtist = new Artist();
             albumArtist.setName(albumArtistName);
             artistDao.create(albumArtist);
         }
+        
+        if (tag == null) {
+            // No tag available, use filename as title and album artist as artist
+            track.setTitle(Files.getNameWithoutExtension(file.getFileName().toString()));
+            track.setArtistId(albumArtist.getId());
+        } else {
+            AudioHeader header = audioFile.getAudioHeader();
+    
+            track.setLength(header.getTrackLength());
+            track.setBitrate(header.getSampleRateAsNumber());
+            track.setFormat(StringUtils.abbreviate(header.getEncodingType(), 50));
+            track.setVbr(header.isVariableBitRate());
+    
+            String order = tag.getFirst(FieldKey.TRACK);
+            if (!Strings.isNullOrEmpty(order)) {
+                try {
+                    track.setOrder(Integer.valueOf(order));
+                } catch (NumberFormatException e) {
+                    // Ignore parsing errors
+                }
+            }
+    
+            String year = tag.getFirst(FieldKey.YEAR);
+            if (!Strings.isNullOrEmpty(year)) {
+                try {
+                    track.setYear(Integer.valueOf(year));
+                } catch (NumberFormatException e) {
+                    // Ignore parsing errors
+                }
+            }
+    
+            // Track title (can be empty string)
+            track.setTitle(StringUtils.abbreviate(tag.getFirst(FieldKey.TITLE), 2000).trim());
+            
+            // Track artist (can be empty string)
+            String artistName = StringUtils.abbreviate(tag.getFirst(FieldKey.ARTIST), 1000).trim();
+            Artist artist = artistDao.getActiveByName(artistName);
+            if (artist == null) {
+                artist = new Artist();
+                artist.setName(artistName);
+                artistDao.create(artist);
+            }
+            track.setArtistId(artist.getId());
+        }
 
-        String albumName = StringUtils.abbreviate(nameParser.getAlbumName(), 1000).trim();
+        // Track album
         AlbumDao albumDao = new AlbumDao();
         Album album = albumDao.getActiveByArtistIdAndName(albumArtist.getId(), albumName);
         if (album == null) {
