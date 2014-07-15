@@ -24,7 +24,7 @@ var propByPath = function(obj, propString, value) {
     }
   }
 
-  if (value) {
+  if (value !== undefined) {
     obj[props[i]] = value;
   } else {
     return obj[props[i]];

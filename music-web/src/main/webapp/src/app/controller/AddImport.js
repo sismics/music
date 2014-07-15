@@ -55,5 +55,13 @@ angular.module('music').controller('AddImport', function($scope, Restangular, $d
     });
   };
 
+  // Load artists and albums for autocomplete
+  Restangular.one('album').getList().then(function(data) {
+    $scope.albums = _.pluck(data.albums, 'name');
+  });
+  Restangular.one('artist').getList().then(function(data) {
+    $scope.artists = _.pluck(data.artists, 'name');
+  });
+
   $scope.refresh();
 });
