@@ -13,6 +13,10 @@ angular.module('music').directive('audioPlayer', function($rootScope, Playlist, 
       $scope.firstPingSent = false;
       $scope.halfwayPingSent = false;
 
+      // Restore saved volume
+      $scope.savedVolume = _.isUndefined(localStorage.savedVolume) ? 1 : parseFloat(localStorage.savedVolume);
+      $scope.audio.volume = $scope.savedVolume;
+
       // Listen for audio-element events, and broadcast stuff
       $scope.audio.addEventListener('play', function() { $rootScope.$broadcast('audio.play'); });
       $scope.audio.addEventListener('pause', function() { $rootScope.$broadcast('audio.pause'); });
@@ -149,11 +153,17 @@ angular.module('music').directive('audioPlayer', function($rootScope, Playlist, 
 
       // Mute/unmute volume
       $scope.mute = function() {
-        $scope.audio.volume == 0 ? $scope.audio.volume = 1 : $scope.audio.volume = 0;
+        $scope.audio.volume == 0 ? $scope.audio.volume = $scope.savedVolume : $scope.audio.volume = 0;
       };
 
       // Update display of things - makes time-scrub work
       setInterval(function(){ $scope.$apply(); }, 500);
+
+      // Save volume
+      $scope.saveVolume = function() {
+        localStorage.savedVolume = $scope.audio.volume;
+        $scope.savedVolume = $scope.audio.volume;
+      };
     },
 
     templateUrl: 'partial/audioplayer.html'
