@@ -9,8 +9,8 @@
     </button>
   </div>
 
-  <div class="col-md-2 albumart">
-    <img ng-if="track.album.albumart" ng-click="openAlbum(track.album.id)" ng-src="../api/album/{{ track.album.id }}/albumart/small" />
+  <div class="col-md-2 albumart" ng-click="openAlbum(track.album.id)">
+    <img ng-if="track.album.albumart" ng-src="../api/album/{{ track.album.id }}/albumart/small" />
     <div ng-if="track && !track.album.albumart" class="placeholder"></div>
   </div>
 
@@ -37,8 +37,8 @@
       <span class="glyphicon glyphicon-volume-up btn-pointer"
             ng-click="mute()"
             ng-class="{ 'glyphicon-volume-off': audio.volume == 0, 'glyphicon-volume-up': audio.volume > 0 }"></span>
-      <input class="volume-slider" type="range" min="0" max="1" step="0.01" ng-model="audio.volume" ng-change="saveVolume()" />
     </div>
+    <input ng-show="track" class="volume-slider" type="range" min="0" max="1" step="0.01" ng-model="audio.volume" ng-change="saveVolume()" />
   </div>
 
   <div class="col-md-2 playing">
