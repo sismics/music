@@ -141,7 +141,11 @@ angular.module('music').directive('audioPlayer', function($rootScope, Playlist, 
         Playlist.next();
       };
       $scope.prev = function() {
-        Playlist.prev();
+        if ($scope.audio.currentTime > 5) {
+          $scope.audio.currentTime = 0;
+        } else {
+          Playlist.prev();
+        }
       };
 
       // Tell audio element to play/pause

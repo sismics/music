@@ -1,10 +1,13 @@
 <div class="row">
 
   <div class="col-md-2 text-right btn-play">
-    <button type="button" class="btn btn-primary" ng-click="playpause()">
+    <button type="button" class="btn btn-default" ng-click="prev()" ng-disabled="!track">
+      <span class="glyphicon glyphicon-step-backward"></span>
+    </button>
+    <button type="button" class="btn btn-primary" ng-click="playpause()" ng-disabled="!track">
       <span class="glyphicon" ng-class="{ 'glyphicon-play': audio.paused, 'glyphicon-pause': !audio.paused }"></span>
     </button>
-    <button type="button" class="btn btn-primary" ng-click="next()">
+    <button type="button" class="btn btn-default" ng-click="next()" ng-disabled="!track">
       <span class="glyphicon glyphicon-step-forward"></span>
     </button>
   </div>
@@ -18,7 +21,7 @@
     <div ng-show="track">
       <span class="glyphicon btn-pointer btn-like" title="{{ track.liked ? 'Loved' : '' }}" ng-click="toggleLikeTrack(track)"
             ng-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>
-      <span class="text-muted">{{ track.artist.name }}</span><br />
+      <span class="text-muted"><a ng-href="#/artist/{{ track.artist.id }}">{{ track.artist.name }}</a></span><br />
       {{ track.title }}
       <div class="progress progress-audio btn-pointer" ng-click="seek($event)">
         <div class="progress">
