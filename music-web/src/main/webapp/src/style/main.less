@@ -281,9 +281,15 @@ html, body {
 }
 .volume-slider:hover {
   opacity: 1;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
 }
 .volume-slider:focus {
   outline-width: 0;
+}
+.volume-slider:active {
+  cursor: -webkit-grabbing;
+  cursor: -moz-grabbing;
 }
 .volume-slider::-webkit-slider-runnable-track {
   -webkit-appearance: none;

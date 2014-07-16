@@ -36,7 +36,7 @@
       {{ audio.currentTime | duration }}/{{ audio.duration | duration }}sec
       <span class="glyphicon glyphicon-volume-up btn-pointer"
             ng-click="mute()"
-            ng-class="{ 'glyphicon-volume-up': audio.volume > 0, 'glyphicon-volume-off': audio.volume == 0 }"></span>
+            ng-class="{ 'glyphicon-volume-off': audio.volume == 0, 'glyphicon-volume-up': audio.volume > 0 }"></span>
       <input class="volume-slider" type="range" min="0" max="1" step="0.01" ng-model="audio.volume" ng-change="saveVolume()" />
     </div>
   </div>
