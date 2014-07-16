@@ -26,6 +26,9 @@
             <img src="img/equalizer.gif" bo-if="currentStatus == 'playing'" />
             <img src="img/equalizer_pause.png" bo-if="currentStatus == 'paused' || currentStatus == 'stopped'" />
           </span>
+          <span bo-if="$index != currentOrder"
+                ng-click="playTrack($index)"
+                class="play btn-pointer glyphicon glyphicon-play"></span>
         </td>
         <td bo-title="track.title" bo-text="track.title"></td>
         <td bo-title="track.artist.name"><a bo-href="'#/artist/' + track.artist.id" bo-text="track.artist.name"></a></td>

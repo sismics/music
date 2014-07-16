@@ -165,6 +165,17 @@ html, body {
     display: inline-block;
     vertical-align: middle;
   }
+
+  > tbody tr {
+    .play {
+      display: none;
+    }
+    &:hover {
+      .play {
+        display: inline;
+      }
+    }
+  }
 }
 
 .table-tracks {
