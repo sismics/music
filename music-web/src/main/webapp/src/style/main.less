@@ -49,7 +49,7 @@ html, body {
   }
   
   .info {
-    margin-top: 36px;
+    margin-top: 27px;
   }
 
   .playing {
@@ -266,4 +266,72 @@ html, body {
 
 .nav-tabs > li > a {
   border-radius: 0;
+}
+
+
+// Cross-browser input range styling
+.volume-slider {
+  -webkit-appearance: none;
+  height: 20px;
+  width: 100px !important;
+  opacity: 0.8;
+  box-sizing: content-box;
+  margin: 0;
+  padding: 0;
+}
+.volume-slider:hover {
+  opacity: 1;
+}
+.volume-slider:focus {
+  outline-width: 0;
+}
+.volume-slider::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  height: 10px;
+  background-color: #ddd;
+  border-radius: 2px;
+}
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background-color: #ff8800;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  margin-top: -5px;
+}
+
+.volume-slider::-moz-range-track {
+  height: 10px;
+  background-color: #ddd;
+  border-radius: 2px;
+  border: none;
+}
+.volume-slider::-moz-range-thumb {
+  background: #ff8800;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+}
+
+.volume-slider::-ms-fill-upper {
+  background-color: #ddd;
+}
+.volume-slider::-ms-fill-lower {
+  background-color: #ddd;
+}
+.volume-slider::-ms-track {
+  color: #ddd;
+  border: none;
+  height: 10px;
+  border-radius: 2px;
+}
+.volume-slider::-ms-thumb {
+  background-color: #ff8800;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+}
+.volume-slider::-ms-tooltip {
+  display: none;
 }
