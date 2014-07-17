@@ -22,6 +22,7 @@
       <a class="thumbnail albumart-thumbnail" bo-href="'#/album/' + album.id">
         <div class="img-container">
           <img bo-if="album.albumart" bo-src="'../api/album/' + album.id + '/albumart/small'" />
+          <div class="play-overlay glyphicon glyphicon-play-circle" ng-click="playAlbum(album); $event.preventDefault();"></div>
         </div>
         <div class="caption">
           <div class="caption-container">

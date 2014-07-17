@@ -3,7 +3,8 @@
 /**
  * Albums library controller.
  */
-angular.module('music').controller('MusicAlbums', function($scope, $stateParams, $state, Restangular, filterFilter, orderByFilter) {
+angular.module('music').controller('MusicAlbums', function($scope, $stateParams, $state,
+                                                           Restangular, filterFilter, orderByFilter, Playlist) {
   // Initialize controller
   $scope.filter = $stateParams.filter;
   $scope.order = $stateParams.order ? $stateParams.order : null;
@@ -66,4 +67,11 @@ angular.module('music').controller('MusicAlbums', function($scope, $stateParams,
       notify: false
     });
   });
+
+  // Load and play an album
+  $scope.playAlbum = function(album) {
+    Restangular.one('album', album.id).get().then(function(data) {
+      Playlist.removeAndPlayAll(_.pluck(data.tracks, 'id'));
+    });
+  };
 });

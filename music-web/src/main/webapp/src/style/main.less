@@ -104,6 +104,7 @@ html, body {
   .img-container {
     overflow: hidden;
     background: #444;
+    position: relative;
 
     img {
       width: 100%;
@@ -117,6 +118,29 @@ html, body {
     > div {
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+  }
+
+  .play-overlay {
+    color: #ffffff;
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    font-size: 40px;
+    display: none;
+    text-shadow: 1px 2px 3px black;
+    opacity: .4;
+    width: 50px;
+    height: 50px;
+
+    &:hover {
+      opacity: .7;
+    }
+  }
+
+  &:hover {
+    .play-overlay {
+      display: block;
     }
   }
 }
