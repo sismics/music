@@ -252,10 +252,10 @@ public class TrackResource extends BaseResource {
             throw new ForbiddenClientException();
         }
         
-        ValidationUtil.validateLength(title, "title", 1, 2000);
-        ValidationUtil.validateLength(album, "album", 1, 1000);
-        ValidationUtil.validateLength(artist, "artist", 1, 1000);
-        ValidationUtil.validateLength(albumArtist, "album_artist", 1, 1000);
+        title = ValidationUtil.validateLength(title, "title", 1, 2000);
+        album = ValidationUtil.validateLength(album, "album", 1, 1000);
+        artist = ValidationUtil.validateLength(artist, "artist", 1, 1000);
+        albumArtist = ValidationUtil.validateLength(albumArtist, "album_artist", 1, 1000);
         Integer year = ValidationUtil.validateInteger(yearStr, "year");
         Integer order = ValidationUtil.validateInteger(orderStr, "order");
 

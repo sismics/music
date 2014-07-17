@@ -172,10 +172,14 @@ public class ImportResource extends BaseResource {
         
         // Validate input
         ValidationUtil.validateRequired(fileName, "file");
-        ValidationUtil.validateLength(artist, "artist", 1, 1000);
-        ValidationUtil.validateLength(albumArtist, "album_artist", 1, 1000);
-        ValidationUtil.validateLength(album, "album", 1, 1000);
-        ValidationUtil.validateLength(title, "title", 1, 2000);
+        artist = ValidationUtil.validateLength(artist, "artist", 1, 1000);
+        albumArtist = ValidationUtil.validateLength(albumArtist, "album_artist", 0, 1000, true);
+        album = ValidationUtil.validateLength(album, "album", 1, 1000);
+        title = ValidationUtil.validateLength(title, "title", 1, 2000);
+        
+        if (albumArtist == null) {
+            albumArtist = artist;
+        }
         
         // Validate directory
         DirectoryDao directoryDao = new DirectoryDao();
