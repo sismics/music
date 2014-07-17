@@ -9,6 +9,7 @@
       <a class="thumbnail albumart-thumbnail" bo-href="'#/album/' + album.id">
         <div class="img-container">
           <img bo-if="album.albumart" bo-src="'../api/album/' + album.id + '/albumart/small'" />
+          <div class="play-overlay glyphicon glyphicon-play-circle" ng-click="playAlbum(album); $event.preventDefault();"></div>
         </div>
         <div class="caption">
           <div class="caption-container">
@@ -22,6 +23,13 @@
 
   <div class="col-sm-12" ng-show="artist.tracks.length > 0">
     <h3>Tracks</h3>
+
+    <div class="btn-toolbar" role="toolbar">
+      <button class="btn btn-link" ng-click="playAllTracks()"><span class="glyphicon glyphicon-play"></span> Play all</button>
+      <button class="btn btn-link" ng-click="shuffleAllTracks()"><span class="glyphicon glyphicon-random"></span> Shuffle</button>
+      <button class="btn btn-link" ng-click="addAllTracks()"><span class="glyphicon glyphicon-plus"></span> Add all</button>
+    </div>
+
     <table class="table table-striped table-tracks">
       <thead>
       <tr>

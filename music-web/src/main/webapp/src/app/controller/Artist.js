@@ -31,4 +31,26 @@ angular.module('music').controller('Artist', function($scope, $stateParams, Rest
       track.liked = liked;
     }
   });
+
+  // Add all tracks to the playlist in a random order
+  $scope.shuffleAllTracks = function() {
+    Playlist.addAll(_.shuffle(_.pluck($scope.artist.tracks, 'id')), false);
+  };
+
+  // Play all tracks
+  $scope.playAllTracks = function() {
+    Playlist.removeAndPlayAll(_.pluck($scope.artist.tracks, 'id'));
+  };
+
+  // Add all tracks to the playlist
+  $scope.addAllTracks = function() {
+    Playlist.addAll(_.pluck($scope.artist.tracks, 'id'), false);
+  };
+
+  // Load and play an album
+  $scope.playAlbum = function(album) {
+    Restangular.one('album', album.id).get().then(function(data) {
+      Playlist.removeAndPlayAll(_.pluck(data.tracks, 'id'));
+    });
+  };
 });

@@ -142,7 +142,6 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
      * Add a track to the playlist.
      * @param track
      * @param play If true, immediately play the first track once added
-     * @param name Track name
      */
     add: function(track, play) {
       Restangular.one('playlist').put({
