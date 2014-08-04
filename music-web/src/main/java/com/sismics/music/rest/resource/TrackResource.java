@@ -256,8 +256,14 @@ public class TrackResource extends BaseResource {
         album = ValidationUtil.validateLength(album, "album", 1, 1000);
         artist = ValidationUtil.validateLength(artist, "artist", 1, 1000);
         albumArtist = ValidationUtil.validateLength(albumArtist, "album_artist", 1, 1000);
-        Integer year = ValidationUtil.validateInteger(yearStr, "year");
-        Integer order = ValidationUtil.validateInteger(orderStr, "order");
+        Integer year = null;
+        if (yearStr != null) {
+            year = ValidationUtil.validateInteger(yearStr, "year");
+        }
+        Integer order = null;
+        if (orderStr != null) {
+            order = ValidationUtil.validateInteger(orderStr, "order");
+        }
 
         TrackDao trackDao = new TrackDao();
         ArtistDao artistDao = new ArtistDao();
@@ -275,12 +281,16 @@ public class TrackResource extends BaseResource {
         try {
             AudioFile audioFile = AudioFileIO.read(file);
             Tag tag = audioFile.getTag();
-            tag.setField(FieldKey.TRACK, orderStr);
+            if (order == null) {
+                tag.deleteField(FieldKey.TRACK);
+            } else {
+                tag.setField(FieldKey.TRACK, orderStr);
+            }
             tag.setField(FieldKey.TITLE, title);
             tag.setField(FieldKey.ALBUM, album);
             tag.setField(FieldKey.ARTIST, artist);
             tag.setField(FieldKey.ALBUM_ARTIST, albumArtist);
-            if (yearStr == null) {
+            if (year == null) {
                 tag.deleteField(FieldKey.YEAR);
             } else {
                 tag.setField(FieldKey.YEAR, yearStr);

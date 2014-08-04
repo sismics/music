@@ -147,16 +147,14 @@ public class TestTrackResource extends BaseJerseyTest {
         albums = json.getJsonArray("albums");
         Assert.assertEquals(2, albums.size());
         
-        // Admin update a track info
+        // Admin update a track info with minimal data
         json = target().path("/track/"+ track0Id).request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .post(Entity.form(new Form()
-                        .param("order", "1")
                         .param("title", "My fake title 2")
                         .param("album", "My fake album")
                         .param("artist", "My fake artist")
-                        .param("album_artist", "My fake album artist")
-                        .param("year", "2014")), JsonObject.class);
+                        .param("album_artist", "My fake album artist")), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
         
         // Admin checks the albums
