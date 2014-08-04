@@ -57,10 +57,10 @@ angular.module('music').controller('AddImport', function($scope, Restangular, $d
 
   // Load artists and albums for autocomplete
   Restangular.one('album').getList().then(function(data) {
-    $scope.albums = _.pluck(data.albums, 'name');
+    $scope.albums = _.chain(data.albums).pluck('name').uniq().value();
   });
   Restangular.one('artist').getList().then(function(data) {
-    $scope.artists = _.pluck(data.artists, 'name');
+    $scope.artists = _.chain(data.artists).pluck('name').uniq().value();
   });
 
   $scope.refresh();
