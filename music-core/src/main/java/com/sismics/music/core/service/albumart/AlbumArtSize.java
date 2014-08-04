@@ -6,8 +6,10 @@ package com.sismics.music.core.service.albumart;
  * @author jtremeaux
  */
 public enum AlbumArtSize {
-    SMALL(330),
+    SMALL(180),
 
+    MEDIUM(330),
+    
     LARGE(768);
 
     private int size;

@@ -79,6 +79,11 @@ public class TestAlbumResource extends BaseJerseyTest {
         response = target().path("/album/" + album0Id + "/albumart/large").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken).get();
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        
+        // Get an album art
+        response = target().path("/album/" + album0Id + "/albumart/medium").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken).get();
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
 
         // Get an album art: KO, this size doesn't exist
         response = target().path("/album/" + album0Id + "/albumart/huge").request()

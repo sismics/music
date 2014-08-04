@@ -23,8 +23,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sismics.music.core.dao.dbi.AlbumDao;
 import com.sismics.music.core.dao.dbi.TrackDao;
@@ -47,11 +45,6 @@ import com.sismics.rest.exception.ForbiddenClientException;
  */
 @Path("/album")
 public class AlbumResource extends BaseResource {
-    /**
-     * Logger.
-     */
-    private static final Logger log = LoggerFactory.getLogger(AlbumResource.class);
-
     /**
      * Returns an album detail.
      *
@@ -150,9 +143,6 @@ public class AlbumResource extends BaseResource {
         final AlbumArtService albumArtService = AppContext.getInstance().getAlbumArtService();
         File file = albumArtService.getAlbumArtFile(album.getAlbumArt(), albumArtSize);
         if (!file.exists() || !file.canRead()) {
-            if (log.isErrorEnabled()) {
-                log.error("Album art file cannot be read: " + file.getAbsolutePath());
-            }
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
