@@ -38,7 +38,7 @@
           <span class="glyphicon btn-pointer btn-like" bo-attr bo-attr-title="track.liked ? 'Loved' : ''" ng-click="toggleLikeTrack(track)"
                 bo-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>
         </td>
-        <td><span class="glyphicon glyphicon-minus btn-pointer" ng-click="removeTrack($index)"></span></td>
+        <td><span class="remove glyphicon glyphicon-minus btn-pointer" ng-click="removeTrack($index)"></span></td>
       </tr>
       </tbody>
     </table>

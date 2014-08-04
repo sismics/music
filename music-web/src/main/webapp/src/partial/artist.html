@@ -44,8 +44,8 @@
       </thead>
       <tbody>
       <tr bindonce ng-repeat="track in artist.tracks">
-        <td><span class="glyphicon glyphicon-play btn-pointer" ng-click="playTrack(track)"></span></td>
-        <td><span class="glyphicon glyphicon-plus btn-pointer" ng-click="addTrack(track)"></span></td>
+        <td><span class="play glyphicon glyphicon-play btn-pointer" ng-click="playTrack(track)"></span></td>
+        <td><span class="add glyphicon glyphicon-plus btn-pointer" ng-click="addTrack(track)"></span></td>
         <td bo-title="track.title" bo-text="track.title"></td>
         <td bo-title="track.artist.name"><a bo-href="'#/artist/' + track.artist.id" bo-text="track.artist.name"></a></td>
         <td bo-title="track.album.name"><a bo-href="'#/album/' + track.album.id" bo-text="track.album.name"></a></td>

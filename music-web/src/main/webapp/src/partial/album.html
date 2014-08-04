@@ -26,8 +26,8 @@
           </thead>
           <tbody>
           <tr ng-repeat="track in album.tracks">
-            <td><span class="glyphicon glyphicon-play btn-pointer" ng-click="playTrack(track)"></span></td>
-            <td><span class="glyphicon glyphicon-plus btn-pointer" ng-click="addTrack(track)"></span></td>
+            <td><span class="play glyphicon glyphicon-play btn-pointer" ng-click="playTrack(track)"></span></td>
+            <td><span class="add glyphicon glyphicon-plus btn-pointer" ng-click="addTrack(track)"></span></td>
             <td>{{ track.order }}</td>
             <td title="{{ track.title }}">{{ track.title }} <span ng-if="track.artist.id != album.artist.id">({{ track.artist.name }})</span></td>
             <td title="Played {{ track.play_count }} times">{{ track.length | duration }}</td>

@@ -191,11 +191,11 @@ html, body {
   }
 
   > tbody tr {
-    .play {
+    .play, .remove {
       display: none;
     }
     &:hover {
-      .play {
+      .play, .remove {
         display: inline;
       }
     }
@@ -209,6 +209,17 @@ html, body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  > tbody tr {
+    .play, .add {
+      display: none;
+    }
+    &:hover {
+      .play, .add {
+        display: inline;
+      }
+    }
   }
 }
 
@@ -227,6 +238,10 @@ html, body {
 }
 
 .btn-like {
+  &.glyphicon-heart-empty {
+    color: #ccc;
+  }
+
   &.glyphicon-heart {
     color: #ff4444;
   }
