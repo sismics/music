@@ -32,13 +32,11 @@ angular.module('music').controller('MusicAlbums', function($scope, $stateParams,
   };
   
   // Load all albums
-  Restangular.setDefaultHttpFields({cache: true});
   Restangular.all('album').getList().then(function(data) {
     $scope.allAlbums = data.albums;
     refreshFiltering();
     $scope.loadMore(true);
   });
-  Restangular.setDefaultHttpFields({});
 
   // Load more albums
   $scope.loadMore = function(reset) {
