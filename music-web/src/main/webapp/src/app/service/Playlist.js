@@ -189,8 +189,7 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
       if (currentTrack != null) {
         if (order < currentTrack) {
           currentTrack--;
-        }
-        if (order == currentTrack) {
+        } else if (order == currentTrack) {
           // Stop the audio, we are listening to the removed track
           currentTrack = null;
           $rootScope.$broadcast('audio.stop');
