@@ -6,6 +6,7 @@
 angular.module('music').controller('MusicAlbums', function($scope, $stateParams, $state,
                                                            Restangular, filterFilter, orderByFilter, Playlist) {
   // Initialize controller
+  $scope.loaded = false;
   $scope.filter = $stateParams.filter;
   $scope.order = $stateParams.order ? $stateParams.order : null;
   if ($scope.order == null) {
@@ -34,6 +35,7 @@ angular.module('music').controller('MusicAlbums', function($scope, $stateParams,
   // Load all albums
   Restangular.all('album').getList().then(function(data) {
     $scope.allAlbums = data.albums;
+    $scope.loaded = true;
     refreshFiltering();
     $scope.loadMore(true);
   });

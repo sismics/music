@@ -5,6 +5,7 @@
  */
 angular.module('music').controller('MusicArtists', function($scope, $stateParams, $state, Restangular, filterFilter) {
   // Initialize filtering
+  $scope.loaded = false;
   $scope.filter = $stateParams.filter;
   $scope.artists = [];
   $scope.filteredArtists = [];
@@ -14,6 +15,7 @@ angular.module('music').controller('MusicArtists', function($scope, $stateParams
   // Load all artists
   Restangular.all('artist').getList().then(function(data) {
     $scope.allArtists = data.artists;
+    $scope.loaded = true;
     $scope.filteredArtists = filterFilter($scope.allArtists, { name: $scope.filter });
     $scope.loadMore(true);
   });

@@ -41,6 +41,11 @@
   </div>
 </div>
 
-<p ng-show="allAlbums.length == 0" class="text-center">
+<p ng-show="loaded && allAlbums.length == 0" class="text-center">
   Music library empty
 </p>
+
+<div class="big-loader-container row" ng-show="!loaded">
+  <div class="big-loader">
+  </div>
+</div>
