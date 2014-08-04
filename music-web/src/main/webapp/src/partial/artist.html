@@ -6,18 +6,24 @@
   <div class="col-sm-12" ng-show="artist.albums.length > 0">
     <h3>Albums</h3>
     <div class="col-sm-6 col-md-3" bindonce ng-repeat="album in artist.albums">
-      <a class="thumbnail albumart-thumbnail" bo-href="'#/album/' + album.id">
+      <div class="thumbnail albumart-thumbnail">
         <div class="img-container">
-          <img bo-if="album.albumart" bo-src="'../api/album/' + album.id + '/albumart/small'" />
-          <div class="play-overlay glyphicon glyphicon-play-circle" ng-click="playAlbum(album); $event.preventDefault();"></div>
+          <a bo-href="'#/album/' + album.id">
+            <img bo-if="album.albumart" bo-src="'../api/album/' + album.id + '/albumart/small'" />
+          </a>
+          <div class="play-overlay btn-pointer glyphicon glyphicon-play-circle" ng-click="playAlbum(album);"></div>
         </div>
         <div class="caption">
           <div class="caption-container">
-            <div class="text-muted" bo-text="album.artist.name"></div>
-            <div bo-text="album.name"></div>
+            <div>
+              <a class="text-muted" bo-href="'#/artist/' + album.artist.id" bo-text="album.artist.name"></a>
+            </div>
+            <div>
+              <a bo-href="'#/album/' + album.id" bo-text="album.name"></a>
+            </div>
           </div>
         </div>
-      </a>
+      </div>
     </div>
   </div>
 

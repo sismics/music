@@ -12,13 +12,11 @@ angular.module('music').controller('MusicArtists', function($scope, $stateParams
   var index = 0;
   
   // Load all artists
-  Restangular.setDefaultHttpFields({cache: true});
   Restangular.all('artist').getList().then(function(data) {
     $scope.allArtists = data.artists;
-    $scope.filteredArtists = filterFilter($scope.allArtists, $scope.filter);
+    $scope.filteredArtists = filterFilter($scope.allArtists, { name: $scope.filter });
     $scope.loadMore(true);
   });
-  Restangular.setDefaultHttpFields({});
 
   // Load more artists
   $scope.loadMore = function(reset) {
@@ -35,7 +33,7 @@ angular.module('music').controller('MusicArtists', function($scope, $stateParams
 
   // Keep the filter in sync with the view state
   $scope.$watch('filter', function() {
-    $scope.filteredArtists = filterFilter($scope.allArtists, $scope.filter);
+    $scope.filteredArtists = filterFilter($scope.allArtists,  { name: $scope.filter });
     $scope.loadMoreDebounced(true);
 
     $state.go('main.music.artists', {

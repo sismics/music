@@ -28,7 +28,7 @@ angular.module('music').controller('MusicAlbums', function($scope, $stateParams,
     } else if ($scope.order == 'latest') {
       order = '-update_date';
     }
-    $scope.filteredAlbums = orderByFilter(filterFilter($scope.allAlbums, $scope.filter), order);
+    $scope.filteredAlbums = orderByFilter(filterFilter($scope.allAlbums, { name: $scope.filter }), order);
   };
   
   // Load all albums

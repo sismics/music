@@ -1,9 +1,9 @@
 <div class="row" ng-show="allArtists.length > 0">
   <div class="col-sm-12 search-form">
-    <form role="form">
+    <form role="form" class="form-inline">
       <div class="form-group has-feedback">
         <label class="control-label sr-only" for="inputFilter">Filter</label>
-        <input type="text" id="inputFilter" class="form-control" ng-model="filter" placeholder="Filter" />
+        <input type="text" id="inputFilter" class="form-control" style="width: 836px" ng-model="filter" placeholder="Filter" />
         <span ng-show="filter != ''" ng-click="filter = ''" class="glyphicon glyphicon-remove form-control-feedback btn-pointer"></span>
       </div>
     </form>
@@ -11,16 +11,20 @@
 
   <div class="col-sm-12" infinite-scroll="loadMore()" infinite-scroll-distance="1">
     <div class="col-sm-6 col-md-3" bindonce ng-repeat="artist in artists">
-      <a class="thumbnail albumart-thumbnail" bo-href="'#/artist/' + artist.id">
+      <div class="thumbnail albumart-thumbnail">
         <div class="img-container">
-          <img bo-src="'../api/artist/' + artist.id + '/artistart/small'" />
+          <a bo-href="'#/artist/' + artist.id">
+            <img bo-src="'../api/artist/' + artist.id + '/artistart/small'" />
+          </a>
         </div>
         <div class="caption">
           <div class="caption-container">
-            <div bo-text="artist.name"></div>
+            <div>
+              <a bo-href="'#/artist/' + artist.id" bo-text="artist.name"></a>
+            </div>
           </div>
         </div>
-      </a>
+      </div>
     </div>
   </div>
 </div>
