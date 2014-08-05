@@ -20,9 +20,12 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.sismics.music.core.constant.Constants;
+import com.sismics.music.core.service.importaudio.ImportAudio.Status;
 import com.sismics.music.core.util.DirectoryUtil;
 
 /**
@@ -51,6 +54,11 @@ public class ImportAudioService extends AbstractExecutionThreadService {
      */
     private Pattern PROGRESS_PATTERN = Pattern.compile("\\[download\\]\\s*([0-9\\.]*)%\\s*of\\s*([0-9\\.a-zA-Z]*)\\s*at\\s*([0-9\\.a-zA-Z/]*).*");
     
+    /**
+     * YouTube-DL working file pattern.
+     */
+    private Pattern WORKING_FILE_PATTERN = Pattern.compile("\\[[a-zA-Z]*\\] Destination: (.*)");
+    
     public ImportAudioService() {
     }
 
@@ -68,7 +76,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
             
             // Starting YouTube-DL
             String output = DirectoryUtil.getImportAudioDirectory().getAbsolutePath() + File.separator + "%(title)s.%(ext)s";
-            String command = "youtube-dl -v --prefer-ffmpeg --newline -f bestaudio -x --audio-format " + importAudio.getFormat()
+            String command = "youtube-dl -v --prefer-ffmpeg --encoding UTF-8 --newline -f bestaudio -x --audio-format " + importAudio.getFormat()
                     + " --audio-quality " + importAudio.getQuality() + " -o";
             List<String> commandList = new LinkedList<String>(Arrays.asList(StringUtils.split(command)));
             commandList.add(output);
@@ -84,6 +92,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
             // Reading standard output to update import status
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+                    // Update progression
                     Matcher matcher = PROGRESS_PATTERN.matcher(line);
                     if (matcher.find()) {
                         importAudio.setProgress(Float.valueOf(matcher.group(1)));
@@ -91,10 +100,22 @@ public class ImportAudioService extends AbstractExecutionThreadService {
                         importAudio.setDownloadSpeed(matcher.group(3));
                     }
                     
+                    // Check if the line is an error
                     if (line.contains("ERROR")) {
                         importAudio.setStatus(ImportAudio.Status.ERROR);
                     }
                     
+                    // New working file
+                    matcher = WORKING_FILE_PATTERN.matcher(line);
+                    if (matcher.find()) {
+                        File file = new File(matcher.group(1));
+                        String name = file.getName();
+                        if (!Strings.isNullOrEmpty(name)) {
+                            importAudio.addWorkingFiles(name);
+                        }
+                    }
+                    
+                    // Debug output
                     importAudio.setMessage(importAudio.getMessage() + "\n" + line);
                 }
             }
@@ -102,6 +123,14 @@ public class ImportAudioService extends AbstractExecutionThreadService {
             // Import is done
             if (importAudio.getStatus() != ImportAudio.Status.ERROR) {
                 importAudio.setStatus(ImportAudio.Status.DONE);
+            } else {
+                // Remove working files if they still exist
+                for (String name : importAudio.getWorkingFiles()) {
+                    File file = new File(DirectoryUtil.getImportAudioDirectory().getAbsolutePath() + File.separator + name);
+                    if (file.exists()) {
+                        file.delete();
+                    }
+                }
             }
             
             process.destroy();
@@ -167,13 +196,28 @@ public class ImportAudioService extends AbstractExecutionThreadService {
      * @return List of imported files
      */
     public List<File> getImportedFileList() {
-        return Arrays.asList(DirectoryUtil.getImportAudioDirectory().listFiles(new FilenameFilter() {
+        // Grab all audio files
+        List<File> fileList = Lists.newArrayList(DirectoryUtil.getImportAudioDirectory().listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String fileName) {
                 String extension = Files.getFileExtension(fileName);
                 return Constants.SUPPORTED_AUDIO_EXTENSIONS.contains(extension);
             }
         }));
+        
+        // Exclude working files
+        synchronized (importAudioList) {
+            for (Iterator<File> it = fileList.iterator(); it.hasNext();) {
+                File file = it.next();
+                for (ImportAudio importAudio : importAudioList) {
+                    if (importAudio.getStatus() == Status.INPROGRESS && importAudio.getWorkingFiles().contains(file.getName())) {
+                        it.remove();
+                    }
+                }
+            }
+        }
+        
+        return fileList;
     }
 
     /**

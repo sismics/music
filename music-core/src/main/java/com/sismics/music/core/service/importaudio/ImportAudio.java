@@ -1,6 +1,9 @@
 package com.sismics.music.core.service.importaudio;
 
+import java.util.List;
+
 import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 
 /**
  * An audio import in progress.
@@ -20,6 +23,11 @@ public class ImportAudio {
      * URL.
      */
     private String url;
+    
+    /**
+     * Working files.
+     */
+    private List<String> workingFiles = Lists.newArrayList();
     
     /**
      * Quality.
@@ -70,6 +78,7 @@ public class ImportAudio {
         this.message = other.message;
         this.quality = other.quality;
         this.format = other.format;
+        this.workingFiles.addAll(other.getWorkingFiles());
     }
     
     /**
@@ -198,6 +207,24 @@ public class ImportAudio {
         this.status = status;
     }
     
+    /**
+     * Getter of workingFiles.
+     *
+     * @return the workingFiles
+     */
+    public List<String> getWorkingFiles() {
+        return workingFiles;
+    }
+
+    /**
+     * Add a working file.
+     *
+     * @param workingFiles workingFiles
+     */
+    public void addWorkingFiles(String workingFile) {
+        this.workingFiles.add(workingFile);
+    }
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
