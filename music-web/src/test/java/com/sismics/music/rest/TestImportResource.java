@@ -78,6 +78,15 @@ public class TestImportResource extends BaseJerseyTest {
                 stop = true;
             }
             
+            if (!stop) {
+                // Admin lists imported files
+                json = target().path("/import").request()
+                        .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                        .get(JsonObject.class);
+                files = json.getJsonArray("files");
+                Assert.assertEquals(0, files.size());
+            }
+            
             Thread.sleep(200);
         }
         
