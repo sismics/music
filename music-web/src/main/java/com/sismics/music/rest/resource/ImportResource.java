@@ -1,8 +1,6 @@
 package com.sismics.music.rest.resource;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.List;
 
 import javax.json.Json;
@@ -17,13 +15,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
-
 import com.google.common.collect.Lists;
-import com.google.common.io.Files;
 import com.sismics.music.core.dao.dbi.DirectoryDao;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Directory;
@@ -32,7 +24,6 @@ import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
 import com.sismics.rest.util.ValidationUtil;
-import com.sismics.util.FilenameUtil;
 
 /**
  * Import REST resources.
@@ -197,46 +188,11 @@ public class ImportResource extends BaseResource {
             }
         }
         
-        // Retrieve the file from imported files
-        List<File> importedFileList = AppContext.getInstance().getImportAudioService().getImportedFileList();
-        File file = null;
-        for (File importedFile : importedFileList) {
-            if (importedFile.getName().equals(fileName)) {
-                file = importedFile;
-                break;
-            }
-        }
-        
-        if (file == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        
         // Tag the file
         try {
-            AudioFile audioFile = AudioFileIO.read(file);
-            Tag tag = audioFile.getTagOrCreateAndSetDefault();
-            tag.setField(FieldKey.TITLE, title);
-            tag.setField(FieldKey.ALBUM, album);
-            tag.setField(FieldKey.ARTIST, artist);
-            tag.setField(FieldKey.ALBUM_ARTIST, albumArtist);
-            AudioFileIO.write(audioFile);
+            AppContext.getInstance().getImportAudioService().tagFile(fileName, title, album, artist, albumArtist, directory);
         } catch (Exception e) {
-            throw new ServerException("TagError", "Error tagging the file", e);
-        }
-        
-        // Create album directory
-        String albumDirectory = FilenameUtil.cleanFileName(albumArtist) + " - " + FilenameUtil.cleanFileName(album);
-        Paths.get(directory.getLocation(), albumDirectory).toFile().mkdirs();
-        
-        // Move the file to the right place and let to collection watch service index it
-        String extension = Files.getFileExtension(fileName);
-        java.nio.file.Path path = Paths.get(directory.getLocation(),
-                albumDirectory,
-                FilenameUtil.cleanFileName(title) + "." + extension);
-        try {
-            Files.move(file, path.toFile());
-        } catch (IOException e) {
-            throw new ServerException("FileError", "Cannot move the imported file to the music directory", e);
+            throw new ServerException("TagError", e.getMessage(), e);
         }
         
         // Always return OK

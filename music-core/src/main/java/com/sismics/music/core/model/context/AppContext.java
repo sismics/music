@@ -127,6 +127,7 @@ public class AppContext {
         asyncExecutorList = new ArrayList<ExecutorService>();
         
         asyncEventBus = newAsyncEventBus();
+        
         collectionEventBus = newAsyncEventBus();
         collectionEventBus.register(new DirectoryCreatedAsyncListener());
         collectionEventBus.register(new DirectoryDeletedAsyncListener());

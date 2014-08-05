@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,11 +13,18 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +33,11 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.sismics.music.core.constant.Constants;
+import com.sismics.music.core.model.context.AppContext;
+import com.sismics.music.core.model.dbi.Directory;
 import com.sismics.music.core.service.importaudio.ImportAudio.Status;
 import com.sismics.music.core.util.DirectoryUtil;
+import com.sismics.util.FilenameUtil;
 
 /**
  * Import audio service.
@@ -58,6 +69,11 @@ public class ImportAudioService extends AbstractExecutionThreadService {
      * YouTube-DL working file pattern.
      */
     private Pattern WORKING_FILE_PATTERN = Pattern.compile("\\[[a-zA-Z]*\\] Destination: (.*)");
+    
+    /**
+     * Single thread executor used to tag files.
+     */
+    ExecutorService executor = Executors.newSingleThreadExecutor();
     
     public ImportAudioService() {
     }
@@ -232,5 +248,68 @@ public class ImportAudioService extends AbstractExecutionThreadService {
                 }
             }
         }
+    }
+
+    /**
+     * Tag and move a file in a directory. This method is thread-safe.
+     * 
+     * @param fileName
+     * @param title
+     * @param album
+     * @param artist
+     * @param albumArtist
+     * @param directory
+     * @throws Exception
+     */
+    public void tagFile(final String fileName, final String title, final String album, final String artist,
+            final String albumArtist, final Directory directory) throws Exception {
+        executor.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+             // Retrieve the file from imported files
+                List<File> importedFileList = AppContext.getInstance().getImportAudioService().getImportedFileList();
+                File file = null;
+                for (File importedFile : importedFileList) {
+                    if (importedFile.getName().equals(fileName)) {
+                        file = importedFile;
+                        break;
+                    }
+                }
+                
+                if (file == null) {
+                    throw new Exception("File not found: " + fileName);
+                }
+                
+                // Tag the file
+                try {
+                    AudioFile audioFile = AudioFileIO.read(file);
+                    Tag tag = audioFile.getTagOrCreateAndSetDefault();
+                    tag.setField(FieldKey.TITLE, title);
+                    tag.setField(FieldKey.ALBUM, album);
+                    tag.setField(FieldKey.ARTIST, artist);
+                    tag.setField(FieldKey.ALBUM_ARTIST, albumArtist);
+                    AudioFileIO.write(audioFile);
+                } catch (Exception e) {
+                    throw new Exception("Error tagging the file", e);
+                }
+                
+                // Create album directory
+                String albumDirectory = FilenameUtil.cleanFileName(albumArtist) + " - " + FilenameUtil.cleanFileName(album);
+                Paths.get(directory.getLocation(), albumDirectory).toFile().mkdirs();
+                
+                // Move the file to the right place and let to collection watch service index it
+                String extension = Files.getFileExtension(fileName);
+                java.nio.file.Path path = Paths.get(directory.getLocation(),
+                        albumDirectory,
+                        FilenameUtil.cleanFileName(title) + "." + extension);
+                try {
+                    Files.move(file, path.toFile());
+                } catch (IOException e) {
+                    throw new Exception("Cannot move the imported file to the music directory", e);
+                }
+                
+                return null;
+            }
+        }).get();
     }
 }
