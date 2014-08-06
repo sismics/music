@@ -71,7 +71,7 @@
         <td><span ng-show="import.progress">{{ import.progress | number: 0 }}%</span></td>
         <td>{{ import.speed }}</td>
         <td>{{ import.total_size }}</td>
-        <td ng-init="import.show = false">
+        <td>
           <span class="btn btn-link" ng-click="import.show = true" ng-show="!import.show">Click to show</span>
           <pre ng-click="import.show = false" ng-show="import.show">{{ import.message }}</pre>
         </td>

@@ -3,7 +3,7 @@
 /**
  * Add music from external sources controller.
  */
-angular.module('music').controller('AddExternal', function($scope, Restangular, toaster) {
+angular.module('music').controller('AddExternal', function($scope, Restangular, toaster, $interval) {
   // Import form defaults
   var initImportForm = function() {
     $scope.import = {
@@ -39,8 +39,15 @@ angular.module('music').controller('AddExternal', function($scope, Restangular, 
   };
 
   // Refresh import progress
+  $scope.imports = [];
   $scope.refresh = function() {
     Restangular.one('import').getList('progress').then(function(data) {
+      if ($scope.imports.length == data.imports.length) {
+        // Copy message show state
+        _.each(data.imports, function(imp, i) {
+          data.imports[i].show = $scope.imports[i].show;
+        });
+      }
       $scope.imports = data.imports;
     });
   };
@@ -52,5 +59,15 @@ angular.module('music').controller('AddExternal', function($scope, Restangular, 
     });
   };
 
+  // Refresh periodically
   $scope.refresh();
+  var stop = $interval(function() {
+    if ($scope.imports.length > 0) {
+      $scope.refresh();
+    }
+  }, 3000);
+
+  $scope.$on('$destroy', function() {
+    $interval.cancel(stop);
+  });
 });
