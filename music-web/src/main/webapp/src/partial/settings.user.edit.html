@@ -3,8 +3,8 @@
 <div ng-show="user || !isEdit()">
   <h4 ng-show="isEdit()">Edit "{{ user.username }}"</h4>
   <h4 ng-show="!isEdit()">Add user</h4>
-  <form class="form-horizontal" name="editUserForm" novalidate>
-    <div class="form-group" ng-class="{ 'has-error': !editUserForm.username.$valid, success: editUserForm.username.$valid }">
+  <form class="form-horizontal" name="editUserForm" novalidate ng-click="editUserForm.submitted = true">
+    <div class="form-group" ng-class="{ 'has-error': !editUserForm.username.$valid && editUserForm.submitted, success: editUserForm.username.$valid }">
       <label class="col-sm-2 control-label" for="inputUsername">Username</label>
   
       <div class="col-sm-7">
@@ -12,13 +12,13 @@
                ng-minlength="3" ng-maxlength="50" placeholder="Username" ng-model="user.username"/>
       </div>
 
-      <div class="col-sm-3">
+      <div class="col-sm-3" ng-show="editUserForm.submitted">
         <span class="help-block" ng-show="editUserForm.username.$error.required">Required</span>
         <span class="help-block" ng-show="editUserForm.username.$error.minlength">Too short</span>
         <span class="help-block" ng-show="editUserForm.username.$error.maxlength">Too long</span>
       </div>
     </div>
-    <div class="form-group" ng-class="{ 'has-error': !editUserForm.email.$valid, success: editUserForm.email.$valid }">
+    <div class="form-group" ng-class="{ 'has-error': !editUserForm.email.$valid && editUserForm.submitted, success: editUserForm.email.$valid }">
       <label class="col-sm-2 control-label" for="inputEmail">E-mail</label>
   
       <div class="col-sm-7">
@@ -26,14 +26,14 @@
                ng-minlength="3" ng-maxlength="50" placeholder="E-mail" ng-model="user.email"/>
       </div>
 
-      <div class="col-sm-3">
+      <div class="col-sm-3" ng-show="editUserForm.submitted">
         <span class="help-block" ng-show="editUserForm.email.$error.required">Required</span>
         <span class="help-block" ng-show="editUserForm.email.$error.email">Must be a valid e-mail</span>
         <span class="help-block" ng-show="editUserForm.email.$error.minlength">Too short</span>
         <span class="help-block" ng-show="editUserForm.email.$error.maxlength">Too long</span>
       </div>
     </div>
-    <div class="form-group" ng-class="{ 'has-error': !editUserForm.password.$valid, success: editUserForm.password.$valid }">
+    <div class="form-group" ng-class="{ 'has-error': !editUserForm.password.$valid && editUserForm.submitted, success: editUserForm.password.$valid }">
       <label class="col-sm-2 control-label" for="inputPassword">Password</label>
   
       <div class="col-sm-7">
@@ -41,13 +41,13 @@
                ng-minlength="8" ng-maxlength="50" placeholder="Password" ng-model="user.password"/>
       </div>
 
-      <div class="col-sm-3">
+      <div class="col-sm-3" ng-show="editUserForm.submitted">
         <span class="help-block" ng-show="editUserForm.password.$error.required">Required</span>
         <span class="help-block" ng-show="editUserForm.password.$error.minlength">Too short</span>
         <span class="help-block" ng-show="editUserForm.password.$error.maxlength">Too long</span>
       </div>
     </div>
-    <div class="form-group" ng-class="{ 'has-error': !editUserForm.passwordconfirm.$valid, success: editUserForm.passwordconfirm.$valid }">
+    <div class="form-group" ng-class="{ 'has-error': !editUserForm.passwordconfirm.$valid && editUserForm.submitted, success: editUserForm.passwordconfirm.$valid }">
       <label class="col-sm-2 -label" for="inputPasswordConfirm">Password (confirm)</label>
   
       <div class="col-sm-7">
@@ -56,7 +56,7 @@
                placeholder="Password (confirm)" ng-model="user.passwordconfirm"/>
       </div>
 
-      <div class="col-sm-3">
+      <div class="col-sm-3" ng-show="editUserForm.submitted">
         <span class="help-block" ng-show="editUserForm.passwordconfirm.$error.validator">Password and password confirmation must match</span>
       </div>
     </div>
