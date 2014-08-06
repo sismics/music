@@ -7,6 +7,7 @@
           <div class="img-container">
             <a bo-href="'#/album/' + album.id">
               <img bo-if="album.albumart" bo-src="'../api/album/' + album.id + '/albumart/small'" />
+              <img bo-if="!album.albumart" bo-src="'img/albumart.png'" />
             </a>
             <div class="play-overlay btn-pointer glyphicon glyphicon-play-circle" ng-click="playAlbum(album);"></div>
           </div>
@@ -33,6 +34,7 @@
           <div class="img-container">
             <a bo-href="'#/artist/' + artist.id">
               <img bo-src="'../api/artist/' + artist.id + '/artistart/small'" />
+              <img bo-src="'img/albumart.png'" />
             </a>
           </div>
           <div class="caption">

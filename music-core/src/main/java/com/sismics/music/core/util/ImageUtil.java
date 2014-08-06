@@ -221,10 +221,11 @@ public class ImageUtil {
      */
     public static BufferedImage makeMosaic(List<BufferedImage> imageList, int size) throws Exception {
         if (imageList.size() == 0) {
-            BufferedImage mosaicImage = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
+            // Return a 1x1 pixel transparent image
+            BufferedImage mosaicImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
             Graphics2D mosaicGraphic = mosaicImage.createGraphics();
-            mosaicGraphic.setColor(new Color(68, 68, 68));
-            mosaicGraphic.fillRect(0, 0, size, size);
+            mosaicGraphic.setColor(new Color(0, 0, 0, 0));
+            mosaicGraphic.fillRect(0, 0, 1, 1);
             return mosaicImage;
         }
         

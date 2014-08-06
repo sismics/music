@@ -197,12 +197,13 @@ public class ArtistResource extends BaseResource {
             }
         }
         
-        // Write to JPEG
+        // Write to PNG
+        String format = imageList.size() == 0 ? "png" : "jpeg";
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ImageIO.write(ImageUtil.makeMosaic(imageList, artistArtSize.getSize()), "jpeg", outputStream);
+        ImageIO.write(ImageUtil.makeMosaic(imageList, artistArtSize.getSize()), format, outputStream);
         byte[] imageData = outputStream.toByteArray();
         
-        return Response.ok(imageData, "image/jpeg")
+        return Response.ok(imageData, "image/" + format)
                 .header("Expires", new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z").format(new Date().getTime() + 3600000 * 24 * 7))
                 .build();
     }
