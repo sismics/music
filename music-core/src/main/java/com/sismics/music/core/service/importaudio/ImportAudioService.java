@@ -73,7 +73,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
     /**
      * Single thread executor used to tag files.
      */
-    ExecutorService executor = Executors.newSingleThreadExecutor();
+    ExecutorService syncExecutor = Executors.newSingleThreadExecutor();
     
     public ImportAudioService() {
     }
@@ -253,20 +253,20 @@ public class ImportAudioService extends AbstractExecutionThreadService {
     /**
      * Tag and move a file in a directory. This method is thread-safe.
      * 
-     * @param fileName
-     * @param title
-     * @param album
-     * @param artist
-     * @param albumArtist
-     * @param directory
+     * @param fileName File name
+     * @param title Title
+     * @param album Album
+     * @param artist Artist
+     * @param albumArtist Album artist
+     * @param directory Directory
      * @throws Exception
      */
     public void tagFile(final String fileName, final String title, final String album, final String artist,
             final String albumArtist, final Directory directory) throws Exception {
-        executor.submit(new Callable<Void>() {
+        syncExecutor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-             // Retrieve the file from imported files
+                // Retrieve the file from imported files
                 List<File> importedFileList = AppContext.getInstance().getImportAudioService().getImportedFileList();
                 File file = null;
                 for (File importedFile : importedFileList) {

@@ -58,12 +58,12 @@
             <input type="text" class="form-control" placeholder="Title" ng-model="file.title" />
           </td>
           <td>
-            <button class="btn btn-default" ng-click="moveFile(file)">
+            <button class="btn btn-default" ng-click="moveFile(file)" ng-disabled="isLoading">
               <span class="glyphicon glyphicon-ok"></span>
             </button>
           </td>
           <td>
-            <button class="btn btn-default" ng-click="deleteFile(file)">
+            <button class="btn btn-default" ng-click="deleteFile(file)" ng-disabled="isLoading">
               <span class="glyphicon glyphicon-remove"></span>
             </button>
           </td>
