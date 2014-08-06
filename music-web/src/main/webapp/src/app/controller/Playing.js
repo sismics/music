@@ -8,10 +8,13 @@ angular.module('music').controller('Playing', function($scope, Playlist) {
     $scope.currentOrder = Playlist.currentOrder();
     $scope.currentStatus = Playlist.currentStatus();
     $scope.tracks = Playlist.getTracks();
+    $scope.duration = _.reduce($scope.tracks,
+        function(duration, track){
+          return duration + track.length;
+        }, 0);
   };
 
-  // Grab current playlist, and listen to future changes
-  $scope.tracks = Playlist.getTracks();
+  // Listen to playlist changes
   $scope.$on('playlist.updated', updateScope);
 
   // Grab current track, and listen to future changes

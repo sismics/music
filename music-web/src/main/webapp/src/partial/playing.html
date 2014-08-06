@@ -2,6 +2,7 @@
   <div class="panel-heading">
     <h3 class="panel-title">
       <span class="glyphicon glyphicon-play"></span> Now playing
+      <span class="text-muted" ng-show="duration > 0">(Total: {{ duration | duration }})</span>
       <span class="glyphicon glyphicon-trash pull-right btn-pointer" ng-click="clear()"></span>
     </h3>
   </div>
