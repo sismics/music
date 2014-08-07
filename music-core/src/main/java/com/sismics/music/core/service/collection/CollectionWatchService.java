@@ -210,6 +210,7 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
      */
     private void indexNewFile(final Directory directory, final Path file) {
         // Validate the file for indexing
+        // TODO Albumarts must be watched too
         String ext = com.google.common.io.Files.getFileExtension(file.toString()).toLowerCase();
         Path directoryPath = Paths.get(directory.getLocation());
         if (!Constants.SUPPORTED_AUDIO_EXTENSIONS.contains(ext) || directoryPath.equals(file.getParent())) {

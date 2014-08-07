@@ -151,6 +151,7 @@ public class CollectionService extends AbstractScheduledService {
      */
     public void indexFile(Directory directory, Path file) {
         Stopwatch stopWatch = Stopwatch.createStarted();
+        // TODO This method should handle albumarts too
         try {
             TrackDao trackDao = new TrackDao();
             Track track = trackDao.getActiveByDirectoryAndFilename(directory.getId(), file.toAbsolutePath().toString());
@@ -257,6 +258,7 @@ public class CollectionService extends AbstractScheduledService {
             album.setDirectoryId(rootDirectory.getId());
             album.setName(albumName);
             if (albumArtFile != null) {
+                // TODO Remove this, albumarts are scanned separately
                 String albumArtId = AppContext.getInstance().getAlbumArtService().importAlbumArt(albumArtFile);
                 album.setAlbumArt(albumArtId);
             }

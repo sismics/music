@@ -54,6 +54,7 @@ public class CollectionVisitor extends SimpleFileVisitor<Path> {
     public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
         String ext = com.google.common.io.Files.getFileExtension(path.toString()).toLowerCase();
         // Check that the extension is supported, and the file is not directly in the directory
+        // TODO Albumarts must be scanned too
         if (Constants.SUPPORTED_AUDIO_EXTENSIONS.contains(ext) && !rootPath.equals(path.getParent())) {
             final CollectionService collectionService = AppContext.getInstance().getCollectionService();
             collectionService.indexFile(rootDirectory, path);
