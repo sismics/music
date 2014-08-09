@@ -36,7 +36,7 @@ public class HttpUtil {
             StringBuilder sb = new StringBuilder();
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
-                sb.append(inputLine);
+                sb.append(inputLine).append("\n");
             }
             return sb.toString();
         } catch (IOException e) {
