@@ -87,7 +87,7 @@ public class TestTrackResource extends BaseJerseyTest {
         response = target().path("/track/" + track0Id).request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get();
-//        Assert.assertEquals(Status.OK.getStatusCode(), response.getStatus()); // No ffmpeg on Travis :(
+        // Assert.assertEquals(Status.OK.getStatusCode(), response.getStatus()); // No ffmpeg on Travis :(
         
         // Admin likes the track
         json = target().path("/track/" + track0Id + "/like").request()
@@ -151,9 +151,9 @@ public class TestTrackResource extends BaseJerseyTest {
         json = target().path("/track/"+ track0Id).request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .post(Entity.form(new Form()
-                        .param("title", "My fake title 2")
+                        .param("title", "Imagine")
                         .param("album", "My fake album")
-                        .param("artist", "My fake artist")
+                        .param("artist", "John Lennon")
                         .param("album_artist", "My fake album artist")), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
         
@@ -163,5 +163,11 @@ public class TestTrackResource extends BaseJerseyTest {
                 .get(JsonObject.class);
         albums = json.getJsonArray("albums");
         Assert.assertEquals(2, albums.size());
+        
+        // Admin get the lyrics
+        json = target().path("/track/" + track0Id + "/lyrics").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        Assert.assertTrue(json.getString("lyrics").contains("Imagine no possessions"));
     }
 }

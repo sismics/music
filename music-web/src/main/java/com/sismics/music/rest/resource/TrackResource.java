@@ -1,6 +1,7 @@
 package com.sismics.music.rest.resource;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.Date;
@@ -42,6 +43,7 @@ import com.sismics.music.rest.util.MediaStreamer;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
 import com.sismics.rest.util.ValidationUtil;
+import com.sismics.util.LyricUtil;
 
 /**
  * Track REST resources.
@@ -148,6 +150,34 @@ public class TrackResource extends BaseResource {
         }, "TrackAsyncResponse").start();
     }
 
+    @GET
+    @Path("{id: [a-z0-9\\-]+}/lyrics")
+    public Response lyrics(
+            @PathParam("id") String id) {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+        
+        TrackDao trackDao = new TrackDao();
+        Track track = trackDao.getActiveById(id);
+        if (track == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        
+        ArtistDao artistDao = new ArtistDao();
+        Artist artist = artistDao.getActiveById(track.getArtistId());
+        
+        try {
+            // Download lyrics
+            String lyrics = LyricUtil.getLyrics(artist.getName(), track.getTitle());
+            return Response.ok()
+                    .entity(Json.createObjectBuilder().add("lyrics", lyrics).build())
+                    .build();
+        } catch (IOException e) {
+            throw new ServerException("LyricsError", "No lyrics for this track", e);
+        }
+    }
+    
     /**
      * Like a track.
      *
