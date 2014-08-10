@@ -68,6 +68,15 @@ angular.module('music',
               }
             }
           })
+          .state('main.lyrics', {
+            url: '/lyrics',
+            views: {
+              'content': {
+                templateUrl: 'partial/lyrics.html',
+                controller: 'Lyrics'
+              }
+            }
+          })
           .state('main.music', {
             url: '/music',
             views: {

@@ -1,0 +1,27 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">
+      <span class="glyphicon glyphicon-play"></span> Lyrics
+    </h3>
+  </div>
+  <div class="panel-body">
+    <div class="well" bindonce
+         ng-repeat="lyric in lyrics" bo-html="lyric | nl2br">
+    </div>
+
+    <div class="big-loader-container row" ng-show="track && lyrics.length == 0 && !error">
+      <div class="big-loader">
+      </div>
+    </div>
+
+    <p class="lead text-center" ng-show="track && lyrics.length == 0 && error">
+      <span class="glyphicon glyphicon-exclamation-sign"></span>
+      No lyrics found
+    </p>
+
+    <p class="lead text-center" ng-show="!track">
+      <span class="glyphicon glyphicon-exclamation-sign"></span>
+      No music is playing
+    </p>
+  </div>
+</div>

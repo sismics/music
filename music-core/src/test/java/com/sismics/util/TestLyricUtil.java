@@ -2,6 +2,7 @@ package com.sismics.util;
 
 
 import java.io.IOException;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,12 +16,18 @@ public class TestLyricUtil {
 
     @Test
     public void getLyrics() throws Exception {
-        String lyrics = LyricUtil.getLyrics("John Lennon", "Imagine");
-        Assert.assertTrue(lyrics.contains("And no religion too"));
+        List<String> lyrics = LyricUtil.getLyrics("John Lennon", "Imagine");
+        Assert.assertEquals(1, lyrics.size());
+        Assert.assertTrue(lyrics.get(0).contains("And no religion too"));
+        
+        lyrics = LyricUtil.getLyrics("Taylor Swift", "I Knew You Were Trouble");
+        Assert.assertEquals(1, lyrics.size());
+        Assert.assertTrue(lyrics.get(0).contains("Once upon a time, a few mistakes ago"));
         
         lyrics = LyricUtil.getLyrics("Perfume", "Spring of Life");
-        Assert.assertTrue(lyrics.contains("思い出は空白のままで"));
-        Assert.assertTrue(lyrics.contains("Omoide wa kuuhaku no mama de"));
+        Assert.assertEquals(2, lyrics.size());
+        Assert.assertTrue(lyrics.get(0).contains("思い出は空白のままで"));
+        Assert.assertTrue(lyrics.get(1).contains("Omoide wa kuuhaku no mama de"));
         
         try {
             lyrics = LyricUtil.getLyrics("Bob and Alice", "Cryptomusic");

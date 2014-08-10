@@ -168,6 +168,6 @@ public class TestTrackResource extends BaseJerseyTest {
         json = target().path("/track/" + track0Id + "/lyrics").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
-        Assert.assertTrue(json.getString("lyrics").contains("Imagine no possessions"));
+        Assert.assertTrue(json.getJsonArray("lyrics").getString(0).contains("Imagine no possessions"));
     }
 }

@@ -22,7 +22,7 @@
       <span class="glyphicon btn-pointer btn-like" title="{{ track.liked ? 'Loved' : '' }}" ng-click="toggleLikeTrack(track)"
             ng-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>
       <span class="text-muted"><a ng-href="#/artist/{{ track.artist.id }}">{{ track.artist.name }}</a></span><br />
-      {{ track.title }}
+      {{ track.title }} <a href="#/lyrics" title="Show lyrics"><span class="glyphicon glyphicon-comment"></span></a>
       <div class="progress progress-audio btn-pointer" ng-click="seek($event)">
         <div class="progress">
           <div class="progress-bar progress-bar-buffer"

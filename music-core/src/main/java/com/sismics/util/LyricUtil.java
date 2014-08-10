@@ -3,10 +3,13 @@ package com.sismics.util;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.WordUtils;
+
+import com.google.common.collect.Lists;
 
 /**
  * Lyrics utilities.
@@ -25,6 +28,11 @@ public class LyricUtil {
     private static final Pattern LYRICS_PATTERN = Pattern.compile("(?:&lt;|<)lyrics>(.*?)(?:&lt;|<)/lyrics>", Pattern.DOTALL);
     
     /**
+     * Regexp to extract redirection.
+     */
+    private static final Pattern REDIRECT_PATTERN = Pattern.compile("#REDIRECT \\[\\[(.*?):(.*?)\\]\\]", Pattern.DOTALL);
+    
+    /**
      * Download lyrics and output them.
      * 
      * @param artist Artist
@@ -32,7 +40,7 @@ public class LyricUtil {
      * @return Lyrics
      * @throws IOException
      */
-    public static String getLyrics(String artist, String title) throws IOException {
+    public static List<String> getLyrics(String artist, String title) throws IOException {
         if (artist == null || title == null) {
             throw new IllegalArgumentException("artist or title cannot be null");
         }
@@ -40,19 +48,25 @@ public class LyricUtil {
         String url = String.format(LYRICS_WIKIA_URL, wikiStyle(artist), wikiStyle(title));
         String data = HttpUtil.readUrlIntoString(new URL(url));
         
-        Matcher matcher = LYRICS_PATTERN.matcher(data);
-        StringBuilder output = new StringBuilder();
-        while (matcher.find()) {
-            output.append(matcher.group(1).trim()).append("\n");
+        // Handle redirections
+        Matcher matcher = REDIRECT_PATTERN.matcher(data);
+        if (matcher.find()) {
+            url = String.format(LYRICS_WIKIA_URL, wikiStyle(matcher.group(1)), wikiStyle(matcher.group(2)));
+            data = HttpUtil.readUrlIntoString(new URL(url));
         }
         
-        if (output.length() == 0) {
+        // Extract lyrics
+        matcher = LYRICS_PATTERN.matcher(data);
+        List<String> lyrics = Lists.newArrayList();
+        while (matcher.find()) {
+            lyrics.add(matcher.group(1).trim());
+        }
+        
+        if (lyrics.size() == 0) {
             throw new IOException("No lyrics found");
         }
         
-        String lyrics = output.deleteCharAt(output.length() - 1).toString();
-        
-        if (lyrics.contains("PUT LYRICS HERE")) {
+        if (lyrics.get(0).contains("PUT LYRICS HERE")) {
             throw new IOException("No lyrics found");
         }
         

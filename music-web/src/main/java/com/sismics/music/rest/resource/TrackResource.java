@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.Date;
+import java.util.List;
 
 import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -169,9 +171,14 @@ public class TrackResource extends BaseResource {
         
         try {
             // Download lyrics
-            String lyrics = LyricUtil.getLyrics(artist.getName(), track.getTitle());
+            List<String> lyricsList = LyricUtil.getLyrics(artist.getName(), track.getTitle());
+            JsonArrayBuilder jsonLyrics = Json.createArrayBuilder();
+            for (String lyrics : lyricsList) {
+                jsonLyrics.add(lyrics);
+            }
+            
             return Response.ok()
-                    .entity(Json.createObjectBuilder().add("lyrics", lyrics).build())
+                    .entity(Json.createObjectBuilder().add("lyrics", jsonLyrics.build()).build())
                     .build();
         } catch (IOException e) {
             throw new ServerException("LyricsError", "No lyrics for this track", e);
