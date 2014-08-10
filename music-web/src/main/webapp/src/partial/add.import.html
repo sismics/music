@@ -10,10 +10,11 @@
     <form name="tagForm">
       <table class="table" ng-show="files.length > 0">
         <tr>
-          <th style="width: 22%;">Album artist</th>
-          <th style="width: 22%;">Album</th>
-          <th style="width: 22%;">Artist</th>
-          <th style="width: 24%;">Title</th>
+          <th style="width: 10%;">#</th>
+          <th style="width: 20%;">Album artist</th>
+          <th style="width: 20%;">Album</th>
+          <th style="width: 20%;">Artist</th>
+          <th style="width: 20%;">Title</th>
           <th style="width: 5%;"></th>
           <th style="width: 5%;"></th>
         </tr>
@@ -21,6 +22,11 @@
           <td colspan="6">{{ file.file }}</td>
         </tr>
         <tr ng-repeat-end>
+          <td>
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="#" ng-model="file.order" />
+            </div>
+          </td>
           <td>
             <div class="input-group">
               <input type="text" class="form-control" placeholder="Album artist" ng-model="file.album_artist"

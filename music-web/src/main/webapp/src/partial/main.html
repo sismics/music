@@ -2,14 +2,21 @@
   <div class="col-md-3">
     <div class="panel panel-default">
       <div class="list-group">
-        <a class="list-group-item" ng-class="{ active: $uiRoute }" ui-route="/playing" href="#/playing">Now playing</a>
+        <a class="list-group-item" ng-class="{ active: $uiRoute }" ui-route="/playing" href="#/playing">
+          <span class="glyphicon glyphicon-play"></span>
+          Now playing
+        </a>
         <a class="list-group-item"
            ng-class="{ active: $uiRoute || $state.current.name == 'main.album' || $state.current.name == 'main.search'
               || $state.current.name == 'main.albumart' || $state.current.name == 'main.artist' }"
            ui-route="/music/.*" href="#/music/albums/:">
+          <span class="glyphicon glyphicon-th"></span>
           My music
         </a>
-        <a class="list-group-item" ng-class="{ active: $uiRoute }" ui-route="/add/.*" href="#/add/external">Add music</a>
+        <a class="list-group-item" ng-class="{ active: $uiRoute }" ui-route="/add/.*" href="#/add/external">
+          <span class="glyphicon glyphicon-plus"></span>
+          Add music
+        </a>
       </div>
     </div>
 

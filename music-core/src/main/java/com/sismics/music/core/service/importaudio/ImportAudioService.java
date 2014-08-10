@@ -254,6 +254,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
      * Tag and move a file in a directory. This method is thread-safe.
      * 
      * @param fileName File name
+     * @param order Order
      * @param title Title
      * @param album Album
      * @param artist Artist
@@ -261,7 +262,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
      * @param directory Directory
      * @throws Exception
      */
-    public void tagFile(final String fileName, final String title, final String album, final String artist,
+    public void tagFile(final String fileName, final Integer order, final String title, final String album, final String artist,
             final String albumArtist, final Directory directory) throws Exception {
         syncExecutor.submit(new Callable<Void>() {
             @Override
@@ -284,6 +285,11 @@ public class ImportAudioService extends AbstractExecutionThreadService {
                 try {
                     AudioFile audioFile = AudioFileIO.read(file);
                     Tag tag = audioFile.getTagOrCreateAndSetDefault();
+                    if (order == null) {
+                        tag.deleteField(FieldKey.TRACK);
+                    } else {
+                        tag.setField(FieldKey.TRACK, order.toString());
+                    }
                     tag.setField(FieldKey.TITLE, title);
                     tag.setField(FieldKey.ALBUM, album);
                     tag.setField(FieldKey.ARTIST, artist);

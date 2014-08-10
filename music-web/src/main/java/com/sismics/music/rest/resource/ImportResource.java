@@ -152,6 +152,7 @@ public class ImportResource extends BaseResource {
     @POST
     public Response tag(
             @FormParam("file") String fileName,
+            @FormParam("order") String orderStr,
             @FormParam("artist") String artist,
             @FormParam("album_artist") String albumArtist,
             @FormParam("album") String album,
@@ -167,6 +168,10 @@ public class ImportResource extends BaseResource {
         albumArtist = ValidationUtil.validateLength(albumArtist, "album_artist", 0, 1000, true);
         album = ValidationUtil.validateLength(album, "album", 1, 1000);
         title = ValidationUtil.validateLength(title, "title", 1, 2000);
+        Integer order = null;
+        if (orderStr != null) {
+            order = ValidationUtil.validateInteger(orderStr, "order");
+        }
         
         if (albumArtist == null) {
             albumArtist = artist;
@@ -190,7 +195,7 @@ public class ImportResource extends BaseResource {
         
         // Tag the file
         try {
-            AppContext.getInstance().getImportAudioService().tagFile(fileName, title, album, artist, albumArtist, directory);
+            AppContext.getInstance().getImportAudioService().tagFile(fileName, order, title, album, artist, albumArtist, directory);
         } catch (Exception e) {
             throw new ServerException("TagError", e.getMessage(), e);
         }
