@@ -139,7 +139,6 @@ public class UserResource extends BaseResource {
      * 
      * @param password Password
      * @param email E-Mail
-     * @param themeId Theme
      * @param localeId Locale ID
      * @param firstConnection True if the user hasn't acknowledged the first connection wizard yet
      * @return Response
@@ -213,7 +212,6 @@ public class UserResource extends BaseResource {
         @PathParam("username") String username,
         @FormParam("password") String password,
         @FormParam("email") String email,
-        @FormParam("theme") String themeId,
         @FormParam("locale") String localeId) {
         
         if (!authenticate()) {
