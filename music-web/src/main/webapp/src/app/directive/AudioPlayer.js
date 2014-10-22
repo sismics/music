@@ -13,6 +13,46 @@ angular.module('music').directive('audioPlayer', function($rootScope, Playlist, 
       $scope.firstPingSent = false;
       $scope.halfwayPingSent = false;
 
+
+      ///
+      var ctx = new AudioContext();
+      var audioSrc = ctx.createMediaElementSource($scope.audio);
+      var analyser = ctx.createAnalyser();
+      audioSrc.connect(analyser);
+
+      // Analyser configuration
+      analyser.fftSize = 2048;
+
+      // frequencyBinCount tells you how many values you'll receive from the analyser
+      var frequencyData = new Uint8Array(analyser.frequencyBinCount);
+
+      // This is necessary, or else no sound (?)
+      var gainNode = ctx.createGain();
+      audioSrc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      // we're ready to receive some data!
+      var canvasCtx = $('#visual')[0].getContext('2d');
+      var draw = function() {
+        requestAnimationFrame(draw);
+
+        // update data in frequencyData
+        analyser.getByteFrequencyData(frequencyData);
+        // render frame based on values in frequencyData
+        canvasCtx.clearRect(0, 0, 1024, 256);
+        canvasCtx.fillStyle = 'rgba(50, 50, 50, 0.2)';
+
+        var x = 0;
+        for(var i = 0; i < frequencyData.length; i++) {
+          var freq = frequencyData[i];
+          canvasCtx.fillRect(x, 256 - freq, 1, freq);
+          x++;
+        }
+      };
+      draw();
+      ///
+
+
       // Restore saved volume
       $scope.savedVolume = _.isUndefined(localStorage.savedVolume) ? 1 : parseFloat(localStorage.savedVolume);
       $scope.audio.volume = $scope.savedVolume;
@@ -70,6 +110,7 @@ angular.module('music').directive('audioPlayer', function($rootScope, Playlist, 
         $scope.halfwayPingSent = false;
         $scope.track = track;
         $scope.audio.src = '../api/track/' + track.id;
+
         if (play) {
           $scope.audio.play();
         } else {

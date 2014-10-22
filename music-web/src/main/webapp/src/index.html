@@ -123,6 +123,7 @@
 	  
 	  <div id="footer" class="panel panel-default" ng-show="!userInfo.anonymous" ng-controller="AudioPlayer">
 	    <div class="container">
+        <canvas id="visual" width="1024" height="256" style="position: absolute; top: -128px; left: 0; width: 100vw; height: 128px; pointer-events: none;"></canvas>
         <audio-player></audio-player>
 	    </div>
     </div>
