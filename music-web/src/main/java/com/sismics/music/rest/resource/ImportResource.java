@@ -1,6 +1,7 @@
 package com.sismics.music.rest.resource;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import javax.json.Json;
@@ -14,6 +15,8 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+
+import org.apache.commons.io.comparator.LastModifiedFileComparator;
 
 import com.google.common.collect.Lists;
 import com.sismics.music.core.dao.dbi.DirectoryDao;
@@ -132,6 +135,7 @@ public class ImportResource extends BaseResource {
         }
         
         List<File> importedFileList = AppContext.getInstance().getImportAudioService().getImportedFileList();
+        Collections.sort(importedFileList, new LastModifiedFileComparator());
         
         JsonObjectBuilder response = Json.createObjectBuilder();
         JsonArrayBuilder items = Json.createArrayBuilder();

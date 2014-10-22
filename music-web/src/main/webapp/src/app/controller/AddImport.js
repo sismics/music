@@ -63,6 +63,13 @@ angular.module('music').controller('AddImport', function($scope, Restangular, $d
     });
   };
 
+  // Guess the order
+  $scope.guessOrder = function() {
+    _.each($scope.files, function(f, i) {
+      f.order = ++i;
+    });
+  };
+
   // Load artists and albums for autocomplete
   Restangular.one('album').getList().then(function(data) {
     $scope.albums = _.chain(data.albums).pluck('name').uniq().value();

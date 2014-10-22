@@ -10,7 +10,7 @@
     <form name="tagForm">
       <table class="table" ng-show="files.length > 0">
         <tr>
-          <th style="width: 10%;">#</th>
+          <th style="width: 10%;"><span class="btn-link" ng-click="guessOrder()">#</span></th>
           <th style="width: 20%;">Album artist</th>
           <th style="width: 20%;">Album</th>
           <th style="width: 20%;">Artist</th>
@@ -19,7 +19,7 @@
           <th style="width: 5%;"></th>
         </tr>
         <tr ng-repeat-start="file in files">
-          <td colspan="6">{{ file.file }}</td>
+          <td colspan="7">{{ file.file }}</td>
         </tr>
         <tr ng-repeat-end>
           <td>
