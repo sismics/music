@@ -48,11 +48,22 @@
     <ImageView
         android:id="@+id/cached"
         android:contentDescription="@string/cached"
-        android:layout_alignParentRight="true"
+        android:layout_toLeftOf="@+id/overflow"
         android:layout_centerVertical="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="8dp"
         android:src="@drawable/ic_action_make_available_offline"/>
+
+    <ImageView
+        android:id="@+id/overflow"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:paddingRight="6dp"
+        android:src="@drawable/overflow_menu"
+        android:scaleType="center"
+        android:contentDescription="@string/more_options"/>
 
 </RelativeLayout>

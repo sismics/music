@@ -2,23 +2,25 @@ package com.sismics.music.adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.media.Image;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
 import com.sismics.music.R;
+import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.model.Album;
-import com.sismics.music.service.PlaylistService;
 import com.sismics.music.model.Track;
 import com.sismics.music.util.CacheUtil;
 
 import java.util.List;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * Adapter for tracks list.
@@ -68,6 +70,7 @@ public class TracksAdapter extends BaseAdapter {
             holder = new ViewHolder();
             holder.trackName = aq.id(R.id.trackName).getTextView();
             holder.cached = aq.id(R.id.cached).getImageView();
+            holder.overflow = aq.id(R.id.overflow).getView();
             view.setTag(holder);
         } else {
             aq.recycle(view);
@@ -78,6 +81,27 @@ public class TracksAdapter extends BaseAdapter {
         final Track track = getItem(position);
         holder.trackName.setText(track.getTitle());
         holder.cached.setVisibility(CacheUtil.isComplete(album, track) ? View.VISIBLE : View.INVISIBLE);
+
+        // Configuring popup menu
+        aq.id(holder.overflow).clicked(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popup = new PopupMenu(activity, v);
+                popup.inflate(R.menu.list_item_track);
+
+                // Menu actions
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        CacheUtil.removeTrack(album, track);
+                        EventBus.getDefault().post(new TrackCacheStatusChangedEvent(null));
+                        return true;
+                    }
+                });
+
+                popup.show();
+            }
+        });
 
         return view;
     }
@@ -114,5 +138,6 @@ public class TracksAdapter extends BaseAdapter {
     private static class ViewHolder {
         TextView trackName;
         ImageView cached;
+        View overflow;
     }
 }

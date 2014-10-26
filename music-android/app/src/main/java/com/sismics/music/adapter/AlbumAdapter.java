@@ -4,23 +4,29 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
 import com.androidquery.callback.BitmapAjaxCallback;
 import com.sismics.music.R;
+import com.sismics.music.event.TrackCacheStatusChangedEvent;
+import com.sismics.music.util.CacheUtil;
 import com.sismics.music.util.PreferenceUtil;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.Set;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * Adapter for albums list.
@@ -82,6 +88,7 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
             holder.artistName = aq.id(R.id.artistName).getTextView();
             holder.imgCover = aq.id(R.id.imgCover).getImageView();
             holder.cached = aq.id(R.id.cached).getImageView();
+            holder.overflow = aq.id(R.id.overflow).getView();
             view.setTag(holder);
         } else {
             aq.recycle(view);
@@ -91,7 +98,7 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
         JSONObject album = getItem(position);
 
         // Album cover
-        String albumId = album.optString("id");
+        final String albumId = album.optString("id");
         String coverUrl = serverUrl + "/api/album/" + albumId + "/albumart/small";
         if (aq.shouldDelay(position, view, parent, coverUrl)) {
             aq.id(holder.imgCover).image((Bitmap) null);
@@ -107,7 +114,29 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
         holder.albumName.setText(album.optString("name"));
         JSONObject artist = album.optJSONObject("artist");
         holder.artistName.setText(artist.optString("name"));
-        holder.cached.setVisibility(cachedAlbumSet.contains(albumId) ? View.VISIBLE : View.GONE);
+        final View cached = holder.cached;
+        cached.setVisibility(cachedAlbumSet.contains(albumId) ? View.VISIBLE : View.GONE);
+
+        // Configuring popup menu
+        aq.id(holder.overflow).clicked(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popup = new PopupMenu(activity, v);
+                popup.inflate(R.menu.list_item_album);
+
+                // Menu actions
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        CacheUtil.removeAlbum(albumId);
+                        EventBus.getDefault().post(new TrackCacheStatusChangedEvent(null));
+                        return true;
+                    }
+                });
+
+                popup.show();
+            }
+        });
 
         return view;
     }
@@ -185,5 +214,6 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
         TextView artistName;
         ImageView imgCover;
         ImageView cached;
+        View overflow;
     }
 }

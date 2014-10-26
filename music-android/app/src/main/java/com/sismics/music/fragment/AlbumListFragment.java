@@ -16,12 +16,13 @@ import android.widget.ListView;
 import com.androidquery.AQuery;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
+import com.sismics.music.adapter.AlbumAdapter;
 import com.sismics.music.event.AlbumOpenedEvent;
 import com.sismics.music.event.MyMusicMenuVisibilityChangedEvent;
 import com.sismics.music.event.OfflineModeChangedEvent;
+import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.model.Album;
 import com.sismics.music.resource.AlbumResource;
-import com.sismics.music.adapter.AlbumAdapter;
 import com.sismics.music.util.CacheUtil;
 import com.sismics.music.util.PreferenceUtil;
 
@@ -194,5 +195,13 @@ public class AlbumListFragment extends Fragment {
             adapter.setOfflineMode(offlineMode);
         }
         aq.id(R.id.search).text("");
+    }
+
+    /**
+     * A track cache status has changed.
+     * @param event Event
+     */
+    public void onEvent(TrackCacheStatusChangedEvent event) {
+        refreshAlbumList(false);
     }
 }

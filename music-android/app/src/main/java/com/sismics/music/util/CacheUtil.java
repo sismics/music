@@ -8,7 +8,6 @@ import com.sismics.music.model.PlaylistTrack;
 import com.sismics.music.model.Track;
 
 import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
 import org.jaudiotagger.audio.mp3.MP3FileReader;
 import org.jaudiotagger.tag.FieldKey;
@@ -16,7 +15,6 @@ import org.jaudiotagger.tag.Tag;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -126,7 +124,9 @@ public class CacheUtil {
                 AudioHeader header = audioFile.getAudioHeader();
 
                 track.setLength(header.getTrackLength());
-                track.setTitle(tag.getFirst(FieldKey.TITLE));
+                if (tag != null) {
+                    track.setTitle(tag.getFirst(FieldKey.TITLE));
+                }
                 track.setId(file.getName().substring(0, file.getName().indexOf(".")));
                 trackList.add(track);
             } catch (ClosedChannelException e) {
@@ -158,5 +158,32 @@ public class CacheUtil {
             }
         }
         return output;
+    }
+
+    /**
+     * Remove a track from the cache.
+     * @param album Album
+     * @param track Track
+     */
+    public static void removeTrack(Album album, Track track) {
+        PlaylistTrack playlistTrack = new PlaylistTrack(album, track);
+        File file = getCompleteCacheFile(playlistTrack);
+        if (file.exists()) {
+            file.delete();
+        }
+    }
+
+    /**
+     * Remove an album from the cache.
+     * @param albumId Album ID
+     */
+    public static void removeAlbum(String albumId) {
+        File albumDir = new File(getMusicCacheDir(), albumId);
+        if (albumDir.exists()) {
+            for (File file : albumDir.listFiles()) {
+                file.delete();
+            }
+            albumDir.delete();
+        }
     }
 }

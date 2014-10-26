@@ -22,7 +22,6 @@ import com.sismics.music.adapter.TracksAdapter;
 import com.sismics.music.event.OfflineModeChangedEvent;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.model.Album;
-import com.sismics.music.model.PlaylistTrack;
 import com.sismics.music.model.Track;
 import com.sismics.music.resource.AlbumResource;
 import com.sismics.music.service.MusicService;
