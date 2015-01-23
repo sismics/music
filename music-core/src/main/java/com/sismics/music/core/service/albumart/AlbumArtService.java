@@ -2,11 +2,13 @@ package com.sismics.music.core.service.albumart;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Set;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AbstractService;
 import com.sismics.music.core.util.DirectoryUtil;
 import com.sismics.music.core.util.ImageUtil;
@@ -105,5 +107,38 @@ public class AlbumArtService  {
      */
     public String getAlbumArtFileName(String id, AlbumArtSize albumArtSize) {
         return id + "_" + albumArtSize.name().toLowerCase();
+    }
+    
+    /**
+     * Rebuilds all album art sizes.
+     * 
+     * @throws Exception 
+     */
+    public void rebuildAlbumArt() throws Exception {
+        Set<String> albumArtIdSet = Sets.newHashSet();
+        
+        // List all album art IDs
+        for (File file : DirectoryUtil.getAlbumArtDirectory().listFiles()) {
+            String[] fileName = file.getName().split("_");
+            albumArtIdSet.add(fileName[0]);
+        }
+        
+        // For each album art, rebuild the smaller sizes from the large size
+        for (String id : albumArtIdSet) {
+            File largeFile = getAlbumArtFile(id, AlbumArtSize.LARGE);
+            
+            File mediumFile = getAlbumArtFile(id, AlbumArtSize.MEDIUM);
+            if (mediumFile.exists()) {
+                mediumFile.delete();
+            }
+            
+            File smallFile = getAlbumArtFile(id, AlbumArtSize.SMALL);
+            if (smallFile.exists()) {
+                smallFile.delete();
+            }
+            
+            importAlbumArt(id, largeFile, AlbumArtSize.MEDIUM);
+            importAlbumArt(id, largeFile, AlbumArtSize.SMALL);
+        }
     }
 }

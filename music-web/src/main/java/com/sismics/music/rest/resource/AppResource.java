@@ -13,6 +13,7 @@ import com.sismics.util.db.DbUtil;
 import com.sismics.util.log4j.LogCriteria;
 import com.sismics.util.log4j.LogEntry;
 import com.sismics.util.log4j.MemoryAppender;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
@@ -23,6 +24,7 @@ import javax.json.JsonObjectBuilder;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import java.net.URI;
 import java.util.ResourceBundle;
 
@@ -156,6 +158,31 @@ public class AppResource extends BaseResource {
                 .build();
     }
 
+    /**
+     * Rebuilds all album art sizes.
+     * 
+     * @return Response
+     */
+    @POST
+    @Path("batch/rebuild_albumart")
+    public Response rebuildAlbumArt() {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+        checkBaseFunction(BaseFunction.ADMIN);
+
+        try {
+            AppContext.getInstance().getAlbumArtService().rebuildAlbumArt();
+        } catch (Exception e) {
+            throw new ServerException("RebuildError", "Error rebuilding album arts", e);
+        }
+        
+        // Always return OK
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
+    }
+    
     /**
      * Start the DB console.
      *
