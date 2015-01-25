@@ -12,16 +12,16 @@
     </div>
 
     <div class="row">
-      <div class="col-md-7">
+      <div class="col-md-8">
         <table class="table table-striped table-tracks">
           <thead>
           <tr>
-            <th style="width: 8%;" class="col-md-1"></th>
-            <th style="width: 8%;" class="col-md-1"></th>
+            <th style="width: 6%;" class="col-md-1"></th>
+            <th style="width: 6%;" class="col-md-1"></th>
             <th style="width: 8%;">#</th>
             <th>Title</th>
-            <th style="width: 12%;"><span class="glyphicon glyphicon-time"></span></th>
-            <th style="width: 8%;"></th>
+            <th style="width: 13%;"><span class="glyphicon glyphicon-time"></span></th>
+            <th style="width: 6%;"></th>
           </tr>
           </thead>
           <tbody>
@@ -40,7 +40,7 @@
         </table>
       </div>
 
-      <div class="col-md-5">
+      <div class="col-md-4">
         <img class="btn-pointer" ng-if="album.albumart" ng-click="zoomAlbumArt()"
               ng-src="../api/album/{{ album.id }}/albumart/medium" style="width: 100%;" />
         <div class="pull-right">
