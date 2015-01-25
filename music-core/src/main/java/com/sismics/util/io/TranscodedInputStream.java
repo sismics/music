@@ -20,14 +20,19 @@ public class TranscodedInputStream extends InputStream {
     private InputStream processInputStream;
 
     private Process process;
+    
+    private int fileSize;
 
+    private int readBytes;
+    
     /**
      * Constructor of TranscodedInputStream.
      *
      * @param processBuilder Builder to create the transcoder process
+     * @param fileSize Expected transcoded file size
      * @throws IOException
      */
-    public TranscodedInputStream(ProcessBuilder processBuilder) throws IOException {
+    public TranscodedInputStream(ProcessBuilder processBuilder, int fileSize) throws IOException {
         if (log.isDebugEnabled()) {
             StringBuilder sb = new StringBuilder("Starting transcoder: ");
             for (String s : processBuilder.command()) {
@@ -35,6 +40,9 @@ public class TranscodedInputStream extends InputStream {
             }
             log.info(sb.toString());
         }
+        
+        this.fileSize = fileSize;
+        this.readBytes = 0;
 
         // Start the transcoding process process
         process = processBuilder.start();
@@ -47,17 +55,49 @@ public class TranscodedInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        return processInputStream.read();
+        int b = processInputStream.read();
+        if (b == -1 && readBytes < fileSize) {
+            // Nothing more from the transcoder, but not enough bytes, send a zero
+            readBytes++;
+            return 0;
+        }
+        return b;
     }
 
     @Override
     public int read(byte[] b) throws IOException {
-        return processInputStream.read(b);
+        int n = processInputStream.read(b);
+        if (n == -1 && readBytes < fileSize) {
+            // Nothing more from the transcoder, but not enough bytes, send some zeros
+            int i = 0;
+            for (; i < b.length; i++) {
+                if (readBytes < fileSize) {
+                    readBytes++;
+                    b[i] = 0;
+                }
+            }
+            return i;
+        }
+        readBytes += n;
+        return n;
     }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        return processInputStream.read(b, off, len);
+        int n = processInputStream.read(b, off, len);
+        if (n == -1 && readBytes < fileSize) {
+            // Nothing more from the transcoder, but not enough bytes, send some zeros
+            int i = 0;
+            for (; i < b.length; i++) {
+                if (readBytes < fileSize) {
+                    readBytes++;
+                    b[i] = 0;
+                }
+            }
+            return i;
+        }
+        readBytes += n;
+        return n;
     }
 
     @Override

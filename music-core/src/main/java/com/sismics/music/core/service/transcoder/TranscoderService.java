@@ -24,12 +24,13 @@ public class TranscoderService {
      *
      * @param track Track to transcode
      * @param seek Time to seek (in seconds)
+     * @parma fileSize Expected transcoded file size
      * @return Transcoded input stream
      * @throws Exception
      */
-    public InputStream getTranscodedInputStream(Track track, int seek, Transcoder transcoder) throws Exception {
+    public InputStream getTranscodedInputStream(Track track, int seek, int fileSize, Transcoder transcoder) throws Exception {
         ProcessBuilder pb = getProcessBuilder(track, seek, transcoder);
-        return new TranscodedInputStream(pb);
+        return new TranscodedInputStream(pb, fileSize);
     }
 
     private ProcessBuilder getProcessBuilder(Track track, int seek, Transcoder transcoder) {

@@ -131,7 +131,7 @@ public class TrackResource extends BaseResource {
                         }
                         
                         int fileSize = track.getLength() * 128 * 1000 / 8;
-                        InputStream is = transcoderService.getTranscodedInputStream(track, seek, transcoder);
+                        InputStream is = transcoderService.getTranscodedInputStream(track, seek, fileSize, transcoder);
                         Response.ResponseBuilder response = Response.ok(is);
                         
                         if (range != null) {
