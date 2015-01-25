@@ -2,13 +2,9 @@ package com.sismics.util.io;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Closer;
 
 /**
  * Input stream that transcodes on the fly.
@@ -23,20 +19,15 @@ public class TranscodedInputStream extends InputStream {
 
     private InputStream processInputStream;
 
-    private OutputStream processOutputStream;
-
     private Process process;
-
-    private final Closer closer = Closer.create();
 
     /**
      * Constructor of TranscodedInputStream.
      *
      * @param processBuilder Builder to create the transcoder process
-     * @param is Input stream to transcode
      * @throws IOException
      */
-    public TranscodedInputStream(ProcessBuilder processBuilder, final InputStream is) throws IOException {
+    public TranscodedInputStream(ProcessBuilder processBuilder) throws IOException {
         if (log.isDebugEnabled()) {
             StringBuilder sb = new StringBuilder("Starting transcoder: ");
             for (String s : processBuilder.command()) {
@@ -47,31 +38,11 @@ public class TranscodedInputStream extends InputStream {
 
         // Start the transcoding process process
         process = processBuilder.start();
-        processOutputStream = closer.register(process.getOutputStream());
         processInputStream = process.getInputStream();
 
         // Consume the transcoder process error stream
         final String commandName = processBuilder.command().get(0);
         new InputStreamReaderThread(process.getErrorStream(), commandName).start();
-
-        // Consume the transcoder process output stream
-        closer.register(is);
-        new Thread(commandName + " TranscodedInputStream thread") {
-            @Override
-            public void run() {
-                try {
-                    ByteStreams.copy(is, processOutputStream);
-                } catch (IOException e) {
-                    // NOP
-                } finally {
-                    try {
-                        closer.close();
-                    } catch (Exception e) {
-                        // NOP
-                    }
-                }
-            }
-        }.start();
     }
 
     @Override
@@ -92,13 +63,8 @@ public class TranscodedInputStream extends InputStream {
     @Override
     public void close() throws IOException {
         if (process != null) {
+            // Destroying the process closes the streams
             process.destroy();
-        }
-        
-        try {
-            closer.close();
-        } catch (Exception e) {
-            // NOP
         }
     }
 }

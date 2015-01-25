@@ -1,7 +1,5 @@
 package com.sismics.music.core.service.transcoder;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -30,9 +28,8 @@ public class TranscoderService {
      * @throws Exception
      */
     public InputStream getTranscodedInputStream(Track track, int seek, Transcoder transcoder) throws Exception {
-        final File file = new File(track.getFileName());
         ProcessBuilder pb = getProcessBuilder(track, seek, transcoder);
-        return new TranscodedInputStream(pb, new FileInputStream(file));
+        return new TranscodedInputStream(pb);
     }
 
     private ProcessBuilder getProcessBuilder(Track track, int seek, Transcoder transcoder) {
