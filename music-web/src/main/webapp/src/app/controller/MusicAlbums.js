@@ -3,10 +3,10 @@
 /**
  * Albums library controller.
  */
-angular.module('music').controller('MusicAlbums', function($scope, $stateParams, $state,
-                                                           Restangular, filterFilter, orderByFilter, Playlist) {
+angular.module('music').controller('MusicAlbums', function($scope, $stateParams, $state, Restangular, Playlist) {
   // Initialize controller
   $scope.loaded = false;
+  $scope.loading = false;
   $scope.filter = $stateParams.filter;
   $scope.order = $stateParams.order ? $stateParams.order : null;
   if ($scope.order == null) {
@@ -17,46 +17,39 @@ angular.module('music').controller('MusicAlbums', function($scope, $stateParams,
     }
   }
   $scope.albums = [];
-  $scope.filteredAlbums = [];
-  $scope.allAlbums = [];
-  var index = 0;
-
-  // Refresh album filtering
-  var refreshFiltering = function() {
-    var order = '-play_count';
-    if ($scope.order == 'alpha') {
-      order = '+artist.name';
-    } else if ($scope.order == 'latest') {
-      order = '-update_date';
-    }
-    $scope.filteredAlbums = orderByFilter(filterFilter($scope.allAlbums, { name: $scope.filter }), order);
-  };
-  
-  // Load all albums
-  Restangular.all('album').getList().then(function(data) {
-    $scope.allAlbums = data.albums;
-    $scope.loaded = true;
-    refreshFiltering();
-    $scope.loadMore(true);
-  });
+  $scope.total = 0;
 
   // Load more albums
   $scope.loadMore = function(reset) {
     if (reset)  {
       $scope.albums = [];
-      index = 0;
+      $scope.loaded = false;
     }
-    $scope.albums = $scope.albums.concat($scope.filteredAlbums.slice(index, index + 12));
-    index += 12;
+
+    if ($scope.total == $scope.albums.length && $scope.loaded || $scope.loading) {
+      return;
+    }
+
+    $scope.loading = true;
+    Restangular.all('album').getList({
+      limit: 20,
+      offset: $scope.albums.length,
+      search: $scope.filter,
+      sort_column: $scope.getSortColumn($scope.order),
+      asc: $scope.order == 'alpha'
+    }).then(function(data) {
+          $scope.albums = $scope.albums.concat(data.albums);
+          $scope.total = data.total;
+          $scope.loaded = true;
+          $scope.loading = false;
+        });
   };
 
   // Debounced version
   $scope.loadMoreDebounced = _.debounce($scope.loadMore, 300);
 
   // Keep the filter and order in sync with the view state
-  $scope.$watch('filter + order', function() {
-    refreshFiltering();
-    $scope.loadMoreDebounced(true);
+  $scope.$watch('filter + order', function(a, b) {
     localStorage.albumsOrder = $scope.order;
 
     $state.go('main.music.albums', {
@@ -66,6 +59,9 @@ angular.module('music').controller('MusicAlbums', function($scope, $stateParams,
       location: 'replace',
       notify: false
     });
+
+    if (a == b) return;
+    $scope.loadMoreDebounced(true);
   });
 
   // Load and play an album
@@ -74,4 +70,18 @@ angular.module('music').controller('MusicAlbums', function($scope, $stateParams,
       Playlist.removeAndPlayAll(_.pluck(data.tracks, 'id'));
     });
   };
+
+  // Convert UI sort order to column number
+  $scope.getSortColumn = function(sort) {
+    switch (sort) {
+      case 'alpha':
+        return 0;
+      case 'latest':
+        return 1;
+      case 'playcount':
+        return 2;
+      default:
+        return 0;
+    }
+  }
 });

@@ -1,4 +1,4 @@
-<div class="row" ng-show="allArtists.length > 0">
+<div class="row">
   <div class="col-sm-12 search-form">
     <form role="form" class="form-inline">
       <div class="form-group has-feedback">
@@ -9,7 +9,7 @@
     </form>
   </div>
 
-  <div class="col-sm-12" infinite-scroll="loadMore()" infinite-scroll-distance="1">
+  <div class="col-sm-12" infinite-scroll="loadMore()" infinite-scroll-distance="1" ng-show="total > 0">
     <div class="col-sm-6 col-md-3" bindonce ng-repeat="artist in artists">
       <div class="thumbnail albumart-thumbnail">
         <div class="img-container">
@@ -30,9 +30,10 @@
   </div>
 </div>
 
-<p ng-show="loaded && allArtists.length == 0" class="text-center">
+<p ng-show="loaded && total == 0" class="text-center">
   <span class="glyphicon glyphicon-exclamation-sign"></span>
-  Music library empty
+  <span ng-if="filter != ''">No artist for "{{ filter }}"</span>
+  <span ng-if="filter == ''">Music library empty</span>
 </p>
 
 <div class="big-loader-container row" ng-show="!loaded">

@@ -3,46 +3,53 @@
 /**
  * Artists library controller.
  */
-angular.module('music').controller('MusicArtists', function($scope, $stateParams, $state, Restangular, filterFilter) {
+angular.module('music').controller('MusicArtists', function($scope, $stateParams, $state, Restangular) {
   // Initialize filtering
   $scope.loaded = false;
+  $scope.loading = false;
   $scope.filter = $stateParams.filter;
   $scope.artists = [];
-  $scope.filteredArtists = [];
-  $scope.allArtists = [];
-  var index = 0;
-  
-  // Load all artists
-  Restangular.all('artist').getList().then(function(data) {
-    $scope.allArtists = data.artists;
-    $scope.loaded = true;
-    $scope.filteredArtists = filterFilter($scope.allArtists, { name: $scope.filter });
-    $scope.loadMore(true);
-  });
+  $scope.total = 0;
 
   // Load more artists
   $scope.loadMore = function(reset) {
     if (reset)  {
       $scope.artists = [];
-      index = 0;
+      $scope.loaded = false;
     }
-    $scope.artists = $scope.artists.concat($scope.filteredArtists.slice(index, index + 40));
-    index += 40;
+
+    if ($scope.total == $scope.artists.length && $scope.loaded || $scope.loading) {
+      return;
+    }
+
+    $scope.loading = true;
+    Restangular.all('artist').getList({
+      limit: 20,
+      offset: $scope.artists.length,
+      search: $scope.filter,
+      sort_column: 0,
+      asc: true
+    }).then(function(data) {
+          $scope.artists = $scope.artists.concat(data.artists);
+          $scope.total = data.total;
+          $scope.loaded = true;
+          $scope.loading = false;
+        });
   };
 
   // Debounced version
-  $scope.loadMoreDebounced = _.debounce($scope.loadMore, 50);
+  $scope.loadMoreDebounced = _.debounce($scope.loadMore, 300);
 
   // Keep the filter in sync with the view state
-  $scope.$watch('filter', function() {
-    $scope.filteredArtists = filterFilter($scope.allArtists,  { name: $scope.filter });
-    $scope.loadMoreDebounced(true);
-
+  $scope.$watch('filter', function(a, b) {
     $state.go('main.music.artists', {
       filter: $scope.filter
     }, {
       location: 'replace',
       notify: false
     });
+
+    if (a == b) return;
+    $scope.loadMoreDebounced(true);
   });
 });
