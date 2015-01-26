@@ -36,9 +36,13 @@ public class TestArtistResource extends BaseJerseyTest {
         Assert.assertEquals("ok", json.getString("status"));
 
         // Check that the artists are correctly added
-        json = target().path("/artist").request()
+        json = target().path("/artist")
+                .queryParam("sort_column", "0")
+                .queryParam("asc", "true")
+                .request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
+        Assert.assertEquals(4, json.getJsonNumber("total").intValue());
         JsonArray artists = json.getJsonArray("artists");
         Assert.assertNotNull(artists);
         Assert.assertEquals(4, artists.size());

@@ -19,6 +19,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -34,6 +35,9 @@ import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Album;
 import com.sismics.music.core.service.albumart.AlbumArtService;
 import com.sismics.music.core.service.albumart.AlbumArtSize;
+import com.sismics.music.core.util.dbi.PaginatedList;
+import com.sismics.music.core.util.dbi.PaginatedLists;
+import com.sismics.music.core.util.dbi.SortCriteria;
 import com.sismics.music.rest.util.JsonUtil;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
@@ -216,17 +220,27 @@ public class AlbumResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response list() {
+    public Response list(
+            @QueryParam("limit") Integer limit,
+            @QueryParam("offset") Integer offset,
+            @QueryParam("sort_column") Integer sortColumn,
+            @QueryParam("asc") Boolean asc,
+            @QueryParam("search") String search) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
 
         AlbumDao albumDao = new AlbumDao();
-        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria().setUserId(principal.getId()));
+        PaginatedList<AlbumDto> paginatedList = PaginatedLists.create(limit, offset);
+        SortCriteria sortCriteria = new SortCriteria(sortColumn, asc);
+        AlbumCriteria albumCriteria = new AlbumCriteria()
+                .setUserId(principal.getId())
+                .setNameLike(search);
+        albumDao.findByCriteria(paginatedList, albumCriteria, sortCriteria);
 
         JsonObjectBuilder response = Json.createObjectBuilder();
         JsonArrayBuilder items = Json.createArrayBuilder();
-        for (AlbumDto album : albumList) {
+        for (AlbumDto album : paginatedList.getResultList()) {
             items.add(Json.createObjectBuilder()
                     .add("id", album.getId())
                     .add("name", album.getName())
@@ -237,6 +251,8 @@ public class AlbumResource extends BaseResource {
                             .add("id", album.getArtistId())
                             .add("name", album.getArtistName())));
         }
+        
+        response.add("total", paginatedList.getResultCount());
         response.add("albums", items);
 
         return Response.ok().entity(response.build()).build();

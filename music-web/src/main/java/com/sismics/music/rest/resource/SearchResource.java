@@ -89,7 +89,7 @@ public class SearchResource extends BaseResource {
 
         // Search albums
         AlbumDao albumDao = new AlbumDao();
-        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria().setUserId(principal.getId()).setLike(query));
+        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria().setUserId(principal.getId()).setNameLike(query));
 
         JsonArrayBuilder albums = Json.createArrayBuilder();
         for (AlbumDto album : albumList) {

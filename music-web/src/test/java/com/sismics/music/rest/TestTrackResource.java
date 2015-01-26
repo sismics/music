@@ -48,7 +48,10 @@ public class TestTrackResource extends BaseJerseyTest {
         Assert.assertEquals("ok", json.getString("status"));
 
         // Check that the albums are correctly added
-        json = target().path("/album").request()
+        json = target().path("/album")
+                .queryParam("sort_column", "0")
+                .queryParam("asc", "false")
+                .request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         JsonArray albums = json.getJsonArray("albums");

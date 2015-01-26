@@ -1,21 +1,29 @@
 package com.sismics.music.core.dao.dbi;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
+import org.skife.jdbi.v2.util.IntegerMapper;
+
 import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.dbi.criteria.AlbumCriteria;
 import com.sismics.music.core.dao.dbi.dto.AlbumDto;
 import com.sismics.music.core.dao.dbi.mapper.AlbumMapper;
 import com.sismics.music.core.model.dbi.Album;
 import com.sismics.music.core.util.dbi.ColumnIndexMapper;
+import com.sismics.music.core.util.dbi.PaginatedList;
+import com.sismics.music.core.util.dbi.PaginatedLists;
 import com.sismics.music.core.util.dbi.QueryParam;
 import com.sismics.music.core.util.dbi.QueryUtil;
+import com.sismics.music.core.util.dbi.SortCriteria;
 import com.sismics.util.context.ThreadLocalContext;
-
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.Query;
-import org.skife.jdbi.v2.util.IntegerMapper;
-
-import java.sql.Timestamp;
-import java.util.*;
 
 /**
  * Album DAO.
@@ -156,6 +164,20 @@ public class AlbumDao {
     }
 
     /**
+     * Searches albums by criteria.
+     *
+     * @param paginatedList Paginated list (populated by side effects)
+     * @param criteria Search criteria
+     * @param sortCriteria Sort criteria
+     */
+    public void findByCriteria(PaginatedList<AlbumDto> paginatedList, AlbumCriteria criteria, SortCriteria sortCriteria) {
+        QueryParam queryParam = getQueryParam(criteria);
+        List<Object[]> l = PaginatedLists.executePaginatedQuery(paginatedList, queryParam, sortCriteria, true);
+        List<AlbumDto> albumDtoList = assembleResultList(l);
+        paginatedList.setResultList(albumDtoList);
+    }
+    
+    /**
      * Creates the query parameters from the criteria.
      *
      * @param criteria Search criteria
@@ -164,11 +186,11 @@ public class AlbumDao {
     private QueryParam getQueryParam(AlbumCriteria criteria) {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-        StringBuilder sb = new StringBuilder("select a.ALB_ID_C, a.ALB_NAME_C,  a.ALB_ALBUMART_C, ar.ART_ID_C, ar.ART_NAME_C, a.ALB_UPDATEDATE_D, ");
+        StringBuilder sb = new StringBuilder("select a.ALB_ID_C, a.ALB_NAME_C as c0,  a.ALB_ALBUMART_C, ar.ART_ID_C, ar.ART_NAME_C, a.ALB_UPDATEDATE_D as c1, ");
         if (criteria.getUserId() == null) {
             sb.append("sum(0)");
         } else {
-            sb.append("sum(utr.UST_PLAYCOUNT_N)");
+            sb.append("sum(utr.UST_PLAYCOUNT_N) as c2");
         }
         sb.append(" from T_ALBUM a ");
         sb.append(" join T_ARTIST ar on(ar.ART_ID_C = a.ALB_IDARTIST_C) ");
@@ -191,9 +213,9 @@ public class AlbumDao {
             criteriaList.add("ar.ART_ID_C = :artistId");
             parameterMap.put("artistId", criteria.getArtistId());
         }
-        if (criteria.getLike() != null) {
+        if (criteria.getNameLike() != null) {
             criteriaList.add("(lower(a.ALB_NAME_C) like lower(:like) or lower(ar.ART_NAME_C) like lower(:like))");
-            parameterMap.put("like", "%" + criteria.getLike() + "%");
+            parameterMap.put("like", "%" + criteria.getNameLike() + "%");
         }
         criteriaList.add("ar.ART_DELETEDATE_D is null");
         criteriaList.add("a.ALB_DELETEDATE_D is null");
@@ -204,8 +226,6 @@ public class AlbumDao {
         }
 
         sb.append(" group by a.ALB_ID_C ");
-        sb.append(" order by ar.ART_NAME_C, a.ALB_NAME_C asc");
-
 
         QueryParam queryParam = new QueryParam(sb.toString(), parameterMap);
         return queryParam;

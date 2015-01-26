@@ -16,6 +16,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -34,6 +35,9 @@ import com.sismics.music.core.model.dbi.Artist;
 import com.sismics.music.core.service.albumart.AlbumArtService;
 import com.sismics.music.core.service.albumart.AlbumArtSize;
 import com.sismics.music.core.util.ImageUtil;
+import com.sismics.music.core.util.dbi.PaginatedList;
+import com.sismics.music.core.util.dbi.PaginatedLists;
+import com.sismics.music.core.util.dbi.SortCriteria;
 import com.sismics.music.rest.util.JsonUtil;
 import com.sismics.rest.exception.ForbiddenClientException;
 
@@ -51,21 +55,32 @@ public class ArtistResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response list() {
+    public Response list(
+            @QueryParam("limit") Integer limit,
+            @QueryParam("offset") Integer offset,
+            @QueryParam("sort_column") Integer sortColumn,
+            @QueryParam("asc") Boolean asc,
+            @QueryParam("search") String search) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
 
         ArtistDao artistDao = new ArtistDao();
-        List<ArtistDto> artistList = artistDao.findByCriteria(new ArtistCriteria());
+        PaginatedList<ArtistDto> paginatedList = PaginatedLists.create(limit, offset);
+        SortCriteria sortCriteria = new SortCriteria(sortColumn, asc);
+        ArtistCriteria artistCriteria = new ArtistCriteria()
+                .setNameLike(search);
+        artistDao.findByCriteria(paginatedList, artistCriteria, sortCriteria);
 
         JsonObjectBuilder response = Json.createObjectBuilder();
         JsonArrayBuilder items = Json.createArrayBuilder();
-        for (ArtistDto artist : artistList) {
+        for (ArtistDto artist : paginatedList.getResultList()) {
             items.add(Json.createObjectBuilder()
                     .add("id", artist.getId())
                     .add("name", artist.getName()));
         }
+        
+        response.add("total", paginatedList.getResultCount());
         response.add("artists", items);
 
         return Response.ok().entity(response.build()).build();

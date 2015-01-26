@@ -17,8 +17,11 @@ import com.sismics.music.core.dao.dbi.dto.ArtistDto;
 import com.sismics.music.core.dao.dbi.mapper.ArtistMapper;
 import com.sismics.music.core.model.dbi.Artist;
 import com.sismics.music.core.util.dbi.ColumnIndexMapper;
+import com.sismics.music.core.util.dbi.PaginatedList;
+import com.sismics.music.core.util.dbi.PaginatedLists;
 import com.sismics.music.core.util.dbi.QueryParam;
 import com.sismics.music.core.util.dbi.QueryUtil;
+import com.sismics.music.core.util.dbi.SortCriteria;
 import com.sismics.util.context.ThreadLocalContext;
 
 /**
@@ -145,6 +148,20 @@ public class ArtistDao {
     }
     
     /**
+     * Searches artists by criteria.
+     *
+     * @param paginatedList Paginated list (populated by side effects)
+     * @param criteria Search criteria
+     * @param sortCriteria Sort criteria
+     */
+    public void findByCriteria(PaginatedList<ArtistDto> paginatedList, ArtistCriteria criteria, SortCriteria sortCriteria) {
+        QueryParam queryParam = getQueryParam(criteria);
+        List<Object[]> l = PaginatedLists.executePaginatedQuery(paginatedList, queryParam, sortCriteria, true);
+        List<ArtistDto> albumDtoList = assembleResultList(l);
+        paginatedList.setResultList(albumDtoList);
+    }
+    
+    /**
      * Creates the query parameters from the criteria.
      *
      * @param criteria Search criteria
@@ -153,7 +170,7 @@ public class ArtistDao {
     private QueryParam getQueryParam(ArtistCriteria criteria) {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-        StringBuilder sb = new StringBuilder("select a.ART_ID_C, a.ART_NAME_C ");
+        StringBuilder sb = new StringBuilder("select a.ART_ID_C, a.ART_NAME_C as c0 ");
         sb.append(" from T_ARTIST a ");
 
         // Adds search criteria
@@ -172,9 +189,6 @@ public class ArtistDao {
             sb.append(" where ");
             sb.append(Joiner.on(" and ").join(criteriaList));
         }
-
-        sb.append(" order by a.ART_NAME_C asc");
-
 
         QueryParam queryParam = new QueryParam(sb.toString(), parameterMap);
         return queryParam;
