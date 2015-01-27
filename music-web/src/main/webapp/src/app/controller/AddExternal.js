@@ -59,6 +59,13 @@ angular.module('music').controller('AddExternal', function($scope, Restangular, 
     });
   };
 
+  // Retry an import
+  $scope.retryImport = function(imp) {
+    Restangular.one('import').post('progress/' + imp.id + '/retry').then(function() {
+      $scope.refresh();
+    });
+  };
+
   // Refresh periodically
   $scope.refresh();
   var stop = $interval(function() {

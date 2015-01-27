@@ -1,6 +1,7 @@
 package com.sismics.music.core.service.importaudio;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
@@ -18,6 +19,11 @@ public class ImportAudio {
         DONE,
         ERROR
     }
+    
+    /**
+     * ID.
+     */
+    private String id;
     
     /**
      * URL.
@@ -70,6 +76,7 @@ public class ImportAudio {
      * @param other ImportAudio to copy
      */
     public ImportAudio(ImportAudio other) {
+        this.id = other.id;
         this.url = other.url;
         this.progress = other.progress;
         this.totalSize = other.totalSize;
@@ -85,6 +92,7 @@ public class ImportAudio {
      * An audio import in progress.
      */
     public ImportAudio(String url, String quality, String format) {
+        this.id = UUID.randomUUID().toString();
         this.url = url;
         this.quality = quality;
         this.format = format;
@@ -225,9 +233,19 @@ public class ImportAudio {
         this.workingFiles.add(workingFile);
     }
 
+    /**
+     * Getter of id.
+     *
+     * @return the id
+     */
+    public String getId() {
+        return id;
+    }
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
+                .add("id", id)
                 .add("url", url)
                 .add("status", status)
                 .toString();

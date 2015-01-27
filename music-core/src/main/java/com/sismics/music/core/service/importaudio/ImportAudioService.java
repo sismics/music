@@ -318,4 +318,31 @@ public class ImportAudioService extends AbstractExecutionThreadService {
             }
         }).get();
     }
+
+    /**
+     * Retry a failed import.
+     * 
+     * @param id ID
+     * @throws Exception 
+     */
+    public void retryImportAudio(String id) throws Exception {
+        synchronized (importAudioList) {
+            for (ImportAudio importAudio : importAudioList) {
+                if (importAudio.getId().equals(id)) {
+                    if (importAudio.getStatus() != Status.ERROR) {
+                        throw new Exception("Import not retryable");
+                    }
+                    
+                    importAudioList.remove(importAudio);
+                    importAudioQueue.add(
+                            new ImportAudio(importAudio.getUrl(),
+                                    importAudio.getQuality(),
+                                    importAudio.getFormat()));
+                    return;
+                }
+            }
+        }
+        
+        throw new Exception("Import not found");
+    }
 }

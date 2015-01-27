@@ -13,6 +13,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
@@ -111,6 +112,7 @@ public class ImportResource extends BaseResource {
         JsonArrayBuilder items = Json.createArrayBuilder();
         for (ImportAudio importAudio : importAudioList) {
             items.add(Json.createObjectBuilder()
+                    .add("id", importAudio.getId())
                     .add("url", importAudio.getUrl())
                     .add("download_speed", importAudio.getDownloadSpeed())
                     .add("total_size", importAudio.getTotalSize())
@@ -121,6 +123,30 @@ public class ImportResource extends BaseResource {
         response.add("imports", items);
 
         return Response.ok().entity(response.build()).build();
+    }
+    
+    /**
+     * Retry a failed import.
+     * 
+     * @return Response
+     */
+    @POST
+    @Path("progress/{id: [a-z0-9\\-]+}/retry")
+    public Response retry(@PathParam("id") String id) {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+        
+        try {
+            AppContext.getInstance().getImportAudioService().retryImportAudio(id);
+        } catch (Exception e) {
+            throw new ClientException("ImportError", e.getMessage(), e);
+        }
+        
+        // Always return OK
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
     }
     
     /**

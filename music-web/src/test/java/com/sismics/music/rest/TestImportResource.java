@@ -112,4 +112,77 @@ public class TestImportResource extends BaseJerseyTest {
         // Wait for watching service to index our new music
         Thread.sleep(5000);
     }
+    
+    /**
+     * Test the import resource (retry).
+     * youtube-dl is not available on Travis, can't be tested systematically.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Ignore // youtube-dl is not installed on Travis
+    public void testImportResourceRetry() throws Exception {
+        // Login users
+        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        
+        // Admin import a new URL
+        JsonObject json = target().path("/import").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .put(Entity.form(new Form()
+                        .param("url", "fakeurl")
+                        .param("quality", "128K")
+                        .param("format", "mp3")), JsonObject.class);
+        Assert.assertEquals("ok", json.getString("status"));
+        
+        // Admin lists imported files
+        json = target().path("/import").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        JsonArray files = json.getJsonArray("files");
+        Assert.assertEquals(0, files.size());
+        
+        // Admin checks import progression
+        json = target().path("/import/progress").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        JsonArray imports = json.getJsonArray("imports");
+        Assert.assertEquals(1, imports.size());
+        Assert.assertEquals("INPROGRESS", imports.getJsonObject(0).getString("status"));
+        
+        Thread.sleep(5000);
+        
+        // Admin checks import progression
+        json = target().path("/import/progress").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        imports = json.getJsonArray("imports");
+        Assert.assertEquals(1, imports.size());
+        JsonObject imp = imports.getJsonObject(0);
+        Assert.assertEquals("ERROR", imp.getString("status"));
+        
+        // Retry the failed import
+        json = target().path("/import/progress/" + imp.getString("id") + "/retry").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .post(null, JsonObject.class);
+        Assert.assertEquals("ok", json.getString("status"));
+        
+        // Admin checks import progression
+        json = target().path("/import/progress").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        imports = json.getJsonArray("imports");
+        Assert.assertEquals(1, imports.size());
+        Assert.assertEquals("INPROGRESS", imports.getJsonObject(0).getString("status"));
+        
+        Thread.sleep(5000);
+        
+        // Admin checks import progression
+        json = target().path("/import/progress").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        imports = json.getJsonArray("imports");
+        Assert.assertEquals(1, imports.size());
+        imp = imports.getJsonObject(0);
+        Assert.assertEquals("ERROR", imp.getString("status"));
+    }
 }

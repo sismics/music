@@ -76,6 +76,10 @@
         <td>
           <span class="btn btn-link" ng-click="import.show = true" ng-show="!import.show">Click to show</span>
           <pre ng-click="import.show = false" ng-show="import.show">{{ import.message }}</pre>
+          <button class="btn btn-default" ng-show="import.status == 'ERROR'" ng-click="retryImport(import)">
+            <span class="glyphicon glyphicon-repeat"></span>
+            Retry
+          </button>
         </td>
       </tr>
     </table>
