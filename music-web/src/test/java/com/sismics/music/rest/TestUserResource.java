@@ -1,6 +1,9 @@
 package com.sismics.music.rest;
 
-import java.util.Locale;
+import com.sismics.util.filter.TokenBasedSecurityFilter;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -8,12 +11,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import com.sismics.util.filter.TokenBasedSecurityFilter;
+import java.util.Locale;
 
 /**
  * Exhaustive test of the user resource.
@@ -23,8 +21,6 @@ import com.sismics.util.filter.TokenBasedSecurityFilter;
 public class TestUserResource extends BaseJerseyTest {
     /**
      * Test the user resource.
-     * 
-     * @throws JSONException
      */
     @Test
     public void testUserResource() {
@@ -183,8 +179,6 @@ public class TestUserResource extends BaseJerseyTest {
 
     /**
      * Test the user resource admin functions.
-     * 
-     * @throws JSONException
      */
     @Test
     public void testUserResourceAdmin() {
@@ -247,8 +241,6 @@ public class TestUserResource extends BaseJerseyTest {
 
     /**
      * Test the user authentication to Last.fm.
-     *
-     * @throws JSONException
      */
     @Test
     @Ignore
@@ -266,7 +258,7 @@ public class TestUserResource extends BaseJerseyTest {
         // User user updates his information
         json = target().path("/user/lastfm").request()
             .cookie(TokenBasedSecurityFilter.COOKIE_NAME, lastFm0AuthenticationToken)
-            .post(Entity.form(new Form()
+            .put(Entity.form(new Form()
                     .param("username", System.getenv("LASTFM_USER"))
                     .param("password", System.getenv("LASTFM_PASSWORD"))), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));

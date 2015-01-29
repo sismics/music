@@ -1,27 +1,17 @@
 package com.sismics.music.core.dao.dbi;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.Query;
-
 import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
 import com.sismics.music.core.dao.dbi.dto.TrackDto;
 import com.sismics.music.core.dao.dbi.mapper.TrackMapper;
 import com.sismics.music.core.model.dbi.Track;
-import com.sismics.music.core.util.dbi.ColumnIndexMapper;
-import com.sismics.music.core.util.dbi.PaginatedList;
-import com.sismics.music.core.util.dbi.PaginatedLists;
-import com.sismics.music.core.util.dbi.QueryParam;
-import com.sismics.music.core.util.dbi.QueryUtil;
+import com.sismics.music.core.util.dbi.*;
 import com.sismics.util.context.ThreadLocalContext;
+import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
+
+import java.sql.Timestamp;
+import java.util.*;
 
 /**
  * Track DAO.
@@ -221,6 +211,14 @@ public class TrackDao {
         if (criteria.getArtistId() != null) {
             criteriaList.add("a.ART_ID_C = :artistId");
             parameterMap.put("artistId", criteria.getArtistId());
+        }
+        if (criteria.getTitle() != null) {
+            criteriaList.add("lower(t.TRK_TITLE_C) like lower(:title)");
+            parameterMap.put("title", criteria.getTitle());
+        }
+        if (criteria.getArtistName() != null) {
+            criteriaList.add("lower(a.ART_NAME_C) like lower(:artistName)");
+            parameterMap.put("artistName", criteria.getArtistName());
         }
         if (criteria.getLike() != null) {
             criteriaList.add("(lower(t.TRK_TITLE_C) like lower(:like) or lower(alb.ALB_NAME_C) like lower(:like) or lower(a.ART_NAME_C) like lower(:like))");

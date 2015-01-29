@@ -30,7 +30,7 @@ public class LastFmUpdateLovedTrackAsyncListener {
      * @throws Exception
      */
     @Subscribe
-    public void onLastFmRegistered(final LastFmUpdateLovedTrackAsyncEvent lastFmUpdateLovedTrackAsyncEvent) throws Exception {
+    public void onLastUpdateLovedTrack(final LastFmUpdateLovedTrackAsyncEvent lastFmUpdateLovedTrackAsyncEvent) throws Exception {
         if (log.isInfoEnabled()) {
             log.info("Last.fm update loved tracks event: " + lastFmUpdateLovedTrackAsyncEvent.toString());
         }
