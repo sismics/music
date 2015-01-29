@@ -1,44 +1,16 @@
 package com.sismics.music.rest.resource;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.util.Date;
-import java.util.List;
-
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.container.AsyncResponse;
-import javax.ws.rs.container.Suspended;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.apache.commons.lang.StringUtils;
-import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
-
 import com.sismics.music.core.dao.dbi.ArtistDao;
 import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.UserDao;
 import com.sismics.music.core.dao.dbi.UserTrackDao;
+import com.sismics.music.core.event.async.TrackLikedAsyncEvent;
+import com.sismics.music.core.event.async.TrackUnlikedAsyncEvent;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Artist;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.model.dbi.Transcoder;
 import com.sismics.music.core.model.dbi.User;
-import com.sismics.music.core.service.lastfm.LastFmService;
 import com.sismics.music.core.service.transcoder.TranscoderService;
 import com.sismics.music.core.util.TransactionUtil;
 import com.sismics.music.rest.util.MediaStreamer;
@@ -46,6 +18,26 @@ import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
 import com.sismics.rest.util.ValidationUtil;
 import com.sismics.util.LyricUtil;
+import org.apache.commons.lang.StringUtils;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.ws.rs.*;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Track REST resources.
@@ -206,16 +198,13 @@ public class TrackResource extends BaseResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        // Like the track locally
+        // Like the track in the local collection
         UserTrackDao userTrackDao = new UserTrackDao();
         userTrackDao.like(principal.getId(), track.getId());
 
         // Love the track on Last.fm
         final User user = new UserDao().getActiveById(principal.getId());
-        if (user != null && user.getLastFmSessionToken() != null) {
-            final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
-            lastFmService.loveTrack(user, track);
-        }
+        AppContext.getInstance().getLastFmEventBus().post(new TrackLikedAsyncEvent(user, track));
 
         // Always return OK
         return Response.ok()
@@ -244,16 +233,13 @@ public class TrackResource extends BaseResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        // Unlike the track locally
+        // Unlike the track in the local collection
         UserTrackDao userTrackDao = new UserTrackDao();
         userTrackDao.unlike(principal.getId(), track.getId());
 
-        // Unove the track on Last.fm
+        // Unlove the track on Last.fm
         final User user = new UserDao().getActiveById(principal.getId());
-        if (user != null && user.getLastFmSessionToken() != null) {
-            final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
-            lastFmService.unloveTrack(user, track);
-        }
+        AppContext.getInstance().getLastFmEventBus().post(new TrackUnlikedAsyncEvent(user, track));
 
         // Always return OK
         return Response.ok()
@@ -265,7 +251,7 @@ public class TrackResource extends BaseResource {
      * Update a track.
      * 
      * @param id Track ID
-     * @param order Order
+     * @param orderStr Order
      * @param title Title
      * @param album Album name
      * @param artist Artist name

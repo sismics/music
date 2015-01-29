@@ -1,20 +1,8 @@
 package com.sismics.music.core.model.context;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
-import com.sismics.music.core.listener.async.CollectionReindexAsyncListener;
-import com.sismics.music.core.listener.async.DirectoryCreatedAsyncListener;
-import com.sismics.music.core.listener.async.DirectoryDeletedAsyncListener;
-import com.sismics.music.core.listener.async.LastFmUpdateLovedTrackAsyncListener;
-import com.sismics.music.core.listener.async.PlayCompletedAsyncListener;
-import com.sismics.music.core.listener.async.PlayStartedAsyncListener;
+import com.sismics.music.core.listener.async.*;
 import com.sismics.music.core.listener.sync.DeadEventListener;
 import com.sismics.music.core.service.albumart.AlbumArtService;
 import com.sismics.music.core.service.collection.CollectionService;
@@ -24,6 +12,13 @@ import com.sismics.music.core.service.lastfm.LastFmService;
 import com.sismics.music.core.service.player.PlayerService;
 import com.sismics.music.core.service.transcoder.TranscoderService;
 import com.sismics.util.EnvironmentUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Global application context.
@@ -137,6 +132,8 @@ public class AppContext {
         lastFmEventBus.register(new PlayStartedAsyncListener());
         lastFmEventBus.register(new PlayCompletedAsyncListener());
         lastFmEventBus.register(new LastFmUpdateLovedTrackAsyncListener());
+        lastFmEventBus.register(new TrackLikedAsyncListener());
+        lastFmEventBus.register(new TrackUnlikedAsyncListener());
     }
 
     /**
