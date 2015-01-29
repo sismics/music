@@ -1,29 +1,18 @@
 package com.sismics.music.core.dao.dbi;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.Query;
-import org.skife.jdbi.v2.util.IntegerMapper;
-
 import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.dbi.criteria.AlbumCriteria;
 import com.sismics.music.core.dao.dbi.dto.AlbumDto;
 import com.sismics.music.core.dao.dbi.mapper.AlbumMapper;
 import com.sismics.music.core.model.dbi.Album;
-import com.sismics.music.core.util.dbi.ColumnIndexMapper;
-import com.sismics.music.core.util.dbi.PaginatedList;
-import com.sismics.music.core.util.dbi.PaginatedLists;
-import com.sismics.music.core.util.dbi.QueryParam;
-import com.sismics.music.core.util.dbi.QueryUtil;
-import com.sismics.music.core.util.dbi.SortCriteria;
+import com.sismics.music.core.util.dbi.*;
 import com.sismics.util.context.ThreadLocalContext;
+import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
+import org.skife.jdbi.v2.util.IntegerMapper;
+
+import java.sql.Timestamp;
+import java.util.*;
 
 /**
  * Album DAO.
@@ -40,8 +29,12 @@ public class AlbumDao {
     public String create(Album album) {
         album.setId(UUID.randomUUID().toString());
         final Date now = new Date();
-        album.setCreateDate(now);
-        album.setUpdateDate(now);
+        if (album.getCreateDate() == null) {
+            album.setCreateDate(now);
+        }
+        if (album.getUpdateDate() == null) {
+            album.setUpdateDate(now);
+        }
 
         Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +

@@ -1,21 +1,5 @@
 package com.sismics.music.core.service.collection;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.text.MessageFormat;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang.StringUtils;
-import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.audio.AudioHeader;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
@@ -36,6 +20,22 @@ import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.service.albumart.AlbumArtImporter;
 import com.sismics.music.core.util.DirectoryNameParser;
 import com.sismics.music.core.util.TransactionUtil;
+import org.apache.commons.lang.StringUtils;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.AudioHeader;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.text.MessageFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Collection service.
@@ -181,7 +181,8 @@ public class CollectionService extends AbstractScheduledService {
      * @param track Track entity (updated)
      */
     public void readTrackMetadata(Directory rootDirectory, Path file, Track track) throws Exception {
-        DirectoryNameParser nameParser = new DirectoryNameParser(file.getParent());
+        Path parentPath = file.getParent();
+        DirectoryNameParser nameParser = new DirectoryNameParser(parentPath);
         String albumArtistName = StringUtils.abbreviate(nameParser.getArtistName(), 1000).trim();
         String albumName = StringUtils.abbreviate(nameParser.getAlbumName(), 1000).trim();
         ArtistDao artistDao = new ArtistDao();
@@ -262,9 +263,21 @@ public class CollectionService extends AbstractScheduledService {
                 String albumArtId = AppContext.getInstance().getAlbumArtService().importAlbumArt(albumArtFile);
                 album.setAlbumArt(albumArtId);
             }
+            Date updateDate = getDirectoryUpdateDate(parentPath);
+            album.setCreateDate(updateDate);
+            album.setUpdateDate(updateDate);
             albumDao.create(album);
         }
         track.setAlbumId(album.getId());
+    }
+
+    private Date getDirectoryUpdateDate(Path path) {
+        try {
+            return new Date(java.nio.file.Files.getLastModifiedTime(path).toMillis());
+        } catch (Exception e) {
+            log.error(MessageFormat.format("Cannot read date from directory {0}", path));
+        }
+        return null;
     }
 
     /**
