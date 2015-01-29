@@ -1,10 +1,10 @@
 package com.sismics.music.rest;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 
 /**
  * Test the locale resource.
@@ -14,8 +14,6 @@ import org.junit.Test;
 public class TestLocaleResource extends BaseJerseyTest {
     /**
      * Test the locale resource.
-     * 
-     * @throws JSONException
      */
     @Test
     public void testLocaleResource() {

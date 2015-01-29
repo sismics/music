@@ -1,16 +1,15 @@
 package com.sismics.music.rest;
 
+import com.sismics.util.filter.TokenBasedSecurityFilter;
+import org.apache.commons.lang.StringUtils;
+import org.junit.Assert;
+import org.junit.Test;
+
 import javax.json.JsonObject;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
-import org.apache.commons.lang.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.sismics.util.filter.TokenBasedSecurityFilter;
 
 /**
  * Test of the security layer.
@@ -20,8 +19,6 @@ import com.sismics.util.filter.TokenBasedSecurityFilter;
 public class TestSecurity extends BaseJerseyTest {
     /**
      * Test of the security layer.
-     * 
-     * @throws JSONException
      */
     @Test
     public void testSecurity() {

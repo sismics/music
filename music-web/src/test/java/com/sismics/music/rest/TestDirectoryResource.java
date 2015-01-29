@@ -1,6 +1,8 @@
 package com.sismics.music.rest;
 
-import java.nio.file.Paths;
+import com.sismics.util.filter.TokenBasedSecurityFilter;
+import org.junit.Assert;
+import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -8,11 +10,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.sismics.util.filter.TokenBasedSecurityFilter;
+import java.nio.file.Paths;
 
 /**
  * Exhaustive test of the directory resource.
@@ -22,8 +20,6 @@ import com.sismics.util.filter.TokenBasedSecurityFilter;
 public class TestDirectoryResource extends BaseJerseyTest {
     /**
      * Test the directory resource.
-     *
-     * @throws JSONException
      */
     @Test
     public void testDirectoryResource() throws Exception {

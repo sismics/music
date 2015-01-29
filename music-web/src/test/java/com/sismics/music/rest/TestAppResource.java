@@ -1,17 +1,15 @@
 package com.sismics.music.rest;
 
-import java.nio.file.Paths;
+import com.sismics.util.filter.TokenBasedSecurityFilter;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
-
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import com.sismics.util.filter.TokenBasedSecurityFilter;
+import java.nio.file.Paths;
 
 /**
  * Test the app resource.
@@ -21,8 +19,6 @@ import com.sismics.util.filter.TokenBasedSecurityFilter;
 public class TestAppResource extends BaseJerseyTest {
     /**
      * Test the API resource.
-     * 
-     * @throws JSONException
      */
     @Test
     public void testAppResource() {
@@ -40,8 +36,6 @@ public class TestAppResource extends BaseJerseyTest {
 
     /**
      * Test the map port resource.
-     * 
-     * @throws JSONException
      */
     @Test
     @Ignore
@@ -57,8 +51,6 @@ public class TestAppResource extends BaseJerseyTest {
     
     /**
      * Test the log resource.
-     * 
-     * @throws JSONException
      */
     @Test
     public void testLogResource() {
