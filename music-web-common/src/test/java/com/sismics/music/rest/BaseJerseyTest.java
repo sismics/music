@@ -95,8 +95,10 @@ public abstract class BaseJerseyTest extends JerseyTest {
         ServletRegistration reg = context.addServlet("jerseyServlet", ServletContainer.class);
         reg.setInitParameter("jersey.config.server.provider.packages", "com.sismics.music.rest.resource");
         reg.setInitParameter("jersey.config.server.provider.classnames", "org.glassfish.jersey.media.multipart.MultiPartFeature");
+        reg.setInitParameter("jersey.config.server.response.setStatusOverSendError", "true");
         reg.setLoadOnStartup(1);
         reg.addMapping("/*");
+        reg.setAsyncSupported(true);
         context.deploy(httpServer);
         httpServer.start();
     }
