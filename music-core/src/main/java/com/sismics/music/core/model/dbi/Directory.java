@@ -1,11 +1,8 @@
 package com.sismics.music.core.model.dbi;
 
-import com.google.common.base.Objects;
-import org.apache.commons.lang.StringUtils;
-
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import com.google.common.base.Objects;
 
 /**
  * Directory entity.
@@ -17,11 +14,6 @@ public class Directory {
      * Album ID.
      */
     private String id;
-
-    /**
-     * Directory title.
-     */
-    private String name;
 
     /**
      * Directory location.
@@ -46,9 +38,8 @@ public class Directory {
     public Directory() {
     }
 
-    public Directory(String id, String name, String location, Date disableDate, Date createDate, Date deleteDate) {
+    public Directory(String id, String location, Date disableDate, Date createDate, Date deleteDate) {
         this.id = id;
-        this.name = name;
         this.location = location;
         this.disableDate = disableDate;
         this.createDate = createDate;
@@ -71,24 +62,6 @@ public class Directory {
      */
     public void setId(String id) {
         this.id = id;
-    }
-
-    /**
-     * Getter of name.
-     *
-     * @return name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Setter of name.
-     *
-     * @param name name
-     */
-    public void setName(String name) {
-        this.name = name;
     }
 
     /**
@@ -170,35 +143,10 @@ public class Directory {
         location.replaceAll("\\\\", "/");
     }
 
-    /**
-     * Infers the directory name from the location.
-     */
-    public void updateNameFromLocation() {
-        if (location == null) {
-            name = null;
-            return;
-        }
-        Pattern p = Pattern.compile("(.+/)?(.+)");
-        Matcher m = p.matcher(location);
-        if (m.matches()) {
-            name = m.group(2);
-            if (name.startsWith("/")) {
-                name = name.substring(1);
-            }
-            if (name.endsWith("/")) {
-                name = name.substring(0, name.length() - 1);
-            }
-        }
-        if (StringUtils.isBlank(name)) {
-            name = "music";
-        }
-    }
-    
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
                 .add("id", id)
-                .add("name", name)
                 .add("location", location)
                 .toString();
     }

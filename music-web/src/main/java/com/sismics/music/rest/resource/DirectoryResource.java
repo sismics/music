@@ -45,7 +45,6 @@ public class DirectoryResource extends BaseResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     public Response create(
-        @FormParam("name") String name,
         @FormParam("location") String location) {
 
         if (!authenticate()) {
@@ -54,12 +53,10 @@ public class DirectoryResource extends BaseResource {
         checkBaseFunction(BaseFunction.ADMIN);
 
         // Validate the input data
-        name = ValidationUtil.validateLength(name, "name", 0, 1000, true);
         location = ValidationUtil.validateLength(location, "location", 1, 1000);
 
         // Create the directory
         Directory directory = new Directory();
-        directory.setName(name);
         directory.setLocation(location);
 
         // Create the directory
@@ -90,7 +87,6 @@ public class DirectoryResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response update(
         @PathParam("id") String id,
-        @FormParam("name") String name,
         @FormParam("location") String location,
         @FormParam("active") boolean active) {
 
@@ -100,7 +96,6 @@ public class DirectoryResource extends BaseResource {
         checkBaseFunction(BaseFunction.ADMIN);
 
         // Validate the input data
-        name = ValidationUtil.validateLength(name, "name", 0, 100);
         location = ValidationUtil.validateLength(location, "location", 1, 1000);
 
         // Check if the directory exists
@@ -111,9 +106,6 @@ public class DirectoryResource extends BaseResource {
         }
 
         // Update the directory
-        if (name != null) {
-            directory.setName(name);
-        }
         directory.setLocation(location);
         if (active) {
             directory.setDisableDate(null);
@@ -190,7 +182,6 @@ public class DirectoryResource extends BaseResource {
         for (Directory directory : directoryList) {
             items.add(Json.createObjectBuilder()
                     .add("id", directory.getId())
-                    .add("name", directory.getName())
                     .add("location", directory.getLocation())
                     .add("active", directory.getDisableDate() == null)
                     .add("valid", java.nio.file.Files.exists(Paths.get(directory.getLocation()))));

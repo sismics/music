@@ -6,7 +6,7 @@
 angular.module('music').controller('SettingsDirectories', function($scope, Restangular, $dialog, toaster) {
   // Initialize add directory form
   $scope.directory = {
-    name: '', location: ''
+    location: ''
   };
   
   // Load directories
@@ -20,7 +20,7 @@ angular.module('music').controller('SettingsDirectories', function($scope, Resta
   // Remove a directory
   $scope.deleteDirectory = function(directory) {
     var title = 'Delete directory';
-    var msg = 'Do you really want to delete directory ' + directory.name + '?';
+    var msg = 'Do you really want to delete directory "' + directory.location + '"?';
     var btns = [
       { result: 'cancel', label: 'Cancel' },
       { result: 'ok', label: 'OK', cssClass: 'btn-primary' }
@@ -38,13 +38,12 @@ angular.module('music').controller('SettingsDirectories', function($scope, Resta
   // Add a directory
   $scope.addDirectory = function() {
     Restangular.one('directory').put({
-      name: $scope.directory.name,
       location: $scope.directory.location
     })
         .then(function() {
           // Reset add directory form
           $scope.directory = {
-            name: '', location: ''
+            location: ''
           };
 
           // Reload directories

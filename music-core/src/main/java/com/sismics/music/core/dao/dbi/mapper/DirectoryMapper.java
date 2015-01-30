@@ -17,7 +17,6 @@ public class DirectoryMapper implements ResultSetMapper<Directory> {
     public Directory map(int index, ResultSet r, StatementContext ctx) throws SQLException {
         return new Directory(
                 r.getString("DIR_ID_C"),
-                r.getString("DIR_NAME_C"),
                 r.getString("DIR_LOCATION_C"),
                 r.getTimestamp("DIR_DISABLEDATE_D"),
                 r.getTimestamp("DIR_CREATEDATE_D"),

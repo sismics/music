@@ -26,9 +26,6 @@ public class DirectoryDao {
         directory.setId(UUID.randomUUID().toString());
         directory.setCreateDate(new Date());
         directory.normalizeLocation();
-        if (directory.getName() == null) {
-            directory.updateNameFromLocation();
-        }
 
 //        // Checks for directory unicity
 //        Query q = em.createQuery("select u from Directory u where d.directoryname = :directoryname and d.deleteDate is null");
@@ -40,10 +37,9 @@ public class DirectoryDao {
 
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                " T_DIRECTORY(DIR_ID_C, DIR_NAME_C, DIR_LOCATION_C, DIR_CREATEDATE_D)" +
-                " values(:id, :name, :location, :createDate)")
+                " T_DIRECTORY(DIR_ID_C, DIR_LOCATION_C, DIR_CREATEDATE_D)" +
+                " values(:id, :location, :createDate)")
                 .bind("id", directory.getId())
-                .bind("name", directory.getName())
                 .bind("location", directory.getLocation())
                 .bind("createDate", new Timestamp(directory.getCreateDate().getTime()))
                 .execute();
@@ -59,18 +55,13 @@ public class DirectoryDao {
      */
     public Directory update(Directory directory) {
         directory.normalizeLocation();
-        if (directory.getName() == null) {
-            directory.updateNameFromLocation();
-        }
 
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("update T_DIRECTORY set " +
-                " DIR_NAME_C = :name," +
                 " DIR_LOCATION_C = :location, " +
                 " DIR_DISABLEDATE_D = :disableDate " +
                 " where DIR_ID_C = :id")
                 .bind("id", directory.getId())
-                .bind("name", directory.getName())
                 .bind("location", directory.getLocation())
                 .bind("disableDate", directory.getDisableDate() == null ? null : new Timestamp(directory.getDisableDate().getTime()))
                 .execute();
@@ -86,7 +77,7 @@ public class DirectoryDao {
      */
     public Directory getActiveById(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select d.DIR_ID_C, d.DIR_NAME_C, d.DIR_LOCATION_C, d.DIR_DISABLEDATE_D, d.DIR_CREATEDATE_D, d.DIR_DELETEDATE_D" +
+        return handle.createQuery("select d.DIR_ID_C, d.DIR_LOCATION_C, d.DIR_DISABLEDATE_D, d.DIR_CREATEDATE_D, d.DIR_DELETEDATE_D" +
                 "  from T_DIRECTORY d" +
                 "  where d.DIR_ID_C = :id and d.DIR_DELETEDATE_D is null")
                 .bind("id", id)
@@ -116,10 +107,10 @@ public class DirectoryDao {
      */
     public List<Directory> findAllEnabled() {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select d.DIR_ID_C, d.DIR_NAME_C, d.DIR_LOCATION_C, d.DIR_DISABLEDATE_D, d.DIR_CREATEDATE_D, d.DIR_DELETEDATE_D " +
+        return handle.createQuery("select d.DIR_ID_C, d.DIR_LOCATION_C, d.DIR_DISABLEDATE_D, d.DIR_CREATEDATE_D, d.DIR_DELETEDATE_D " +
                 "  from T_DIRECTORY d" +
                 "  where d.DIR_DELETEDATE_D is null and d.DIR_DISABLEDATE_D is null " +
-                "  order by d.DIR_NAME_C")
+                "  order by d.DIR_LOCATION_C")
                 .mapTo(Directory.class)
                 .list();
     }
@@ -131,10 +122,10 @@ public class DirectoryDao {
      */
     public List<Directory> findAll() {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select d.DIR_ID_C, d.DIR_NAME_C, d.DIR_LOCATION_C, d.DIR_DISABLEDATE_D, d.DIR_CREATEDATE_D, d.DIR_DELETEDATE_D " +
+        return handle.createQuery("select d.DIR_ID_C, d.DIR_LOCATION_C, d.DIR_DISABLEDATE_D, d.DIR_CREATEDATE_D, d.DIR_DELETEDATE_D " +
                 "  from T_DIRECTORY d" +
                 "  where d.DIR_DELETEDATE_D is null" +
-                "  order by d.DIR_NAME_C is null")
+                "  order by d.DIR_LOCATION_C")
                 .mapTo(Directory.class)
                 .list();
     }

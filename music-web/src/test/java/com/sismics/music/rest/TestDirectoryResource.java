@@ -38,8 +38,7 @@ public class TestDirectoryResource extends BaseJerseyTest {
         // Admin creates a directory : bad request (location required)
         response = target().path("/directory").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .put(Entity.form(new Form()
-                        .param("name", "music")));
+                .put(Entity.form(new Form()));
         Assert.assertEquals(Status.BAD_REQUEST, Status.fromStatusCode(response.getStatus()));
         JsonObject json = response.readEntity(JsonObject.class);
         Assert.assertEquals("ValidationError", json.getString("type"));
@@ -49,11 +48,10 @@ public class TestDirectoryResource extends BaseJerseyTest {
         json = target().path("/directory").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .put(Entity.form(new Form()
-                        .param("name", "main")
                         .param("location", "/vartest/music/main")), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
 
-        // Admin creates a directory without name : OK, the name is inferred from the directory location
+        // Admin creates a directory : OK
         json = target().path("/directory").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .put(Entity.form(new Form()
@@ -70,7 +68,6 @@ public class TestDirectoryResource extends BaseJerseyTest {
         JsonObject directory0 = directories.getJsonObject(0);
         String directory0Id = directory0.getString("id");
         Assert.assertNotNull(directory0Id);
-        Assert.assertNotNull("main", directory0.getString("name"));
         Assert.assertNotNull("/var/music/main", directory0.getString("location"));
         Assert.assertTrue(directory0.getBoolean("active"));
         Assert.assertFalse(directory0.getBoolean("valid"));
@@ -80,7 +77,6 @@ public class TestDirectoryResource extends BaseJerseyTest {
         json = target().path("/directory/" + directory0Id).request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .post(Entity.form(new Form()
-                        .param("name", "mainstream")
                         .param("location", "/vartest/music/mainstream")
                         .param("active", "true")), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
@@ -94,7 +90,6 @@ public class TestDirectoryResource extends BaseJerseyTest {
         Assert.assertEquals(2, directories.size());
         directory0 = directories.getJsonObject(0);
         Assert.assertNotNull(directory0.getString("id"));
-        Assert.assertNotNull("mainstream", directory0.getString("name"));
         Assert.assertNotNull("/var/music/mainstream", directory0.getString("location"));
         Assert.assertTrue(directory0.getBoolean("active"));
 
