@@ -1,6 +1,7 @@
 package com.sismics.music.rest;
 
 import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -9,15 +10,20 @@ import javax.json.JsonObject;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.io.FileUtils;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.io.Files;
+import com.google.common.io.Resources;
+import com.sismics.music.core.util.DirectoryUtil;
 import com.sismics.util.filter.TokenBasedSecurityFilter;
 
 /**
@@ -195,17 +201,75 @@ public class TestImportResource extends BaseJerseyTest {
      * @throws Exception
      */
     @Test
+    @SuppressWarnings("resource")
     public void testImportUpload() throws Exception {
         // Login users
         String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
         
-        // Admin import a new file
-//        JsonObject json = target()
-//                .register(MultiPartFeature.class)
-//                .path("/import/upload").request()
-//                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-//                .put(Entity.entity(new FormDataMultiPart(),
-//                        MediaType.MULTIPART_FORM_DATA_TYPE), JsonObject.class);
-//        Assert.assertEquals("ok", json.getString("status"));
+        // Admin import a ZIP
+        try (InputStream is = Resources.getResource("music-album.zip").openStream()) {
+            StreamDataBodyPart streamDataBodyPart = new StreamDataBodyPart("file", is, "music-album.zip");
+            JsonObject json = target()
+                    .register(MultiPartFeature.class)
+                    .path("/import/upload").request()
+                    .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                    .put(Entity.entity(new FormDataMultiPart().bodyPart(streamDataBodyPart),
+                            MediaType.MULTIPART_FORM_DATA_TYPE), JsonObject.class);
+            Assert.assertEquals("ok", json.getString("status"));
+        }
+        
+        // Admin lists imported files
+        JsonObject json = target().path("/import").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        JsonArray files = json.getJsonArray("files");
+        Assert.assertEquals(3, files.size());
+        
+        // Admin import a single track
+        try (InputStream is = Resources.getResource("music/Kevin MacLeod - Robot Brain/Robot Brain A.mp3").openStream()) {
+            StreamDataBodyPart streamDataBodyPart = new StreamDataBodyPart("file", is, "Robot Brain A.mp3");
+            json = target()
+                    .register(MultiPartFeature.class)
+                    .path("/import/upload").request()
+                    .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                    .put(Entity.entity(new FormDataMultiPart().bodyPart(streamDataBodyPart),
+                            MediaType.MULTIPART_FORM_DATA_TYPE), JsonObject.class);
+            Assert.assertEquals("ok", json.getString("status"));
+        }
+        
+        // Admin lists imported files
+        json = target().path("/import").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        files = json.getJsonArray("files");
+        Assert.assertEquals(4, files.size());
+        
+        // Admin import a non audio
+        try (InputStream is = Resources.getResource("log4j.properties").openStream()) {
+            StreamDataBodyPart streamDataBodyPart = new StreamDataBodyPart("file", is, "log4j.properties");
+            Response response = target()
+                    .register(MultiPartFeature.class)
+                    .path("/import/upload").request()
+                    .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                    .put(Entity.entity(new FormDataMultiPart().bodyPart(streamDataBodyPart),
+                            MediaType.MULTIPART_FORM_DATA_TYPE));
+            Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, Status.fromStatusCode(response.getStatus()));
+            json = response.readEntity(JsonObject.class);
+            Assert.assertEquals("ImportError", json.getString("type"));
+            Assert.assertEquals("File not supported", json.getString("message"));
+        }
+        
+        // Admin lists imported files
+        json = target().path("/import").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        files = json.getJsonArray("files");
+        Assert.assertEquals(4, files.size());
+        
+        // Cleanup imported files
+        for (File file : DirectoryUtil.getImportAudioDirectory().listFiles()) {
+            file.delete();
+        }
+        DirectoryUtil.getImportAudioDirectory().delete();
     }
 }

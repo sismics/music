@@ -1,6 +1,9 @@
 package com.sismics.music.rest.resource;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,11 +21,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 import com.sismics.music.core.dao.dbi.DirectoryDao;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Directory;
@@ -307,6 +312,32 @@ public class ImportResource extends BaseResource {
             @FormDataParam("file") FormDataBodyPart fileBodyPart) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
+        }
+        
+        // Validate input data
+        ValidationUtil.validateRequired(fileBodyPart, "file");
+        ValidationUtil.validateRequired(fileBodyPart.getFormDataContentDisposition().getFileName(), "filename");
+        
+        InputStream in = fileBodyPart.getValueAs(InputStream.class);
+        File tempDir = null, importFile = null;
+        try {
+            // Copy the incoming stream content into a temporary file
+            tempDir = Files.createTempDir();
+            importFile = new File(tempDir.getAbsolutePath() + File.separator + fileBodyPart.getFormDataContentDisposition().getFileName());
+            try (OutputStream os = new FileOutputStream(importFile)) {
+                IOUtils.copy(in, os);
+            }
+            
+            AppContext.getInstance().getImportAudioService().importFile(importFile);
+        } catch (Exception e) {
+            throw new ServerException("ImportError", e.getMessage(), e);
+        } finally {
+            if (importFile != null) {
+                importFile.delete();
+            }
+            if (tempDir != null) {
+                tempDir.delete();
+            }
         }
         
         // Always return OK

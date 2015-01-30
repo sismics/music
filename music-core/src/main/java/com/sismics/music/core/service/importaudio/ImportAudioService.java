@@ -2,6 +2,8 @@ package com.sismics.music.core.service.importaudio;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,6 +22,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -28,8 +32,10 @@ import org.jaudiotagger.tag.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.sismics.music.core.constant.Constants;
@@ -38,6 +44,8 @@ import com.sismics.music.core.model.dbi.Directory;
 import com.sismics.music.core.service.importaudio.ImportAudio.Status;
 import com.sismics.music.core.util.DirectoryUtil;
 import com.sismics.util.FilenameUtil;
+import com.sismics.util.mime.MimeType;
+import com.sismics.util.mime.MimeTypeUtil;
 
 /**
  * Import audio service.
@@ -344,5 +352,41 @@ public class ImportAudioService extends AbstractExecutionThreadService {
         }
         
         throw new Exception("Import not found");
+    }
+
+    /**
+     * Import a file. ZIP or single track are accepted.
+     * 
+     * @param file File
+     * @throws Exception 
+     */
+    public void importFile(File file) throws Exception {
+        String mimeType = MimeTypeUtil.guessMimeType(file);
+        String ext = Files.getFileExtension(file.getName()).toLowerCase();
+        String importDir = DirectoryUtil.getImportAudioDirectory().getAbsolutePath();
+        
+        if (MimeType.APPLICATION_ZIP.equals(mimeType)) {
+            log.info("Importing a ZIP file");
+            // It's a ZIP file, unzip accepted files in the import folder
+            try (ZipArchiveInputStream archiveInputStream = new ZipArchiveInputStream(new FileInputStream(file), Charsets.UTF_8.name())) {
+                ArchiveEntry archiveEntry = archiveInputStream.getNextEntry();
+                while (archiveEntry != null) {
+                    String archiveExt = Files.getFileExtension(archiveEntry.getName()).toLowerCase();
+                    if (Constants.SUPPORTED_AUDIO_EXTENSIONS.contains(archiveExt)) {
+                        log.info("Importing: " + archiveEntry.getName());
+                        File outputFile = new File(importDir + File.separator + new File(archiveEntry.getName()).getName());
+                        ByteStreams.copy(archiveInputStream, new FileOutputStream(outputFile));
+                    }
+                    archiveEntry = archiveInputStream.getNextEntry();
+                }
+            }
+        } else if (Constants.SUPPORTED_AUDIO_EXTENSIONS.contains(ext)) {
+            // It should be a single audio track
+            File outputFile = new File(importDir + File.separator + file.getName());
+            log.info("Importing a single track: " + outputFile);
+            Files.copy(file, outputFile);
+        } else {
+            throw new Exception("File not supported");
+        }
     }
 }
