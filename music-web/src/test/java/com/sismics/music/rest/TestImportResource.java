@@ -8,8 +8,11 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.FileUtils;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -184,5 +187,25 @@ public class TestImportResource extends BaseJerseyTest {
         Assert.assertEquals(1, imports.size());
         imp = imports.getJsonObject(0);
         Assert.assertEquals("ERROR", imp.getString("status"));
+    }
+    
+    /**
+     * Test the import resource (upload).
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testImportUpload() throws Exception {
+        // Login users
+        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        
+        // Admin import a new file
+//        JsonObject json = target()
+//                .register(MultiPartFeature.class)
+//                .path("/import/upload").request()
+//                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+//                .put(Entity.entity(new FormDataMultiPart(),
+//                        MediaType.MULTIPART_FORM_DATA_TYPE), JsonObject.class);
+//        Assert.assertEquals("ok", json.getString("status"));
     }
 }

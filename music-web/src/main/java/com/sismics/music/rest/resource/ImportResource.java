@@ -7,6 +7,7 @@ import java.util.List;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -18,6 +19,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import com.google.common.collect.Lists;
 import com.sismics.music.core.dao.dbi.DirectoryDao;
@@ -289,6 +292,21 @@ public class ImportResource extends BaseResource {
         // Delete the file
         if (!file.delete()) {
             throw new ServerException("IOError", "Error deleting the file");
+        }
+        
+        // Always return OK
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build(); 
+    }
+    
+    @PUT
+    @Path("upload")
+    @Consumes("multipart/form-data")
+    public Response upload(
+            @FormDataParam("file") FormDataBodyPart fileBodyPart) {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
         }
         
         // Always return OK

@@ -94,6 +94,7 @@ public abstract class BaseJerseyTest extends JerseyTest {
                 .addMappingForUrlPatterns(null, "/*");
         ServletRegistration reg = context.addServlet("jerseyServlet", ServletContainer.class);
         reg.setInitParameter("jersey.config.server.provider.packages", "com.sismics.music.rest.resource");
+        reg.setInitParameter("jersey.config.server.provider.classnames", "org.glassfish.jersey.media.multipart.MultiPartFeature");
         reg.setLoadOnStartup(1);
         reg.addMapping("/*");
         context.deploy(httpServer);
