@@ -18,9 +18,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.IOUtils;
@@ -56,7 +54,6 @@ public class AlbumResource extends BaseResource {
      */
     @GET
     @Path("{id: [a-z0-9\\-]+}")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response detail(
             @PathParam("id") String id) {
         if (!authenticate()) {
@@ -120,7 +117,6 @@ public class AlbumResource extends BaseResource {
      */
     @GET
     @Path("{id: [a-z0-9\\-]+}/albumart/{size: [a-z]+}")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response albumart(
             @PathParam("id") String id,
             @PathParam("size") String size) {
@@ -164,7 +160,6 @@ public class AlbumResource extends BaseResource {
      */
     @POST
     @Path("{id: [a-z0-9\\-]+}/albumart")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response updateAlbumart(
             @PathParam("id") String id,
             @FormParam("url") String url) {
@@ -219,7 +214,6 @@ public class AlbumResource extends BaseResource {
      * @return Response
      */
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     public Response list(
             @QueryParam("limit") Integer limit,
             @QueryParam("offset") Integer offset,

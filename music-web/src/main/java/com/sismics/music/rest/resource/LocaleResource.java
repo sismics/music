@@ -7,8 +7,6 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.sismics.music.core.dao.dbi.LocaleDao;
@@ -27,7 +25,6 @@ public class LocaleResource extends BaseResource {
      * @return Response
      */
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     public Response list() {
         LocaleDao localeDao = new LocaleDao();
         List<Locale> localeList = localeDao.findAll();

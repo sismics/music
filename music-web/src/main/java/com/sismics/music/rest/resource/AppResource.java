@@ -1,5 +1,21 @@
 package com.sismics.music.rest.resource;
 
+import java.net.URI;
+import java.util.ResourceBundle;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Appender;
+import org.apache.log4j.Logger;
+
 import com.sismics.music.core.event.async.CollectionReindexAsyncEvent;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.util.ConfigUtil;
@@ -14,20 +30,6 @@ import com.sismics.util.log4j.LogCriteria;
 import com.sismics.util.log4j.LogEntry;
 import com.sismics.util.log4j.MemoryAppender;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Appender;
-import org.apache.log4j.Logger;
-
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import java.net.URI;
-import java.util.ResourceBundle;
-
 /**
  * General app REST resource.
  * 
@@ -41,7 +43,6 @@ public class AppResource extends BaseResource {
      * @return Response
      */
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     public Response version() {
         ResourceBundle configBundle = ConfigUtil.getConfigBundle();
         String currentVersion = configBundle.getString("api.current_version");
@@ -67,7 +68,6 @@ public class AppResource extends BaseResource {
      */
     @GET
     @Path("log")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response log(
             @QueryParam("level") String level,
             @QueryParam("tag") String tag,
@@ -117,7 +117,6 @@ public class AppResource extends BaseResource {
      */
     @POST
     @Path("map_port")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response mapPort() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -141,7 +140,6 @@ public class AppResource extends BaseResource {
      */
     @POST
     @Path("batch/reindex")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response reindex() {
         if (!authenticate()) {
             throw new ForbiddenClientException();

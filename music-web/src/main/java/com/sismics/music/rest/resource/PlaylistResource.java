@@ -13,8 +13,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.sismics.music.core.dao.dbi.PlaylistDao;
@@ -46,7 +44,6 @@ public class PlaylistResource extends BaseResource {
      * @return Response
      */
     @PUT
-    @Produces(MediaType.APPLICATION_JSON)
     public Response insertTrack(
             @FormParam("id") String id,
             @FormParam("order") Integer order) {
@@ -92,7 +89,6 @@ public class PlaylistResource extends BaseResource {
      */
     @PUT
     @Path("multiple")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response insertTracks(
             @FormParam("ids") List<String> idList) {
 
@@ -118,7 +114,6 @@ public class PlaylistResource extends BaseResource {
      */
     @POST
     @Path("{order: [0-9]+}/move")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response moveTrack(
             @PathParam("order") Integer order,
             @FormParam("neworder") Integer newOrder) {
@@ -161,7 +156,6 @@ public class PlaylistResource extends BaseResource {
      */
     @DELETE
     @Path("{order: [0-9]+}")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response delete(
             @PathParam("order") Integer order) {
 
@@ -197,7 +191,6 @@ public class PlaylistResource extends BaseResource {
      * @return Response
      */
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     public Response list() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -246,7 +239,6 @@ public class PlaylistResource extends BaseResource {
      * @return Response
      */
     @DELETE
-    @Produces(MediaType.APPLICATION_JSON)
     public Response delete() {
         if (!authenticate()) {
             throw new ForbiddenClientException();

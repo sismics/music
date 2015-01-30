@@ -15,9 +15,7 @@ import javax.json.JsonObjectBuilder;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.sismics.music.core.dao.dbi.AlbumDao;
@@ -54,7 +52,6 @@ public class ArtistResource extends BaseResource {
      * @return Response
      */
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     public Response list(
             @QueryParam("limit") Integer limit,
             @QueryParam("offset") Integer offset,
@@ -94,7 +91,6 @@ public class ArtistResource extends BaseResource {
      */
     @GET
     @Path("{id: [a-z0-9\\-]+}")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response get(
             @PathParam("id") String id) {
         if (!authenticate()) {
@@ -175,7 +171,6 @@ public class ArtistResource extends BaseResource {
      */
     @GET
     @Path("{id: [a-z0-9\\-]+}/artistart/{size: [a-z]+}")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response albumart(
             @PathParam("id") String id,
             @PathParam("size") String size) throws Exception {

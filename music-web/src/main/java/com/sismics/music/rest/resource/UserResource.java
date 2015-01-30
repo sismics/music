@@ -15,9 +15,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
@@ -69,7 +67,6 @@ public class UserResource extends BaseResource {
      * @return Response
      */
     @PUT
-    @Produces(MediaType.APPLICATION_JSON)
     public Response register(
         @FormParam("username") String username,
         @FormParam("password") String password,
@@ -144,7 +141,6 @@ public class UserResource extends BaseResource {
      * @return Response
      */
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
     public Response update(
         @FormParam("password") String password,
         @FormParam("email") String email,
@@ -207,7 +203,6 @@ public class UserResource extends BaseResource {
      */
     @POST
     @Path("{username: [a-zA-Z0-9_]+}")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response update(
         @PathParam("username") String username,
         @FormParam("password") String password,
@@ -269,7 +264,6 @@ public class UserResource extends BaseResource {
      */
     @GET
     @Path("check_username")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response checkUsername(
         @QueryParam("username") String username) {
         
@@ -298,7 +292,6 @@ public class UserResource extends BaseResource {
      */
     @POST
     @Path("login")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response login(
         @FormParam("username") String username,
         @FormParam("password") String password,
@@ -340,7 +333,6 @@ public class UserResource extends BaseResource {
      */
     @POST
     @Path("logout")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response logout() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -388,7 +380,6 @@ public class UserResource extends BaseResource {
      * @return Response
      */
     @DELETE
-    @Produces(MediaType.APPLICATION_JSON)
     public Response delete() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -419,7 +410,6 @@ public class UserResource extends BaseResource {
      */
     @DELETE
     @Path("{username: [a-zA-Z0-9_]+}")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response delete(@PathParam("username") String username) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -456,7 +446,6 @@ public class UserResource extends BaseResource {
      * @return Response
      */
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     public Response info() {
         JsonObjectBuilder response = Json.createObjectBuilder();
         if (!authenticate()) {
@@ -499,7 +488,6 @@ public class UserResource extends BaseResource {
      */
     @GET
     @Path("{username: [a-zA-Z0-9_]+}")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response view(@PathParam("username") String username) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -532,7 +520,6 @@ public class UserResource extends BaseResource {
      */
     @GET
     @Path("list")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response list(
             @QueryParam("limit") Integer limit,
             @QueryParam("offset") Integer offset,
@@ -573,7 +560,6 @@ public class UserResource extends BaseResource {
      */
     @PUT
     @Path("lastfm")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response registerLastFm(
             @FormParam("username") String lastFmUsername,
             @FormParam("password") String lastFmPassword) {
@@ -615,7 +601,6 @@ public class UserResource extends BaseResource {
      */
     @GET
     @Path("lastfm")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response lastFmInfo() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -647,7 +632,6 @@ public class UserResource extends BaseResource {
      */
     @DELETE
     @Path("lastfm")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response unregisterLastFm() {
         if (!authenticate()) {
             throw new ForbiddenClientException();

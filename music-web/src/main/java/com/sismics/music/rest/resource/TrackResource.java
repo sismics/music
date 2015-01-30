@@ -1,5 +1,34 @@
 package com.sismics.music.rest.resource;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.util.Date;
+import java.util.List;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
+import org.apache.commons.lang.StringUtils;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
+
 import com.sismics.music.core.dao.dbi.ArtistDao;
 import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.UserDao;
@@ -18,26 +47,6 @@ import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
 import com.sismics.rest.util.ValidationUtil;
 import com.sismics.util.LyricUtil;
-import org.apache.commons.lang.StringUtils;
-import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
-
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.ws.rs.*;
-import javax.ws.rs.container.AsyncResponse;
-import javax.ws.rs.container.Suspended;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Track REST resources.
@@ -61,7 +70,7 @@ public class TrackResource extends BaseResource {
             @PathParam("id") final String id,
             @Suspended final AsyncResponse asyncResponse) throws Exception {
         if (!authenticate()) {
-            asyncResponse.resume(new ForbiddenClientException());
+            asyncResponse.resume(Response.status(Status.FORBIDDEN).build());
             return;
         }
 
@@ -185,7 +194,6 @@ public class TrackResource extends BaseResource {
      */
     @POST
     @Path("{id: [a-z0-9\\-]+}/like")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response like(
             @PathParam("id") String id) {
         if (!authenticate()) {
@@ -220,7 +228,6 @@ public class TrackResource extends BaseResource {
      */
     @DELETE
     @Path("{id: [a-z0-9\\-]+}/like")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response unlike(
             @PathParam("id") String id) {
         if (!authenticate()) {

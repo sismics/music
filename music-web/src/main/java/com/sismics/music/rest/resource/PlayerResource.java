@@ -8,8 +8,6 @@ import javax.json.Json;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.sismics.music.core.dao.dbi.TrackDao;
@@ -41,7 +39,6 @@ public class PlayerResource extends BaseResource {
      * @return Response
      */
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
     @Path("listening")
     public Response listening(
             @FormParam("id") String id,
@@ -80,7 +77,6 @@ public class PlayerResource extends BaseResource {
      * @return Response
      */
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
     @Path("listened")
     public Response listened(
             @FormParam("id") List<String> idList,

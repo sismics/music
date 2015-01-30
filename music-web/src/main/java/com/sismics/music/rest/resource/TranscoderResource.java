@@ -12,8 +12,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.sismics.music.core.dao.dbi.TranscoderDao;
@@ -42,7 +40,6 @@ public class TranscoderResource extends BaseResource {
      * @return Response
      */
     @PUT
-    @Produces(MediaType.APPLICATION_JSON)
     public Response create(
         @FormParam("name") String name,
         @FormParam("source") String source,
@@ -92,7 +89,6 @@ public class TranscoderResource extends BaseResource {
      */
     @POST
     @Path("{id: [a-z0-9\\-]+}")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response update(
             @PathParam("id") String id,
             @FormParam("name") String name,
@@ -137,7 +133,6 @@ public class TranscoderResource extends BaseResource {
      */
     @DELETE
     @Path("{id: [a-z0-9\\-]+}")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response delete(@PathParam("id") String id) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
@@ -166,7 +161,6 @@ public class TranscoderResource extends BaseResource {
      * @return Response
      */
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     public Response list() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
