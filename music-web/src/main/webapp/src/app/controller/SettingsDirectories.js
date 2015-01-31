@@ -11,7 +11,7 @@ angular.module('music').controller('SettingsDirectories', function($scope, Resta
   
   // Load directories
   $scope.loadDirectories = function() {
-    Restangular.one('directory').getList().then(function(data) {
+    Restangular.one('directory').get().then(function(data) {
       $scope.directories = data.directories;
     });
   };

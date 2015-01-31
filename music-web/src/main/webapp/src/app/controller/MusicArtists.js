@@ -23,7 +23,7 @@ angular.module('music').controller('MusicArtists', function($scope, $stateParams
     }
 
     $scope.loading = true;
-    Restangular.all('artist').getList({
+    Restangular.one('artist').get({
       limit: 20,
       offset: $scope.artists.length,
       search: $scope.filter,

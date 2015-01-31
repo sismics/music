@@ -31,7 +31,7 @@ angular.module('music').controller('MusicAlbums', function($scope, $stateParams,
     }
 
     $scope.loading = true;
-    Restangular.all('album').getList({
+    Restangular.one('album').get({
       limit: 20,
       offset: $scope.albums.length,
       search: $scope.filter,

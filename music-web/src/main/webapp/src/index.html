@@ -96,8 +96,8 @@
           </form>
 			    
           <ul class="nav navbar-nav navbar-right" ng-show="!userInfo.anonymous">
-            <li class="dropdown" ng-class="{active: $uiRoute}" ui-route="/settings.*">
-			        <a href="#" class="dropdown-toggle"><span class="glyphicon glyphicon-cog"></span> <span class="sr-only">Settings</span> <b class="caret"></b></a>
+            <li class="dropdown" dropdown ng-class="{active: $uiRoute}" ui-route="/settings.*">
+			        <a href="#" class="dropdown-toggle" dropdown-toggle><span class="glyphicon glyphicon-cog"></span> <span class="sr-only">Settings</span> <b class="caret"></b></a>
 			        <ul class="dropdown-menu">
                 <li ng-class="{active: $uiRoute}" ui-route="/settings/account"><a href="#/settings/account">My account</a></li>
                 <li ng-show="isAdmin" ng-class="{active: $uiRoute}" ui-route="/settings/directories"><a href="#/settings/directories">Directories</a></li>

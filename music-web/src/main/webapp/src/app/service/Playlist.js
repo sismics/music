@@ -87,7 +87,7 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
      * Update the playlist.
      */
     update: function() {
-      var promise = Restangular.one('playlist').getList();
+      var promise = Restangular.one('playlist').get();
       promise.then(function(data) {
         tracks = data.tracks;
         $rootScope.$broadcast('playlist.updated', tracks);

@@ -41,7 +41,7 @@ angular.module('music').controller('AddExternal', function($scope, Restangular, 
   // Refresh import progress
   $scope.imports = [];
   $scope.refresh = function() {
-    Restangular.one('import').getList('progress').then(function(data) {
+    Restangular.one('import/progress').get().then(function(data) {
       if ($scope.imports.length == data.imports.length) {
         // Copy message show state
         _.each(data.imports, function(imp, i) {

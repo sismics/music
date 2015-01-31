@@ -1,12 +1,12 @@
 /**
  * angular-ui-utils - Swiss-Army-Knife of AngularJS tools (with no external dependencies!)
- * @version v0.1.0 - 2013-12-29
+ * @version v0.2.1 - 2015-01-02
  * @link http://angular-ui.github.com
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
-'use strict';
-
 angular.module('ui.alias', []).config(['$compileProvider', 'uiAliasConfig', function($compileProvider, uiAliasConfig){
+  'use strict';
+
   uiAliasConfig = uiAliasConfig || {};
   angular.forEach(uiAliasConfig, function(config, alias){
     if (angular.isString(config)) {
@@ -21,8 +21,6 @@ angular.module('ui.alias', []).config(['$compileProvider', 'uiAliasConfig', func
   });
 }]);
 
-'use strict';
-
 /**
  * General-purpose Event binding. Bind any event not natively supported by Angular
  * Pass an object with keynames for events to ui-event
@@ -35,6 +33,8 @@ angular.module('ui.alias', []).config(['$compileProvider', 'uiAliasConfig', func
  */
 angular.module('ui.event',[]).directive('uiEvent', ['$parse',
   function ($parse) {
+    'use strict';
+
     return function ($scope, elm, attrs) {
       var events = $scope.$eval(attrs.uiEvent);
       angular.forEach(events, function (uiEvent, eventName) {
@@ -52,8 +52,6 @@ angular.module('ui.event',[]).directive('uiEvent', ['$parse',
     };
   }]);
 
-'use strict';
-
 /**
  * A replacement utility for internationalization very similar to sprintf.
  *
@@ -68,6 +66,8 @@ angular.module('ui.event',[]).directive('uiEvent', ['$parse',
  * @example: '$0 agrees to all mentions $0 makes in the event that $0 hits a tree while $0 is driving drunk'.format('Bob')
  */
 angular.module('ui.format',[]).filter('format', function(){
+  'use strict';
+
   return function(value, replace) {
     var target = value;
     if (angular.isString(target) && replace !== undefined) {
@@ -78,21 +78,19 @@ angular.module('ui.format',[]).filter('format', function(){
         var rlen = replace.length;
         var rfx = function (str, i) {
           i = parseInt(i, 10);
-          return (i>=0 && i<rlen) ? replace[i] : str;
+          return (i >= 0 && i < rlen) ? replace[i] : str;
         };
         target = target.replace(/\$([0-9]+)/g, rfx);
       }
       else {
         angular.forEach(replace, function(value, key){
-          target = target.split(':'+key).join(value);
+          target = target.split(':' + key).join(value);
         });
       }
     }
     return target;
   };
 });
-
-'use strict';
 
 /**
  * Wraps the
@@ -101,8 +99,10 @@ angular.module('ui.format',[]).filter('format', function(){
  * @param [caseSensitive] {boolean} optional boolean to use case-sensitive searching
  */
 angular.module('ui.highlight',[]).filter('highlight', function () {
+  'use strict';
+
   return function (text, search, caseSensitive) {
-    if (search || angular.isNumber(search)) {
+    if (text && (search || angular.isNumber(search))) {
       text = text.toString();
       search = search.toString();
       if (caseSensitive) {
@@ -116,12 +116,12 @@ angular.module('ui.highlight',[]).filter('highlight', function () {
   };
 });
 
-'use strict';
-
 // modeled after: angular-1.0.7/src/ng/directive/ngInclude.js
 angular.module('ui.include',[])
     .directive('uiInclude', ['$http', '$templateCache', '$anchorScroll', '$compile',
       function($http,   $templateCache,   $anchorScroll,   $compile) {
+        'use strict';
+
         return {
           restrict: 'ECA',
           terminal: true,
@@ -185,8 +185,6 @@ angular.module('ui.include',[])
         };
       }]);
 
-'use strict';
-
 /**
  * Provides an easy way to toggle a checkboxes indeterminate property
  *
@@ -194,6 +192,8 @@ angular.module('ui.include',[])
  */
 angular.module('ui.indeterminate',[]).directive('uiIndeterminate', [
   function () {
+    'use strict';
+
     return {
       compile: function(tElm, tAttrs) {
         if (!tAttrs.type || tAttrs.type.toLowerCase() !== 'checkbox') {
@@ -209,8 +209,6 @@ angular.module('ui.indeterminate',[]).directive('uiIndeterminate', [
     };
   }]);
 
-'use strict';
-
 /**
  * Converts variable-esque naming conventions to something presentational, capitalized words separated by space.
  * @param {String} value The value to be parsed and prettified.
@@ -221,27 +219,31 @@ angular.module('ui.indeterminate',[]).directive('uiIndeterminate', [
  *          {{ 'Here Is my_phoneNumber' | inflector:'variable' }} => hereIsMyPhoneNumber
  */
 angular.module('ui.inflector',[]).filter('inflector', function () {
-  function ucwords(text) {
-    return text.replace(/^([a-z])|\s+([a-z])/g, function ($1) {
-      return $1.toUpperCase();
-    });
+  'use strict';
+
+  function tokenize(text) {
+    text = text.replace(/([A-Z])|([\-|\_])/g, function(_, $1) { return ' ' + ($1 || ''); });
+    return text.replace(/\s\s+/g, ' ').trim().toLowerCase().split(' ');
   }
 
-  function breakup(text, separator) {
-    return text.replace(/[A-Z]/g, function (match) {
-      return separator + match;
+  function capitalizeTokens(tokens) {
+    var result = [];
+    angular.forEach(tokens, function(token) {
+      result.push(token.charAt(0).toUpperCase() + token.substr(1));
     });
+    return result;
   }
 
   var inflectors = {
     humanize: function (value) {
-      return ucwords(breakup(value, ' ').split('_').join(' '));
+      return capitalizeTokens(tokenize(value)).join(' ');
     },
     underscore: function (value) {
-      return value.substr(0, 1).toLowerCase() + breakup(value.substr(1), '_').toLowerCase().split(' ').join('_');
+      return tokenize(value).join('_');
     },
     variable: function (value) {
-      value = value.substr(0, 1).toLowerCase() + ucwords(value.split('_').join(' ')).substr(1).split(' ').join('');
+      value = tokenize(value);
+      value = value[0] + capitalizeTokens(value.slice(1)).join('');
       return value;
     }
   };
@@ -255,8 +257,6 @@ angular.module('ui.inflector',[]).filter('inflector', function () {
     }
   };
 });
-
-'use strict';
 
 /**
  * General-purpose jQuery wrapper. Simply pass the plugin name as the expression.
@@ -276,6 +276,8 @@ angular.module('ui.inflector',[]).filter('inflector', function () {
 angular.module('ui.jq',[]).
     value('uiJqConfig',{}).
     directive('uiJq', ['uiJqConfig', '$timeout', function uiJqInjectingFunction(uiJqConfig, $timeout) {
+      'use strict';
+
 
       return {
         restrict: 'A',
@@ -325,10 +327,10 @@ angular.module('ui.jq',[]).
       };
     }]);
 
-'use strict';
-
 angular.module('ui.keypress',[]).
     factory('keypressHelper', ['$parse', function keypress($parse){
+      'use strict';
+
       var keysByCode = {
         8: 'backspace',
         9: 'tab',
@@ -419,6 +421,8 @@ angular.module('ui.keypress',[]).
  * @example <input ui-keypress="{enter:'x = 1', 'ctrl-shift-space':'foo()', 'shift-13':'bar()'}" /> <input ui-keypress="foo = 2 on ctrl-13 and bar('hello') on shift-esc" />
  **/
 angular.module('ui.keypress').directive('uiKeydown', ['keypressHelper', function(keypressHelper){
+  'use strict';
+
   return {
     link: function (scope, elm, attrs) {
       keypressHelper('keydown', scope, elm, attrs);
@@ -427,6 +431,8 @@ angular.module('ui.keypress').directive('uiKeydown', ['keypressHelper', function
 }]);
 
 angular.module('ui.keypress').directive('uiKeypress', ['keypressHelper', function(keypressHelper){
+  'use strict';
+
   return {
     link: function (scope, elm, attrs) {
       keypressHelper('keypress', scope, elm, attrs);
@@ -435,14 +441,14 @@ angular.module('ui.keypress').directive('uiKeypress', ['keypressHelper', functio
 }]);
 
 angular.module('ui.keypress').directive('uiKeyup', ['keypressHelper', function(keypressHelper){
+  'use strict';
+
   return {
     link: function (scope, elm, attrs) {
       keypressHelper('keyup', scope, elm, attrs);
     }
   };
 }]);
-
-'use strict';
 
 /*
  Attaches input mask onto input element
@@ -453,9 +459,12 @@ angular.module('ui.mask', [])
         '9': /\d/,
         'A': /[a-zA-Z]/,
         '*': /[a-zA-Z0-9]/
-      }
+      },
+      'clearOnBlur': true
     })
-    .directive('uiMask', ['uiMaskConfig', function (maskConfig) {
+    .directive('uiMask', ['uiMaskConfig', '$parse', function (maskConfig, $parse) {
+      'use strict';
+
       return {
         priority: 100,
         require: 'ngModel',
@@ -523,8 +532,8 @@ angular.module('ui.mask', [])
               // to be out-of-sync with what the controller's $viewValue is set to.
               controller.$viewValue = value.length ? maskValue(value) : '';
               controller.$setValidity('mask', isValid);
-              if (value === '' && controller.$error.required !== undefined) {
-                controller.$setValidity('required', false);
+              if (value === '' && iAttrs.required) {
+                controller.$setValidity('required', !controller.$error.required);
               }
               return isValid ? value : undefined;
             }
@@ -538,7 +547,7 @@ angular.module('ui.mask', [])
                 linkOptions = (function(original, current){
                   for(var i in original) {
                     if (Object.prototype.hasOwnProperty.call(original, i)) {
-                      if (!current[i]) {
+                      if (current[i] === undefined) {
                         current[i] = angular.copy(original[i]);
                       } else {
                         angular.extend(current[i], original[i]);
@@ -554,6 +563,18 @@ angular.module('ui.mask', [])
 
             iAttrs.$observe('uiMask', initialize);
             iAttrs.$observe('placeholder', initPlaceholder);
+            var modelViewValue = false;
+            iAttrs.$observe('modelViewValue', function(val) {
+              if(val === 'true') {
+                modelViewValue = true;
+              }
+            });
+            scope.$watch(iAttrs.ngModel, function(val) {
+              if(modelViewValue && val) {
+                var model = $parse(iAttrs.ngModel);
+                model.assign(scope, controller.$viewValue);
+              }
+            });
             controller.$formatters.push(formatter);
             controller.$parsers.push(parser);
 
@@ -721,11 +742,15 @@ angular.module('ui.mask', [])
             }
 
             function blurHandler(){
-              oldCaretPosition = 0;
-              oldSelectionLength = 0;
+              if (linkOptions.clearOnBlur) {
+                oldCaretPosition = 0;
+                oldSelectionLength = 0;
+              }
               if (!isValid || value.length === 0) {
-                valueMasked = '';
-                iElement.val('');
+                if (linkOptions.clearOnBlur) {
+                  valueMasked = '';
+                  iElement.val('');
+                }
                 scope.$apply(function (){
                   controller.$setViewValue('');
                 });
@@ -867,7 +892,7 @@ angular.module('ui.mask', [])
                 // Curse you IE
                 input.focus();
                 var selection = document.selection.createRange();
-                selection.moveStart('character', -input.value.length);
+                selection.moveStart('character', input.value ? -input.value.length : 0);
                 return selection.text.length;
               }
               return 0;
@@ -942,12 +967,12 @@ angular.module('ui.mask', [])
     }
     ]);
 
-'use strict';
-
 /**
  * Add a clear button to form inputs to reset their value
  */
 angular.module('ui.reset',[]).value('uiResetConfig',null).directive('uiReset', ['uiResetConfig', function (uiResetConfig) {
+  'use strict';
+
   var resetValue = null;
   if (uiResetConfig !== undefined){
     resetValue = uiResetConfig;
@@ -973,12 +998,12 @@ angular.module('ui.reset',[]).value('uiResetConfig',null).directive('uiReset', [
   };
 }]);
 
-'use strict';
-
 /**
  * Set a $uiRoute boolean to see if the current route matches
  */
 angular.module('ui.route', []).directive('uiRoute', ['$location', '$parse', function ($location, $parse) {
+  'use strict';
+
   return {
     restrict: 'AC',
     scope: true,
@@ -1056,10 +1081,10 @@ angular.module('ui.route', []).directive('uiRoute', ['$location', '$parse', func
   };
 }]);
 
-'use strict';
-
 angular.module('ui.scroll.jqlite', ['ui.scroll']).service('jqLiteExtras', [
       '$log', '$window', function(console, window) {
+        'use strict';
+
         return {
           registerFor: function(element) {
             var convertToPx, css, getMeasurements, getStyle, getWidthHeight, isWindow, scrollTo;
@@ -1226,6 +1251,11 @@ angular.module('ui.scroll.jqlite', ['ui.scroll']).service('jqLiteExtras', [
               outerHeight: function(option) {
                 return getWidthHeight(this[0], 'height', option ? 'outerfull' : 'outer');
               },
+              /*
+               UIScroller no longer relies on jQuery method offset. The jQLite implementation of the method
+               is kept here just for the reference. Also the offset setter method was never implemented
+               */
+
               offset: function(value) {
                 var box, doc, docElem, elem, self, win;
                 self = this;
@@ -1233,8 +1263,7 @@ angular.module('ui.scroll.jqlite', ['ui.scroll']).service('jqLiteExtras', [
                   if (value === void 0) {
                     return self;
                   } else {
-                    return value;
-
+                    throw new Error('offset setter method is not implemented');
                   }
                 }
                 box = {
@@ -1247,7 +1276,7 @@ angular.module('ui.scroll.jqlite', ['ui.scroll']).service('jqLiteExtras', [
                   return;
                 }
                 docElem = doc.documentElement;
-                if (elem.getBoundingClientRect) {
+                if (elem.getBoundingClientRect != null) {
                   box = elem.getBoundingClientRect();
                 }
                 win = doc.defaultView || doc.parentWindow;
@@ -1272,14 +1301,21 @@ angular.module('ui.scroll.jqlite', ['ui.scroll']).service('jqLiteExtras', [
       }
     ]).run([
       '$log', '$window', 'jqLiteExtras', function(console, window, jqLiteExtras) {
+        'use strict';
+
         if (!window.jQuery) {
           return jqLiteExtras.registerFor(angular.element);
         }
       }
     ]);
 
-'use strict';
 /*
+ //# sourceURL=src/scripts/ui-scroll-jqlite.js
+ */
+
+
+/*
+ globals: angular, window
 
  List of used element methods available in JQuery but not in JQuery Lite
 
@@ -1291,60 +1327,78 @@ angular.module('ui.scroll.jqlite', ['ui.scroll']).service('jqLiteExtras', [
  element.scrollTop(value)
  */
 
-angular.module('ui.scroll', []).directive('ngScrollViewport', [
+angular.module('ui.scroll', []).directive('uiScrollViewport', [
       '$log', function() {
+        'use strict';
+
         return {
           controller: [
             '$scope', '$element', function(scope, element) {
-              return element;
+              this.viewport = element;
+              return this;
             }
           ]
         };
       }
-    ]).directive('ngScroll', [
+    ]).directive('uiScroll', [
       '$log', '$injector', '$rootScope', '$timeout', function(console, $injector, $rootScope, $timeout) {
+        'use strict';
+
         return {
-          require: ['?^ngScrollViewport'],
+          require: ['?^uiScrollViewport'],
           transclude: 'element',
           priority: 1000,
           terminal: true,
-          compile: function(element, attr, linker) {
-            return function($scope, $element, $attr, controllers) {
-              var adapter, adjustBuffer, adjustRowHeight, bof, bottomVisiblePos, buffer, bufferPadding, bufferSize, clipBottom, clipTop, datasource, datasourceName, enqueueFetch, eof, eventListener, fetch, finalize, first, insert, isDatasource, isLoading, itemName, loading, match, next, pending, reload, removeFromBuffer, resizeHandler, scrollHandler, scrollHeight, shouldLoadBottom, shouldLoadTop, tempScope, topVisiblePos, viewport;
-              match = $attr.ngScroll.match(/^\s*(\w+)\s+in\s+(\w+)\s*$/);
+          compile: function(elementTemplate, attr, linker) {
+            return function($scope, element, $attr, controllers) {
+              var adapter, adjustBuffer, adjustRowHeight, bof, bottomVisiblePos, buffer, bufferPadding, bufferSize, clipBottom, clipTop, datasource, datasourceName, doAdjustment, enqueueFetch, eof, eventListener, fetch, finalize, first, getValueChain, hideElementBeforeAppend, insert, isDatasource, isLoading, itemName, loading, log, match, next, pending, reload, removeFromBuffer, resizeHandler, ridActual, scrollHandler, scrollHeight, shouldLoadBottom, shouldLoadTop, showElementAfterRender, tempScope, topVisible, topVisibleElement, topVisibleItem, topVisiblePos, topVisibleScope, viewport, viewportScope, wheelHandler;
+              log = console.debug || console.log;
+              match = $attr.uiScroll.match(/^\s*(\w+)\s+in\s+([\w\.]+)\s*$/);
               if (!match) {
-                throw new Error('Expected ngScroll in form of "item_ in _datasource_" but got "' + $attr.ngScroll + '"');
+                throw new Error('Expected uiScroll in form of \'_item_ in _datasource_\' but got \'' + $attr.uiScroll + '\'');
               }
               itemName = match[1];
               datasourceName = match[2];
               isDatasource = function(datasource) {
                 return angular.isObject(datasource) && datasource.get && angular.isFunction(datasource.get);
               };
-              datasource = $scope[datasourceName];
+              getValueChain = function(targetScope, target) {
+                var chain;
+                if (!targetScope) {
+                  return null;
+                }
+                chain = target.match(/^([\w]+)\.(.+)$/);
+                if (!chain || chain.length !== 3) {
+                  return targetScope[target];
+                }
+                return getValueChain(targetScope[chain[1]], chain[2]);
+              };
+              datasource = getValueChain($scope, datasourceName);
               if (!isDatasource(datasource)) {
                 datasource = $injector.get(datasourceName);
                 if (!isDatasource(datasource)) {
-                  throw new Error(datasourceName + ' is not a valid datasource');
+                  throw new Error('' + datasourceName + ' is not a valid datasource');
                 }
               }
               bufferSize = Math.max(3, +$attr.bufferSize || 10);
               bufferPadding = function() {
-                return viewport.height() * Math.max(0.1, +$attr.padding || 0.1);
+                return viewport.outerHeight() * Math.max(0.1, +$attr.padding || 0.1);
               };
               scrollHeight = function(elem) {
-                return elem[0].scrollHeight || elem[0].document.documentElement.scrollHeight;
+                var _ref;
+                return (_ref = elem[0].scrollHeight) != null ? _ref : elem[0].document.documentElement.scrollHeight;
               };
               adapter = null;
               linker(tempScope = $scope.$new(), function(template) {
                 var bottomPadding, createPadding, padding, repeaterType, topPadding, viewport;
                 repeaterType = template[0].localName;
                 if (repeaterType === 'dl') {
-                  throw new Error('ng-scroll directive does not support <' + template[0].localName + '> as a repeating tag: ' + template[0].outerHTML);
+                  throw new Error('ui-scroll directive does not support <' + template[0].localName + '> as a repeating tag: ' + template[0].outerHTML);
                 }
                 if (repeaterType !== 'li' && repeaterType !== 'tr') {
                   repeaterType = 'div';
                 }
-                viewport = controllers[0] || angular.element(window);
+                viewport = controllers[0] && controllers[0].viewport ? controllers[0].viewport : angular.element(window);
                 viewport.css({
                   'overflow-y': 'auto',
                   'display': 'block'
@@ -1401,13 +1455,57 @@ angular.module('ui.scroll', []).directive('ngScrollViewport', [
                 };
               });
               viewport = adapter.viewport;
+              viewportScope = viewport.scope() || $rootScope;
+              if (angular.isDefined($attr.topVisible)) {
+                topVisibleItem = function(item) {
+                  return viewportScope[$attr.topVisible] = item;
+                };
+              }
+              if (angular.isDefined($attr.topVisibleElement)) {
+                topVisibleElement = function(element) {
+                  return viewportScope[$attr.topVisibleElement] = element;
+                };
+              }
+              if (angular.isDefined($attr.topVisibleScope)) {
+                topVisibleScope = function(scope) {
+                  return viewportScope[$attr.topVisibleScope] = scope;
+                };
+              }
+              topVisible = function(item) {
+                if (topVisibleItem) {
+                  topVisibleItem(item.scope[itemName]);
+                }
+                if (topVisibleElement) {
+                  topVisibleElement(item.element);
+                }
+                if (topVisibleScope) {
+                  topVisibleScope(item.scope);
+                }
+                if (datasource.topVisible) {
+                  return datasource.topVisible(item);
+                }
+              };
+              if (angular.isDefined($attr.isLoading)) {
+                loading = function(value) {
+                  viewportScope[$attr.isLoading] = value;
+                  if (datasource.loading) {
+                    return datasource.loading(value);
+                  }
+                };
+              } else {
+                loading = function(value) {
+                  if (datasource.loading) {
+                    return datasource.loading(value);
+                  }
+                };
+              }
+              ridActual = 0;
               first = 1;
               next = 1;
               buffer = [];
               pending = [];
               eof = false;
               bof = false;
-              loading = datasource.loading || function() {};
               isLoading = false;
               removeFromBuffer = function(start, stop) {
                 var i, _i;
@@ -1418,6 +1516,7 @@ angular.module('ui.scroll', []).directive('ngScrollViewport', [
                 return buffer.splice(start, stop - start);
               };
               reload = function() {
+                ridActual++;
                 first = 1;
                 next = 1;
                 removeFromBuffer(0, buffer.length);
@@ -1426,10 +1525,10 @@ angular.module('ui.scroll', []).directive('ngScrollViewport', [
                 pending = [];
                 eof = false;
                 bof = false;
-                return adjustBuffer(false);
+                return adjustBuffer(ridActual, false);
               };
               bottomVisiblePos = function() {
-                return viewport.scrollTop() + viewport.height();
+                return viewport.scrollTop() + viewport.outerHeight();
               };
               topVisiblePos = function() {
                 return viewport.scrollTop();
@@ -1438,58 +1537,88 @@ angular.module('ui.scroll', []).directive('ngScrollViewport', [
                 return !eof && adapter.bottomDataPos() < bottomVisiblePos() + bufferPadding();
               };
               clipBottom = function() {
-                var bottomHeight, i, itemHeight, overage, _i, _ref;
+                var bottomHeight, i, item, itemHeight, itemTop, newRow, overage, rowTop, _i, _ref;
                 bottomHeight = 0;
                 overage = 0;
                 for (i = _i = _ref = buffer.length - 1; _ref <= 0 ? _i <= 0 : _i >= 0; i = _ref <= 0 ? ++_i : --_i) {
-                  itemHeight = buffer[i].element.outerHeight(true);
+                  item = buffer[i];
+                  itemTop = item.element.offset().top;
+                  newRow = rowTop !== itemTop;
+                  rowTop = itemTop;
+                  if (newRow) {
+                    itemHeight = item.element.outerHeight(true);
+                  }
                   if (adapter.bottomDataPos() - bottomHeight - itemHeight > bottomVisiblePos() + bufferPadding()) {
-                    bottomHeight += itemHeight;
+                    if (newRow) {
+                      bottomHeight += itemHeight;
+                    }
                     overage++;
                     eof = false;
                   } else {
-                    break;
+                    if (newRow) {
+                      break;
+                    }
+                    overage++;
                   }
                 }
                 if (overage > 0) {
                   adapter.bottomPadding(adapter.bottomPadding() + bottomHeight);
                   removeFromBuffer(buffer.length - overage, buffer.length);
                   next -= overage;
-                  return console.log('clipped off bottom ' + overage + ' bottom padding ' + (adapter.bottomPadding()));
+                  return log('clipped off bottom ' + overage + ' bottom padding ' + (adapter.bottomPadding()));
                 }
               };
               shouldLoadTop = function() {
                 return !bof && (adapter.topDataPos() > topVisiblePos() - bufferPadding());
               };
               clipTop = function() {
-                var item, itemHeight, overage, topHeight, _i, _len;
+                var item, itemHeight, itemTop, newRow, overage, rowTop, topHeight, _i, _len;
                 topHeight = 0;
                 overage = 0;
                 for (_i = 0, _len = buffer.length; _i < _len; _i++) {
                   item = buffer[_i];
-                  itemHeight = item.element.outerHeight(true);
+                  itemTop = item.element.offset().top;
+                  newRow = rowTop !== itemTop;
+                  rowTop = itemTop;
+                  if (newRow) {
+                    itemHeight = item.element.outerHeight(true);
+                  }
                   if (adapter.topDataPos() + topHeight + itemHeight < topVisiblePos() - bufferPadding()) {
-                    topHeight += itemHeight;
+                    if (newRow) {
+                      topHeight += itemHeight;
+                    }
                     overage++;
                     bof = false;
                   } else {
-                    break;
+                    if (newRow) {
+                      break;
+                    }
+                    overage++;
                   }
                 }
                 if (overage > 0) {
                   adapter.topPadding(adapter.topPadding() + topHeight);
                   removeFromBuffer(0, overage);
                   first += overage;
-                  return console.log('clipped off top ' + overage + ' top padding ' + (adapter.topPadding()));
+                  return log('clipped off top ' + overage + ' top padding ' + (adapter.topPadding()));
                 }
               };
-              enqueueFetch = function(direction, scrolling) {
+              enqueueFetch = function(rid, direction, scrolling) {
                 if (!isLoading) {
                   isLoading = true;
                   loading(true);
                 }
                 if (pending.push(direction) === 1) {
-                  return fetch(scrolling);
+                  return fetch(rid, scrolling);
+                }
+              };
+              hideElementBeforeAppend = function(element) {
+                element.displayTemp = element.css('display');
+                return element.css('display', 'none');
+              };
+              showElementAfterRender = function(element) {
+                if (element.hasOwnProperty('displayTemp')) {
+                  return element.css('display', element.displayTemp);
                 }
               };
               insert = function(index, item) {
@@ -1508,6 +1637,7 @@ angular.module('ui.scroll', []).directive('ngScrollViewport', [
                   wrapper.element = clone;
                   if (toBeAppended) {
                     if (index === next) {
+                      hideElementBeforeAppend(clone);
                       adapter.append(clone);
                       return buffer.push(wrapper);
                     } else {
@@ -1515,6 +1645,7 @@ angular.module('ui.scroll', []).directive('ngScrollViewport', [
                       return buffer.splice(index - first + 1, 0, wrapper);
                     }
                   } else {
+                    hideElementBeforeAppend(clone);
                     adapter.prepend(clone);
                     return buffer.unshift(wrapper);
                   }
@@ -1537,107 +1668,155 @@ angular.module('ui.scroll', []).directive('ngScrollViewport', [
                   }
                 }
               };
-              adjustBuffer = function(scrolling, newItems, finalize) {
-                var doAdjustment;
-                doAdjustment = function() {
-                  console.log('top {actual=' + (adapter.topDataPos()) + ' visible from=' + (topVisiblePos()) + ' bottom {visible through=' + (bottomVisiblePos()) + ' actual=' + (adapter.bottomDataPos()) + '}');
-                  if (shouldLoadBottom()) {
-                    enqueueFetch(true, scrolling);
-                  } else {
-                    if (shouldLoadTop()) {
-                      enqueueFetch(false, scrolling);
-                    }
-                  }
-                  if (finalize) {
-                    return finalize();
-                  }
-                };
-                if (newItems) {
-                  return $timeout(function() {
-                    var row, _i, _len;
-                    for (_i = 0, _len = newItems.length; _i < _len; _i++) {
-                      row = newItems[_i];
-                      adjustRowHeight(row.appended, row.wrapper);
-                    }
-                    return doAdjustment();
-                  });
+              doAdjustment = function(rid, scrolling, finalize) {
+                var item, itemHeight, itemTop, newRow, rowTop, topHeight, _i, _len, _results;
+                log('top {actual=' + (adapter.topDataPos()) + ' visible from=' + (topVisiblePos()) + ' bottom {visible through=' + (bottomVisiblePos()) + ' actual=' + (adapter.bottomDataPos()) + '}');
+                if (shouldLoadBottom()) {
+                  enqueueFetch(rid, true, scrolling);
                 } else {
-                  return doAdjustment();
+                  if (shouldLoadTop()) {
+                    enqueueFetch(rid, false, scrolling);
+                  }
+                }
+                if (finalize) {
+                  finalize(rid);
+                }
+                if (pending.length === 0) {
+                  topHeight = 0;
+                  _results = [];
+                  for (_i = 0, _len = buffer.length; _i < _len; _i++) {
+                    item = buffer[_i];
+                    itemTop = item.element.offset().top;
+                    newRow = rowTop !== itemTop;
+                    rowTop = itemTop;
+                    if (newRow) {
+                      itemHeight = item.element.outerHeight(true);
+                    }
+                    if (newRow && (adapter.topDataPos() + topHeight + itemHeight < topVisiblePos())) {
+                      _results.push(topHeight += itemHeight);
+                    } else {
+                      if (newRow) {
+                        topVisible(item);
+                      }
+                      break;
+                    }
+                  }
+                  return _results;
                 }
               };
-              finalize = function(scrolling, newItems) {
-                return adjustBuffer(scrolling, newItems, function() {
+              adjustBuffer = function(rid, scrolling, newItems, finalize) {
+                if (newItems && newItems.length) {
+                  return $timeout(function() {
+                    var itemTop, row, rowTop, rows, _i, _j, _len, _len1;
+                    rows = [];
+                    for (_i = 0, _len = newItems.length; _i < _len; _i++) {
+                      row = newItems[_i];
+                      element = row.wrapper.element;
+                      showElementAfterRender(element);
+                      itemTop = element.offset().top;
+                      if (rowTop !== itemTop) {
+                        rows.push(row);
+                        rowTop = itemTop;
+                      }
+                    }
+                    for (_j = 0, _len1 = rows.length; _j < _len1; _j++) {
+                      row = rows[_j];
+                      adjustRowHeight(row.appended, row.wrapper);
+                    }
+                    return doAdjustment(rid, scrolling, finalize);
+                  });
+                } else {
+                  return doAdjustment(rid, scrolling, finalize);
+                }
+              };
+              finalize = function(rid, scrolling, newItems) {
+                return adjustBuffer(rid, scrolling, newItems, function() {
                   pending.shift();
                   if (pending.length === 0) {
                     isLoading = false;
                     return loading(false);
                   } else {
-                    return fetch(scrolling);
+                    return fetch(rid, scrolling);
                   }
                 });
               };
-              fetch = function(scrolling) {
+              fetch = function(rid, scrolling) {
                 var direction;
                 direction = pending[0];
                 if (direction) {
                   if (buffer.length && !shouldLoadBottom()) {
-                    return finalize(scrolling);
+                    return finalize(rid, scrolling);
                   } else {
                     return datasource.get(next, bufferSize, function(result) {
                       var item, newItems, _i, _len;
+                      if (rid && rid !== ridActual) {
+                        return;
+                      }
                       newItems = [];
-                      if (result.length === 0) {
+                      if (result.length < bufferSize) {
                         eof = true;
                         adapter.bottomPadding(0);
-                        console.log('appended: requested ' + bufferSize + ' records starting from ' + next + ' recieved: eof');
-                      } else {
+                      }
+                      if (result.length > 0) {
                         clipTop();
                         for (_i = 0, _len = result.length; _i < _len; _i++) {
                           item = result[_i];
                           newItems.push(insert(++next, item));
                         }
-                        console.log('appended: requested ' + bufferSize + ' received ' + result.length + ' buffer size ' + buffer.length + ' first ' + first + ' next ' + next);
                       }
-                      return finalize(scrolling, newItems);
+                      return finalize(rid, scrolling, newItems);
                     });
                   }
                 } else {
                   if (buffer.length && !shouldLoadTop()) {
-                    return finalize(scrolling);
+                    return finalize(rid, scrolling);
                   } else {
                     return datasource.get(first - bufferSize, bufferSize, function(result) {
                       var i, newItems, _i, _ref;
+                      if (rid && rid !== ridActual) {
+                        return;
+                      }
                       newItems = [];
-                      if (result.length === 0) {
+                      if (result.length < bufferSize) {
                         bof = true;
                         adapter.topPadding(0);
-                        console.log('prepended: requested ' + bufferSize + ' records starting from ' + (first - bufferSize) + ' recieved: bof');
-                      } else {
-                        clipBottom();
+                      }
+                      if (result.length > 0) {
+                        if (buffer.length) {
+                          clipBottom();
+                        }
                         for (i = _i = _ref = result.length - 1; _ref <= 0 ? _i <= 0 : _i >= 0; i = _ref <= 0 ? ++_i : --_i) {
                           newItems.unshift(insert(--first, result[i]));
                         }
-                        console.log('prepended: requested ' + bufferSize + ' received ' + result.length + ' buffer size ' + buffer.length + ' first ' + first + ' next ' + next);
                       }
-                      return finalize(scrolling, newItems);
+                      return finalize(rid, scrolling, newItems);
                     });
                   }
                 }
               };
               resizeHandler = function() {
                 if (!$rootScope.$$phase && !isLoading) {
-                  adjustBuffer(false);
+                  adjustBuffer(null, false);
                   return $scope.$apply();
                 }
               };
               viewport.bind('resize', resizeHandler);
               scrollHandler = function() {
                 if (!$rootScope.$$phase && !isLoading) {
-                  adjustBuffer(true);
+                  adjustBuffer(null, true);
                   return $scope.$apply();
                 }
               };
               viewport.bind('scroll', scrollHandler);
+              wheelHandler = function(event) {
+                var scrollTop, yMax;
+                scrollTop = viewport[0].scrollTop;
+                yMax = viewport[0].scrollHeight - viewport[0].clientHeight;
+                if ((scrollTop === 0 && !bof) || (scrollTop === yMax && !eof)) {
+                  return event.preventDefault();
+                }
+              };
+              viewport.bind('mousewheel', wheelHandler);
               $scope.$watch(datasource.revision, function() {
                 return reload();
               });
@@ -1649,7 +1828,8 @@ angular.module('ui.scroll', []).directive('ngScrollViewport', [
               $scope.$on('$destroy', function() {
                 eventListener.$destroy();
                 viewport.unbind('resize', resizeHandler);
-                return viewport.unbind('scroll', scrollHandler);
+                viewport.unbind('scroll', scrollHandler);
+                return viewport.unbind('mousewheel', wheelHandler);
               });
               eventListener.$on('update.items', function(event, locator, newItem) {
                 var wrapper, _fn, _i, _len, _ref;
@@ -1696,51 +1876,24 @@ angular.module('ui.scroll', []).directive('ngScrollViewport', [
                   item = buffer[i];
                   item.scope.$index = first + i;
                 }
-                return adjustBuffer(false);
+                return adjustBuffer(null, false);
               });
               return eventListener.$on('insert.item', function(event, locator, item) {
-                var i, inserted, temp, wrapper, _fn, _i, _j, _k, _len, _len1, _len2, _ref;
+                var i, inserted, _i, _len, _ref;
                 inserted = [];
                 if (angular.isFunction(locator)) {
-                  temp = [];
-                  for (_i = 0, _len = buffer.length; _i < _len; _i++) {
-                    item = buffer[_i];
-                    temp.unshift(item);
-                  }
-                  _fn = function(wrapper) {
-                    var j, newItems, _k, _len2, _results;
-                    if (newItems = locator(wrapper.scope)) {
-                      insert = function(index, newItem) {
-                        insert(index, newItem);
-                        return next++;
-                      };
-                      if (angular.isArray(newItems)) {
-                        _results = [];
-                        for (j = _k = 0, _len2 = newItems.length; _k < _len2; j = ++_k) {
-                          item = newItems[j];
-                          _results.push(inserted.push(insert(i + j, item)));
-                        }
-                        return _results;
-                      } else {
-                        return inserted.push(insert(i, newItems));
-                      }
-                    }
-                  };
-                  for (i = _j = 0, _len1 = temp.length; _j < _len1; i = ++_j) {
-                    wrapper = temp[i];
-                    _fn(wrapper);
-                  }
+                  throw new Error('not implemented - Insert with locator function');
                 } else {
                   if ((0 <= (_ref = locator - first - 1) && _ref < buffer.length)) {
                     inserted.push(insert(locator, item));
                     next++;
                   }
                 }
-                for (i = _k = 0, _len2 = buffer.length; _k < _len2; i = ++_k) {
+                for (i = _i = 0, _len = buffer.length; _i < _len; i = ++_i) {
                   item = buffer[i];
                   item.scope.$index = first + i;
                 }
-                return adjustBuffer(false, inserted);
+                return adjustBuffer(null, false, inserted);
               });
             };
           }
@@ -1748,7 +1901,10 @@ angular.module('ui.scroll', []).directive('ngScrollViewport', [
       }
     ]);
 
-'use strict';
+/*
+ //# sourceURL=src/scripts/ui-scroll.js
+ */
+
 
 /**
  * Adds a 'ui-scrollfix' class to the element when the page scrolls past it's position.
@@ -1756,6 +1912,16 @@ angular.module('ui.scroll', []).directive('ngScrollViewport', [
  *   Takes 300 (absolute) or -300 or +300 (relative to detected)
  */
 angular.module('ui.scrollfix',[]).directive('uiScrollfix', ['$window', function ($window) {
+      'use strict';
+
+      function getWindowScrollTop() {
+        if (angular.isDefined($window.pageYOffset)) {
+          return $window.pageYOffset;
+        } else {
+          var iebody = (document.compatMode && document.compatMode !== 'BackCompat') ? document.documentElement : document.body;
+          return iebody.scrollTop;
+        }
+      }
       return {
         require: '^?uiScrollfixTarget',
         link: function (scope, elm, attrs, uiScrollfixTarget) {
@@ -1775,13 +1941,7 @@ angular.module('ui.scrollfix',[]).directive('uiScrollfix', ['$window', function 
 
           function onScroll() {
             // if pageYOffset is defined use it, otherwise use other crap for IE
-            var offset;
-            if (angular.isDefined($window.pageYOffset)) {
-              offset = $window.pageYOffset;
-            } else {
-              var iebody = (document.compatMode && document.compatMode !== 'BackCompat') ? document.documentElement : document.body;
-              offset = iebody.scrollTop;
-            }
+            var offset = uiScrollfixTarget ? $target[0].scrollTop : getWindowScrollTop();
             if (!elm.hasClass('ui-scrollfix') && offset > attrs.uiScrollfix) {
               elm.addClass('ui-scrollfix');
             } else if (elm.hasClass('ui-scrollfix') && offset < attrs.uiScrollfix) {
@@ -1798,14 +1958,13 @@ angular.module('ui.scrollfix',[]).directive('uiScrollfix', ['$window', function 
         }
       };
     }]).directive('uiScrollfixTarget', [function () {
+      'use strict';
       return {
         controller: ['$element', function($element) {
           this.$element = $element;
         }]
       };
     }]);
-
-'use strict';
 
 /**
  * uiShow Directive
@@ -1817,6 +1976,8 @@ angular.module('ui.scrollfix',[]).directive('uiScrollfix', ['$window', function 
  */
 angular.module('ui.showhide',[])
     .directive('uiShow', [function () {
+      'use strict';
+
       return function (scope, elm, attrs) {
         scope.$watch(attrs.uiShow, function (newVal) {
           if (newVal) {
@@ -1837,6 +1998,8 @@ angular.module('ui.showhide',[])
  * @param expression {boolean} evaluated expression to determine if the class should be added
  */
     .directive('uiHide', [function () {
+      'use strict';
+
       return function (scope, elm, attrs) {
         scope.$watch(attrs.uiHide, function (newVal) {
           if (newVal) {
@@ -1858,6 +2021,8 @@ angular.module('ui.showhide',[])
  * @param expression {boolean} evaluated expression to determine if the class should be added
  */
     .directive('uiToggle', [function () {
+      'use strict';
+
       return function (scope, elm, attrs) {
         scope.$watch(attrs.uiToggle, function (newVal) {
           if (newVal) {
@@ -1869,8 +2034,6 @@ angular.module('ui.showhide',[])
       };
     }]);
 
-'use strict';
-
 /**
  * Filters out all duplicate items from an array by checking the specified key
  * @param [key] {string} the name of the attribute of each object to compare for uniqueness
@@ -1879,6 +2042,7 @@ angular.module('ui.showhide',[])
  * @return {array}
  */
 angular.module('ui.unique',[]).filter('unique', ['$parse', function ($parse) {
+  'use strict';
 
   return function (items, filterOn) {
 
@@ -1914,7 +2078,127 @@ angular.module('ui.unique',[]).filter('unique', ['$parse', function ($parse) {
   };
 }]);
 
-'use strict';
+/*
+ * Author: Remy Alain Ticona Carbajal http://realtica.org
+ * Description: The main objective of ng-uploader is to have a user control,
+ * clean, simple, customizable, and above all very easy to implement.
+ * Licence: MIT
+ */
+
+angular.module('ui.uploader', []).service('uiUploader', uiUploader);
+
+uiUploader.$inject = ['$log'];
+
+function uiUploader($log) {
+  'use strict';
+
+  /*jshint validthis: true */
+  var self = this;
+  self.files = [];
+  self.options = {};
+  self.activeUploads = 0;
+  $log.info('uiUploader loaded');
+
+  function addFiles(files) {
+    for (var i = 0; i < files.length; i++) {
+      self.files.push(files[i]);
+    }
+  }
+
+  function getFiles() {
+    return self.files;
+  }
+
+  function startUpload(options) {
+    self.options = options;
+    for (var i = 0; i < self.files.length; i++) {
+      if (self.activeUploads == self.options.concurrency) {
+        break;
+      }
+      if (self.files[i].active)
+        continue;
+      ajaxUpload(self.files[i], self.options.url);
+    }
+  }
+
+  function removeFile(file){
+    self.files.splice(self.files.indexOf(file),1);
+  }
+
+  function removeAll(){
+    self.files.splice(0,self.files.length);
+  }
+
+  return {
+    addFiles: addFiles,
+    getFiles: getFiles,
+    files: self.files,
+    startUpload: startUpload,
+    removeFile: removeFile,
+    removeAll:removeAll
+  };
+
+  function getHumanSize(bytes) {
+    var sizes = ['n/a', 'bytes', 'KiB', 'MiB', 'GiB', 'TB', 'PB', 'EiB', 'ZiB', 'YiB'];
+    var i = +Math.floor(Math.log(bytes) / Math.log(1024));
+    return (bytes / Math.pow(1024, i)).toFixed(i ? 1 : 0) + ' ' + sizes[isNaN(bytes) ? 0 : i + 1];
+  }
+
+  function ajaxUpload(file, url) {
+    var xhr, formData, prop, data = '',
+        key = '' || 'file';
+    self.activeUploads += 1;
+    file.active = true;
+    xhr = new window.XMLHttpRequest();
+    formData = new window.FormData();
+    xhr.open('POST', url);
+
+    // Triggered when upload starts:
+    xhr.upload.onloadstart = function() {};
+
+    // Triggered many times during upload:
+    xhr.upload.onprogress = function(event) {
+      if (!event.lengthComputable) {
+        return;
+      }
+      // Update file size because it might be bigger than reported by
+      // the fileSize:
+      //$log.info("progres..");
+      //console.info(event.loaded);
+      file.loaded = event.loaded;
+      file.humanSize = getHumanSize(event.loaded);
+      self.options.onProgress(file);
+    };
+
+    // Triggered when upload is completed:
+    xhr.onload = function() {
+      self.activeUploads -= 1;
+      startUpload(self.options);
+      self.options.onCompleted(file);
+    };
+
+    // Triggered when upload fails:
+    xhr.onerror = function() {};
+
+    // Append additional data if provided:
+    if (data) {
+      for (prop in data) {
+        if (data.hasOwnProperty(prop)) {
+          formData.append(prop, data[prop]);
+        }
+      }
+    }
+
+    // Append file data:
+    formData.append(key, file, file.name);
+
+    // Initiate upload:
+    xhr.send(formData);
+
+    return xhr;
+  }
+
+}
 
 /**
  * General-purpose validator for ngModel.
@@ -1933,6 +2217,7 @@ angular.module('ui.unique',[]).filter('unique', ['$parse', function ($parse) {
  * In both cases validator function should take a value to validate as its argument and should return true/false indicating a validation result.
  */
 angular.module('ui.validate',[]).directive('uiValidate', function () {
+  'use strict';
 
   return {
     restrict: 'A',
@@ -1965,7 +2250,7 @@ angular.module('ui.validate',[]).directive('uiValidate', function () {
           } else {
             // expression is false
             ctrl.$setValidity(key, false);
-            return undefined;
+            return valueToValidate;
           }
         };
         validators[key] = validateFn;
