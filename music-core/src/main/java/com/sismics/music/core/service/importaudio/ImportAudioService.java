@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -375,7 +376,9 @@ public class ImportAudioService extends AbstractExecutionThreadService {
                     if (Constants.SUPPORTED_AUDIO_EXTENSIONS.contains(archiveExt)) {
                         log.info("Importing: " + archiveEntry.getName());
                         File outputFile = new File(importDir + File.separator + new File(archiveEntry.getName()).getName());
-                        ByteStreams.copy(archiveInputStream, new FileOutputStream(outputFile));
+                        try (OutputStream fileOutputStream = new FileOutputStream(outputFile)) {
+                            ByteStreams.copy(archiveInputStream, fileOutputStream);
+                        }
                     }
                     archiveEntry = archiveInputStream.getNextEntry();
                 }

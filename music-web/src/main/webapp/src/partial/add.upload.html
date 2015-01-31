@@ -1,3 +1,28 @@
 <div class="row">
-  Upload music from local computer
+  <div class="col-md-12">
+    <h3>
+      Upload music <small>from local computer</small>
+    </h3>
+
+    <p>Single audio file or ZIP file containing audio files are supported.</p>
+
+    <form role="form" name="uploadForm" novalidate>
+      <div class="form-group">
+        <label class="sr-only control-label" for="inputFiles">Choose files</label>
+        <span class="btn btn-primary btn-file">
+          Select a file...<file required id="inputFiles" multiple="multiple" ng-model="files"
+                accept="*"></file>
+        </span>
+      </div>
+    </form>
+
+    <table class="table" ng-show="queue.length > 0">
+      <tr ng-repeat="item in queue"
+          ng-class="{ 'success': item.status == 'DONE', 'danger': item.status == 'ERROR' }"
+          ng-style="{ 'background': 'linear-gradient(to right, #d9edf7 0%,#d9edf7 ' + item.progress + '%,rgba(0,0,0,0) ' + item.progress + '%,rgba(0,0,0,0) 100%)' }">
+        <td>{{ item.file.name }} <em ng-show="item.message" class="pull-right">{{ item.message }}</em></td>
+      </tr>
+    </table>
+
+  </div>
 </div>
