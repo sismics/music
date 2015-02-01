@@ -9,6 +9,7 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
   var tracks = [];
   var repeat = true;
   var shuffle = false;
+  var visualization = true;
 
   // Read Local Storage settings
   if (!_.isUndefined(localStorage.playlistRepeat)) {
@@ -16,6 +17,9 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
   }
   if (!_.isUndefined(localStorage.playlistShuffle)) {
     shuffle = localStorage.playlistShuffle == 'true';
+  }
+  if (!_.isUndefined(localStorage.playlistVisualization)) {
+    visualization = localStorage.playlistVisualization == 'true';
   }
 
   // Maintain updated status
@@ -278,7 +282,9 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
     isRepeat: function() { return repeat; },
     toggleRepeat: function() { repeat = !repeat; localStorage.playlistRepeat = repeat; },
     isShuffle: function() { return shuffle; },
-    toggleShuffle: function() { shuffle = !shuffle; localStorage.playlistShuffle = shuffle; }
+    toggleShuffle: function() { shuffle = !shuffle; localStorage.playlistShuffle = shuffle; },
+    isVisualization: function() { return visualization; },
+    toggleVisualization: function() { visualization = !visualization; localStorage.playlistVisualization = visualization; }
   };
 
   return service;

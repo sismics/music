@@ -22,6 +22,7 @@ html, body {
   margin: 0;
   background-color: #fafafa;
   box-shadow: 0 0 8px rgba(0,0,0,.4);
+  z-index: 3;
 
   .albumart {
     cursor: pointer;
@@ -413,4 +414,13 @@ html, body {
   background: white;
   cursor: inherit;
   display: block;
+}
+
+#visual {
+  position: absolute;
+  top: -128px;
+  left: 0;
+  width: 100vw;
+  height: 128px;
+  pointer-events: none;
 }

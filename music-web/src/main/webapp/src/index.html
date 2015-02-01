@@ -66,6 +66,7 @@
     <script src="app/directive/File.js" type="text/javascript"></script>
     <script src="app/service/User.js" type="text/javascript"></script>
     <script src="app/service/Playlist.js" type="text/javascript"></script>
+    <script src="app/service/Visualization.js" type="text/javascript"></script>
     <script src="app/filter/Duration.js" type="text/javascript"></script>
     <script src="app/filter/Filename.js" type="text/javascript"></script>
     <script src="app/filter/Nl2br.js" type="text/javascript"></script>
@@ -124,7 +125,7 @@
 	  
 	  <div id="footer" class="panel panel-default" ng-show="!userInfo.anonymous" ng-controller="AudioPlayer">
 	    <div class="container">
-        <canvas id="visual" width="1024" height="256" style="position: absolute; top: -128px; left: 0; width: 100vw; height: 128px; pointer-events: none;"></canvas>
+        <canvas id="visual" width="720" height="256"></canvas>
         <audio-player></audio-player>
 	    </div>
     </div>
