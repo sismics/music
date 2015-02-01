@@ -129,6 +129,7 @@ public class AlbumDao {
     
     /**
      * Gets an active album by its album art ID.
+     * TODO Remove me when album path will be stored
      *
      * @param id Album art ID
      * @return Album

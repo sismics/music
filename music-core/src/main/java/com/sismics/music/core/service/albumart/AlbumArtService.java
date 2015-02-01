@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,6 +16,9 @@ import com.google.common.util.concurrent.AbstractService;
 import com.sismics.music.core.dao.dbi.AlbumDao;
 import com.sismics.music.core.dao.dbi.ArtistDao;
 import com.sismics.music.core.dao.dbi.DirectoryDao;
+import com.sismics.music.core.dao.dbi.TrackDao;
+import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
+import com.sismics.music.core.dao.dbi.dto.TrackDto;
 import com.sismics.music.core.model.dbi.Album;
 import com.sismics.music.core.model.dbi.Artist;
 import com.sismics.music.core.model.dbi.Directory;
@@ -60,6 +64,7 @@ public class AlbumArtService  {
             DirectoryDao directoryDao = new DirectoryDao();
             Artist artist = artistDao.getActiveById(album.getArtistId());
             Directory directory = directoryDao.getActiveById(album.getDirectoryId());
+            // TODO Store the album path in DB and use it, don't rebuild the album path
             Path albumArtPath = Paths.get(directory.getLocation(), new DirectoryNameParser(artist.getName(), album.getName()).getFileName(), "albumart.jpg");
             ImageUtil.writeJpeg(originalImage, albumArtPath.toFile());
         }
@@ -138,9 +143,8 @@ public class AlbumArtService  {
      * @throws Exception 
      */
     public void rebuildAlbumArt() throws Exception {
+        TrackDao trackDao = new TrackDao();
         AlbumDao albumDao = new AlbumDao();
-        ArtistDao artistDao = new ArtistDao();
-        DirectoryDao directoryDao = new DirectoryDao();
         Set<String> albumArtIdSet = Sets.newHashSet();
         
         // List all album art IDs
@@ -169,13 +173,16 @@ public class AlbumArtService  {
             importAlbumArt(id, largeImage, AlbumArtSize.SMALL);
             
             // Copy to album directory
+            // TODO Use the album path stored in DB
             Album album = albumDao.getActiveByAlbumArtId(id);
             if (album == null) {
                 continue;
             }
-            Artist artist = artistDao.getActiveById(album.getArtistId());
-            Directory directory = directoryDao.getActiveById(album.getDirectoryId());
-            Path albumArtPath = Paths.get(directory.getLocation(), new DirectoryNameParser(artist.getName(), album.getName()).getFileName(), "albumart.jpg");
+            List<TrackDto> trackDtoList = trackDao.findByCriteria(new TrackCriteria().setAlbumId(album.getId()));
+            if (trackDtoList.size() == 0) {
+                continue;
+            }
+            Path albumArtPath = Paths.get(trackDtoList.get(0).getFileName()).getParent().resolve("albumart.jpg");
             ImageUtil.writeJpeg(largeImage, albumArtPath.toFile());
         }
     }
