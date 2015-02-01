@@ -118,8 +118,49 @@ public class TestImportResource extends BaseJerseyTest {
                         .param("title", "Follow You (feat Danyka Nadeau)")), JsonObject.class);
         Assert.assertEquals("ok", json.getString("status"));
         
+        // Admin cleanup imports
+        json = target().path("/import/progress/cleanup").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .post(Entity.form(new Form()), JsonObject.class);
+        
         // Wait for watching service to index our new music
-        Thread.sleep(5000);
+        Thread.sleep(3000);
+        
+        // Admin import a new URL
+        json = target().path("/import").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .put(Entity.form(new Form()
+                        .param("url", "https://soundcloud.com/monstercat/au5-follow-you-volant")
+                        .param("quality", "128K")
+                        .param("format", "mp3")), JsonObject.class);
+        Assert.assertEquals("ok", json.getString("status"));
+
+        // Wait for the process to start
+        Thread.sleep(1000);
+        
+        // Admin check import progession
+        json = target().path("/import/progress").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        JsonArray imports = json.getJsonArray("imports");
+        Assert.assertEquals(1, imports.size());
+        Assert.assertEquals("INPROGRESS", imports.getJsonObject(0).getString("status"));
+        
+        // Admin kills the current import
+        json = target().path("/import/progress/" + imports.getJsonObject(0).getString("id") + "/kill").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .post(Entity.form(new Form()), JsonObject.class);
+        
+        // Wait for the process to be killed
+        Thread.sleep(3000);
+        
+        // Admin check import progession
+        json = target().path("/import/progress").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        imports = json.getJsonArray("imports");
+        Assert.assertEquals(1, imports.size());
+        Assert.assertEquals("ERROR", imports.getJsonObject(0).getString("status"));
     }
     
     /**

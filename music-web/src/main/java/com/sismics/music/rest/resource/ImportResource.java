@@ -45,8 +45,11 @@ import com.sismics.rest.util.ValidationUtil;
 @Path("/import")
 public class ImportResource extends BaseResource {
     /**
-     * Import new tracks.
+     * Import new tracks from external sources.
      * 
+     * @param urlList URLs to import
+     * @param quality Transcoding quality
+     * @param format Output format
      * @return Response
      */
     @PUT
@@ -104,7 +107,7 @@ public class ImportResource extends BaseResource {
     }
     
     /**
-     * List imports in progress.
+     * List imports in progress from external sources.
      * 
      * @return Response
      */
@@ -134,7 +137,7 @@ public class ImportResource extends BaseResource {
     }
     
     /**
-     * Retry a failed import.
+     * Retry a failed import from an external source.
      * 
      * @return Response
      */
@@ -155,6 +158,92 @@ public class ImportResource extends BaseResource {
         return Response.ok()
                 .entity(Json.createObjectBuilder().add("status", "ok").build())
                 .build();
+    }
+    
+    @POST
+    @Path("progress/{id: [a-z0-9\\-]+}/kill")
+    public Response kill(@PathParam("id") String id) {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+        
+        try {
+            AppContext.getInstance().getImportAudioService().killImportAudio(id);
+        } catch (Exception e) {
+            throw new ClientException("ImportError", e.getMessage(), e);
+        }
+        
+        // Always return OK
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
+    }
+    
+    /**
+     * Cleanup finished imports from external sources.
+     * 
+     * @return Response
+     */
+    @POST
+    @Path("progress/cleanup")
+    public Response cleanup() {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+        
+        AppContext.getInstance().getImportAudioService().cleanup();
+        
+        // Always return OK
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build(); 
+    }
+    
+    /**
+     * Upload a track to the imported files.
+     * 
+     * @param fileBodyPart File to import
+     * @return Response
+     */
+    @PUT
+    @Path("upload")
+    @Consumes("multipart/form-data")
+    public Response upload(
+            @FormDataParam("file") FormDataBodyPart fileBodyPart) {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+        
+        // Validate input data
+        ValidationUtil.validateRequired(fileBodyPart, "file");
+        ValidationUtil.validateRequired(fileBodyPart.getFormDataContentDisposition().getFileName(), "filename");
+        
+        InputStream in = fileBodyPart.getValueAs(InputStream.class);
+        File tempDir = null, importFile = null;
+        try {
+            // Copy the incoming stream content into a temporary file
+            tempDir = Files.createTempDir();
+            importFile = new File(tempDir.getAbsolutePath() + File.separator + fileBodyPart.getFormDataContentDisposition().getFileName());
+            try (OutputStream os = new FileOutputStream(importFile)) {
+                IOUtils.copy(in, os);
+            }
+            
+            AppContext.getInstance().getImportAudioService().importFile(importFile);
+        } catch (Exception e) {
+            throw new ServerException("ImportError", e.getMessage(), e);
+        } finally {
+            if (importFile != null) {
+                importFile.delete();
+            }
+            if (tempDir != null) {
+                tempDir.delete();
+            }
+        }
+        
+        // Always return OK
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build(); 
     }
     
     /**
@@ -245,26 +334,6 @@ public class ImportResource extends BaseResource {
     }
     
     /**
-     * Cleanup finished imports.
-     * 
-     * @return Response
-     */
-    @POST
-    @Path("progress/cleanup")
-    public Response cleanup() {
-        if (!authenticate()) {
-            throw new ForbiddenClientException();
-        }
-        
-        AppContext.getInstance().getImportAudioService().cleanup();
-        
-        // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build(); 
-    };
-    
-    /**
      * Delete an imported file.
      * 
      * @param fileName File to delete
@@ -297,47 +366,6 @@ public class ImportResource extends BaseResource {
         // Delete the file
         if (!file.delete()) {
             throw new ServerException("IOError", "Error deleting the file");
-        }
-        
-        // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build(); 
-    }
-    
-    @PUT
-    @Path("upload")
-    @Consumes("multipart/form-data")
-    public Response upload(
-            @FormDataParam("file") FormDataBodyPart fileBodyPart) {
-        if (!authenticate()) {
-            throw new ForbiddenClientException();
-        }
-        
-        // Validate input data
-        ValidationUtil.validateRequired(fileBodyPart, "file");
-        ValidationUtil.validateRequired(fileBodyPart.getFormDataContentDisposition().getFileName(), "filename");
-        
-        InputStream in = fileBodyPart.getValueAs(InputStream.class);
-        File tempDir = null, importFile = null;
-        try {
-            // Copy the incoming stream content into a temporary file
-            tempDir = Files.createTempDir();
-            importFile = new File(tempDir.getAbsolutePath() + File.separator + fileBodyPart.getFormDataContentDisposition().getFileName());
-            try (OutputStream os = new FileOutputStream(importFile)) {
-                IOUtils.copy(in, os);
-            }
-            
-            AppContext.getInstance().getImportAudioService().importFile(importFile);
-        } catch (Exception e) {
-            throw new ServerException("ImportError", e.getMessage(), e);
-        } finally {
-            if (importFile != null) {
-                importFile.delete();
-            }
-            if (tempDir != null) {
-                tempDir.delete();
-            }
         }
         
         // Always return OK
