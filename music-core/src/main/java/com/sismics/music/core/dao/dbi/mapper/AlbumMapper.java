@@ -22,7 +22,8 @@ public class AlbumMapper extends BaseResultSetMapper<Album> {
                 "ALB_ALBUMART_C",
                 "ALB_UPDATEDATE_D",
                 "ALB_CREATEDATE_D",
-                "ALB_DELETEDATE_D"};
+                "ALB_DELETEDATE_D",
+                "ALB_LOCATION_C"};
     }
 
     @Override
@@ -37,6 +38,7 @@ public class AlbumMapper extends BaseResultSetMapper<Album> {
                 r.getString(columns[column++]),
                 r.getTimestamp(columns[column++]),
                 r.getTimestamp(columns[column++]),
-                r.getTimestamp(columns[column]));
+                r.getTimestamp(columns[column++]),
+                r.getString(columns[column]));
     }
 }

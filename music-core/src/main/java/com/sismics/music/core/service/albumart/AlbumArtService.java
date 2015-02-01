@@ -4,25 +4,13 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AbstractService;
-import com.sismics.music.core.dao.dbi.AlbumDao;
-import com.sismics.music.core.dao.dbi.ArtistDao;
-import com.sismics.music.core.dao.dbi.DirectoryDao;
-import com.sismics.music.core.dao.dbi.TrackDao;
-import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
-import com.sismics.music.core.dao.dbi.dto.TrackDto;
 import com.sismics.music.core.model.dbi.Album;
-import com.sismics.music.core.model.dbi.Artist;
-import com.sismics.music.core.model.dbi.Directory;
-import com.sismics.music.core.util.DirectoryNameParser;
 import com.sismics.music.core.util.DirectoryUtil;
 import com.sismics.music.core.util.ImageUtil;
 
@@ -60,12 +48,7 @@ public class AlbumArtService  {
         
         if (copyOriginal) {
             // Copy the original file to the album directory
-            ArtistDao artistDao = new ArtistDao();
-            DirectoryDao directoryDao = new DirectoryDao();
-            Artist artist = artistDao.getActiveById(album.getArtistId());
-            Directory directory = directoryDao.getActiveById(album.getDirectoryId());
-            // TODO Store the album path in DB and use it, don't rebuild the album path
-            Path albumArtPath = Paths.get(directory.getLocation(), new DirectoryNameParser(artist.getName(), album.getName()).getFileName(), "albumart.jpg");
+            Path albumArtPath = Paths.get(album.getLocation(), "albumart.jpg");
             ImageUtil.writeJpeg(originalImage, albumArtPath.toFile());
         }
         
@@ -135,55 +118,5 @@ public class AlbumArtService  {
      */
     public String getAlbumArtFileName(String id, AlbumArtSize albumArtSize) {
         return id + "_" + albumArtSize.name().toLowerCase();
-    }
-    
-    /**
-     * Rebuilds all album art sizes.
-     * 
-     * @throws Exception 
-     */
-    public void rebuildAlbumArt() throws Exception {
-        TrackDao trackDao = new TrackDao();
-        AlbumDao albumDao = new AlbumDao();
-        Set<String> albumArtIdSet = Sets.newHashSet();
-        
-        // List all album art IDs
-        for (File file : DirectoryUtil.getAlbumArtDirectory().listFiles()) {
-            String[] fileName = file.getName().split("_");
-            albumArtIdSet.add(fileName[0]);
-        }
-        
-        // For each album art, rebuild the smaller sizes from the large size
-        // and copy the large file to the album directory
-        for (String id : albumArtIdSet) {
-            File largeFile = getAlbumArtFile(id, AlbumArtSize.LARGE);
-            BufferedImage largeImage = ImageUtil.readImageWithoutAlphaChannel(largeFile);
-            
-            File mediumFile = getAlbumArtFile(id, AlbumArtSize.MEDIUM);
-            if (mediumFile.exists()) {
-                mediumFile.delete();
-            }
-            
-            File smallFile = getAlbumArtFile(id, AlbumArtSize.SMALL);
-            if (smallFile.exists()) {
-                smallFile.delete();
-            }
-            
-            importAlbumArt(id, largeImage, AlbumArtSize.MEDIUM);
-            importAlbumArt(id, largeImage, AlbumArtSize.SMALL);
-            
-            // Copy to album directory
-            // TODO Use the album path stored in DB
-            Album album = albumDao.getActiveByAlbumArtId(id);
-            if (album == null) {
-                continue;
-            }
-            List<TrackDto> trackDtoList = trackDao.findByCriteria(new TrackCriteria().setAlbumId(album.getId()));
-            if (trackDtoList.size() == 0) {
-                continue;
-            }
-            Path albumArtPath = Paths.get(trackDtoList.get(0).getFileName()).getParent().resolve("albumart.jpg");
-            ImageUtil.writeJpeg(largeImage, albumArtPath.toFile());
-        }
     }
 }
