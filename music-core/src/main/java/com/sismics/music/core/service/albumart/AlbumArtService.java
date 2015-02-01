@@ -2,6 +2,8 @@ package com.sismics.music.core.service.albumart;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Set;
 import java.util.UUID;
 
@@ -10,6 +12,13 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AbstractService;
+import com.sismics.music.core.dao.dbi.AlbumDao;
+import com.sismics.music.core.dao.dbi.ArtistDao;
+import com.sismics.music.core.dao.dbi.DirectoryDao;
+import com.sismics.music.core.model.dbi.Album;
+import com.sismics.music.core.model.dbi.Artist;
+import com.sismics.music.core.model.dbi.Directory;
+import com.sismics.music.core.util.DirectoryNameParser;
 import com.sismics.music.core.util.DirectoryUtil;
 import com.sismics.music.core.util.ImageUtil;
 
@@ -27,15 +36,34 @@ public class AlbumArtService  {
     /**
      * Import the album art into the application.
      * 
+     * @param album Album
      * @param originalFile File to import
+     * @param copyOriginal If true, copy the original file to the album directory
      * @return Album art ID
      * @throws Exception
      */
-    public String importAlbumArt(File originalFile) throws Exception {
+    public String importAlbumArt(Album album, File originalFile, boolean copyOriginal) throws Exception {
+        ImageUtil.FileType fileType = ImageUtil.getFileFormat(originalFile);
+        if (fileType == null) {
+            throw new Exception("Unknown file format for picture " + originalFile.getName());
+        }
+        BufferedImage originalImage = ImageUtil.readImageWithoutAlphaChannel(originalFile);
+        
         String id = UUID.randomUUID().toString();
         for (AlbumArtSize albumArtSize : AlbumArtSize.values()) {
-            importAlbumArt(id, originalFile, albumArtSize);
+            importAlbumArt(id, originalImage, albumArtSize);
         }
+        
+        if (copyOriginal) {
+            // Copy the original file to the album directory
+            ArtistDao artistDao = new ArtistDao();
+            DirectoryDao directoryDao = new DirectoryDao();
+            Artist artist = artistDao.getActiveById(album.getArtistId());
+            Directory directory = directoryDao.getActiveById(album.getDirectoryId());
+            Path albumArtPath = Paths.get(directory.getLocation(), new DirectoryNameParser(artist.getName(), album.getName()).getFileName(), "albumart.jpg");
+            ImageUtil.writeJpeg(originalImage, albumArtPath.toFile());
+        }
+        
         return id;
     }
     
@@ -43,16 +71,11 @@ public class AlbumArtService  {
      * Import the album art into the application.
      * 
      * @param id ID of the album art
-     * @param originalFile File to import
+     * @param originalImage Original image
      * @param albumArtSize Album art size
      * @throws Exception
      */
-    protected void importAlbumArt(String id, File originalFile, AlbumArtSize albumArtSize) throws Exception {
-        ImageUtil.FileType fileType = ImageUtil.getFileFormat(originalFile);
-        if (fileType == null) {
-            throw new Exception("Unknown file format for picture " + originalFile.getName());
-        }
-        BufferedImage originalImage = ImageUtil.readImageWithoutAlphaChannel(originalFile);
+    protected void importAlbumArt(String id, BufferedImage originalImage, AlbumArtSize albumArtSize) throws Exception {
         String albumArtFileName = getAlbumArtFileName(id, albumArtSize);
         File albumArtFile = new File(DirectoryUtil.getAlbumArtDirectory() + File.separator + albumArtFileName);
 
@@ -115,6 +138,9 @@ public class AlbumArtService  {
      * @throws Exception 
      */
     public void rebuildAlbumArt() throws Exception {
+        AlbumDao albumDao = new AlbumDao();
+        ArtistDao artistDao = new ArtistDao();
+        DirectoryDao directoryDao = new DirectoryDao();
         Set<String> albumArtIdSet = Sets.newHashSet();
         
         // List all album art IDs
@@ -124,8 +150,10 @@ public class AlbumArtService  {
         }
         
         // For each album art, rebuild the smaller sizes from the large size
+        // and copy the large file to the album directory
         for (String id : albumArtIdSet) {
             File largeFile = getAlbumArtFile(id, AlbumArtSize.LARGE);
+            BufferedImage largeImage = ImageUtil.readImageWithoutAlphaChannel(largeFile);
             
             File mediumFile = getAlbumArtFile(id, AlbumArtSize.MEDIUM);
             if (mediumFile.exists()) {
@@ -137,8 +165,18 @@ public class AlbumArtService  {
                 smallFile.delete();
             }
             
-            importAlbumArt(id, largeFile, AlbumArtSize.MEDIUM);
-            importAlbumArt(id, largeFile, AlbumArtSize.SMALL);
+            importAlbumArt(id, largeImage, AlbumArtSize.MEDIUM);
+            importAlbumArt(id, largeImage, AlbumArtSize.SMALL);
+            
+            // Copy to album directory
+            Album album = albumDao.getActiveByAlbumArtId(id);
+            if (album == null) {
+                continue;
+            }
+            Artist artist = artistDao.getActiveById(album.getArtistId());
+            Directory directory = directoryDao.getActiveById(album.getDirectoryId());
+            Path albumArtPath = Paths.get(directory.getLocation(), new DirectoryNameParser(artist.getName(), album.getName()).getFileName(), "albumart.jpg");
+            ImageUtil.writeJpeg(largeImage, albumArtPath.toFile());
         }
     }
 }

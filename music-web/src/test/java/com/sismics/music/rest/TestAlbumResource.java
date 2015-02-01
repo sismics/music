@@ -1,5 +1,7 @@
 package com.sismics.music.rest;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import javax.json.JsonArray;
@@ -104,5 +106,10 @@ public class TestAlbumResource extends BaseJerseyTest {
         response = target().path("/album/" + album0Id + "/albumart/large").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken).get();
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        
+        // Check that the original file has been copied to the collection
+        Path musicPath = Paths.get(getClass().getResource("/music/").toURI());
+        File albumArtFile = musicPath.resolve(Paths.get("[A] Proxy - Coachella 2010 Day 01 Mixtape", "albumart.jpg")).toFile();
+        Assert.assertTrue(albumArtFile.exists());
     }
 }

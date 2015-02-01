@@ -112,7 +112,7 @@ public class AlbumDao {
     }
     
     /**
-     * Gets an active album by its albumname.
+     * Gets an active album by its ID.
      *
      * @param id Album ID
      * @return Album
@@ -122,6 +122,22 @@ public class AlbumDao {
         return handle.createQuery("select " + new AlbumMapper().getJoinedColumns("a") +
                 "  from T_ALBUM a" +
                 "  where a.ALB_ID_C = :id and a.ALB_DELETEDATE_D is null")
+                .bind("id", id)
+                .mapTo(Album.class)
+                .first();
+    }
+    
+    /**
+     * Gets an active album by its album art ID.
+     *
+     * @param id Album art ID
+     * @return Album
+     */
+    public Album getActiveByAlbumArtId(String id) {
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        return handle.createQuery("select " + new AlbumMapper().getJoinedColumns("a") +
+                "  from T_ALBUM a" +
+                "  where a.ALB_ALBUMART_C = :id and a.ALB_DELETEDATE_D is null")
                 .bind("id", id)
                 .mapTo(Album.class)
                 .first();

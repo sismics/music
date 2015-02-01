@@ -190,7 +190,7 @@ public class AlbumResource extends BaseResource {
         final AlbumArtService albumArtService = AppContext.getInstance().getAlbumArtService();
         String oldAlbumArtId = album.getAlbumArt();
         try {
-            String albumArtId = albumArtService.importAlbumArt(imageFile);
+            String albumArtId = albumArtService.importAlbumArt(album, imageFile, true);
             album.setAlbumArt(albumArtId);
             albumDao.update(album);
         } catch (Exception e) {

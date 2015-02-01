@@ -28,4 +28,17 @@ public class TestDirectoryNameParser {
         Assert.assertEquals("Unknown", new DirectoryNameParser(Paths.get("Ran-Dom")).getArtistName());
         Assert.assertEquals("Ran-Dom", new DirectoryNameParser(Paths.get("Ran-Dom")).getAlbumName());
     }
+    
+    @Test
+    public void testRebuilding() throws Exception {
+        Assert.assertEquals("Capsule - World of Fantasy", new DirectoryNameParser("Capsule", "World of Fantasy").getFileName());
+        
+        Assert.assertEquals("Berryz工房 - Berryz Mansion 9 Kai", new DirectoryNameParser("Berryz工房", "Berryz Mansion 9 Kai").getFileName());
+        
+        Assert.assertEquals("La Rumeur - 2ème Volet - Le Franc Tireur", new DirectoryNameParser("La Rumeur", "2ème Volet - Le Franc Tireur").getFileName());
+        
+        Assert.assertEquals("_divers", new DirectoryNameParser("Unknown", "_divers").getFileName());
+        
+        Assert.assertEquals("Ran-Dom", new DirectoryNameParser("Unknown", "Ran-Dom").getFileName());
+    }
 }
