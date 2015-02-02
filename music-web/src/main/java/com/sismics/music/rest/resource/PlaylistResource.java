@@ -229,7 +229,9 @@ public class PlaylistResource extends BaseResource {
         // Output the playlist
         Playlist playlist = new PlaylistDao().getActiveByUserId(principal.getId());
 
-        return Response.ok().entity(buildPlaylistJson(playlist)).build();
+        return Response.ok()
+                .entity(buildPlaylistJson(playlist))
+                .build();
     }
 
     /**

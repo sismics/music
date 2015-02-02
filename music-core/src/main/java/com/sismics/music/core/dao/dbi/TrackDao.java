@@ -179,6 +179,7 @@ public class TrackDao {
      */
     private QueryParam getQueryParam(TrackCriteria criteria) {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
+        List<String> criteriaList = new ArrayList<String>();
 
         StringBuilder sb = new StringBuilder("select t.TRK_ID_C, t.TRK_FILENAME_C, t.TRK_TITLE_C, t.TRK_YEAR_N, t.TRK_GENRE_C, t.TRK_LENGTH_N, t.TRK_BITRATE_N, t.TRK_ORDER_N, t.TRK_VBR_B, t.TRK_FORMAT_C,");
         if (criteria.getUserId() != null) {
@@ -187,19 +188,23 @@ public class TrackDao {
             sb.append(" 0, false, ");
         }
         sb.append(" a.ART_ID_C, a.ART_NAME_C, t.TRK_IDALBUM_C, alb.ALB_NAME_C, alb.ALB_ALBUMART_C ");
-        sb.append(" from T_TRACK t ");
+        if (criteria.getPlaylistId() != null) {
+            sb.append(" from T_PLAYLIST_TRACK pt, T_TRACK t ");
+        } else {
+            sb.append(" from T_TRACK t ");
+        }
         sb.append(" join T_ARTIST a ON(a.ART_ID_C = t.TRK_IDARTIST_C and ART_DELETEDATE_D is null) ");
         sb.append(" join T_ALBUM alb ON(t.TRK_IDALBUM_C = alb.ALB_ID_C and alb.ALB_DELETEDATE_D is null) ");
         if (criteria.getUserId() != null) {
             sb.append(" left join T_USER_TRACK ut ON(ut.UST_IDTRACK_C = t.TRK_ID_C and ut.UST_IDUSER_C = :userId and ut.UST_DELETEDATE_D is null) ");
         }
-        if (criteria.getPlaylistId() != null) {
-            sb.append(" join T_PLAYLIST_TRACK pt ON(pt.PLT_IDTRACK_C = t.TRK_ID_C) ");
-            sb.append(" join T_PLAYLIST p ON(p.PLL_ID_C = pt.PLT_IDPLAYLIST_C and p.PLL_IDUSER_C = :userId) ");
-        }
 
         // Adds search criteria
-        List<String> criteriaList = new ArrayList<String>();
+        if (criteria.getPlaylistId() != null) {
+            criteriaList.add("pt.PLT_IDTRACK_C = t.TRK_ID_C");
+            criteriaList.add("pt.PLT_IDPLAYLIST_C = :playlistId");
+            parameterMap.put("playlistId", criteria.getPlaylistId());
+        }
         if (criteria.getAlbumId() != null) {
             criteriaList.add("t.TRK_IDALBUM_C = :albumId");
             parameterMap.put("albumId", criteria.getAlbumId());
