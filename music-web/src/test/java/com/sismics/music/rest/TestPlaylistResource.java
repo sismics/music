@@ -78,9 +78,12 @@ public class TestPlaylistResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .put(Entity.form(new Form()
                         .param("id", track1Id)), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        tracks = json.getJsonArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(1, tracks.size());
+        Assert.assertEquals(track1Id, tracks.getJsonObject(0).getString("id"));
 
-        // Admin checks that his playlist contains one track.
+        // Admin checks that his playlist contains one track
         json = target().path("/playlist").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
@@ -95,9 +98,13 @@ public class TestPlaylistResource extends BaseJerseyTest {
                 .put(Entity.form(new Form()
                         .param("id", track0Id)
                         .param("order", "0")), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        tracks = json.getJsonArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(2, tracks.size());
+        Assert.assertEquals(track0Id, tracks.getJsonObject(0).getString("id"));
+        Assert.assertEquals(track1Id, tracks.getJsonObject(1).getString("id"));
 
-        // Admin checks that his playlist contains 2 tracks in the right order.
+        // Admin checks that his playlist contains 2 tracks in the right order
         json = target().path("/playlist").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
@@ -112,7 +119,11 @@ public class TestPlaylistResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .post(Entity.form(new Form()
                         .param("neworder", "0")), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        tracks = json.getJsonArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(2, tracks.size());
+        Assert.assertEquals(track1Id, tracks.getJsonObject(0).getString("id"));
+        Assert.assertEquals(track0Id, tracks.getJsonObject(1).getString("id"));
 
         // Admin checks that his playlist contains 2 tracks in the right order
         json = target().path("/playlist").request()
@@ -128,9 +139,12 @@ public class TestPlaylistResource extends BaseJerseyTest {
         json = target().path("/playlist/0").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .delete(JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        tracks = json.getJsonArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(1, tracks.size());
+        Assert.assertEquals(track0Id, tracks.getJsonObject(0).getString("id"));
 
-        // Admin checks that his playlist contains 1 track.
+        // Admin checks that his playlist contains 1 track
         json = target().path("/playlist").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
@@ -159,7 +173,11 @@ public class TestPlaylistResource extends BaseJerseyTest {
                 .put(Entity.form(new Form()
                         .param("ids", track0Id)
                         .param("ids", track1Id)), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        tracks = json.getJsonArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(2, tracks.size());
+        Assert.assertEquals(track0Id, tracks.getJsonObject(0).getString("id"));
+        Assert.assertEquals(track1Id, tracks.getJsonObject(1).getString("id"));
         
         // Admin checks that his playlist contains 2 tracks in the right order
         json = target().path("/playlist").request()
@@ -170,5 +188,42 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(2, tracks.size());
         Assert.assertEquals(track0Id, tracks.getJsonObject(0).getString("id"));
         Assert.assertEquals(track1Id, tracks.getJsonObject(1).getString("id"));
+        
+        // Admin clears and adds a track to the playlist
+        json = target().path("/playlist").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .put(Entity.form(new Form()
+                        .param("id", track1Id)
+                        .param("clear", "true")), JsonObject.class);
+        tracks = json.getJsonArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(1, tracks.size());
+        
+        // Admin checks that his playlist contains 1 track
+        json = target().path("/playlist").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        tracks = json.getJsonArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(1, tracks.size());
+        
+        // Admin clears and adds 2 tracks at the same time
+        json = target().path("/playlist/multiple").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .put(Entity.form(new Form()
+                        .param("ids", track0Id)
+                        .param("ids", track1Id)
+                        .param("clear", "true")), JsonObject.class);
+        tracks = json.getJsonArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(2, tracks.size());
+        
+        // Admin checks that his playlist contains 2 tracks
+        json = target().path("/playlist").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        tracks = json.getJsonArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(2, tracks.size());
     }
 }
