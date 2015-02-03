@@ -1,5 +1,10 @@
 <div class="row">
   <div class="col-sm-offset-5 col-sm-3">
+    <p class="text-center text-danger" ng-show="userInfo.is_default_password">
+      <span class="glyphicon glyphicon-warning-sign"></span>
+      Music is not secured. Please log in with username and password "<strong>admin</strong>", then change password immediately.
+    </p>
+
     <form>
       <div class="form-group">
         <label class="sr-only" for="inputUsername">Username</label>
