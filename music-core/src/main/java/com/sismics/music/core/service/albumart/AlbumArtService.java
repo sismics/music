@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.AbstractService;
+import com.sismics.music.core.exception.NonWritableException;
 import com.sismics.music.core.model.dbi.Album;
 import com.sismics.music.core.util.DirectoryUtil;
 import com.sismics.music.core.util.ImageUtil;
@@ -27,14 +28,14 @@ public class AlbumArtService  {
 
     /**
      * Import the album art into the application.
+     * Updates the album by side-effect.
      * 
      * @param album Album
      * @param originalFile File to import
      * @param copyOriginal If true, copy the original file to the album directory
-     * @return Album art ID
      * @throws Exception
      */
-    public String importAlbumArt(Album album, File originalFile, boolean copyOriginal) throws Exception {
+    public void importAlbumArt(Album album, File originalFile, boolean copyOriginal) throws Exception {
         ImageUtil.FileType fileType = ImageUtil.getFileFormat(originalFile);
         if (fileType == null) {
             throw new Exception("Unknown file format for picture " + originalFile.getName());
@@ -46,13 +47,19 @@ public class AlbumArtService  {
             importAlbumArt(id, originalImage, albumArtSize);
         }
         
+        // Update the album
+        album.setAlbumArt(id);
+        
         if (copyOriginal) {
             // Copy the original file to the album directory
             Path albumArtPath = Paths.get(album.getLocation(), "albumart.jpg");
-            ImageUtil.writeJpeg(originalImage, albumArtPath.toFile());
+            File albumArtFile = albumArtPath.toFile();
+            try {
+                ImageUtil.writeJpeg(originalImage, albumArtFile);
+            } catch (Exception e) {
+                throw new NonWritableException();
+            }
         }
-        
-        return id;
     }
     
     /**
