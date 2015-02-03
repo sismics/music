@@ -42,6 +42,7 @@ angular.module('music').controller('SettingsDirectories', function($scope, Resta
     })
         .then(function() {
           // Reset add directory form
+          $scope.editForm.submitted = false;
           $scope.directory = {
             location: ''
           };

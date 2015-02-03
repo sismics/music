@@ -9,6 +9,7 @@ angular.module('music').controller('SettingsAccount', function($rootScope, $scop
     Restangular.one('user').post('', $scope.user).then(function() {
       $scope.user = {};
       toaster.pop('success', 'Account update', 'Password successfully changed');
+      $scope.editUserForm.submitted = false;
     });
   };
 
