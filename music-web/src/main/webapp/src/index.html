@@ -96,8 +96,11 @@
               <span class="glyphicon glyphicon-search"></span>
             </button>
           </form>
-			    
+
           <ul class="nav navbar-nav navbar-right" ng-show="!userInfo.anonymous">
+            <li>
+              <a href="#/settings/account" title="Logged in as {{ userInfo.username }}">{{ userInfo.username }}</a>
+            </li>
             <li class="dropdown" dropdown ng-class="{active: $uiRoute}" ui-route="/settings.*">
 			        <a href="#" class="dropdown-toggle" dropdown-toggle><span class="glyphicon glyphicon-cog"></span> <span class="sr-only">Settings</span> <b class="caret"></b></a>
 			        <ul class="dropdown-menu">
