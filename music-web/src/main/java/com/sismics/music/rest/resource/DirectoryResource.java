@@ -178,7 +178,8 @@ public class DirectoryResource extends BaseResource {
                     .add("id", directory.getId())
                     .add("location", directory.getLocation())
                     .add("active", directory.getDisableDate() == null)
-                    .add("valid", java.nio.file.Files.exists(Paths.get(directory.getLocation()))));
+                    .add("valid", java.nio.file.Files.exists(Paths.get(directory.getLocation())))
+                    .add("writable", java.nio.file.Files.isWritable(Paths.get(directory.getLocation()))));
         }
         response.add("directories", items);
 
