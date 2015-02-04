@@ -13,11 +13,11 @@ angular.module('music').controller('AddExternal', function($scope, Restangular, 
   };
   initImportForm();
 
-  // Check prerequisites
-  Restangular.one('import/check').get().then(function(data) {
-    $scope.check = data;
+  // Retrieve dependencies versions
+  Restangular.one('import/dependencies').get().then(function(data) {
+    $scope.dependencies = data;
   }, function() {
-    $scope.check = {};
+    $scope.dependencies = {};
   });
 
   // Start a new import

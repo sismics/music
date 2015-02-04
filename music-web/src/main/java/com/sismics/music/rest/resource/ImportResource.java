@@ -84,26 +84,30 @@ public class ImportResource extends BaseResource {
     }
     
     /**
-     * Check import prerequisites.
+     * Return dependencies versions.
      * 
      * @return Response
      */
     @GET
-    @Path("check")
-    public Response check() {
+    @Path("dependencies")
+    public Response dependencies() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
         
-        // Check and retrieve youtube-dl version
-        try {
-            String version = AppContext.getInstance().getImportAudioService().checkPrerequisites();
-            return Response.ok()
-                    .entity(Json.createObjectBuilder().add("youtube-dl.version", version).build())
-                    .build();
-        } catch (Exception e) {
-            throw new ServerException("CheckError", "youtube-dl is necessary to import audio. Download and install it at: http://rg3.github.io/youtube-dl/download.html", e);
+        // Return youtube-dl and ffmpeg versions
+        JsonObjectBuilder response = Json.createObjectBuilder();
+        String version = AppContext.getInstance().getImportAudioService().getYoutubeDlVersion();
+        if (version != null) {
+            response.add("youtube-dl", version);
         }
+        version = AppContext.getInstance().getImportAudioService().getFfmpegVersion();
+        if (version != null) {
+            response.add("ffmpeg", version);
+        }
+        return Response.ok()
+                .entity(response.build())
+                .build();
     }
     
     /**

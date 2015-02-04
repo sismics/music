@@ -202,6 +202,15 @@ angular.module('music',
               }
             }
           })
+          .state('main.settingscheck', {
+            url: '/settings/check',
+            views: {
+              'content': {
+                templateUrl: 'partial/settings.check.html',
+                controller: 'SettingsCheck'
+              }
+            }
+          })
           .state('main.settingsuser', {
             url: '/settings/user',
             views: {

@@ -175,18 +175,40 @@ public class ImportAudioService extends AbstractExecutionThreadService {
     }
 
     /**
-     * Check import audio prerequisites to import from external sources.
+     * Return the version of Youtube-DL.
+     * Return null if Youtube-DL is not present.
      * 
      * @return youtube-dl version
-     * @throws IOException 
      */
-    public String checkPrerequisites() throws IOException {
-        Process process = Runtime.getRuntime().exec("youtube-dl --version");
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            return reader.readLine();
+    public String getYoutubeDlVersion() {
+        try {
+            Process process = Runtime.getRuntime().exec("youtube-dl --version");
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                return reader.readLine();
+            }
+        } catch (Exception e) {
+            return null;
         }
     }
 
+    /**
+     * Return the version of FFMPEG.
+     * Return null if FFMPEG is not present.
+     * 
+     * @return ffmpeg version
+     */
+    public String getFfmpegVersion() {
+        try {
+            Process process = Runtime.getRuntime().exec("ffmpeg -version");
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String version = reader.readLine();
+                return version.replace("ffmpeg version ", "");
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
     /**
      * Add URL to import from external sources.
      * 

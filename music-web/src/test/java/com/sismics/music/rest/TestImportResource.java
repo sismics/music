@@ -236,6 +236,19 @@ public class TestImportResource extends BaseJerseyTest {
         Assert.assertEquals("ERROR", imp.getString("status"));
     }
     
+    @Test
+    @Ignore // youtube-dl is not installed on Travis
+    public void testDependecies() throws Exception {
+        // Login users
+        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        
+        // Admin checks dependencies
+        JsonObject json = target().path("/import/dependencies").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .get(JsonObject.class);
+        System.out.println(json);
+    }
+    
     /**
      * Test the import resource (upload).
      *

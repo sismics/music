@@ -1,0 +1,44 @@
+<h3>Sanity check</h3>
+<ul class="list-unstyled">
+  <li ng-show="userInfo">
+    <h4>Admin password</h4>
+    <span class="text-success" ng-show="!userInfo.is_default_password">
+      <span class="glyphicon glyphicon-ok"></span>
+      The admin password has been changed
+    </span>
+    <span class="text-danger" ng-show="userInfo.is_default_password">
+      <span class="glyphicon glyphicon-warning-sign"></span>
+      <a href="#/settings/account">Change the default admin password</a> to secure your server
+    </span>
+  </li>
+  <li ng-show="directories">
+    <h4>Directories</h4>
+    <span class="text-danger" ng-show="directories.length == 0">
+      <span class="glyphicon glyphicon-warning-sign"></span>
+      <a href="#/settings/directories">No directory configured</a>, add one to start scanning your music. Without directory no music will be displayed
+    </span>
+    <span class="text-danger" ng-show="directories.length > 0 && !directoriesValid">
+      <span class="glyphicon glyphicon-warning-sign"></span>
+      Your directories are misconfigured, <a href="#/settings/directories">fix this</a>. Some features like tagging and downloading album arts will not work
+    </span>
+    <span class="text-success" ng-show="directories.length > 0 && directoriesValid">
+      <span class="glyphicon glyphicon-ok"></span>
+      Your directories are configured and valid
+    </span>
+  </li>
+  <li ng-show="dependencies">
+    <h4>Dependencies</h4>
+    <span class="text-danger" ng-show="!dependencies['youtube-dl']">
+      <span class="glyphicon glyphicon-warning-sign"></span>
+      <a href="http://rg3.github.io/youtube-dl/download.html">youtube-dl</a> is <strong>not</strong> installed on your system. The feature to import from external sources will not work
+    </span>
+    <span class="text-danger" ng-show="!dependencies['ffmpeg']">
+      <span class="glyphicon glyphicon-warning-sign"></span>
+      <a href="https://www.ffmpeg.org/download.html">ffmpeg</a> is <strong>not</strong> installed on your system. The feature to import from external sources and the transcoding will not work
+    </span>
+    <span class="text-success" ng-show="dependencies['youtube-dl'] && dependencies['ffmpeg']">
+      <span class="glyphicon glyphicon-ok"></span>
+      youtube-dl ({{ dependencies['youtube-dl'] }}) and ffmpeg ({{ dependencies['ffmpeg'] }}) are installed on your system
+    </span>
+  </li>
+</ul>

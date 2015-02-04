@@ -12,14 +12,20 @@
       </div>
     </h3>
 
-    <div ng-show="check">
-      <p ng-show="check['youtube-dl.version']" class="text-success"><a href="http://rg3.github.io/youtube-dl/">youtube-dl ({{ check['youtube-dl.version'] }})</a> is installed on your system.</p>
-      <p ng-show="!check['youtube-dl.version']" class="text-danger">
-        <a href="http://rg3.github.io/youtube-dl/">youtube-dl</a> is <strong>not</strong> installed on your system.<br />
-        See <a href="http://rg3.github.io/youtube-dl/download.html">http://rg3.github.io/youtube-dl/download.html</a> to download and install it.
+    <div ng-show="dependencies">
+      <p ng-show="dependencies['youtube-dl']" class="text-success"><a href="http://rg3.github.io/youtube-dl/">youtube-dl ({{ dependencies['youtube-dl'] }})</a> is installed on your system</p>
+      <p ng-show="!dependencies['youtube-dl']" class="text-danger">
+        <a href="http://rg3.github.io/youtube-dl/">youtube-dl</a> is <strong>not</strong> installed on your system<br />
+        See <a href="http://rg3.github.io/youtube-dl/download.html">http://rg3.github.io/youtube-dl/download.html</a> to download and install it
+      </p>
+
+      <p ng-show="dependencies['ffmpeg']" class="text-success"><a href="https://www.ffmpeg.org/">ffmpeg ({{ dependencies['ffmpeg'] }})</a> is installed on your system</p>
+      <p ng-show="!dependencies['ffmpeg']" class="text-danger">
+        <a href="https://www.ffmpeg.org/">ffmpeg</a> is <strong>not</strong> installed on your system<br />
+        See <a href="https://www.ffmpeg.org/download.html">https://www.ffmpeg.org/download.html</a> to download and install it
       </p>
     </div>
-    <p ng-show="!check"><em>Check prerequisites...</em></p>
+    <p ng-show="!dependencies"><em>Checking dependencies...</em></p>
     <p>Enter one URL by line. See <a href="http://rg3.github.io/youtube-dl/supportedsites.html">http://rg3.github.io/youtube-dl/supportedsites.html</a> for supported sites.</p>
 
     <form role="form" name="importForm" novalidate class="form-horizontal" ng-click="importForm.submitted = true">
