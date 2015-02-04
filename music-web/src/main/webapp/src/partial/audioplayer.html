@@ -41,7 +41,7 @@
             ng-click="mute()"
             ng-class="{ 'glyphicon-volume-off': audio.volume == 0, 'glyphicon-volume-up': audio.volume > 0 }"></span>
     </div>
-    <input ng-show="track" class="volume-slider" type="range" min="0" max="1" step="0.01" ng-model="audio.volume" ng-change="saveVolume()" />
+    <input ng-show="track" class="volume-slider" type="range" min="0" max="1" step="0.01" ng-model="volume" ng-change="saveVolume()" />
   </div>
 
   <div class="col-md-2 playing">
@@ -60,6 +60,10 @@
         <button class="btn btn-default" tooltip="Shuffle playing" tooltip-append-to-body="true"
                 ng-click="toggleShuffle()" ng-class="{active: shuffle}">
           <span class="glyphicon glyphicon-random"></span>
+        </button>
+        <button class="btn btn-default" tooltip="Toggle visualization" tooltip-append-to-body="true"
+                ng-click="toggleVisualization()" ng-class="{active: visualization}">
+          <span class="glyphicon glyphicon-fire"></span>
         </button>
       </div>
     </div>

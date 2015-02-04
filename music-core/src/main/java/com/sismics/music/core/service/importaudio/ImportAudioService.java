@@ -2,9 +2,12 @@ package com.sismics.music.core.service.importaudio;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +23,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -28,8 +33,10 @@ import org.jaudiotagger.tag.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.sismics.music.core.constant.Constants;
@@ -38,6 +45,8 @@ import com.sismics.music.core.model.dbi.Directory;
 import com.sismics.music.core.service.importaudio.ImportAudio.Status;
 import com.sismics.music.core.util.DirectoryUtil;
 import com.sismics.util.FilenameUtil;
+import com.sismics.util.mime.MimeType;
+import com.sismics.util.mime.MimeTypeUtil;
 
 /**
  * Import audio service.
@@ -103,6 +112,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
 
             // Import status is now in progress
             importAudio.setStatus(ImportAudio.Status.INPROGRESS);
+            importAudio.setProcess(process);
             importAudioList.add(importAudio);
             
             // Reading standard output to update import status
@@ -136,6 +146,12 @@ public class ImportAudioService extends AbstractExecutionThreadService {
                 }
             }
             
+            // The process has not been terminated properly
+            if (process.exitValue() != 0) {
+                importAudio.setMessage(importAudio.getMessage() + "\nProcess exit with code: " + process.exitValue());
+                importAudio.setStatus(ImportAudio.Status.ERROR);
+            }
+            
             // Import is done
             if (importAudio.getStatus() != ImportAudio.Status.ERROR) {
                 importAudio.setStatus(ImportAudio.Status.DONE);
@@ -150,6 +166,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
             }
             
             process.destroy();
+            importAudio.setProcess(null);
         }
     }
     
@@ -158,7 +175,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
     }
 
     /**
-     * Check import audio prerequisites.
+     * Check import audio prerequisites to import from external sources.
      * 
      * @return youtube-dl version
      * @throws IOException 
@@ -171,7 +188,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
     }
 
     /**
-     * Add URL to import.
+     * Add URL to import from external sources.
      * 
      * @param urlList URL list
      * @param quality Quality
@@ -184,7 +201,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
     }
     
     /**
-     * Return a copied version of the currently importing audio.
+     * Return a copied version of the currently importing audio from external sources.
      * 
      * @return Currently importing audio
      */
@@ -206,6 +223,108 @@ public class ImportAudioService extends AbstractExecutionThreadService {
         return copy;
     }
 
+    /**
+     * Cleanup finished imports from external sources.
+     */
+    public void cleanup() {
+        synchronized (importAudioList) {
+            for (Iterator<ImportAudio> it = importAudioList.iterator(); it.hasNext();) {
+                ImportAudio importAudio = it.next();
+                if (importAudio.getStatus() == ImportAudio.Status.DONE || importAudio.getStatus() == ImportAudio.Status.ERROR) {
+                    it.remove();
+                }
+            }
+        }
+    }
+
+    /**
+     * Retry a failed import from an external source.
+     * 
+     * @param id ID
+     * @throws Exception 
+     */
+    public void retryImportAudio(String id) throws Exception {
+        synchronized (importAudioList) {
+            for (ImportAudio importAudio : importAudioList) {
+                if (importAudio.getId().equals(id)) {
+                    if (importAudio.getStatus() != Status.ERROR) {
+                        throw new Exception("Import not retryable");
+                    }
+                    
+                    importAudioList.remove(importAudio);
+                    importAudioQueue.add(
+                            new ImportAudio(importAudio.getUrl(),
+                                    importAudio.getQuality(),
+                                    importAudio.getFormat()));
+                    return;
+                }
+            }
+        }
+        
+        throw new Exception("Import not found");
+    }
+    
+    /**
+     * Kill an in progess import from an external source.
+     * 
+     * @param id ID
+     * @throws Exception 
+     */
+    public void killImportAudio(String id) throws Exception {
+        synchronized (importAudioList) {
+            for (ImportAudio importAudio : importAudioList) {
+                if (importAudio.getId().equals(id)) {
+                    if (importAudio.getStatus() != Status.INPROGRESS || importAudio.getProcess() == null) {
+                        throw new Exception("Import not killable");
+                    }
+                    
+                    importAudio.getProcess().destroy();
+                    return;
+                }
+            }
+        }
+        
+        throw new Exception("Import not found");
+    }
+    
+    /**
+     * Import a file. ZIP or single track are accepted.
+     * 
+     * @param file File
+     * @throws Exception 
+     */
+    public void importFile(File file) throws Exception {
+        String mimeType = MimeTypeUtil.guessMimeType(file);
+        String ext = Files.getFileExtension(file.getName()).toLowerCase();
+        String importDir = DirectoryUtil.getImportAudioDirectory().getAbsolutePath();
+        
+        if (MimeType.APPLICATION_ZIP.equals(mimeType)) {
+            log.info("Importing a ZIP file");
+            // It's a ZIP file, unzip accepted files in the import folder
+            try (ZipArchiveInputStream archiveInputStream = new ZipArchiveInputStream(new FileInputStream(file), Charsets.UTF_8.name())) {
+                ArchiveEntry archiveEntry = archiveInputStream.getNextEntry();
+                while (archiveEntry != null) {
+                    String archiveExt = Files.getFileExtension(archiveEntry.getName()).toLowerCase();
+                    if (Constants.SUPPORTED_AUDIO_EXTENSIONS.contains(archiveExt)) {
+                        log.info("Importing: " + archiveEntry.getName());
+                        File outputFile = new File(importDir + File.separator + new File(archiveEntry.getName()).getName());
+                        try (OutputStream fileOutputStream = new FileOutputStream(outputFile)) {
+                            ByteStreams.copy(archiveInputStream, fileOutputStream);
+                        }
+                    }
+                    archiveEntry = archiveInputStream.getNextEntry();
+                }
+            }
+        } else if (Constants.SUPPORTED_AUDIO_EXTENSIONS.contains(ext)) {
+            // It should be a single audio track
+            File outputFile = new File(importDir + File.separator + file.getName());
+            log.info("Importing a single track: " + outputFile);
+            Files.copy(file, outputFile);
+        } else {
+            throw new Exception("File not supported");
+        }
+    }
+    
     /**
      * Return imported files.
      * 
@@ -235,21 +354,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
         
         return fileList;
     }
-
-    /**
-     * Cleanup finished imports.
-     */
-    public void cleanup() {
-        synchronized (importAudioList) {
-            for (Iterator<ImportAudio> it = importAudioList.iterator(); it.hasNext();) {
-                ImportAudio importAudio = it.next();
-                if (importAudio.getStatus() == ImportAudio.Status.DONE || importAudio.getStatus() == ImportAudio.Status.ERROR) {
-                    it.remove();
-                }
-            }
-        }
-    }
-
+    
     /**
      * Tag and move a file in a directory. This method is thread-safe.
      * 
@@ -317,32 +422,5 @@ public class ImportAudioService extends AbstractExecutionThreadService {
                 return null;
             }
         }).get();
-    }
-
-    /**
-     * Retry a failed import.
-     * 
-     * @param id ID
-     * @throws Exception 
-     */
-    public void retryImportAudio(String id) throws Exception {
-        synchronized (importAudioList) {
-            for (ImportAudio importAudio : importAudioList) {
-                if (importAudio.getId().equals(id)) {
-                    if (importAudio.getStatus() != Status.ERROR) {
-                        throw new Exception("Import not retryable");
-                    }
-                    
-                    importAudioList.remove(importAudio);
-                    importAudioQueue.add(
-                            new ImportAudio(importAudio.getUrl(),
-                                    importAudio.getQuality(),
-                                    importAudio.getFormat()));
-                    return;
-                }
-            }
-        }
-        
-        throw new Exception("Import not found");
     }
 }

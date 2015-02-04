@@ -71,6 +71,11 @@ public class ImportAudio {
     private String message = "";
     
     /**
+     * Import process.
+     */
+    private Process process;
+    
+    /**
      * Build a new ImportAudio by copy.
      * 
      * @param other ImportAudio to copy
@@ -86,6 +91,7 @@ public class ImportAudio {
         this.quality = other.quality;
         this.format = other.format;
         this.workingFiles.addAll(other.getWorkingFiles());
+        this.process = other.process;
     }
     
     /**
@@ -240,6 +246,24 @@ public class ImportAudio {
      */
     public String getId() {
         return id;
+    }
+    
+    /**
+     * Getter of process.
+     *
+     * @return the process
+     */
+    public Process getProcess() {
+        return process;
+    }
+
+    /**
+     * Setter of process.
+     *
+     * @param process process
+     */
+    public void setProcess(Process process) {
+        this.process = process;
     }
 
     @Override

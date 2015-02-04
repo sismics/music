@@ -9,6 +9,7 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
   var tracks = [];
   var repeat = true;
   var shuffle = false;
+  var visualization = true;
 
   // Read Local Storage settings
   if (!_.isUndefined(localStorage.playlistRepeat)) {
@@ -16,6 +17,9 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
   }
   if (!_.isUndefined(localStorage.playlistShuffle)) {
     shuffle = localStorage.playlistShuffle == 'true';
+  }
+  if (!_.isUndefined(localStorage.playlistVisualization)) {
+    visualization = localStorage.playlistVisualization == 'true';
   }
 
   // Maintain updated status
@@ -78,8 +82,8 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
 
       Restangular.one('playlist', order).post('move', {
         neworder: neworder
-      }).then(function() {
-        service.update();
+      }).then(function(data) {
+        service.setTracks(data.tracks);
       });
     },
 
@@ -87,10 +91,9 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
      * Update the playlist.
      */
     update: function() {
-      var promise = Restangular.one('playlist').getList();
+      var promise = Restangular.one('playlist').get();
       promise.then(function(data) {
-        tracks = data.tracks;
-        $rootScope.$broadcast('playlist.updated', tracks);
+        service.setTracks(data.tracks);
       });
       return promise;
     },
@@ -141,18 +144,19 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
     /**
      * Add a track to the playlist.
      * @param track
+     * @param clear
      * @param play If true, immediately play the first track once added
      */
-    add: function(track, play) {
+    add: function(track, clear, play) {
       Restangular.one('playlist').put({
         id: track.id,
+        clear: clear,
         order: null
-      }).then(function() {
-            var promise = service.update();
+      }).then(function(data) {
+            service.setTracks(data.tracks);
+
             if (play) {
-              promise.then(function() {
-                service.play(0);
-              })
+              service.play(0);
             } else {
               toaster.pop('success', 'Track added', track.title);
             }
@@ -162,19 +166,20 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
     /**
      * Add a list of tracks to the playlist.
      * @param trackIdList
+     * @param clear
      * @param play If true, immediately play the first track once added
      */
-    addAll: function(trackIdList, play) {
+    addAll: function(trackIdList, clear, play) {
       Restangular.one('playlist/multiple').put({
-        ids: trackIdList
-      }).then(function() {
-            var promise = service.update();
+        ids: trackIdList,
+        clear: clear
+      }).then(function(data) {
+            service.setTracks(data.tracks);
+
             if (play) {
-              promise.then(function() {
-                if (_.size(tracks) > 0) {
-                  service.play(0);
-                }
-              })
+              if (_.size(tracks) > 0) {
+                service.play(0);
+              }
             } else {
               toaster.pop('success', 'Now playing', 'All tracks added');
             }
@@ -196,26 +201,23 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
         }
       }
 
-      Restangular.one('playlist', order).remove().then(function() {
-        service.update();
+      Restangular.one('playlist', order).remove().then(function(data) {
+        service.setTracks(data.tracks);
       });
     },
 
     /**
      * Remove all tracks from the playlist.
-     * @param update Update playlist if true
-     * @returns {*}
+     * @returns Promise
      */
-    clear: function(update) {
+    clear: function() {
       // Stop the audio
       currentTrack = null;
       $rootScope.$broadcast('audio.stop');
 
-      var promise = Restangular.one('playlist').remove();
-      if (update) {
-        service.update();
-      }
-      return promise;
+      return Restangular.one('playlist').remove().then(function() {
+        service.setTracks([]);
+      });
     },
 
     /**
@@ -223,9 +225,7 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
      * @param track
      */
     removeAndPlay: function(track) {
-      service.clear(false).then(function() {
-        service.add(track, true);
-      });
+      service.add(track, true, true);
     },
 
     /**
@@ -237,9 +237,7 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
       currentTrack = null;
       $rootScope.$broadcast('audio.stop');
 
-      Restangular.one('playlist').remove().then(function() {
-        service.addAll(trackIdList, true);
-      });
+      service.addAll(trackIdList, true, true);
     },
 
     /**
@@ -272,13 +270,24 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
       });
     },
 
+    /**
+     * Update the tracks list.
+     * @param _tracks
+     */
+    setTracks: function(_tracks) {
+      tracks = _tracks;
+      $rootScope.$broadcast('playlist.updated', tracks);
+    },
+
     currentStatus: function() { return currentStatus; },
     currentOrder: function() { return currentTrack; },
     getTracks: function() { return angular.copy(tracks); },
     isRepeat: function() { return repeat; },
     toggleRepeat: function() { repeat = !repeat; localStorage.playlistRepeat = repeat; },
     isShuffle: function() { return shuffle; },
-    toggleShuffle: function() { shuffle = !shuffle; localStorage.playlistShuffle = shuffle; }
+    toggleShuffle: function() { shuffle = !shuffle; localStorage.playlistShuffle = shuffle; },
+    isVisualization: function() { return visualization; },
+    toggleVisualization: function() { visualization = !visualization; localStorage.playlistVisualization = visualization; }
   };
 
   return service;

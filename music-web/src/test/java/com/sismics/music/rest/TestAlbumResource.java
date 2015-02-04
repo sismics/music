@@ -1,5 +1,7 @@
 package com.sismics.music.rest;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import javax.json.JsonArray;
@@ -99,6 +101,28 @@ public class TestAlbumResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .post(Entity.form(new Form()
                         .param("url", "http://placehold.it/300x300")), JsonObject.class);
+        Assert.assertNull(json.get("message"));
+        
+        // Get an album art
+        response = target().path("/album/" + album0Id + "/albumart/large").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken).get();
+        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        
+        // Check that the original file has been copied to the collection
+        Path musicPath = Paths.get(getClass().getResource("/music/").toURI());
+        File albumArtFile = musicPath.resolve(Paths.get("[A] Proxy - Coachella 2010 Day 01 Mixtape", "albumart.jpg")).toFile();
+        Assert.assertTrue(albumArtFile.exists());
+        
+        // Make the album art not writable
+        albumArtFile.setWritable(false);
+        
+        // Update an album art
+        json = target().path("/album/" + album0Id + "/albumart").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .post(Entity.form(new Form()
+                        .param("url", "http://placehold.it/300x300")), JsonObject.class);
+        Assert.assertEquals("AlbumArtNotCopied", json.getString("message"));
+        albumArtFile.setWritable(true);
         
         // Get an album art
         response = target().path("/album/" + album0Id + "/albumart/large").request()

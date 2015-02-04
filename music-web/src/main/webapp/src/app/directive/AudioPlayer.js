@@ -3,7 +3,7 @@
 /**
  * Audio player directive.
  */
-angular.module('music').directive('audioPlayer', function($rootScope, Playlist, Restangular) {
+angular.module('music').directive('audioPlayer', function($rootScope, Playlist, Restangular, Visualization) {
   return {
     restrict: 'E',
     controller: function($scope) {
@@ -13,49 +13,25 @@ angular.module('music').directive('audioPlayer', function($rootScope, Playlist, 
       $scope.firstPingSent = false;
       $scope.halfwayPingSent = false;
 
-
-      ///
-      var ctx = new AudioContext();
-      var audioSrc = ctx.createMediaElementSource($scope.audio);
-      var analyser = ctx.createAnalyser();
-      audioSrc.connect(analyser);
-
-      // Analyser configuration
-      analyser.fftSize = 2048;
-
-      // frequencyBinCount tells you how many values you'll receive from the analyser
-      var frequencyData = new Uint8Array(analyser.frequencyBinCount);
-
-      // This is necessary, or else no sound (?)
-      var gainNode = ctx.createGain();
-      audioSrc.connect(gainNode);
-      gainNode.connect(ctx.destination);
-
-      // we're ready to receive some data!
+      // Audio visualization
       var canvasCtx = $('#visual')[0].getContext('2d');
-      var draw = function() {
-        requestAnimationFrame(draw);
-
-        // update data in frequencyData
-        analyser.getByteFrequencyData(frequencyData);
-        // render frame based on values in frequencyData
+      Visualization.analyseAudio($scope.audio, function(frequencyData) {
         canvasCtx.clearRect(0, 0, 1024, 256);
         canvasCtx.fillStyle = 'rgba(50, 50, 50, 0.2)';
 
-        var x = 0;
-        for(var i = 0; i < frequencyData.length; i++) {
-          var freq = frequencyData[i];
-          canvasCtx.fillRect(x, 256 - freq, 1, freq);
-          x++;
+        if ($scope.visualization) {
+          var x = 0;
+          for(var i = 0; i < frequencyData.length; i++) {
+            var freq = frequencyData[i];
+            canvasCtx.fillRect(x, 256 - freq, 1, freq);
+            x++;
+          }
         }
-      };
-      draw();
-      ///
-
+      });
 
       // Restore saved volume
       $scope.savedVolume = _.isUndefined(localStorage.savedVolume) ? 1 : parseFloat(localStorage.savedVolume);
-      $scope.audio.volume = $scope.savedVolume;
+      $scope.volume = $scope.audio.volume = $scope.savedVolume;
 
       // Listen for audio-element events, and broadcast stuff
       $scope.audio.addEventListener('play', function() { $rootScope.$broadcast('audio.play'); });
@@ -177,6 +153,13 @@ angular.module('music').directive('audioPlayer', function($rootScope, Playlist, 
         $scope.shuffle = Playlist.isShuffle();
       };
 
+      // Toggle visualization
+      $scope.visualization = Playlist.isVisualization();
+      $scope.toggleVisualization = function() {
+        Playlist.toggleVisualization();
+        $scope.visualization = Playlist.isVisualization();
+      };
+
       // Tell others to give me my prev/next track (with audio.set message)
       $scope.next = function() {
         Playlist.next();
@@ -199,6 +182,7 @@ angular.module('music').directive('audioPlayer', function($rootScope, Playlist, 
       // Mute/unmute volume
       $scope.mute = function() {
         $scope.audio.volume == 0 ? $scope.audio.volume = $scope.savedVolume : $scope.audio.volume = 0;
+        $scope.volume = $scope.audio.volume;
       };
 
       // Update display of things - makes time-scrub work
@@ -208,6 +192,7 @@ angular.module('music').directive('audioPlayer', function($rootScope, Playlist, 
       $scope.saveVolume = function() {
         localStorage.savedVolume = $scope.audio.volume;
         $scope.savedVolume = $scope.audio.volume;
+        $scope.audio.volume = $scope.volume;
       };
     },
 

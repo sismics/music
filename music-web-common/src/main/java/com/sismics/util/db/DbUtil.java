@@ -28,7 +28,7 @@ public class DbUtil {
         }
 
         try {
-            String serverOptions[] = new String[] { };
+            String serverOptions[] = new String[] { "-webPort", "8888" };
             h2Server = Server.createWebServer(serverOptions);
             h2Server.start();
             started = true;

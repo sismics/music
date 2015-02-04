@@ -8,7 +8,7 @@ angular.module('music').controller('AddImport', function($scope, Restangular, $d
 
   // Refresh imported files
   $scope.refresh = function() {
-    Restangular.one('import').getList().then(function(data) {
+    Restangular.one('import').get().then(function(data) {
       $scope.files = data.files;
 
       // Guess artist and title
@@ -71,10 +71,10 @@ angular.module('music').controller('AddImport', function($scope, Restangular, $d
   };
 
   // Load artists and albums for autocomplete
-  Restangular.one('album').getList().then(function(data) {
+  Restangular.one('album').get().then(function(data) {
     $scope.albums = _.chain(data.albums).pluck('name').uniq().value();
   });
-  Restangular.one('artist').getList().then(function(data) {
+  Restangular.one('artist').get().then(function(data) {
     $scope.artists = _.chain(data.artists).pluck('name').uniq().value();
   });
 

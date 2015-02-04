@@ -38,8 +38,8 @@ public class AlbumDao {
 
         Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                " T_ALBUM(ALB_ID_C, ALB_IDDIRECTORY_C, ALB_IDARTIST_C, ALB_NAME_C, ALB_ALBUMART_C, ALB_CREATEDATE_D, ALB_UPDATEDATE_D)" +
-                " values(:id, :directoryId, :artistId, :name, :albumArt, :createDate, :updateDate)")
+                " T_ALBUM(ALB_ID_C, ALB_IDDIRECTORY_C, ALB_IDARTIST_C, ALB_NAME_C, ALB_ALBUMART_C, ALB_CREATEDATE_D, ALB_UPDATEDATE_D, ALB_LOCATION_C)" +
+                " values(:id, :directoryId, :artistId, :name, :albumArt, :createDate, :updateDate, :location)")
                 .bind("id", album.getId())
                 .bind("directoryId", album.getDirectoryId())
                 .bind("artistId", album.getArtistId())
@@ -47,6 +47,7 @@ public class AlbumDao {
                 .bind("albumArt", album.getAlbumArt())
                 .bind("updateDate", new Timestamp(album.getUpdateDate().getTime()))
                 .bind("createDate", new Timestamp(album.getCreateDate().getTime()))
+                .bind("location", album.getLocation())
                 .execute();
 
         return album.getId();
@@ -65,7 +66,8 @@ public class AlbumDao {
                 " a.ALB_IDARTIST_C = :artistId, " +
                 " a.ALB_NAME_C = :name, " +
                 " a.ALB_ALBUMART_C = :albumArt, " +
-                " a.ALB_UPDATEDATE_D = :updateDate " +
+                " a.ALB_UPDATEDATE_D = :updateDate, " +
+                " a.ALB_LOCATION_C = :location " +
                 " where a.ALB_ID_C = :id and a.ALB_DELETEDATE_D is null")
                 .bind("id", album.getId())
                 .bind("name", album.getName())
@@ -73,6 +75,7 @@ public class AlbumDao {
                 .bind("artistId", album.getArtistId())
                 .bind("albumArt", album.getAlbumArt())
                 .bind("updateDate", new Timestamp(album.getUpdateDate().getTime()))
+                .bind("location", album.getLocation())
                 .execute();
 
         return album;
@@ -103,7 +106,7 @@ public class AlbumDao {
      */
     public List<Album> getActiveByArtistId(String artistId) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select a.ALB_ID_C, a.ALB_IDDIRECTORY_C, a.ALB_IDARTIST_C, a.ALB_NAME_C, a.ALB_ALBUMART_C, a.ALB_UPDATEDATE_D, a.ALB_CREATEDATE_D, a.ALB_DELETEDATE_D" +
+        return handle.createQuery("select a.ALB_ID_C, a.ALB_IDDIRECTORY_C, a.ALB_IDARTIST_C, a.ALB_NAME_C, a.ALB_ALBUMART_C, a.ALB_UPDATEDATE_D, a.ALB_CREATEDATE_D, a.ALB_DELETEDATE_D, a.ALB_LOCATION_C" +
                 "  from T_ALBUM a" +
                 "  where a.ALB_IDARTIST_C = :artistId and a.ALB_DELETEDATE_D is null")
                 .bind("artistId", artistId)
@@ -112,7 +115,7 @@ public class AlbumDao {
     }
     
     /**
-     * Gets an active album by its albumname.
+     * Gets an active album by its ID.
      *
      * @param id Album ID
      * @return Album

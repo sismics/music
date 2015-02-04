@@ -3,12 +3,13 @@
 /**
  * Settings account controller.
  */
-angular.module('music').controller('SettingsAccount', function($rootScope, $scope, Restangular, toaster) {
+angular.module('music').controller('SettingsAccount', function($rootScope, $scope, User, Restangular, toaster) {
   // Edit user
   $scope.editUser = function() {
     Restangular.one('user').post('', $scope.user).then(function() {
       $scope.user = {};
       toaster.pop('success', 'Account update', 'Password successfully changed');
+      $scope.editUserForm.submitted = false;
     });
   };
 
@@ -20,9 +21,11 @@ angular.module('music').controller('SettingsAccount', function($rootScope, $scop
   };
 
   // If the user is already connected to Last.fm, refresh data
-  if ($rootScope.userInfo.lastfm_connected) {
-    refreshLastFm();
-  }
+  User.userInfo().then(function(data) {
+    if (data.lastfm_connected) {
+      refreshLastFm();
+    }
+  });
 
   // Connect to Last.fm
   $scope.connectLastFm = function() {

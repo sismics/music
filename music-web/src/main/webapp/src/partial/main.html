@@ -1,5 +1,13 @@
 <div class="row">
   <div class="col-md-3">
+    <div class="panel panel-danger" ng-init="warningVisible = true" ng-show="warningVisible && userInfo.is_default_password">
+      <div class="panel-body text-danger text-center">
+        <span class="glyphicon glyphicon-warning-sign"></span>
+        You haven't changed your default admin password. Secure your server by changing the default password now.
+        <a href="" ng-click="warningVisible = false">Dismiss</a>
+      </div>
+    </div>
+
     <div class="panel panel-default">
       <div class="list-group">
         <a class="list-group-item" ng-class="{ active: $uiRoute }" ui-route="/playing" href="#/playing">
@@ -13,7 +21,7 @@
           <span class="glyphicon glyphicon-th"></span>
           My music
         </a>
-        <a class="list-group-item" ng-class="{ active: $uiRoute }" ui-route="/add/.*" href="#/add/external">
+        <a class="list-group-item" ng-class="{ active: $uiRoute }" ui-route="/add/.*" href="#/add/upload">
           <span class="glyphicon glyphicon-plus"></span>
           Add music
         </a>

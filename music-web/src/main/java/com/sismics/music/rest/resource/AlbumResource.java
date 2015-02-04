@@ -29,6 +29,7 @@ import com.sismics.music.core.dao.dbi.criteria.AlbumCriteria;
 import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
 import com.sismics.music.core.dao.dbi.dto.AlbumDto;
 import com.sismics.music.core.dao.dbi.dto.TrackDto;
+import com.sismics.music.core.exception.NonWritableException;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Album;
 import com.sismics.music.core.service.albumart.AlbumArtService;
@@ -185,17 +186,21 @@ public class AlbumResource extends BaseResource {
         } catch (IOException e) {
             throw new ClientException("IOError", "Error while reading the remote URL", e);
         }
-            
+        
+        JsonObjectBuilder reponse = Json.createObjectBuilder().add("status", "ok");
+        
         // Update the album art
         final AlbumArtService albumArtService = AppContext.getInstance().getAlbumArtService();
         String oldAlbumArtId = album.getAlbumArt();
         try {
-            String albumArtId = albumArtService.importAlbumArt(imageFile);
-            album.setAlbumArt(albumArtId);
-            albumDao.update(album);
+            albumArtService.importAlbumArt(album, imageFile, true);
+        } catch (NonWritableException e) {
+            // The album art could't be copied to the album folder
+            reponse.add("message", "AlbumArtNotCopied");
         } catch (Exception e) {
             throw new ClientException("ImageError", "The provided URL is not an image", e);
         }
+        albumDao.update(album);
         
         // Delete the previous album art
         if (oldAlbumArtId != null) {
@@ -204,7 +209,7 @@ public class AlbumResource extends BaseResource {
 
         // Always return OK
         return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .entity(reponse.build())
                 .build();
     }
 

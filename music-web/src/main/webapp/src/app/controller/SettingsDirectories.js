@@ -11,7 +11,7 @@ angular.module('music').controller('SettingsDirectories', function($scope, Resta
   
   // Load directories
   $scope.loadDirectories = function() {
-    Restangular.one('directory').getList().then(function(data) {
+    Restangular.one('directory').get().then(function(data) {
       $scope.directories = data.directories;
     });
   };
@@ -42,6 +42,7 @@ angular.module('music').controller('SettingsDirectories', function($scope, Resta
     })
         .then(function() {
           // Reset add directory form
+          $scope.editForm.submitted = false;
           $scope.directory = {
             location: ''
           };

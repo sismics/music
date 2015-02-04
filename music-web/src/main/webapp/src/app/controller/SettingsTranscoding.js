@@ -18,7 +18,7 @@ angular.module('music').controller('SettingsTranscoding', function($scope, Resta
   
   // Load transcoders
   $scope.loadTranscoders = function() {
-    Restangular.one('transcoder').getList().then(function(data) {
+    Restangular.one('transcoder').get().then(function(data) {
       $scope.transcoders = data.transcoders;
     });
   };

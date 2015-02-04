@@ -49,11 +49,16 @@ public class Album {
      * Deletion date.
      */
     private Date deleteDate;
+    
+    /**
+     * Location.
+     */
+    private String location;
 
     public Album() {
     }
 
-    public Album(String id, String directoryId, String artistId, String name, String albumArt, Date createDate, Date updateDate, Date deleteDate) {
+    public Album(String id, String directoryId, String artistId, String name, String albumArt, Date createDate, Date updateDate, Date deleteDate, String location) {
         this.id = id;
         this.directoryId = directoryId;
         this.artistId = artistId;
@@ -62,6 +67,7 @@ public class Album {
         this.createDate = createDate;
         this.updateDate = updateDate;
         this.deleteDate = deleteDate;
+        this.location = location;
     }
 
     /**
@@ -206,6 +212,24 @@ public class Album {
      */
     public void setDeleteDate(Date deleteDate) {
         this.deleteDate = deleteDate;
+    }
+    
+    /**
+     * Getter of location.
+     *
+     * @return the location
+     */
+    public String getLocation() {
+        return location;
+    }
+
+    /**
+     * Setter of location.
+     *
+     * @param location location
+     */
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     @Override

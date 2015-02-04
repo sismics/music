@@ -22,6 +22,7 @@ html, body {
   margin: 0;
   background-color: #fafafa;
   box-shadow: 0 0 8px rgba(0,0,0,.4);
+  z-index: 3;
 
   .albumart {
     cursor: pointer;
@@ -73,6 +74,10 @@ html, body {
   
   .search-form {
     margin-bottom: 10px;
+
+    .form-control-feedback {
+      pointer-events: auto;
+    }
   }
 }
 
@@ -393,4 +398,33 @@ html, body {
 }
 .volume-slider::-ms-tooltip {
   display: none;
+}
+
+.btn-file {
+  position: relative;
+  overflow: hidden;
+}
+.btn-file input[type=file] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 100%;
+  min-height: 100%;
+  font-size: 100px;
+  text-align: right;
+  filter: alpha(opacity=0);
+  opacity: 0;
+  outline: none;
+  background: white;
+  cursor: inherit;
+  display: block;
+}
+
+#visual {
+  position: absolute;
+  top: -128px;
+  left: 0;
+  width: 100vw;
+  height: 128px;
+  pointer-events: none;
 }

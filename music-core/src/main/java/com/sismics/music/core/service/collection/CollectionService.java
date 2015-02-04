@@ -258,10 +258,10 @@ public class CollectionService extends AbstractScheduledService {
             album.setArtistId(albumArtist.getId());
             album.setDirectoryId(rootDirectory.getId());
             album.setName(albumName);
+            album.setLocation(file.getParent().toString());
             if (albumArtFile != null) {
                 // TODO Remove this, albumarts are scanned separately
-                String albumArtId = AppContext.getInstance().getAlbumArtService().importAlbumArt(albumArtFile);
-                album.setAlbumArt(albumArtId);
+                AppContext.getInstance().getAlbumArtService().importAlbumArt(album, albumArtFile, false);
             }
             Date updateDate = getDirectoryUpdateDate(parentPath);
             album.setCreateDate(updateDate);

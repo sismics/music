@@ -157,31 +157,6 @@ public class AppResource extends BaseResource {
     }
 
     /**
-     * Rebuilds all album art sizes.
-     * 
-     * @return Response
-     */
-    @POST
-    @Path("batch/rebuild_albumart")
-    public Response rebuildAlbumArt() {
-        if (!authenticate()) {
-            throw new ForbiddenClientException();
-        }
-        checkBaseFunction(BaseFunction.ADMIN);
-
-        try {
-            AppContext.getInstance().getAlbumArtService().rebuildAlbumArt();
-        } catch (Exception e) {
-            throw new ServerException("RebuildError", "Error rebuilding album arts", e);
-        }
-        
-        // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build();
-    }
-    
-    /**
      * Start the DB console.
      *
      * @return Response
