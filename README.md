@@ -12,13 +12,13 @@ Features
 --------
 
 - Organize your music collection
-
-See <http://www.sismics.com/music/> for a list of features and benefits.
+- Download music from various sources
+- Android app
 
 Downloads
 ---------
 
-Compiled installers are available here for each new versions: <https://sourceforge.net/projects/sismicsmusic/files/release/>
+Music is not yet release, please follow the instructions to build from sources.
 
 License
 -------
@@ -35,7 +35,7 @@ Translations
 How to build Music from the sources
 ------------------------------------
 
-Prerequisites: JDK 7, Maven 3
+Prerequisites: JDK 7, Maven 3, NPM
 
 Music is organized in several Maven modules:
 
