@@ -105,6 +105,9 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     // Track currently played
     PlaylistTrack currentPlaylistTrack = null;
 
+    // Track currently downloaded
+    PlaylistTrack downloadingPlaylistTrack = null;
+
     // Wifi lock that we hold when streaming files from the internet, in order to prevent the
     // device from shutting off the Wifi radio
     WifiLock mWifiLock;
@@ -344,8 +347,13 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         }
 
         if (bufferRequestHandle != null) {
-            // We are buffering something, cancel it
+            // We are buffering something else, cancel it
+            Log.d("SismicsMusic", "Cancelling a previous download");
             bufferRequestHandle.cancel(true);
+            downloadingPlaylistTrack.setCacheStatus(PlaylistTrack.CacheStatus.NONE);
+            EventBus.getDefault().post(new TrackCacheStatusChangedEvent(downloadingPlaylistTrack));
+            bufferRequestHandle = null;
+            downloadingPlaylistTrack = null;
         }
 
         // We can also release the Wifi lock, if we're holding it
@@ -414,7 +422,10 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             // We are buffering something else, cancel it
             Log.d("SismicsMusic", "Cancelling a previous download");
             bufferRequestHandle.cancel(true);
+            downloadingPlaylistTrack.setCacheStatus(PlaylistTrack.CacheStatus.NONE);
+            EventBus.getDefault().post(new TrackCacheStatusChangedEvent(downloadingPlaylistTrack));
             bufferRequestHandle = null;
+            downloadingPlaylistTrack = null;
         }
 
         final File incompleteCacheFile = CacheUtil.getIncompleteCacheFile(playlistTrack);
@@ -441,6 +452,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             public void onFinish() {
                 // Request is finished (and not cancelled), let's buffer the next song without playing it
                 bufferRequestHandle = null;
+                downloadingPlaylistTrack = null;
                 PlaylistTrack nextPlaylistTrack = PlaylistService.after(playlistTrack);
                 if (nextPlaylistTrack != null) {
                     Log.d("SismicsMusic", "Downloading the next playlistTrack " + nextPlaylistTrack.getTitle());
@@ -462,6 +474,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         }
 
         bufferRequestHandle = TrackResource.download(this, playlistTrack.getId(), responseHandler);
+        downloadingPlaylistTrack = playlistTrack;
     }
 
     /**

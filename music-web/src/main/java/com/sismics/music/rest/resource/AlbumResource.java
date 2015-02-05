@@ -214,7 +214,7 @@ public class AlbumResource extends BaseResource {
     }
 
     /**
-     * Returns all active albums.
+     * Returns active albums.
      *
      * @return Response
      */
