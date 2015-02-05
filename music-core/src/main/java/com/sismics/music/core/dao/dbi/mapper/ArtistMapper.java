@@ -17,6 +17,7 @@ public class ArtistMapper extends BaseResultSetMapper<Artist> {
         return new String[] {
                 "ART_ID_C",
                 "ART_NAME_C",
+                "ART_NAMECORRECTED_C",
                 "ART_CREATEDATE_D",
                 "ART_DELETEDATE_D"};
     }
@@ -25,6 +26,7 @@ public class ArtistMapper extends BaseResultSetMapper<Artist> {
         final String[] columns = getColumns();
         int column = 0;
         return new Artist(
+            r.getString(columns[column++]),
             r.getString(columns[column++]),
             r.getString(columns[column++]),
             r.getTimestamp(columns[column++]),

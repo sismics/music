@@ -42,10 +42,11 @@ public class ArtistDao {
 
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                "  T_ARTIST (ART_ID_C, ART_NAME_C, ART_CREATEDATE_D)" +
-                "  values(:id, :name, :createDate)")
+                "  T_ARTIST (ART_ID_C, ART_NAME_C, ART_NAMECORRECTED_C, ART_CREATEDATE_D)" +
+                "  values(:id, :name, :nameCorrected, :createDate)")
                 .bind("id", artist.getId())
                 .bind("name", artist.getName())
+                .bind("nameCorrected", artist.getNameCorrected())
                 .bind("createDate", new Timestamp(artist.getCreateDate().getTime()))
                 .execute();
 
@@ -62,9 +63,11 @@ public class ArtistDao {
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("update T_ARTIST a set " +
                 " a.ART_NAME_C = :name," +
+                " a.ART_NAMECORRECTED_C = :nameCorrected" +
                 " where a.ART_ID_C = :id and a.ART_DELETEDATE_D is null")
                 .bind("id", artist.getId())
                 .bind("name", artist.getName())
+                .bind("nameCorrected", artist.getNameCorrected())
                 .execute();
 
         return artist;

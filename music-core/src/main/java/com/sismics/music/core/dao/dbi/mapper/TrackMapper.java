@@ -20,6 +20,7 @@ public class TrackMapper extends BaseResultSetMapper<Track> {
                 "TRK_IDARTIST_C",
                 "TRK_FILENAME_C",
                 "TRK_TITLE_C",
+                "TRK_TITLECORRECTED_C",
                 "TRK_YEAR_N",
                 "TRK_GENRE_C",
                 "TRK_LENGTH_N",
@@ -36,6 +37,7 @@ public class TrackMapper extends BaseResultSetMapper<Track> {
         final String[] columns = getColumns();
         int column = 0;
         return new Track(
+                r.getString(columns[column++]),
                 r.getString(columns[column++]),
                 r.getString(columns[column++]),
                 r.getString(columns[column++]),

@@ -36,6 +36,11 @@ public class Track {
     private String title;
 
     /**
+     * Title corrected.
+     */
+    private String titleCorrected;
+    
+    /**
      * Track year.
      */
     private Integer year;
@@ -83,12 +88,13 @@ public class Track {
     public Track() {
     }
 
-    public Track(String id, String albumId, String artistId, String fileName, String title, Integer year, String genre, Integer length, Integer bitrate, Integer order, boolean vbr, String format, Date createDate, Date deleteDate) {
+    public Track(String id, String albumId, String artistId, String fileName, String title, String titleCorrected, Integer year, String genre, Integer length, Integer bitrate, Integer order, boolean vbr, String format, Date createDate, Date deleteDate) {
         this.id = id;
         this.albumId = albumId;
         this.artistId = artistId;
         this.fileName = fileName;
         this.title = title;
+        this.titleCorrected = titleCorrected;
         this.year = year;
         this.genre = genre;
         this.length = length;
@@ -348,6 +354,24 @@ public class Track {
      */
     public void setDeleteDate(Date deleteDate) {
         this.deleteDate = deleteDate;
+    }
+
+    /**
+     * Getter of titleCorrected.
+     *
+     * @return the titleCorrected
+     */
+    public String getTitleCorrected() {
+        return titleCorrected;
+    }
+
+    /**
+     * Setter of titleCorrected.
+     *
+     * @param titleCorrected titleCorrected
+     */
+    public void setTitleCorrected(String titleCorrected) {
+        this.titleCorrected = titleCorrected;
     }
 
     @Override

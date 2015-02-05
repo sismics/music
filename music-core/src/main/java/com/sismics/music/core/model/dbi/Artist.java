@@ -16,10 +16,15 @@ public class Artist {
     private String id;
 
     /**
-     * Artist title.
+     * Artist name.
      */
     private String name;
 
+    /**
+     * Artist name corrected.
+     */
+    private String nameCorrected;
+    
     /**
      * Creation date.
      */
@@ -33,9 +38,10 @@ public class Artist {
     public Artist() {
     }
 
-    public Artist(String id, String name, Date createDate, Date deleteDate) {
+    public Artist(String id, String name, String nameCorrected, Date createDate, Date deleteDate) {
         this.id = id;
         this.name = name;
+        this.nameCorrected = nameCorrected;
         this.createDate = createDate;
         this.deleteDate = deleteDate;
     }
@@ -75,6 +81,24 @@ public class Artist {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Getter of nameCorrected.
+     *
+     * @return the nameCorrected
+     */
+    public String getNameCorrected() {
+        return nameCorrected;
+    }
+
+    /**
+     * Setter of nameCorrected.
+     *
+     * @param nameCorrected nameCorrected
+     */
+    public void setNameCorrected(String nameCorrected) {
+        this.nameCorrected = nameCorrected;
     }
 
     /**

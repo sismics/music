@@ -1,5 +1,15 @@
 package com.sismics.music.core.service.lastfm;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.util.concurrent.AbstractScheduledService;
 import com.sismics.music.core.constant.ConfigType;
 import com.sismics.music.core.dao.dbi.ArtistDao;
@@ -18,21 +28,13 @@ import com.sismics.music.core.model.dbi.User;
 import com.sismics.music.core.util.ConfigUtil;
 import com.sismics.music.core.util.TransactionUtil;
 import com.sismics.util.LastFmUtil;
+
 import de.umass.lastfm.Authenticator;
 import de.umass.lastfm.PaginatedResult;
 import de.umass.lastfm.Result;
 import de.umass.lastfm.Session;
 import de.umass.lastfm.scrobble.ScrobbleData;
 import de.umass.lastfm.scrobble.ScrobbleResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Last.fm service.
@@ -129,6 +131,7 @@ public class LastFmService extends AbstractScheduledService {
         scrobbleData.setDuration(track.getLength());
 
         ScrobbleResult result = de.umass.lastfm.Track.updateNowPlaying(scrobbleData, session);
+        updateLocalData(result, track, artist);
         log.info(MessageFormat.format("Update now playing for user {0}: {1}", user.getId(), result.toString()));
     }
 
@@ -147,6 +150,7 @@ public class LastFmService extends AbstractScheduledService {
         scrobbleData.setDuration(track.getLength());
 
         ScrobbleResult result = de.umass.lastfm.Track.scrobble(scrobbleData, session);
+        updateLocalData(result, track, artist);
         log.info(MessageFormat.format("Play completed for user {0}: {1}", user.getId(), result.toString()));
     }
 
@@ -169,6 +173,7 @@ public class LastFmService extends AbstractScheduledService {
             scrobbleDataList.add(scrobbleData);
         }
         de.umass.lastfm.Track.scrobble(scrobbleDataList, session);
+        // TODO Update local data
         log.info(MessageFormat.format("Scrobbled a list of tracks for user {0}", user.getId()));
     }
 
@@ -182,7 +187,10 @@ public class LastFmService extends AbstractScheduledService {
         Session session = restoreSession(user);
 
         final Artist artist = new ArtistDao().getActiveById(track.getArtistId());
-        Result result = de.umass.lastfm.Track.love(artist.getName(), track.getTitle(), session);
+        Result result = de.umass.lastfm.Track.love(
+                artist.getNameCorrected() == null ? artist.getName() : artist.getNameCorrected(),
+                track.getTitleCorrected() == null ? track.getTitle() : track.getTitleCorrected(),
+                session);
         log.info(MessageFormat.format("Loved a track for user {0}: {1}", user.getId(), result.toString()));
     }
 
@@ -196,8 +204,33 @@ public class LastFmService extends AbstractScheduledService {
         Session session = restoreSession(user);
 
         final Artist artist = new ArtistDao().getActiveById(track.getArtistId());
-        Result result = de.umass.lastfm.Track.unlove(artist.getName(), track.getTitle(), session);
+        Result result = de.umass.lastfm.Track.unlove(
+                artist.getNameCorrected() == null ? artist.getName() : artist.getNameCorrected(),
+                track.getTitleCorrected() == null ? track.getTitle() : track.getTitleCorrected(),
+                session);
         log.info(MessageFormat.format("Unloved a track for user {0}: {1}", user.getId(), result.toString()));
+    }
+    
+    /**
+     * Update local data from Last.fm corrected labels.
+     * 
+     * @param result Scrobble result
+     * @param track Track
+     * @param artist Artist
+     */
+    private void updateLocalData(ScrobbleResult result, Track track, Artist artist) {
+        TrackDao trackDao = new TrackDao();
+        ArtistDao artistDao = new ArtistDao();
+        
+        if (result.isTrackCorrected()) {
+            track.setTitleCorrected(result.getTrack());
+            trackDao.update(track);
+        }
+        
+        if (result.isArtistCorrected()) {
+            artist.setNameCorrected(result.getArtist());
+            artistDao.update(artist);
+        }
     }
 
     /**

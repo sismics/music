@@ -31,13 +31,14 @@ public class TrackDao {
 
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                "  T_TRACK(TRK_ID_C, TRK_IDALBUM_C, TRK_IDARTIST_C, TRK_FILENAME_C, TRK_TITLE_C, TRK_YEAR_N, TRK_GENRE_C, TRK_LENGTH_N, TRK_BITRATE_N, TRK_ORDER_N, TRK_VBR_B, TRK_FORMAT_C, TRK_CREATEDATE_D)" +
-                "  values(:id, :albumId, :artistId, :fileName, :title, :year, :genre, :length, :bitrate, :order, :vbr, :format, :createDate)")
+                "  T_TRACK(TRK_ID_C, TRK_IDALBUM_C, TRK_IDARTIST_C, TRK_FILENAME_C, TRK_TITLE_C, TRK_TITLECORRECTED_C, TRK_YEAR_N, TRK_GENRE_C, TRK_LENGTH_N, TRK_BITRATE_N, TRK_ORDER_N, TRK_VBR_B, TRK_FORMAT_C, TRK_CREATEDATE_D)" +
+                "  values(:id, :albumId, :artistId, :fileName, :title, :titleCorrected, :year, :genre, :length, :bitrate, :order, :vbr, :format, :createDate)")
                 .bind("id", track.getId())
                 .bind("albumId", track.getAlbumId())
                 .bind("artistId", track.getArtistId())
                 .bind("fileName", track.getFileName())
                 .bind("title", track.getTitle())
+                .bind("titleCorrected", track.getTitleCorrected())
                 .bind("year", track.getYear())
                 .bind("genre", track.getGenre())
                 .bind("length", track.getLength())
@@ -64,6 +65,7 @@ public class TrackDao {
                 " t.TRK_IDARTIST_C = :artistId, " +
                 " t.TRK_FILENAME_C = :fileName, " +
                 " t.TRK_TITLE_C = :title, " +
+                " t.TRK_TITLECORRECTED_C = :titleCorrected, " +
                 " t.TRK_YEAR_N = :year, " +
                 " t.TRK_GENRE_C = :genre, " +
                 " t.TRK_LENGTH_N = :length, " +
@@ -78,6 +80,7 @@ public class TrackDao {
                 .bind("artistId", track.getArtistId())
                 .bind("fileName", track.getFileName())
                 .bind("title", track.getTitle())
+                .bind("titleCorrected", track.getTitleCorrected())
                 .bind("year", track.getYear())
                 .bind("genre", track.getGenre())
                 .bind("length", track.getLength())
