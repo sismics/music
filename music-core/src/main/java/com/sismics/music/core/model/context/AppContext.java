@@ -131,6 +131,7 @@ public class AppContext {
         lastFmEventBus = newAsyncEventBus();
         lastFmEventBus.register(new PlayStartedAsyncListener());
         lastFmEventBus.register(new PlayCompletedAsyncListener());
+        lastFmEventBus.register(new LastFmUpdateTrackPlayCountAsyncListener());
         lastFmEventBus.register(new LastFmUpdateLovedTrackAsyncListener());
         lastFmEventBus.register(new TrackLikedAsyncListener());
         lastFmEventBus.register(new TrackUnlikedAsyncListener());

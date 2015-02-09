@@ -2,7 +2,7 @@ package com.sismics.music.core.listener.async;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.eventbus.Subscribe;
-import com.sismics.music.core.event.async.LastFmUpdateLovedTrackAsyncEvent;
+import com.sismics.music.core.event.async.LastFmUpdateTrackPlayCountAsyncEvent;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.User;
 import com.sismics.music.core.service.lastfm.LastFmService;
@@ -13,41 +13,41 @@ import org.slf4j.LoggerFactory;
 import java.text.MessageFormat;
 
 /**
- * Last.fm update loved tracks listener.
+ * Last.fm registered listener.
  *
  * @author jtremeaux
  */
-public class LastFmUpdateLovedTrackAsyncListener {
+public class LastFmUpdateTrackPlayCountAsyncListener {
     /**
      * Logger.
      */
-    private static final Logger log = LoggerFactory.getLogger(LastFmUpdateLovedTrackAsyncListener.class);
+    private static final Logger log = LoggerFactory.getLogger(LastFmUpdateTrackPlayCountAsyncListener.class);
 
     /**
      * Process the event.
      *
-     * @param lastFmUpdateLovedTrackAsyncEvent Update loved track event
+     * @param lastFmUpdateTrackPlayCountAsyncEvent Update track play count event
      * @throws Exception
      */
     @Subscribe
-    public void onLastFmUpdateLovedTrack(final LastFmUpdateLovedTrackAsyncEvent lastFmUpdateLovedTrackAsyncEvent) throws Exception {
+    public void onLastFmUpdateTrackPlayCount(final LastFmUpdateTrackPlayCountAsyncEvent lastFmUpdateTrackPlayCountAsyncEvent) throws Exception {
         if (log.isInfoEnabled()) {
-            log.info("Last.fm update loved track event: " + lastFmUpdateLovedTrackAsyncEvent.toString());
+            log.info("Last.fm update track play count event: " + lastFmUpdateTrackPlayCountAsyncEvent.toString());
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        final User user = lastFmUpdateLovedTrackAsyncEvent.getUser();
+        final User user = lastFmUpdateTrackPlayCountAsyncEvent.getUser();
 
         TransactionUtil.handle(new Runnable() {
             @Override
             public void run() {
                 final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
-                lastFmService.importLovedTrack(user);
+                lastFmService.importTrackPlayCount(user);
             }
         });
 
         if (log.isInfoEnabled()) {
-            log.info(MessageFormat.format("Last.fm update loved track event completed in {0}", stopwatch));
+            log.info(MessageFormat.format("Last.fm update track play count event completed in {0}", stopwatch));
         }
     }
 }

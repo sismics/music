@@ -1,26 +1,5 @@
 package com.sismics.music.rest.resource;
 
-import java.util.Date;
-import java.util.Set;
-
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.servlet.http.Cookie;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.NewCookie;
-import javax.ws.rs.core.Response;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.sismics.music.core.constant.Constants;
 import com.sismics.music.core.dao.dbi.AuthenticationTokenDao;
 import com.sismics.music.core.dao.dbi.PlaylistDao;
@@ -31,6 +10,7 @@ import com.sismics.music.core.dao.dbi.dto.UserDto;
 import com.sismics.music.core.event.PasswordChangedEvent;
 import com.sismics.music.core.event.UserCreatedEvent;
 import com.sismics.music.core.event.async.LastFmUpdateLovedTrackAsyncEvent;
+import com.sismics.music.core.event.async.LastFmUpdateTrackPlayCountAsyncEvent;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.AuthenticationToken;
 import com.sismics.music.core.model.dbi.Playlist;
@@ -47,8 +27,19 @@ import com.sismics.rest.util.ValidationUtil;
 import com.sismics.security.UserPrincipal;
 import com.sismics.util.LocaleUtil;
 import com.sismics.util.filter.TokenBasedSecurityFilter;
-
 import de.umass.lastfm.Session;
+import org.apache.commons.lang.StringUtils;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.servlet.http.Cookie;
+import javax.ws.rs.*;
+import javax.ws.rs.core.NewCookie;
+import javax.ws.rs.core.Response;
+import java.util.Date;
+import java.util.Set;
 
 /**
  * User REST resources.
@@ -586,6 +577,7 @@ public class UserResource extends BaseResource {
 
         // Raise a Last.fm registered event
         AppContext.getInstance().getLastFmEventBus().post(new LastFmUpdateLovedTrackAsyncEvent(user));
+        AppContext.getInstance().getLastFmEventBus().post(new LastFmUpdateTrackPlayCountAsyncEvent(user));
 
         // Always return ok
         JsonObject response = Json.createObjectBuilder()

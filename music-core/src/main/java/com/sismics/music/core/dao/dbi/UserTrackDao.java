@@ -3,7 +3,6 @@ package com.sismics.music.core.dao.dbi;
 import com.sismics.music.core.dao.dbi.mapper.UserTrackMapper;
 import com.sismics.music.core.model.dbi.UserTrack;
 import com.sismics.util.context.ThreadLocalContext;
-
 import org.skife.jdbi.v2.Handle;
 
 import java.sql.Timestamp;
@@ -113,6 +112,22 @@ public class UserTrackDao {
     }
 
     /**
+     * Initialize the play count for a track.
+     *
+     * @param userId User ID
+     * @param trackId Track ID
+     * @param playCount The new play count
+     */
+    public void initPlayCount(String userId, String trackId, Integer playCount) {
+        UserTrack userTrack = getOrCreateUserTrack(userId, trackId);
+
+        if (playCount > 0) {
+            userTrack.setPlayCount(playCount);
+            update(userTrack);
+        }
+    }
+
+    /**
      * Like the track.
      *
      * @param userId User ID
@@ -134,20 +149,5 @@ public class UserTrackDao {
         UserTrack userTrack = getOrCreateUserTrack(userId, trackId);
         userTrack.setLike(false);
         update(userTrack);
-    }
-
-    /**
-     * Unlike all tracks for a use.
-     *
-     * @param userId User ID
-     */
-    public void unlikeAll(String userId) {
-        final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_USER_TRACK set " +
-                " UST_LIKE_B = :like " +
-                " where UST_IDUSER_C = :userId and UST_DELETEDATE_D is null")
-                .bind("userId", userId)
-                .bind("like", false)
-                .execute();
     }
 }
