@@ -97,76 +97,99 @@ public class ImportAudioService extends AbstractExecutionThreadService {
         while (isRunning()) {
             // Wait for a new URL to import
             ImportAudio importAudio = importAudioQueue.take();
-            log.info("Start importing a new URL: " + importAudio);
             
-            // Starting YouTube-DL
-            String output = DirectoryUtil.getImportAudioDirectory().getAbsolutePath() + File.separator + "%(title)s.%(ext)s";
-            String command = "youtube-dl -v --prefer-ffmpeg --encoding UTF-8 --newline -f bestaudio -x --audio-format " + importAudio.getFormat()
-                    + " --audio-quality " + importAudio.getQuality() + " -o";
-            List<String> commandList = new LinkedList<String>(Arrays.asList(StringUtils.split(command)));
-            commandList.add(output);
-            commandList.add(importAudio.getUrl());
-            Process process = new ProcessBuilder(commandList)
-                    .redirectErrorStream(true)
-                    .start();
-
-            // Import status is now in progress
-            importAudio.setStatus(ImportAudio.Status.INPROGRESS);
-            importAudio.setProcess(process);
-            importAudioList.add(importAudio);
-            
-            // Reading standard output to update import status
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                    // Update progression
-                    Matcher matcher = PROGRESS_PATTERN.matcher(line);
-                    if (matcher.find()) {
-                        importAudio.setProgress(Float.valueOf(matcher.group(1)));
-                        importAudio.setTotalSize(matcher.group(2));
-                        importAudio.setDownloadSpeed(matcher.group(3));
+            try {
+                log.info("Start importing a new URL: " + importAudio);
+                
+                // Starting YouTube-DL
+                String output = DirectoryUtil.getImportAudioDirectory().getAbsolutePath() + File.separator + "%(title)s.%(ext)s";
+                String command = "youtube-dl -v --prefer-ffmpeg --encoding UTF-8 --newline -f bestaudio -x --audio-format " + importAudio.getFormat()
+                        + " --audio-quality " + importAudio.getQuality() + " -o";
+                List<String> commandList = new LinkedList<String>(Arrays.asList(StringUtils.split(command)));
+                commandList.add(output);
+                commandList.add(importAudio.getUrl());
+                Process process = new ProcessBuilder(commandList)
+                        .redirectErrorStream(true)
+                        .start();
+    
+                // Import status is now in progress
+                importAudio.setStatus(ImportAudio.Status.INPROGRESS);
+                importAudio.setProcess(process);
+                importAudioList.add(importAudio);
+                
+                // Reading standard output to update import status
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                    for (String line = reader.readLine(); line != null && isProcessRunning(process); line = reader.readLine()) {
+                        // Update progression
+                        Matcher matcher = PROGRESS_PATTERN.matcher(line);
+                        if (matcher.find()) {
+                            importAudio.setProgress(Float.valueOf(matcher.group(1)));
+                            importAudio.setTotalSize(matcher.group(2));
+                            importAudio.setDownloadSpeed(matcher.group(3));
+                        }
+                        
+                        // Check if the line is an error
+                        if (line.contains("ERROR")) {
+                            importAudio.setStatus(ImportAudio.Status.ERROR);
+                        }
+                        
+                        // New working file
+                        matcher = WORKING_FILE_PATTERN.matcher(line);
+                        if (matcher.find()) {
+                            File file = new File(matcher.group(1));
+                            String name = file.getName();
+                            if (!Strings.isNullOrEmpty(name)) {
+                                importAudio.addWorkingFiles(name);
+                            }
+                        }
+                        
+                        // Debug output
+                        importAudio.setMessage(importAudio.getMessage() + "\n" + line);
                     }
-                    
-                    // Check if the line is an error
-                    if (line.contains("ERROR")) {
-                        importAudio.setStatus(ImportAudio.Status.ERROR);
-                    }
-                    
-                    // New working file
-                    matcher = WORKING_FILE_PATTERN.matcher(line);
-                    if (matcher.find()) {
-                        File file = new File(matcher.group(1));
-                        String name = file.getName();
-                        if (!Strings.isNullOrEmpty(name)) {
-                            importAudio.addWorkingFiles(name);
+                }
+                
+                // The process has not been terminated properly
+                if (process.exitValue() != 0) {
+                    importAudio.setMessage(importAudio.getMessage() + "\nProcess exit with code: " + process.exitValue());
+                    importAudio.setStatus(ImportAudio.Status.ERROR);
+                }
+                
+                // Import is done
+                if (importAudio.getStatus() != ImportAudio.Status.ERROR) {
+                    importAudio.setStatus(ImportAudio.Status.DONE);
+                } else {
+                    // Remove working files if they still exist
+                    for (String name : importAudio.getWorkingFiles()) {
+                        File file = new File(DirectoryUtil.getImportAudioDirectory().getAbsolutePath() + File.separator + name);
+                        if (file.exists()) {
+                            file.delete();
                         }
                     }
-                    
-                    // Debug output
-                    importAudio.setMessage(importAudio.getMessage() + "\n" + line);
                 }
-            }
-            
-            // The process has not been terminated properly
-            if (process.exitValue() != 0) {
-                importAudio.setMessage(importAudio.getMessage() + "\nProcess exit with code: " + process.exitValue());
+                
+                process.destroy();
+                importAudio.setProcess(null);
+            } catch (Exception e) {
+                // Error while importing
                 importAudio.setStatus(ImportAudio.Status.ERROR);
+                importAudio.setMessage(importAudio.getMessage() + "\n" + e.getMessage());
+                log.error("Error importing: " + importAudio, e);
             }
-            
-            // Import is done
-            if (importAudio.getStatus() != ImportAudio.Status.ERROR) {
-                importAudio.setStatus(ImportAudio.Status.DONE);
-            } else {
-                // Remove working files if they still exist
-                for (String name : importAudio.getWorkingFiles()) {
-                    File file = new File(DirectoryUtil.getImportAudioDirectory().getAbsolutePath() + File.separator + name);
-                    if (file.exists()) {
-                        file.delete();
-                    }
-                }
-            }
-            
-            process.destroy();
-            importAudio.setProcess(null);
+        }
+    }
+    
+    /**
+     * Returns true if the process is running.
+     * 
+     * @param process Process
+     * @return True if running
+     */
+    private boolean isProcessRunning(Process process) {
+        try {
+            process.exitValue();
+            return false;
+        } catch (Exception e) {
+            return true;
         }
     }
     
