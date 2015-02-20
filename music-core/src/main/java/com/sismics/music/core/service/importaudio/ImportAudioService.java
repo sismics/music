@@ -149,7 +149,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
                 }
                 
                 // The process has not been terminated properly
-                if (process.exitValue() != 0) {
+                if (process.waitFor() != 0) {
                     importAudio.setMessage(importAudio.getMessage() + "\nProcess exit with code: " + process.exitValue());
                     importAudio.setStatus(ImportAudio.Status.ERROR);
                 }
