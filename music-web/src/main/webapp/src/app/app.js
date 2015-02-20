@@ -5,7 +5,7 @@
  */
 angular.module('music',
         // Dependencies
-        ['ui.router', 'ui.bootstrap', 'dialog', 'ui.route', 'ui.keypress',
+        ['ui.router', 'ui.bootstrap', 'dialog', 'ui.route', 'ui.keypress', 'angular-websocket',
           'restangular', 'ui.sortable', 'pasvaz.bindonce', 'toaster', 'infinite-scroll'])
 
     /**
