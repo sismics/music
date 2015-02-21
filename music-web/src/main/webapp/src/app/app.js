@@ -38,7 +38,8 @@ angular.module('music',
             abstract: true,
             views: {
               'page': {
-                templateUrl: 'partial/main.html'
+                templateUrl: 'partial/main.html',
+                controller: 'Main'
               }
             }
           })

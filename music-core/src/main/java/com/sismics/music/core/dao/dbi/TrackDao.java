@@ -246,6 +246,8 @@ public class TrackDao {
             sb.append(" order by pt.PLT_ORDER_N asc");
         } else if (criteria.getLike() != null || criteria.getArtistId() != null) {
             sb.append(" order by alb.ALB_NAME_C, t.TRK_ORDER_N, t.TRK_TITLE_C asc");
+        } else if (criteria.getRandom() != null && criteria.getRandom()) {
+            sb.append(" order by rand()");
         } else {
             sb.append(" order by t.TRK_ORDER_N, t.TRK_TITLE_C asc");
         }

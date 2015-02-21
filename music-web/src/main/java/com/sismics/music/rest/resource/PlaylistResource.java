@@ -23,6 +23,8 @@ import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
 import com.sismics.music.core.dao.dbi.dto.TrackDto;
 import com.sismics.music.core.model.dbi.Playlist;
 import com.sismics.music.core.model.dbi.Track;
+import com.sismics.music.core.util.dbi.PaginatedList;
+import com.sismics.music.core.util.dbi.PaginatedLists;
 import com.sismics.music.rest.util.JsonUtil;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
@@ -41,6 +43,7 @@ public class PlaylistResource extends BaseResource {
      *
      * @param id Track ID
      * @param order Insert at this order in the playlist
+     * @param clear If true, clear the playlist
      * @return Response
      */
     @PUT
@@ -90,6 +93,7 @@ public class PlaylistResource extends BaseResource {
      * Inserts tracks in the playlist.
      *
      * @param idList List of track ID
+     * @param clear If true, clear the playlist
      * @return Response
      */
     @PUT
@@ -131,6 +135,53 @@ public class PlaylistResource extends BaseResource {
             playlistTrackDao.insertPlaylistTrack(playlist.getId(), track.getId(), order++);
         }
 
+        // Output the playlist
+        return Response.ok()
+                .entity(buildPlaylistJson(playlist))
+                .build();
+    }
+    
+    /**
+     * Start or continue party mode.
+     * Adds some good tracks.
+     * 
+     * @param clear If true, clear the playlist
+     * @return Response
+     */
+    @POST
+    @Path("party")
+    public Response party(@FormParam("clear") Boolean clear) {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+        
+        // Get the playlist
+        PlaylistDao playlistDao = new PlaylistDao();
+        Playlist playlist = playlistDao.getActiveByUserId(principal.getId());
+        if (playlist == null) {
+            throw new ServerException("UnknownError", MessageFormat.format("Playlist not found for user {0}", principal.getId()));
+        }
+        PlaylistTrackDao playlistTrackDao = new PlaylistTrackDao();
+        
+        if (clear != null && clear) {
+            // Delete all tracks in the playlist
+            playlistTrackDao.deleteByPlaylistId(playlist.getId());
+        }
+        
+        // Get the track order
+        int order = playlistTrackDao.getPlaylistTrackNextOrder(playlist.getId());
+        
+        // TODO Add prefered tracks
+        // Add random tracks
+        TrackDao trackDao = new TrackDao();
+        PaginatedList<TrackDto> paginatedList = PaginatedLists.create();
+        trackDao.findByCriteria(new TrackCriteria().setRandom(true), paginatedList);
+        
+        for (TrackDto trackDto : paginatedList.getResultList()) {
+            // Insert the track into the playlist
+            playlistTrackDao.insertPlaylistTrack(playlist.getId(), trackDto.getId(), order++);
+        }
+        
         // Output the playlist
         return Response.ok()
                 .entity(buildPlaylistJson(playlist))

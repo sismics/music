@@ -10,6 +10,7 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
   var repeat = true;
   var shuffle = false;
   var visualization = true;
+  var partyMode = false;
 
   // Read Local Storage settings
   if (!_.isUndefined(localStorage.playlistRepeat)) {
@@ -51,11 +52,12 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
       $rootScope.$broadcast('audio.stop');
       currentTrack = null;
       tracks = [];
+      service.setPartyMode(false);
     },
 
     /**
      * Play a track from the current playlist.
-     * @param _currentTrack
+     * @param _currentTrack Track to play
      */
     play: function(_currentTrack) {
       if (_.size(tracks) > _currentTrack) {
@@ -66,8 +68,8 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
 
     /**
      * Move a track in the playlist.
-     * @param order
-     * @param neworder
+     * @param order Old order
+     * @param neworder New order
      */
     moveTrack: function(order, neworder) {
       if (currentTrack != null) {
@@ -100,7 +102,7 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
 
     /**
      * Open a track without playing it.
-     * @param _currentTrack
+     * @param _currentTrack Track to open
      */
     open: function(_currentTrack) {
       if (_.size(tracks) > _currentTrack) {
@@ -143,11 +145,13 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
 
     /**
      * Add a track to the playlist.
-     * @param track
-     * @param clear
+     * @param track Track to add
+     * @param clear Clear the playlist
      * @param play If true, immediately play the first track once added
      */
     add: function(track, clear, play) {
+      service.setPartyMode(false);
+
       Restangular.one('playlist').put({
         id: track.id,
         clear: clear,
@@ -165,11 +169,13 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
 
     /**
      * Add a list of tracks to the playlist.
-     * @param trackIdList
-     * @param clear
+     * @param trackIdList List of track IDs
+     * @param clear Clear the playlist
      * @param play If true, immediately play the first track once added
      */
     addAll: function(trackIdList, clear, play) {
+      service.setPartyMode(false);
+
       Restangular.one('playlist/multiple').put({
         ids: trackIdList,
         clear: clear
@@ -187,8 +193,27 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
     },
 
     /**
+     * Start or continue party mode.
+     * @param clear Clear the playlist
+     * @param play If true, immediately play the first track once added
+     */
+    party: function(clear, play) {
+      Restangular.one('playlist').post('party', {
+        clear: clear
+      }).then(function(data) {
+            service.setTracks(data.tracks);
+            service.setPartyMode(_.size(tracks) > 0);
+
+            if (play && _.size(tracks) > 0) {
+              service.play(0);
+              toaster.pop('success', 'Party mode', 'Let\'s get the party started!');
+            }
+          });
+    },
+
+    /**
      * Remove a given track from the playlist.
-     * @param order
+     * @param order Order to remove
      */
     remove: function(order) {
       if (currentTrack != null) {
@@ -213,6 +238,7 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
     clear: function() {
       // Stop the audio
       currentTrack = null;
+      service.setPartyMode(false);
       $rootScope.$broadcast('audio.stop');
 
       return Restangular.one('playlist').remove().then(function() {
@@ -283,11 +309,26 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
     currentOrder: function() { return currentTrack; },
     getTracks: function() { return angular.copy(tracks); },
     isRepeat: function() { return repeat; },
-    toggleRepeat: function() { repeat = !repeat; localStorage.playlistRepeat = repeat; },
-    isShuffle: function() { return shuffle; },
-    toggleShuffle: function() { shuffle = !shuffle; localStorage.playlistShuffle = shuffle; },
+    toggleRepeat: function() {
+      repeat = !repeat;
+      localStorage.playlistRepeat = repeat;
+    },
+    isShuffle: function() {return shuffle; },
+    toggleShuffle: function() {
+      shuffle = !shuffle;
+      localStorage.playlistShuffle = shuffle;
+    },
     isVisualization: function() { return visualization; },
-    toggleVisualization: function() { visualization = !visualization; localStorage.playlistVisualization = visualization; }
+    toggleVisualization: function() {
+      visualization = !visualization;
+      localStorage.playlistVisualization = visualization;
+    },
+    setPartyMode: function(_partyMode) {
+      partyMode = _partyMode;
+      if (partyMode != _partyMode) {
+        $rootScope.$broadcast('playlist.party', partyMode);
+      }
+    }
   };
 
   return service;

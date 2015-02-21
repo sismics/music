@@ -47,6 +47,11 @@ public class TrackCriteria {
     private String artistName;
     
     /**
+     * Random order.
+     */
+    private Boolean random;
+    
+    /**
      * Getter of albumId.
      *
      * @return albumId
@@ -201,6 +206,25 @@ public class TrackCriteria {
      */
     public TrackCriteria setArtistId(String artistId) {
         this.artistId = artistId;
+        return this;
+    }
+
+    /**
+     * Getter of random.
+     *
+     * @return the random
+     */
+    public Boolean getRandom() {
+        return random;
+    }
+
+    /**
+     * Setter of random.
+     *
+     * @param random random
+     */
+    public TrackCriteria setRandom(Boolean random) {
+        this.random = random;
         return this;
     }
 }
