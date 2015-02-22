@@ -9,10 +9,14 @@
     </div>
 
     <div class="panel">
-        <button class="btn btn-primary btn-block" title="Start listening to your prefered music endlessly" ng-click="startPartyMode()">
-          <span class="glyphicon glyphicon-glass"></span>
-          Get the party started!
-        </button>
+      <button ng-if="!partyMode" class="btn btn-primary btn-block" title="Start listening to your prefered music endlessly" ng-click="startPartyMode()">
+        <span class="glyphicon glyphicon-glass"></span>
+        Get the party started!
+      </button>
+      <button ng-if="partyMode" class="btn btn-danger btn-block" ng-click="stopPartyMode()">
+        <span class="glyphicon glyphicon-stop"></span>
+        Stop party mode now
+      </button>
     </div>
 
     <div class="panel panel-default">

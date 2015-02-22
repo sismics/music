@@ -8,6 +8,7 @@ angular.module('music').controller('Playing', function($scope, Playlist) {
     $scope.currentOrder = Playlist.currentOrder();
     $scope.currentStatus = Playlist.currentStatus();
     $scope.tracks = Playlist.getTracks();
+    $scope.partyMode = Playlist.isPartyMode();
     $scope.duration = _.reduce($scope.tracks,
         function(duration, track){
           return duration + track.length;
@@ -22,6 +23,7 @@ angular.module('music').controller('Playing', function($scope, Playlist) {
   $scope.$on('audio.play', updateScope);
   $scope.$on('audio.pause', updateScope);
   $scope.$on('audio.ended', updateScope);
+  $scope.$on('playlist.party', updateScope);
 
   // Remove a track from the playlist
   $scope.removeTrack = function(order) {

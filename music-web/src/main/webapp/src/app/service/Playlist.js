@@ -43,6 +43,13 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
     $rootScope.$broadcast('playlist.updated', angular.copy(tracks));
   });
 
+  // Fill the playlist with new tracks when in party mode
+  $rootScope.$on('audio.set', function() {
+    if (partyMode && currentTrack >= _.size(tracks) - 2) {
+      service.party(false, false);
+    }
+  });
+
   // Service
   var service = {
     /**
@@ -324,11 +331,13 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
       localStorage.playlistVisualization = visualization;
     },
     setPartyMode: function(_partyMode) {
+      var prev = partyMode;
       partyMode = _partyMode;
-      if (partyMode != _partyMode) {
+      if (partyMode != prev) {
         $rootScope.$broadcast('playlist.party', partyMode);
       }
-    }
+    },
+    isPartyMode: function() { return partyMode; }
   };
 
   return service;
