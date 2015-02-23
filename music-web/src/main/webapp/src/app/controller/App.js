@@ -3,7 +3,7 @@
 /**
  * App controller.
  */
-angular.module('music').controller('App', function($rootScope, $scope) {
+angular.module('music').controller('App', function($rootScope, $scope, Websocket) {
   // Is the user typing
   var isTyping = function() {
     var activeTag = document.activeElement.tagName.toLowerCase();

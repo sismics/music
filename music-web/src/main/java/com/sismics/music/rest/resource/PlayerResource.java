@@ -168,34 +168,4 @@ public class PlayerResource extends BaseResource {
                 .entity(Json.createObjectBuilder().add("status", "ok").build())
                 .build();
     }
-    
-    /**
-     * Push a command to a player.
-     * 
-     * @return Response
-     */
-    @POST
-    @Path("command")
-    public Response command(
-            @FormParam("token") String token,
-            @FormParam("json") String json) {
-        if (!authenticate()) {
-            throw new ForbiddenClientException();
-        }
-        
-        ValidationUtil.validateRequired(token, "token");
-        
-        // Get the player
-        PlayerDao playerDao = new PlayerDao();
-        Player player = playerDao.getById(token);
-        if (player == null) {
-            throw new ClientException("PlayerNotFound", "Player not found: " + token);
-        }
-        // TODO Push the command
-        
-        // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build();
-    }
 }

@@ -3,7 +3,6 @@ package com.sismics.music.rest;
 import java.nio.file.Paths;
 import java.util.Date;
 
-import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.ws.rs.client.Entity;
@@ -119,17 +118,6 @@ public class TestPlayerResource extends BaseJerseyTest {
                 .post(null, JsonObject.class);
         String playerToken = json.getString("token");
         Assert.assertNotNull(playerToken);
-        
-        // Push a command
-        JsonObject commandJson = Json.createObjectBuilder()
-                .add("command", "play")
-                .add("trackId", "fake_track_id")
-                .build();
-        json = target().path("/player/command").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .post(Entity.form(new Form()
-                        .param("token", playerToken)
-                        .param("json", commandJson.toString())), JsonObject.class);
         
         // Unregister a player
         json = target().path("/player/register").request()

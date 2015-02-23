@@ -3,16 +3,24 @@
 /**
  * Websocket service.
  */
-angular.module('music').factory('Websocket', function($websocket) {
-  /*var stream = $websocket('ws://' + window.location.host + window.location.pathname + '../ws/test');
+angular.module('music').factory('Websocket', function($websocket, Restangular) {
+  /*Restangular.one('player').post('register').then(function(data) {
+    var token = data.token;
 
-  stream.onOpen(function() {
-    console.log('Websocket opened, sending message now!')
-    stream.send(JSON.stringify({ message: 'test message' }));
-  });
+    var stream = $websocket('ws://' + window.location.host + window.location.pathname + '../ws/player?token=' + token);
 
-  stream.onMessage(function(message) {
-    console.log(message);
+    stream.onOpen(function() {
+      console.log('Websocket opened, sending message now!')
+
+      Restangular.one('../ws/player').post('command', {
+        token: token,
+        json: JSON.stringify({ 'command': 'play', 'trackId': 'fake_track_id' })
+      });
+    });
+
+    stream.onMessage(function(message) {
+      console.log('ws message received!', message);
+    });
   });*/
 
   return {
