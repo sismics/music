@@ -10,10 +10,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
+import com.sismics.music.core.dao.dbi.PlayerDao;
 import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.UserDao;
 import com.sismics.music.core.dao.dbi.UserTrackDao;
 import com.sismics.music.core.model.context.AppContext;
+import com.sismics.music.core.model.dbi.Player;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.model.dbi.User;
 import com.sismics.music.core.service.lastfm.LastFmService;
@@ -44,7 +46,6 @@ public class PlayerResource extends BaseResource {
             @FormParam("id") String id,
             @FormParam("date") String dateStr,
             @FormParam("duration") Integer duration) {
-
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -81,7 +82,6 @@ public class PlayerResource extends BaseResource {
     public Response listened(
             @FormParam("id") List<String> idList,
             @FormParam("date") List<String> dateStrList) {
-
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
@@ -111,6 +111,88 @@ public class PlayerResource extends BaseResource {
             lastFmService.scrobbleTrackList(user, trackList, dateList);
         }
 
+        // Always return OK
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
+    }
+    
+    /**
+     * Register a new player.
+     * 
+     * @return Response
+     */
+    @POST
+    @Path("register")
+    public Response register() {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+        
+        // Create a new player
+        PlayerDao playerDao = new PlayerDao();
+        Player player = new Player();
+        String id = playerDao.create(player);
+        
+        // Return the token
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("token", id).build())
+                .build();
+    }
+    
+    /**
+     * Unregister a player.
+     * 
+     * @return Response
+     */
+    @POST
+    @Path("unregister")
+    public Response unregister(
+            @FormParam("token") String token) {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+        
+        ValidationUtil.validateRequired(token, "token");
+        
+        // Delete the player
+        PlayerDao playerDao = new PlayerDao();
+        Player player = playerDao.getById(token);
+        if (player == null) {
+            throw new ClientException("PlayerNotFound", "Player not found: " + token);
+        }
+        playerDao.delete(token);
+        
+        // Always return OK
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
+    }
+    
+    /**
+     * Push a command to a player.
+     * 
+     * @return Response
+     */
+    @POST
+    @Path("command")
+    public Response command(
+            @FormParam("token") String token,
+            @FormParam("json") String json) {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+        
+        ValidationUtil.validateRequired(token, "token");
+        
+        // Get the player
+        PlayerDao playerDao = new PlayerDao();
+        Player player = playerDao.getById(token);
+        if (player == null) {
+            throw new ClientException("PlayerNotFound", "Player not found: " + token);
+        }
+        // TODO Push the command
+        
         // Always return OK
         return Response.ok()
                 .entity(Json.createObjectBuilder().add("status", "ok").build())

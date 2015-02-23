@@ -13,6 +13,7 @@ import com.sismics.music.core.dao.dbi.mapper.BaseFunctionMapper;
 import com.sismics.music.core.dao.dbi.mapper.ConfigMapper;
 import com.sismics.music.core.dao.dbi.mapper.DirectoryMapper;
 import com.sismics.music.core.dao.dbi.mapper.LocaleMapper;
+import com.sismics.music.core.dao.dbi.mapper.PlayerMapper;
 import com.sismics.music.core.dao.dbi.mapper.PlaylistMapper;
 import com.sismics.music.core.dao.dbi.mapper.PlaylistTrackMapper;
 import com.sismics.music.core.dao.dbi.mapper.RoleBaseFunctionMapper;
@@ -59,6 +60,7 @@ public class DBIF {
             dbi.registerMapper(new TranscoderMapper());
             dbi.registerMapper(new UserMapper());
             dbi.registerMapper(new UserTrackMapper());
+            dbi.registerMapper(new PlayerMapper());
         } catch (Throwable t) {
             log.error("Error creating DBI", t);
         }

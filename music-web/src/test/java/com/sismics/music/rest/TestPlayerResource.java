@@ -3,6 +3,7 @@ package com.sismics.music.rest;
 import java.nio.file.Paths;
 import java.util.Date;
 
+import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.ws.rs.client.Entity;
@@ -100,5 +101,40 @@ public class TestPlayerResource extends BaseJerseyTest {
         track0 = tracks.getJsonObject(0);
         Assert.assertEquals(2, json.getInt("play_count"));
         Assert.assertEquals(2, track0.getInt("play_count"));
+    }
+    
+    /**
+     * Test remote control resources.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testRemoteControl() throws Exception {
+        // Login users
+        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        
+        // Register a player
+        JsonObject json = target().path("/player/register").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .post(null, JsonObject.class);
+        String playerToken = json.getString("token");
+        Assert.assertNotNull(playerToken);
+        
+        // Push a command
+        JsonObject commandJson = Json.createObjectBuilder()
+                .add("command", "play")
+                .add("trackId", "fake_track_id")
+                .build();
+        json = target().path("/player/command").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .post(Entity.form(new Form()
+                        .param("token", playerToken)
+                        .param("json", commandJson.toString())), JsonObject.class);
+        
+        // Unregister a player
+        json = target().path("/player/register").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .post(Entity.form(new Form()
+                        .param("token", playerToken)), JsonObject.class);
     }
 }
