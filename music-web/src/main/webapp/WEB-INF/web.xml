@@ -16,6 +16,7 @@
   <filter-mapping>
     <filter-name>requestContextFilter</filter-name>
     <url-pattern>/api/*</url-pattern>
+    <url-pattern>/ws/*</url-pattern>
     <url-pattern>*.jsp</url-pattern>
   </filter-mapping>
 
@@ -29,11 +30,12 @@
   <filter-mapping>
     <filter-name>tokenBasedSecurityFilter</filter-name>
     <url-pattern>/api/*</url-pattern>
+    <url-pattern>/ws/*</url-pattern>
   </filter-mapping>
   
   <!-- Jersey -->
   <servlet>
-		<servlet-name>Jersey Web Application</servlet-name>
+		<servlet-name>JerseyServlet</servlet-name>
 		<servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
 		<init-param>
 	    <param-name>jersey.config.server.provider.packages</param-name>
@@ -52,7 +54,36 @@
 	</servlet>
 	
 	<servlet-mapping>
-		<servlet-name>Jersey Web Application</servlet-name>
+		<servlet-name>JerseyServlet</servlet-name>
 		<url-pattern>/api/*</url-pattern>
 	</servlet-mapping>
+	
+	<!-- Atmosphere -->
+  <servlet>
+    <servlet-name>AtmosphereServlet</servlet-name>
+    <servlet-class>org.atmosphere.cpr.AtmosphereServlet</servlet-class>
+    <init-param>
+      <param-name>jersey.config.server.provider.packages</param-name>
+      <param-value>com.sismics.music.rest.atmosphere</param-value>
+    </init-param>
+    <init-param>
+      <param-name>jersey.config.server.provider.classnames</param-name>
+      <param-value>org.glassfish.jersey.media.multipart.MultiPartFeature</param-value>
+    </init-param>
+    <init-param>
+      <param-name>jersey.config.server.response.setStatusOverSendError</param-name>
+      <param-value>true</param-value>
+    </init-param>
+    <init-param>
+      <param-name>org.atmosphere.websocket.messageContentType</param-name>
+      <param-value>application/json</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+    <async-supported>true</async-supported>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>AtmosphereServlet</servlet-name>
+    <url-pattern>/ws/*</url-pattern>
+  </servlet-mapping>
 </web-app>
