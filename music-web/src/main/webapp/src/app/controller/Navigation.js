@@ -3,7 +3,7 @@
 /**
  * Navigation controller.
  */
-angular.module('music').controller('Navigation', function($rootScope, $http, $scope, User, $state, Playlist) {
+angular.module('music').controller('Navigation', function($rootScope, $http, $scope, User, $state, Playlist, Websocket) {
   // Returns true if at least an asynchronous request is in progress
   $scope.isLoading = function() {
     return $http.pendingRequests.length > 0;
@@ -18,6 +18,9 @@ angular.module('music').controller('Navigation', function($rootScope, $http, $sc
       Playlist.update().then(function() {
         // Open the first track without playing it
         Playlist.open(0);
+
+        // Connect this player
+        Websocket.connect();
       });
     }
   });
@@ -35,6 +38,8 @@ angular.module('music').controller('Navigation', function($rootScope, $http, $sc
   // User logout
   $scope.logout = function($event) {
     Playlist.reset();
+    Websocket.disconnect();
+
     User.logout().then(function() {
       User.userInfo(true).then(function(data) {
         $rootScope.userInfo = data;

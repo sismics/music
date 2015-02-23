@@ -6,7 +6,7 @@
 angular.module('music',
         // Dependencies
         ['ui.router', 'ui.bootstrap', 'dialog', 'ui.route', 'ui.keypress', 'angular-websocket',
-          'restangular', 'ui.sortable', 'pasvaz.bindonce', 'toaster', 'infinite-scroll'])
+          'restangular', 'ui.sortable', 'pasvaz.bindonce', 'toaster', 'infinite-scroll', 'monospaced.qrcode'])
 
     /**
      * Configuring modules.
@@ -164,6 +164,15 @@ angular.module('music',
               'content': {
                 templateUrl: 'partial/albumart.html',
                 controller: 'AlbumArt'
+              }
+            }
+          })
+          .state('main.settingsremote', {
+            url: '/settings/remote',
+            views: {
+              'content': {
+                templateUrl: 'partial/settings.remote.html',
+                controller: 'SettingsRemote'
               }
             }
           })

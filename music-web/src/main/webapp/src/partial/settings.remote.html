@@ -1,0 +1,12 @@
+<h3>Remote control</h3>
+<p>This feature enable the usage of the Sismics Music Android app as a remote control. Scan the QR code below with the app and control the music with your mobile device.</p>
+<form class="form-horizontal" name="remoteForm" novalidate>
+  <div class="checkbox">
+    <label>
+      <input type="checkbox" ng-change="toggleRemoteControl()" ng-model="isRegistered"> Activate remote control
+    </label>
+  </div>
+</form>
+<div class="text-center">
+  <qrcode data="{{ token }}" size="200" ng-if="isRegistered"></qrcode>
+</div>

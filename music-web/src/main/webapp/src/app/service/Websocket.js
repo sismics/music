@@ -4,25 +4,81 @@
  * Websocket service.
  */
 angular.module('music').factory('Websocket', function($websocket, Restangular) {
-  /*Restangular.one('player').post('register').then(function(data) {
-    var token = data.token;
+  var stream = null;
 
-    var stream = $websocket('ws://' + window.location.host + window.location.pathname + '../ws/player?token=' + token);
+  var service = {
+    /**
+     * Connect this player.
+     * @param user User data
+     */
+    connect: function() {
+      var token = localStorage.playerToken;
+      if (_.isUndefined(token) || stream != null) {
+        return;
+      }
 
-    stream.onOpen(function() {
-      console.log('Websocket opened, sending message now!')
+      stream = $websocket('ws://' + window.location.host + window.location.pathname + '../ws/player?token=' + token);
 
-      Restangular.one('../ws/player').post('command', {
-        token: token,
-        json: JSON.stringify({ 'command': 'play', 'trackId': 'fake_track_id' })
+      stream.onMessage(function(message) {
+        service.dispatch(JSON.parse(message));
+      })
+    },
+
+    /**
+     * Register this player.
+     * @returns Promise
+     */
+    register: function() {
+      return Restangular.one('player').post('register').then(function(data) {
+        localStorage.playerToken = data.token;
       });
-    });
+    },
 
-    stream.onMessage(function(message) {
-      console.log('ws message received!', message);
-    });
-  });*/
+    /**
+     * Unregister this player.
+     */
+    unregister: function() {
+      Restangular.one('player').post('unregister', {
+        token: localStorage.playerToken
+      });
+      delete localStorage.playerToken;
+    },
 
-  return {
+    /**
+     * Return true if this player is registered.
+     * @returns {boolean} True if registered
+     */
+    isRegistered: function() {
+      return !_.isUndefined(localStorage.playerToken);
+    },
+
+    /**
+     * Return the player token.
+     * @returns Token
+     */
+    getToken: function() {
+      return localStorage.playerToken;
+    },
+
+    /**
+     * Handle an incoming message.
+     * @param message Message
+     */
+    dispatch: function(message) {
+      console.log(message);
+    },
+
+    /**
+     * Disconnect this player.
+     */
+    disconnect: function() {
+      if (stream == null) {
+        return;
+      }
+
+      stream.close(true);
+    }
   }
+
+  return service;
 });
