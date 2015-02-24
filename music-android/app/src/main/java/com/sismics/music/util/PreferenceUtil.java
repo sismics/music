@@ -24,11 +24,13 @@ public class PreferenceUtil {
         SERVER_URL,
         CACHED_ALBUMS_LIST_JSON,
         SCROBBLE_JSON,
-        OFFLINE_MODE
+        OFFLINE_MODE,
+        PLAYER_TOKEN
     }
 
     /**
      * Returns a preference of boolean type.
+     *
      * @param context Context
      * @param key Shared preference key
      * @return Shared preference value
@@ -40,6 +42,7 @@ public class PreferenceUtil {
     
     /**
      * Returns a preference of string type.
+     *
      * @param context Context
      * @param key Shared preference key
      * @return Shared preference value
@@ -51,6 +54,7 @@ public class PreferenceUtil {
     
     /**
      * Returns a preference of integer type.
+     *
      * @param context Context
      * @param key Shared preference key
      * @return Shared preference value
@@ -72,6 +76,7 @@ public class PreferenceUtil {
     
     /**
      * Update JSON cache.
+     *
      * @param context Context
      * @param key Shared preference key
      * @param json JSON data
@@ -83,6 +88,7 @@ public class PreferenceUtil {
     
     /**
      * Returns a JSON cache.
+     *
      * @param context Context
      * @param key Shared preference key
      * @return JSON data
@@ -99,15 +105,27 @@ public class PreferenceUtil {
     
     /**
      * Update server URL.
+     *
      * @param context Context
      */
     public static void setServerUrl(Context context, String serverUrl) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         sharedPreferences.edit().putString(Pref.SERVER_URL.name(), serverUrl).commit();
     }
-    
+
+    /**
+     * Update player token.
+     *
+     * @param context Context
+     */
+    public static void setPlayerToken(Context context, String serverUrl) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        sharedPreferences.edit().putString(Pref.PLAYER_TOKEN.name(), serverUrl).commit();
+    }
+
     /**
      * Empty user caches.
+     *
      * @param context Context
      */
     public static void resetUserCache(Context context) {
@@ -115,11 +133,13 @@ public class PreferenceUtil {
         Editor editor = sharedPreferences.edit();
         editor.putString(Pref.CACHED_USER_INFO_JSON.name(), null);
         editor.putString(Pref.CACHED_ALBUMS_LIST_JSON.name(), null);
+        editor.putString(Pref.PLAYER_TOKEN.name(), null);
         editor.commit();
     }
     
     /**
      * Returns cleaned server URL.
+     *
      * @param context Context
      * @return Server URL
      */
@@ -151,6 +171,7 @@ public class PreferenceUtil {
     }
     /**
      * Returns auth token cookie from shared preferences.
+     *
      * @return Auth token
      */
     public static String getAuthToken(Context context) {

@@ -6,6 +6,7 @@ import com.loopj.android.http.FileAsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestHandle;
 import com.loopj.android.http.RequestParams;
+import com.sismics.music.util.PreferenceUtil;
 
 import org.apache.http.message.BasicNameValuePair;
 
@@ -26,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PlayerResource extends BaseResource {
     /**
      * Post a set of tracks played before.
+     *
      * @param context Context
      * @param idList Track IDs
      * @param dateList Dates of completion
@@ -91,5 +93,22 @@ public class PlayerResource extends BaseResource {
         params.put("date", dateList);
 
         return client.post(getApiUrl(context) + "/player/listened", params, responseHandler);
+    }
+
+    /**
+     * POST /player/command.
+     *
+     * @param context Context
+     * @param token Token
+     * @param json JSON
+     * @param responseHandler Callback
+     */
+    public static void command(Context context, String token, String json, JsonHttpResponseHandler responseHandler) {
+        init(context);
+
+        RequestParams params = new RequestParams();
+        params.put("token", token);
+        params.put("json", json);
+        client.post(PreferenceUtil.getServerUrl(context) + "/ws/player/command", params, responseHandler);
     }
 }

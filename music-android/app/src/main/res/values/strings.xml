@@ -45,5 +45,8 @@
     <string name="validate_error_length_max">Too long (max. %d)</string>
     <string name="validate_error_required">Required</string>
     <string name="validate_error_alphanumeric">Only letters and numbers</string>
+    <string name="connect_player">Remote Control</string>
+    <string name="fail_connecting_player">Failing to connect to player</string>
+    <string name="connecting_player">Connecting to player&#8230;</string>
 
 </resources>

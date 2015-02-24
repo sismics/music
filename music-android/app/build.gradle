@@ -39,4 +39,5 @@ dependencies {
     compile 'org:jaudiotagger:2.0.3'
     compile 'de.greenrobot:eventbus:2.2.0'
     compile 'com.mobeta.android.dslv:drag-sort-listview:0.6.1-SNAPSHOT-AAR@aar'
+    compile 'com.google.zxing:android-integration:3.2.0'
 }

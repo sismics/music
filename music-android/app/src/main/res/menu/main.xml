@@ -7,6 +7,10 @@
         android:icon="@drawable/ic_action_make_available_offline_dark"
         android:showAsAction="ifRoom" />
 
+    <item android:id="@+id/connect_player"
+        android:title="@string/connect_player"
+        android:showAsAction="collapseActionView" />
+
     <item android:id="@+id/settings"
         android:title="@string/settings"
         android:showAsAction="collapseActionView" />

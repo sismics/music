@@ -107,6 +107,7 @@
     <orderEntry type="library" exported="" name="support-v4-21.0.0" level="project" />
     <orderEntry type="library" exported="" name="android-query.0.26.7" level="project" />
     <orderEntry type="library" exported="" name="drag-sort-listview-0.6.1-SNAPSHOT-AAR" level="project" />
+    <orderEntry type="library" exported="" name="android-integration-3.2.0" level="project" />
     <orderEntry type="library" exported="" name="acra-4.5.0" level="project" />
     <orderEntry type="library" exported="" name="jaudiotagger-2.0.3" level="project" />
     <orderEntry type="library" exported="" name="support-v13-21.0.0" level="project" />

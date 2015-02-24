@@ -14,6 +14,8 @@ import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
 import com.sismics.music.event.OfflineModeChangedEvent;
@@ -22,6 +24,7 @@ import com.sismics.music.fragment.PlaylistFragment;
 import com.sismics.music.model.ApplicationContext;
 import com.sismics.music.resource.UserResource;
 import com.sismics.music.util.PreferenceUtil;
+import com.sismics.music.util.RemoteControlUtil;
 import com.sismics.music.util.ScrobbleUtil;
 
 import java.util.Locale;
@@ -115,6 +118,10 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
                 EventBus.getDefault().post(new OfflineModeChangedEvent(!offlineMode));
                 return true;
 
+            case R.id.connect_player:
+                new IntentIntegrator(this).initiateScan();
+                return true;
+
             case R.id.logout:
                 UserResource.logout(getApplicationContext(), new JsonHttpResponseHandler() {
                     @Override
@@ -151,6 +158,15 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 
         // The main activity is resumed, it's time to try to scrobble
         ScrobbleUtil.sync(this);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (scanResult != null && scanResult.getContents() != null) {
+            String token = scanResult.getContents();
+            RemoteControlUtil.connect(this, token);
+        }
     }
 
     /**

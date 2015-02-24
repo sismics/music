@@ -3,7 +3,7 @@
 /**
  * Websocket service.
  */
-angular.module('music').factory('Websocket', function($websocket, Restangular) {
+angular.module('music').factory('Websocket', function($websocket, Restangular, toaster) {
   var stream = null;
 
   var service = {
@@ -20,7 +20,7 @@ angular.module('music').factory('Websocket', function($websocket, Restangular) {
       stream = $websocket('ws://' + window.location.host + window.location.pathname + '../ws/player?token=' + token);
 
       stream.onMessage(function(message) {
-        service.dispatch(JSON.parse(message));
+        service.dispatch(JSON.parse(message.data.substring(message.data.indexOf('|') + 1)));
       })
     },
 
@@ -65,7 +65,11 @@ angular.module('music').factory('Websocket', function($websocket, Restangular) {
      * @param message Message
      */
     dispatch: function(message) {
-      console.log(message);
+      switch(message.command) {
+        case 'HELLO':
+          toaster.pop('success', 'Remote control', 'Remote control connected');
+          break;
+      }
     },
 
     /**

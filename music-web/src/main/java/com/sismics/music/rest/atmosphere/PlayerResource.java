@@ -64,6 +64,7 @@ public class PlayerResource extends BaseResource {
         
         // Set the resource to the right broadcaster
         AtmosphereResource atmosphereResource = (AtmosphereResource) request.getAttribute(ApplicationConfig.ATMOSPHERE_RESOURCE);
+        @SuppressWarnings("deprecation")
         Broadcaster lookup = BroadcasterFactory.getDefault().lookup(token, true);
         atmosphereResource.setBroadcaster(lookup);
     }
@@ -94,6 +95,7 @@ public class PlayerResource extends BaseResource {
         }
         
         // Broadcast the command
+        @SuppressWarnings("deprecation")
         Broadcaster broadcaster = BroadcasterFactory.getDefault().lookup(token, true);
         broadcaster.broadcast(json);
         
