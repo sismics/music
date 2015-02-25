@@ -1,12 +1,15 @@
 package com.sismics.atmosphere.interceptor;
 
-import com.sismics.util.context.ThreadLocalContext;
-import com.sismics.util.dbi.DBIF;
 import org.atmosphere.cpr.Action;
 import org.atmosphere.cpr.AtmosphereConfig;
 import org.atmosphere.cpr.AtmosphereInterceptorAdapter;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.skife.jdbi.v2.Handle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sismics.util.context.ThreadLocalContext;
+import com.sismics.util.dbi.DBIF;
 
 /**
  * This interceptor encapsulates each Atmosphere message into a DB transaction.
@@ -14,6 +17,11 @@ import org.skife.jdbi.v2.Handle;
  * @author jtremeaux
  */
 public class DbiTransactionInterceptor extends AtmosphereInterceptorAdapter {
+    /**
+     * Logger.
+     */
+    private static final Logger log = LoggerFactory.getLogger(DbiTransactionInterceptor.class);
+    
     @Override
     public void configure(AtmosphereConfig config) {
         // NOP
@@ -37,45 +45,22 @@ public class DbiTransactionInterceptor extends AtmosphereInterceptorAdapter {
 
     @Override
     public void postInspect(AtmosphereResource r) {
+        ThreadLocalContext context = ThreadLocalContext.get();
+        Handle handle = context.getHandle();
         ThreadLocalContext.cleanup();
+        
+        if (handle.isInTransaction()) {
+            try {
+                handle.commit();
+            } catch (Exception e) {
+                log.error("Error during commit", e);
+            }
 
-        // No error processing the request : commit / rollback the current transaction depending on the HTTP code
-//        if (handle.isInTransaction()) {
-//            HttpServletResponse r = (HttpServletResponse) response;
-//            int statusClass = r.getStatus() / 100;
-//            if (statusClass == 2 || statusClass == 3) {
-//                try {
-//                    handle.commit();
-//                } catch (Exception e) {
-//                    log.error("Error during commit", e);
-//                    r.sendError(500);
-//                }
-//            } else {
-//                handle.rollback();
-//            }
-//
-//            try {
-//                handle.close();
-//            } catch (Exception e) {
-//                log.error("Error closing JDBI handle", e);
-//            }
-//        }
-//        } catch (Exception e) {
-//            ThreadLocalContext.cleanup();
-//
-//            log.error("An exception occured, rolling back current transaction", e);
-//
-//            // If an unprocessed error comes up from the application layers (Jersey...), rollback the transaction
-//            if (handle.isInTransaction()) {
-//                handle.rollback();
-//
-//                try {
-//                    handle.close();
-//                } catch (Exception ce) {
-//                    log.error("Error closing DBI handle", ce);
-//                }
-//            }
-//            throw new RuntimeException(e);
-//        }
+            try {
+                handle.close();
+            } catch (Exception e) {
+                log.error("Error closing JDBI handle", e);
+            }
+        }
     }
 }
