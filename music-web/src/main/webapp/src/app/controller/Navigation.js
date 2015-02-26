@@ -18,10 +18,10 @@ angular.module('music').controller('Navigation', function($rootScope, $http, $sc
       Playlist.update().then(function() {
         // Open the first track without playing it
         Playlist.open(0);
-
-        // Connect this player
-        Websocket.connect();
       });
+
+      // Connect this player
+      Websocket.connect();
     }
   });
 

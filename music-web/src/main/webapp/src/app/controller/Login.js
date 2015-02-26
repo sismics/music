@@ -3,7 +3,7 @@
 /**
  * Login controller.
  */
-angular.module('music').controller('Login', function($rootScope, $scope, $state, $dialog, User, Playlist) {
+angular.module('music').controller('Login', function($rootScope, $scope, $state, $dialog, User, Playlist, Websocket) {
   $scope.login = function() {
     User.login($scope.user).then(function() {
       User.userInfo(true).then(function(data) {
@@ -15,6 +15,9 @@ angular.module('music').controller('Login', function($rootScope, $scope, $state,
         // Open the first track without playing it
         Playlist.open(0);
       });
+
+      // Connect this player
+      Websocket.connect();
 
       $state.transitionTo('main.music.albums');
     }, function() {

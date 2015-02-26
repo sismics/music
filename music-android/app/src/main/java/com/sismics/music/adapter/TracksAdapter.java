@@ -17,6 +17,7 @@ import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.model.Album;
 import com.sismics.music.model.Track;
 import com.sismics.music.util.CacheUtil;
+import com.sismics.music.util.RemoteControlUtil;
 
 import java.util.List;
 
@@ -93,9 +94,18 @@ public class TracksAdapter extends BaseAdapter {
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        CacheUtil.removeTrack(album, track);
-                        EventBus.getDefault().post(new TrackCacheStatusChangedEvent(null));
-                        return true;
+                        switch (item.getItemId()) {
+                            case R.id.unpin:
+                                CacheUtil.removeTrack(album, track);
+                                EventBus.getDefault().post(new TrackCacheStatusChangedEvent(null));
+                                return true;
+
+                            case R.id.remote_play:
+                                RemoteControlUtil.commandPlayTrack(activity, track.getId());
+                                return true;
+                        }
+
+                        return false;
                     }
                 });
 

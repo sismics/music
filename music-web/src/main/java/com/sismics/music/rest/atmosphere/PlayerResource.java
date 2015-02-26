@@ -1,6 +1,10 @@
 package com.sismics.music.rest.atmosphere;
 
+import java.io.StringReader;
+
 import javax.json.Json;
+import javax.json.JsonException;
+import javax.json.JsonReader;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -94,10 +98,19 @@ public class PlayerResource extends BaseResource {
             throw new ClientException("PlayerNotFound", "Player not found: " + token);
         }
         
-        // Broadcast the command
+        // Check if a player is connected
         @SuppressWarnings("deprecation")
         Broadcaster broadcaster = BroadcasterFactory.getDefault().lookup(token, true);
-        broadcaster.broadcast(json);
+        if (broadcaster.getAtmosphereResources().size() == 0) {
+            throw new ClientException("PlayerNotConnected", "Player not connected: " + token);
+        }
+        
+        // Parse and broadcast the JSON command
+        try (JsonReader jsonReader = Json.createReader(new StringReader(json))) {
+            broadcaster.broadcast(jsonReader.readObject());
+        } catch (JsonException e) {
+            throw new ClientException("CommandError", "Command not parsable: " + json, e);
+        }
         
         // Always return OK
         return Response.ok()

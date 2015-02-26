@@ -3,7 +3,7 @@
 /**
  * Websocket service.
  */
-angular.module('music').factory('Websocket', function($websocket, Restangular, toaster) {
+angular.module('music').factory('Websocket', function($websocket, Restangular, toaster, Playlist) {
   var stream = null;
 
   var service = {
@@ -20,8 +20,22 @@ angular.module('music').factory('Websocket', function($websocket, Restangular, t
       stream = $websocket('ws://' + window.location.host + window.location.pathname + '../ws/player?token=' + token);
 
       stream.onMessage(function(message) {
-        service.dispatch(JSON.parse(message.data.substring(message.data.indexOf('|') + 1)));
-      })
+        if (message.data.trim().length == 0) {
+          return;
+        }
+
+        console.log('ws message: ', message);
+        var data = JSON.parse(message.data.substring(message.data.indexOf('|') + 1));
+
+        if (!_.isUndefined(data.type) && data.type == 'PlayerNotFound') {
+          // We have a bad token
+          delete localStorage.playerToken;
+          service.disconnect();
+          return;
+        }
+
+        service.dispatch(data);
+      });
     },
 
     /**
@@ -67,7 +81,14 @@ angular.module('music').factory('Websocket', function($websocket, Restangular, t
     dispatch: function(message) {
       switch(message.command) {
         case 'HELLO':
-          toaster.pop('success', 'Remote control', 'Remote control connected');
+            toaster.pop('success', 'Remote control', 'Remote control connected');
+          break;
+
+        case 'PLAY_TRACK':
+            Playlist.add({
+              id: message.data[0],
+              title: '' // We don't have the title :(
+            }, true, true);
           break;
       }
     },

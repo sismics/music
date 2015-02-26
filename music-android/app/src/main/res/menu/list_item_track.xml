@@ -2,4 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/unpin"
         android:title="@string/unpin_track" />
+
+    <item android:id="@+id/remote_play"
+        android:title="@string/remote_play" />
 </menu>

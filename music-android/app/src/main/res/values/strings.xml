@@ -48,5 +48,10 @@
     <string name="connect_player">Remote Control</string>
     <string name="fail_connecting_player">Failing to connect to player</string>
     <string name="connecting_player">Connecting to player&#8230;</string>
+    <string name="success_connecting_player">Connected to player!</string>
+    <string name="remote_play">Remote play</string>
+    <string name="no_player_connected">No remote player connected</string>
+    <string name="fail_sending_command">Error sending remote player command</string>
+    <string name="remote_play_track">Remote: playing track</string>
 
 </resources>

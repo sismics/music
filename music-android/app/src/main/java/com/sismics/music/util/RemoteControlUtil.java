@@ -1,5 +1,6 @@
 package com.sismics.music.util;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -56,6 +57,7 @@ public class RemoteControlUtil {
             @Override
             public void onSuccess(JSONObject json) {
                 PreferenceUtil.setPlayerToken(context, token);
+                Toast.makeText(context, R.string.success_connecting_player, Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -94,5 +96,43 @@ public class RemoteControlUtil {
         }
 
         return null;
+    }
+
+    /**
+     * Send a command.
+     *
+     * @param context Context
+     * @param command Command
+     * @param resId Success string ID
+     */
+    private static void sendCommand(final Context context, String command, final int resId) {
+        String token = PreferenceUtil.getStringPreference(context, PreferenceUtil.Pref.PLAYER_TOKEN);
+        if (token == null || token.isEmpty()) {
+            Toast.makeText(context, R.string.no_player_connected, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        PlayerResource.command(context, token, command, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(JSONObject json) {
+                Toast.makeText(context, resId, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(final int statusCode, final Header[] headers, final byte[] responseBytes, final Throwable throwable) {
+                Toast.makeText(context, R.string.fail_sending_command, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    /**
+     * Command: Play a track.
+     *
+     * @param context Context
+     * @param trackId Track ID
+     */
+    public static void commandPlayTrack(Context context, String trackId) {
+        String command = buildCommand(Command.PLAY_TRACK, trackId);
+        sendCommand(context, command, R.string.remote_play_track);
     }
 }
