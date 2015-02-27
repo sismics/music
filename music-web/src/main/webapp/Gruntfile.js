@@ -82,6 +82,9 @@ module.exports = function(grunt) {
         replacements: [{
           from: '../api',
           to: grunt.option('apiurl') || '../api'
+        },{
+          from: '../ws',
+          to: grunt.option('wsurl') || '../ws'
         }]
       }
     }
