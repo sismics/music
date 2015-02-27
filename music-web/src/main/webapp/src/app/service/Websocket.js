@@ -3,7 +3,7 @@
 /**
  * Websocket service.
  */
-angular.module('music').factory('Websocket', function($websocket, Restangular, toaster, Playlist) {
+angular.module('music').factory('Websocket', function($websocket, Restangular, toaster, Playlist, $rootScope) {
   var stream = null;
 
   var service = {
@@ -89,6 +89,22 @@ angular.module('music').factory('Websocket', function($websocket, Restangular, t
               id: message.data[0],
               title: '' // We don't have the title :(
             }, true, true);
+          break;
+
+        case 'PREVIOUS':
+            Playlist.prev();
+          break;
+
+        case 'NEXT':
+          Playlist.next();
+          break;
+
+        case 'PLAY':
+            $rootScope.$broadcast('audio.command.play');
+          break;
+
+        case 'PAUSE':
+          $rootScope.$broadcast('audio.command.pause');
           break;
       }
     },

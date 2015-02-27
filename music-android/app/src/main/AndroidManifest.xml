@@ -28,6 +28,12 @@
             android:launchMode="singleTop">
         </activity>
 
+        <activity
+            android:name=".activity.RemoteActivity"
+            android:label="@string/remote_control"
+            android:logo="@drawable/ic_settings_remote_white_24dp">
+        </activity>
+
         <service android:exported="false" android:name=".service.MusicService">
             <intent-filter>
                 <action android:name="com.sismics.music.action.TOGGLE_PLAYBACK" />

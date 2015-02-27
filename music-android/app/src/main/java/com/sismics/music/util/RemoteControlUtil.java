@@ -1,28 +1,18 @@
 package com.sismics.music.util;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
-import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
-import com.sismics.music.activity.MainActivity;
-import com.sismics.music.listener.CallbackListener;
-import com.sismics.music.model.ApplicationContext;
 import com.sismics.music.resource.PlayerResource;
 
 import org.apache.http.Header;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Utility class for remote controlling.
@@ -37,7 +27,8 @@ public class RemoteControlUtil {
         PLAY,
         PAUSE,
         NEXT,
-        PREVIOUS
+        PREVIOUS,
+        VOLUME
     }
 
     /**
@@ -105,7 +96,7 @@ public class RemoteControlUtil {
      * @param command Command
      * @param resId Success string ID
      */
-    private static void sendCommand(final Context context, String command, final int resId) {
+    public static void sendCommand(final Context context, String command, final int resId) {
         String token = PreferenceUtil.getStringPreference(context, PreferenceUtil.Pref.PLAYER_TOKEN);
         if (token == null || token.isEmpty()) {
             Toast.makeText(context, R.string.no_player_connected, Toast.LENGTH_LONG).show();
@@ -115,7 +106,9 @@ public class RemoteControlUtil {
         PlayerResource.command(context, token, command, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(JSONObject json) {
-                Toast.makeText(context, resId, Toast.LENGTH_SHORT).show();
+                if (resId != 0) {
+                    Toast.makeText(context, resId, Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
@@ -123,16 +116,5 @@ public class RemoteControlUtil {
                 Toast.makeText(context, R.string.fail_sending_command, Toast.LENGTH_LONG).show();
             }
         });
-    }
-
-    /**
-     * Command: Play a track.
-     *
-     * @param context Context
-     * @param trackId Track ID
-     */
-    public static void commandPlayTrack(Context context, String trackId) {
-        String command = buildCommand(Command.PLAY_TRACK, trackId);
-        sendCommand(context, command, R.string.remote_play_track);
     }
 }

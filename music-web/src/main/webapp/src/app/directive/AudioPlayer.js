@@ -179,6 +179,20 @@ angular.module('music').directive('audioPlayer', function($rootScope, Playlist, 
         }
       };
 
+      // Play command event
+      $rootScope.$on('audio.command.play', function() {
+        if ($scope.track != null) {
+          $scope.audio.play();
+        }
+      });
+
+      // Pause command event
+      $rootScope.$on('audio.command.pause', function() {
+        if ($scope.track != null) {
+          $scope.audio.pause();
+        }
+      });
+
       // Mute/unmute volume
       $scope.mute = function() {
         $scope.audio.volume == 0 ? $scope.audio.volume = $scope.savedVolume : $scope.audio.volume = 0;

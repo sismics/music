@@ -14,8 +14,6 @@ import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
 import com.sismics.music.event.OfflineModeChangedEvent;
@@ -24,7 +22,6 @@ import com.sismics.music.fragment.PlaylistFragment;
 import com.sismics.music.model.ApplicationContext;
 import com.sismics.music.resource.UserResource;
 import com.sismics.music.util.PreferenceUtil;
-import com.sismics.music.util.RemoteControlUtil;
 import com.sismics.music.util.ScrobbleUtil;
 
 import java.util.Locale;
@@ -37,12 +34,6 @@ import de.greenrobot.event.EventBus;
  * @author bgamard
  */
 public class MainActivity extends Activity implements ActionBar.TabListener {
-
-    /**
-     * Custom tab pager adapter.
-     */
-    private SectionsPagerAdapter sectionsPagerAdapter;
-
     /**
      * The {@link ViewPager} that will host the tab contents.
      */
@@ -67,7 +58,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         // Create the adapter that will return a fragment for each tab
-        sectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
+        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
 
         // Set up the ViewPager with the sections adapter
         viewPager = (ViewPager) findViewById(R.id.pager);
@@ -118,8 +109,8 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
                 EventBus.getDefault().post(new OfflineModeChangedEvent(!offlineMode));
                 return true;
 
-            case R.id.connect_player:
-                new IntentIntegrator(this).initiateScan();
+            case R.id.remote_control:
+                startActivity(new Intent(MainActivity.this, RemoteActivity.class));
                 return true;
 
             case R.id.logout:
@@ -158,15 +149,6 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 
         // The main activity is resumed, it's time to try to scrobble
         ScrobbleUtil.sync(this);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (scanResult != null && scanResult.getContents() != null) {
-            String token = scanResult.getContents();
-            RemoteControlUtil.connect(this, token);
-        }
     }
 
     /**

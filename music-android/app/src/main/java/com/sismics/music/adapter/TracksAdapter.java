@@ -101,7 +101,8 @@ public class TracksAdapter extends BaseAdapter {
                                 return true;
 
                             case R.id.remote_play:
-                                RemoteControlUtil.commandPlayTrack(activity, track.getId());
+                                String command = RemoteControlUtil.buildCommand(RemoteControlUtil.Command.PLAY_TRACK, track.getId());
+                                RemoteControlUtil.sendCommand(activity, command, R.string.remote_play_track);
                                 return true;
                         }
 

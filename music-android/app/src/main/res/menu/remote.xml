@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.sismics.music.activity.MainActivity" >
+
+    <item android:id="@+id/connect_player"
+        android:title="@string/connect_player"
+        android:icon="@drawable/ic_tap_and_play_white_24dp"
+        android:showAsAction="ifRoom" />
+
+</menu>
