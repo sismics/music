@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row" id="music-albums-container" ng-style="{ 'min-height': cacheHeight + 'px' }">
   <div class="col-sm-12 search-form">
     <form role="form" class="form-inline">
       <div class="form-group has-feedback">
@@ -17,8 +17,8 @@
     </form>
   </div>
 
-  <div class="col-sm-12" infinite-scroll="loadMore()" infinite-scroll-distance="1" ng-show="total > 0">
-    <div class="col-sm-6 col-md-3" bindonce ng-repeat="album in albums">
+  <div class="col-sm-12 album-list" infinite-scroll="loadMore()" infinite-scroll-distance="1" ng-show="total > 0">
+    <div class="col-sm-6 col-md-3" bo-id="'album-' + album.id" bindonce ng-repeat="album in albums">
       <div class="thumbnail albumart-thumbnail">
         <div class="img-container">
           <a bo-href="'#/album/' + album.id">

@@ -3,7 +3,7 @@
 /**
  * Main controller.
  */
-angular.module('music').controller('Main', function($rootScope, $state, $scope, Playlist) {
+angular.module('music').controller('Main', function($rootScope, $state, $scope, Playlist, Album) {
   $scope.partyMode = Playlist.isPartyMode();
 
   // Keep party mode in sync
@@ -21,4 +21,11 @@ angular.module('music').controller('Main', function($rootScope, $state, $scope, 
   $scope.stopPartyMode = function() {
     Playlist.setPartyMode(false);
   };
+
+  // Clear the albums cache if the previous state is not main.album
+  $scope.$on('$stateChangeStart', function (e, to, toParams, from) {
+    if (to.name == 'main.music.albums' && from.name != 'main.album') {
+      Album.clearCache();
+    }
+  });
 });

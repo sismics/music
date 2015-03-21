@@ -3,7 +3,7 @@
 /**
  * Albums library controller.
  */
-angular.module('music').controller('MusicAlbums', function($scope, $stateParams, $state, Restangular, Playlist) {
+angular.module('music').controller('MusicAlbums', function($scope, $stateParams, $state, Restangular, Playlist, Album, $timeout) {
   // Initialize controller
   $scope.loaded = false;
   $scope.loading = false;
@@ -16,8 +16,22 @@ angular.module('music').controller('MusicAlbums', function($scope, $stateParams,
       $scope.order = 'alpha';
     }
   }
-  $scope.albums = [];
+  $scope.albums = Album.getCache();
   $scope.total = 0;
+
+  // Keep scroll position
+  var cache = Album.getScrollPosition();
+  $scope.cacheHeight = cache.height;
+  $timeout(function() {
+    window.scrollTo(0, cache.scroll);
+  });
+  var scroll = function() {
+    Album.setScrollPosition(window.pageYOffset, $('#music-albums-container').height());
+  };
+  angular.element(window).bind('scroll', scroll);
+  $scope.$on('$destroy', function () {
+    angular.element(window).unbind('scroll', scroll);
+  });
 
   // Load more albums
   $scope.loadMore = function(reset) {
@@ -42,6 +56,7 @@ angular.module('music').controller('MusicAlbums', function($scope, $stateParams,
           $scope.total = data.total;
           $scope.loaded = true;
           $scope.loading = false;
+          Album.setCache($scope.albums);
         });
   };
 
