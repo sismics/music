@@ -53,7 +53,7 @@ public class RemoteControlUtil {
 
             @Override
             public void onFailure(final int statusCode, final Header[] headers, final byte[] responseBytes, final Throwable throwable) {
-                Toast.makeText(context, R.string.fail_connecting_player, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, context.getString(R.string.fail_connecting_player) + ": " + new String(responseBytes), Toast.LENGTH_LONG).show();
             }
 
             @Override

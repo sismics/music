@@ -15,12 +15,12 @@ repositories {
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
     }
@@ -33,7 +33,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
-    compile 'com.android.support:support-v13:21.0.0'
+    compile 'com.android.support:support-v13:22.0.0'
     compile 'com.loopj.android:android-async-http:1.4.4'
     compile 'ch.acra:acra:4.5.0'
     compile 'org:jaudiotagger:2.0.3'
