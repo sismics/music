@@ -6,6 +6,7 @@ import com.sismics.music.core.dao.dbi.RoleBaseFunctionDao;
 import com.sismics.music.core.dao.dbi.UserDao;
 import com.sismics.music.core.model.dbi.AuthenticationToken;
 import com.sismics.music.core.model.dbi.User;
+import com.sismics.music.core.util.TransactionUtil;
 import com.sismics.security.AnonymousPrincipal;
 import com.sismics.security.UserPrincipal;
 import com.sismics.util.LocaleUtil;
@@ -110,6 +111,7 @@ public class TokenBasedSecurityFilter implements Filter {
                     
                     // Update the last connection date
                     authenticationTokenDao.updateLastConnectionDate(authenticationToken.getId());
+                    TransactionUtil.commit();
                 } else {
                     injectAnonymousUser(request);
                 }
