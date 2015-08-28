@@ -57,7 +57,7 @@ public class AlbumArtService  {
             try {
                 ImageUtil.writeJpeg(originalImage, albumArtFile);
             } catch (Exception e) {
-                throw new NonWritableException();
+                throw new NonWritableException(e);
             }
         }
     }

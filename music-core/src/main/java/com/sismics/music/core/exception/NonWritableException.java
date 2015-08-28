@@ -9,7 +9,7 @@ public class NonWritableException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
-    public NonWritableException() {
-        super();
+    public NonWritableException(Throwable cause) {
+        super(cause);
     }
 }
