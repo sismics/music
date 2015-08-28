@@ -7,9 +7,6 @@ import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * HTTP request utilities.
  * 
@@ -17,17 +14,13 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpUtil {
     /**
-     * Logger.
-     */
-    private static final Logger log = LoggerFactory.getLogger(HttpUtil.class);
-
-    /**
      * Loads the content of an URL into a string.
      * 
      * @param url URL to load
      * @return Contents of the resource
+     * @throws IOException
      */
-    public static String readUrlIntoString(URL url) {
+    public static String readUrlIntoString(URL url) throws IOException {
         URLConnection connection;
         BufferedReader in = null;
         try {
@@ -39,11 +32,8 @@ public class HttpUtil {
                 sb.append(inputLine).append("\n");
             }
             return sb.toString();
-        } catch (IOException e) {
-            if (log.isErrorEnabled()) {
-                log.error("Error reading URL", e);
-            }
-            return null;
+        } catch (Exception e) {
+            throw new IOException(e);
         } finally {
             if (in != null) {
                 try {
