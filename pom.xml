@@ -150,21 +150,21 @@
   </build>
         
   <modules>
-    <module>../music-core</module>
-    <module>../music-web-common</module>
-    <module>../music-web</module>
+    <module>music-core</module>
+    <module>music-web-common</module>
+    <module>music-web</module>
   </modules>
   
   <profiles>
     <profile>
       <id>prod</id>
       <modules>
-        <module>../music-agent</module>
-        <module>../music-distribution-standalone</module>
-        <module>../music-distribution-debian</module>
-        <module>../music-distribution-redhat</module>
-        <module>../music-distribution-mac</module>
-        <module>../music-distribution-windows</module>
+        <module>music-agent</module>
+        <module>music-distribution-standalone</module>
+        <module>music-distribution-debian</module>
+        <module>music-distribution-redhat</module>
+        <module>music-distribution-mac</module>
+        <module>music-distribution-windows</module>
       </modules>
     </profile>
     

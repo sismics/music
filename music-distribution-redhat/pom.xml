@@ -5,7 +5,7 @@
     <groupId>com.sismics.music</groupId>
     <artifactId>music-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <relativePath>../music-parent</relativePath>
+    <relativePath>..</relativePath>
   </parent>
   
   <modelVersion>4.0.0</modelVersion>
@@ -72,7 +72,6 @@
           <packager>Sismics</packager>
           <vendor>Sismics</vendor>
           <url>http://www.sismics.com/music/</url>
-          <targetArchitecture>i586</targetArchitecture>
           <summary>A Web-based aggregator of content served by Web Feeds</summary>
           <description>Music is a Web-based aggregator of content served by Web Feeds.
  
