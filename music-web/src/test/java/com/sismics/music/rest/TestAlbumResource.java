@@ -100,7 +100,7 @@ public class TestAlbumResource extends BaseJerseyTest {
         json = target().path("/album/" + album0Id + "/albumart").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .post(Entity.form(new Form()
-                        .param("url", "http://www.sismics.com/img/sismics.png")), JsonObject.class);
+                            .param("url", "http://lorempixel.com/200/200/")), JsonObject.class);
         Assert.assertNull(json.get("message"));
         
         // Get an album art
@@ -120,7 +120,7 @@ public class TestAlbumResource extends BaseJerseyTest {
         json = target().path("/album/" + album0Id + "/albumart").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .post(Entity.form(new Form()
-                        .param("url", "http://www.sismics.com/img/sismics.png")), JsonObject.class);
+                        .param("url", "http://lorempixel.com/200/200/")), JsonObject.class);
         Assert.assertEquals("AlbumArtNotCopied", json.getString("message"));
         albumArtFile.setWritable(true);
         
