@@ -38,7 +38,7 @@ public class TranscodedInputStream extends InputStream {
             for (String s : processBuilder.command()) {
                 sb.append(s).append(" ");
             }
-            log.info(sb.toString());
+            log.debug(sb.toString());
         }
         
         this.fileSize = fileSize;

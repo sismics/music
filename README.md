@@ -39,7 +39,6 @@ Prerequisites: JDK 7, Maven 3, NPM
 
 Music is organized in several Maven modules:
 
-  - music-parent
   - music-core
   - music-web
   - music-web-common
@@ -50,7 +49,7 @@ or download the sources from GitHub.
 
 #### Launch the build
 
-From the `music-parent` directory:
+From the root directory:
 
     mvn clean -DskipTests install
 

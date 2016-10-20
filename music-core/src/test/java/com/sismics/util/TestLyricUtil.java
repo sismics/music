@@ -25,10 +25,9 @@ public class TestLyricUtil {
         Assert.assertTrue(lyrics.get(0).contains("Once upon a time, a few mistakes ago"));
         
         lyrics = LyricUtil.getLyrics("Perfume", "Spring of Life");
-        Assert.assertEquals(2, lyrics.size());
+        Assert.assertEquals(1, lyrics.size());
         Assert.assertTrue(lyrics.get(0).contains("思い出は空白のままで"));
-        Assert.assertTrue(lyrics.get(1).contains("Omoide wa kuuhaku no mama de"));
-        
+
         try {
             lyrics = LyricUtil.getLyrics("Bob and Alice", "Cryptomusic");
             Assert.fail();

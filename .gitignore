@@ -4,6 +4,5 @@
 /*/bin
 /*/gen
 /*/target
-/*/*.iml
+*.iml
 .idea/
-/reader-web/src/main/webapp/sismicsreader
