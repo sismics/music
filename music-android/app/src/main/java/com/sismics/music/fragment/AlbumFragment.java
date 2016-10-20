@@ -123,7 +123,7 @@ public class AlbumFragment extends Fragment {
         listTracks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                PlaylistService.add(album, tracksAdapter.getItem(position - 1));
+                PlaylistService.INSTANCE.add(album, tracksAdapter.getItem(position - 1));
                 Toast.makeText(getActivity(), R.string.add_toast, Toast.LENGTH_SHORT).show();
             }
         });
@@ -133,8 +133,8 @@ public class AlbumFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 List<Track> trackList = tracksAdapter.getTracks();
-                PlaylistService.clear(false);
-                PlaylistService.addAll(album, trackList);
+                PlaylistService.INSTANCE.clear(false);
+                PlaylistService.INSTANCE.addAll(album, trackList);
                 Intent intent = new Intent(MusicService.ACTION_PLAY, null, getActivity(), MusicService.class);
                 intent.putExtra(MusicService.EXTRA_FORCE, true);
                 getActivity().startService(intent);
@@ -147,7 +147,7 @@ public class AlbumFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 List<Track> trackList = tracksAdapter.getTracks();
-                PlaylistService.addAll(album, trackList);
+                PlaylistService.INSTANCE.addAll(album, trackList);
                 Toast.makeText(getActivity(), R.string.add_all_toast, Toast.LENGTH_SHORT).show();
             }
         });
@@ -168,7 +168,7 @@ public class AlbumFragment extends Fragment {
         cacheTask = new AsyncTask<Album, Void, List<Track>>() {
             @Override
             protected List<Track> doInBackground(Album... params) {
-                return CacheUtil.getCachedTrack(params[0]);
+                return CacheUtil.INSTANCE.getCachedTrack(params[0]);
             }
 
             @Override
@@ -179,7 +179,7 @@ public class AlbumFragment extends Fragment {
 
         if (!offlineMode) {
             // We are in online mode, download the album details from the server
-            AlbumResource.info(getActivity(), album.getId(), new JsonHttpResponseHandler() {
+            AlbumResource.Companion.info(getActivity(), album.getId(), new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(final JSONObject json) {
                     if (getActivity() == null) {

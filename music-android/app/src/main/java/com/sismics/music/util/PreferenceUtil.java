@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * Utility class on preferences.
- * 
+ *
  * @author bgamard
  */
 public class PreferenceUtil {
@@ -39,7 +39,7 @@ public class PreferenceUtil {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         return sharedPreferences.getBoolean(key.name(), defaultValue);
     }
-    
+
     /**
      * Returns a preference of string type.
      *
@@ -51,7 +51,7 @@ public class PreferenceUtil {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         return sharedPreferences.getString(key.name(), null);
     }
-    
+
     /**
      * Returns a preference of integer type.
      *
@@ -71,9 +71,9 @@ public class PreferenceUtil {
         } catch (ClassCastException e) {
             return sharedPreferences.getInt(key.name(), defaultValue);
         }
-        
+
     }
-    
+
     /**
      * Update JSON cache.
      *
@@ -85,7 +85,7 @@ public class PreferenceUtil {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         sharedPreferences.edit().putString(key.name(), json != null ? json.toString() : null).commit();
     }
-    
+
     /**
      * Returns a JSON cache.
      *
@@ -102,7 +102,7 @@ public class PreferenceUtil {
             return null;
         }
     }
-    
+
     /**
      * Update server URL.
      *
@@ -136,7 +136,7 @@ public class PreferenceUtil {
         editor.putString(Pref.PLAYER_TOKEN.name(), null);
         editor.commit();
     }
-    
+
     /**
      * Returns cleaned server URL.
      *
@@ -148,25 +148,25 @@ public class PreferenceUtil {
         if (serverUrl == null) {
             return null;
         }
-        
+
         // Trim
         serverUrl = serverUrl.trim();
-        
+
         if (!serverUrl.startsWith("http")) {
             // Try to add http
             serverUrl = "http://" + serverUrl;
         }
-        
+
         if (serverUrl.endsWith("/")) {
             // Delete last /
             serverUrl = serverUrl.substring(0, serverUrl.length() - 1);
         }
-        
+
         // Remove /api
         if (serverUrl.endsWith("/api")) {
             serverUrl = serverUrl.substring(0, serverUrl.length() - 4);
         }
-        
+
         return serverUrl;
     }
     /**

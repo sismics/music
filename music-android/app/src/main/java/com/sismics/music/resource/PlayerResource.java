@@ -2,7 +2,6 @@ package com.sismics.music.resource;
 
 import android.content.Context;
 
-import com.loopj.android.http.FileAsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestHandle;
 import com.loopj.android.http.RequestParams;
@@ -12,7 +11,6 @@ import org.apache.http.message.BasicNameValuePair;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Access to /player API.
- * 
+ *
  * @author bgamard
  */
 public class PlayerResource extends BaseResource {

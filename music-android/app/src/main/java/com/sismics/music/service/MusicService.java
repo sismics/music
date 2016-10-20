@@ -314,7 +314,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         mState = State.Stopped;
 
         // Stop the playlist
-        PlaylistService.stop();
+        PlaylistService.INSTANCE.stop();
 
         // let go of all resources...
         relaxResources(true);
@@ -402,7 +402,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         mState = State.Stopped;
         relaxResources(false); // release everything except MediaPlayer
 
-        PlaylistTrack nextPlaylistTrack = PlaylistService.next(true);
+        PlaylistTrack nextPlaylistTrack = PlaylistService.INSTANCE.next(true);
         if (nextPlaylistTrack == null) {
             return;
         }
@@ -428,7 +428,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             downloadingPlaylistTrack = null;
         }
 
-        final File incompleteCacheFile = CacheUtil.getIncompleteCacheFile(playlistTrack);
+        final File incompleteCacheFile = CacheUtil.INSTANCE.getIncompleteCacheFile(playlistTrack);
 
         FileAsyncHttpResponseHandler responseHandler = new FileAsyncHttpResponseHandler(incompleteCacheFile) {
             @Override
@@ -439,7 +439,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, File file) {
-                if (CacheUtil.setComplete(file)) {
+                if (CacheUtil.INSTANCE.setComplete(file)) {
                     playlistTrack.setCacheStatus(PlaylistTrack.CacheStatus.COMPLETE);
                     EventBus.getDefault().post(new TrackCacheStatusChangedEvent(playlistTrack));
                     if (play) {
@@ -453,7 +453,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                 // Request is finished (and not cancelled), let's buffer the next song without playing it
                 bufferRequestHandle = null;
                 downloadingPlaylistTrack = null;
-                PlaylistTrack nextPlaylistTrack = PlaylistService.after(playlistTrack);
+                PlaylistTrack nextPlaylistTrack = PlaylistService.INSTANCE.after(playlistTrack);
                 if (nextPlaylistTrack != null) {
                     Log.d("SismicsMusic", "Downloading the next playlistTrack " + nextPlaylistTrack.getTitle());
                     downloadTrack(nextPlaylistTrack, false);
@@ -461,7 +461,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             }
         };
 
-        if (CacheUtil.isComplete(playlistTrack)) {
+        if (CacheUtil.INSTANCE.isComplete(playlistTrack)) {
             Log.d("SismicsMusic", "This playlistTrack is already complete, output: " + play);
 
             // Nothing to buffer, the playlistTrack is already complete in the cache
@@ -487,7 +487,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             songStartedAt = new Date().getTime();
             songCompleted = false;
             mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            File file = CacheUtil.getCompleteCacheFile(playlistTrack);
+            File file = CacheUtil.INSTANCE.getCompleteCacheFile(playlistTrack);
             mPlayer.setDataSource(this, Uri.fromFile(file));
 
             currentPlaylistTrack = playlistTrack;
@@ -668,7 +668,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         if (event.getCurrentPosition() > event.getDuration() / 2 && !songCompleted) {
             // The song is considered completed
             songCompleted = true;
-            ScrobbleUtil.trackCompleted(this, event.getPlaylistTrack().getId(), event.getSongStartedAt());
+            ScrobbleUtil.INSTANCE.trackCompleted(this, event.getPlaylistTrack().getId(), event.getSongStartedAt());
         }
     }
 

@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.sismics.music.service;
+package com.sismics.music.service
 
 /**
  * Represents something that can react to audio focus events. We implement this instead of just
  * using AudioManager.OnAudioFocusChangeListener because that interface is only available in SDK
  * level 8 and above, and we want our application to work on previous SDKs.
  */
-public interface MusicFocusable {
-    /** Signals that audio focus was gained. */
-    public void onGainedAudioFocus();
+interface MusicFocusable {
+    /** Signals that audio focus was gained.  */
+    fun onGainedAudioFocus()
 
     /**
      * Signals that audio focus was lost.
-     *
+
      * @param canDuck If true, audio can continue in "ducked" mode (low volume). Otherwise, all
-     * audio must stop.
+     * * audio must stop.
      */
-    public void onLostAudioFocus(boolean canDuck);
+    fun onLostAudioFocus(canDuck: Boolean)
 }

@@ -1,13 +1,15 @@
 buildscript {
+    ext.kotlin_version = '1.0.4'
     repositories {
         mavenCentral()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
-
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 repositories {
     mavenCentral()
@@ -33,6 +35,9 @@ android {
     lintOptions {
         abortOnError false
     }
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
 }
 
 dependencies {
@@ -44,4 +49,5 @@ dependencies {
     compile 'de.greenrobot:eventbus:2.2.0'
     compile 'com.mobeta.android.dslv:drag-sort-listview:0.6.1-SNAPSHOT-AAR@aar'
     compile 'com.google.zxing:android-integration:3.2.0'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
