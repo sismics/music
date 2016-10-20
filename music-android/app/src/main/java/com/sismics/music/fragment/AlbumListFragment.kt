@@ -51,7 +51,7 @@ class AlbumListFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the view
         val view = inflater.inflate(R.layout.fragment_album_list, container, false)
         offlineMode = PreferenceUtil.getBooleanPreference(activity, PreferenceUtil.Pref.OFFLINE_MODE, false)
@@ -81,7 +81,7 @@ class AlbumListFragment : Fragment() {
         // Open the album details on click
         aq!!.id(R.id.listAlbum).itemClicked { parent, view, position, id ->
             val adapter = aq!!.id(R.id.listAlbum).listView.adapter as AlbumAdapter
-            EventBus.getDefault().post(AlbumOpenedEvent(Album(adapter.getItem(position))))
+            EventBus.getDefault().post(AlbumOpenedEvent(Album.fromJson(adapter.getItem(position))))
         }
 
         EventBus.getDefault().register(this)

@@ -111,16 +111,14 @@ object CacheUtil {
         // Extract tags from cached files
         for (file in files) {
             try {
-                val track = Track()
                 val audioFile = MP3FileReader().read(file)
                 val tag = audioFile.tag
                 val header = audioFile.audioHeader
 
-                track.length = header.trackLength
-                if (tag != null) {
-                    track.title = tag.getFirst(FieldKey.TITLE)
-                }
-                track.id = file.name.substring(0, file.name.indexOf("."))
+                val id = file.name.substring(0, file.name.indexOf("."))
+                val title = tag?.getFirst(FieldKey.TITLE)
+                val track = Track(id, title?:"", header.trackLength)
+
                 trackList.add(track)
             } catch (e: ClosedChannelException) {
                 // We have been interrupted, don't care

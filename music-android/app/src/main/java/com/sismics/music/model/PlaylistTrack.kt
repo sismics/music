@@ -39,25 +39,21 @@ class PlaylistTrack
      * Set the track cache status.
      * @param cacheStatus New cache status
      */
-    var cacheStatus: CacheStatus? = null
-
-    init {
-        cacheStatus = if (CacheUtil.isComplete(this)) CacheStatus.COMPLETE else CacheStatus.NONE
-    }
+    var cacheStatus: CacheStatus = if (CacheUtil.isComplete(this)) CacheStatus.COMPLETE else CacheStatus.NONE
 
     /**
      * Returns the track title.
      * @return Track title
      */
     val title: String
-        get() = track.title!!
+        get() = track.title
 
     /**
      * Returns the track ID.
      * @return Track ID
      */
     val id: String
-        get() = track.id!!
+        get() = track.id
 
     /**
      * Returns the track artist name.

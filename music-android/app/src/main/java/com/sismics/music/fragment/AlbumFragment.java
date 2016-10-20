@@ -194,7 +194,7 @@ public class AlbumFragment extends Fragment {
                     List<Track> tracks = new ArrayList<>();
                     JSONArray tracksJson =  json.optJSONArray("tracks");
                     for (int i = 0; i < tracksJson.length(); i++) {
-                        tracks.add(new Track(tracksJson.optJSONObject(i)));
+                        tracks.add(Track.Companion.fromJson(tracksJson.optJSONObject(i)));
                     }
 
                     // Populate the adapter
