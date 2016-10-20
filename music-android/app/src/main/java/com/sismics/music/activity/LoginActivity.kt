@@ -6,7 +6,6 @@ import android.support.v4.app.FragmentActivity
 import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.View
-import com.androidquery.AQuery
 import com.loopj.android.http.JsonHttpResponseHandler
 import com.sismics.music.R
 import com.sismics.music.model.ApplicationContext
@@ -15,6 +14,7 @@ import com.sismics.music.util.DialogUtil
 import com.sismics.music.util.PreferenceUtil
 import com.sismics.music.util.form.Validator
 import com.sismics.music.util.form.validator.Required
+import kotlinx.android.synthetic.main.activity_login.*
 import org.apache.http.Header
 import org.json.JSONObject
 
@@ -25,30 +25,14 @@ import org.json.JSONObject
  */
 class LoginActivity : FragmentActivity() {
 
-    /**
-     * User interface.
-     */
-    private var loginForm: View? = null
-    private var progressBar: View? = null
-
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        val aq = AQuery(this)
-        aq.id(R.id.loginExplain).text(Html.fromHtml(getString(R.string.login_explain))).textView.movementMethod = LinkMovementMethod.getInstance()
-
-        val txtServer = aq.id(R.id.txtServer).editText
-        val txtUsername = aq.id(R.id.txtUsername).editText
-        val txtPassword = aq.id(R.id.txtPassword).editText
-        val btnConnect = aq.id(R.id.btnConnect).button
-        loginForm = aq.id(R.id.loginForm).view
-        progressBar = aq.id(R.id.progressBar).view
-
-        // PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-
-        loginForm!!.visibility = View.GONE
-        progressBar!!.visibility = View.VISIBLE
+        loginExplain.text = Html.fromHtml(getString(R.string.login_explain))
+        loginExplain.movementMethod = LinkMovementMethod.getInstance()
+        loginForm.visibility = View.GONE
+        progressBar.visibility = View.VISIBLE
 
         // Form validation
         val validator = Validator(false)
@@ -67,8 +51,8 @@ class LoginActivity : FragmentActivity() {
 
         // Login button
         btnConnect.setOnClickListener {
-            loginForm!!.visibility = View.GONE
-            progressBar!!.visibility = View.VISIBLE
+            loginForm.visibility = View.GONE
+            progressBar.visibility = View.VISIBLE
 
             PreferenceUtil.setServerUrl(this@LoginActivity, txtServer.text.toString())
 
@@ -87,8 +71,8 @@ class LoginActivity : FragmentActivity() {
                     }
 
                     override fun onFailure(statusCode: Int, headers: Array<Header>, responseBytes: ByteArray?, throwable: Throwable) {
-                        loginForm!!.visibility = View.VISIBLE
-                        progressBar!!.visibility = View.GONE
+                        loginForm.visibility = View.VISIBLE
+                        progressBar.visibility = View.GONE
 
                         if (responseBytes != null && String(responseBytes).contains("\"ForbiddenError\"")) {
                             DialogUtil.showOkDialog(this@LoginActivity, R.string.login_fail_title, R.string.login_fail)
@@ -99,8 +83,8 @@ class LoginActivity : FragmentActivity() {
                 })
             } catch (e: IllegalArgumentException) {
                 // Given URL is not valid
-                loginForm!!.visibility = View.VISIBLE
-                progressBar!!.visibility = View.GONE
+                loginForm.visibility = View.VISIBLE
+                progressBar.visibility = View.GONE
                 PreferenceUtil.setServerUrl(this@LoginActivity, null)
                 DialogUtil.showOkDialog(this@LoginActivity, R.string.invalid_url_title, R.string.invalid_url)
             }
@@ -114,8 +98,8 @@ class LoginActivity : FragmentActivity() {
         val serverUrl = PreferenceUtil.getStringPreference(this, PreferenceUtil.Pref.SERVER_URL)
         if (serverUrl == null) {
             // Server URL is empty
-            loginForm!!.visibility = View.VISIBLE
-            progressBar!!.visibility = View.GONE
+            loginForm.visibility = View.VISIBLE
+            progressBar.visibility = View.GONE
             return
         }
 
@@ -130,7 +114,7 @@ class LoginActivity : FragmentActivity() {
             UserResource.info(applicationContext, object : JsonHttpResponseHandler() {
                 override fun onSuccess(json: JSONObject?) {
                     if (json!!.optBoolean("anonymous", true)) {
-                        loginForm!!.visibility = View.VISIBLE
+                        loginForm.visibility = View.VISIBLE
                         return
                     }
 
@@ -145,11 +129,11 @@ class LoginActivity : FragmentActivity() {
 
                 override fun onFailure(statusCode: Int, headers: Array<Header>, responseBytes: ByteArray?, throwable: Throwable) {
                     DialogUtil.showOkDialog(this@LoginActivity, R.string.network_error_title, R.string.network_error)
-                    loginForm!!.visibility = View.VISIBLE
+                    loginForm.visibility = View.VISIBLE
                 }
 
                 override fun onFinish() {
-                    progressBar!!.visibility = View.GONE
+                    progressBar.visibility = View.GONE
                 }
             })
         }

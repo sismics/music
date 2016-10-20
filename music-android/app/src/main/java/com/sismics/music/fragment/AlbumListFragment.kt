@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
-import com.androidquery.AQuery
 import com.loopj.android.http.JsonHttpResponseHandler
 import com.sismics.music.R
 import com.sismics.music.adapter.AlbumAdapter
@@ -18,6 +17,7 @@ import com.sismics.music.resource.AlbumResource
 import com.sismics.music.util.CacheUtil
 import com.sismics.music.util.PreferenceUtil
 import de.greenrobot.event.EventBus
+import kotlinx.android.synthetic.main.fragment_album_list.*
 import org.json.JSONObject
 
 /**
@@ -26,8 +26,6 @@ import org.json.JSONObject
  * @author bgamard
  */
 class AlbumListFragment : Fragment() {
-
-    private var aq: AQuery? = null
 
     private var offlineMode: Boolean = false
 
@@ -52,23 +50,22 @@ class AlbumListFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        // Inflate the view
-        val view = inflater.inflate(R.layout.fragment_album_list, container, false)
+        return inflater.inflate(R.layout.fragment_album_list, container, false)
+    }
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         offlineMode = PreferenceUtil.getBooleanPreference(activity, PreferenceUtil.Pref.OFFLINE_MODE, false)
-        aq = AQuery(view)
 
         refreshAlbumList(false)
 
         // Clear the search input
-        aq!!.id(R.id.clearSearch).clicked { aq!!.id(R.id.search).text("") }
+        clearSearch.setOnClickListener { search.setText("") }
 
         // Filter the albums when the search input changes
-        aq!!.id(R.id.search).editText.addTextChangedListener(object : TextWatcher {
+        search.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                val adapter = aq!!.id(R.id.listAlbum).listView.adapter as AlbumAdapter
-                if (adapter != null) {
-                    adapter.filter.filter(s)
-                }
+                val adapter = listAlbum.adapter as AlbumAdapter
+                adapter.filter.filter(s)
             }
 
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
@@ -79,13 +76,12 @@ class AlbumListFragment : Fragment() {
         })
 
         // Open the album details on click
-        aq!!.id(R.id.listAlbum).itemClicked { parent, view, position, id ->
-            val adapter = aq!!.id(R.id.listAlbum).listView.adapter as AlbumAdapter
+        listAlbum.setOnItemClickListener { parent, view, position, id ->
+            val adapter = listAlbum.adapter as AlbumAdapter
             EventBus.getDefault().post(AlbumOpenedEvent(Album.fromJson(adapter.getItem(position))))
         }
 
         EventBus.getDefault().register(this)
-        return view
     }
 
     /**
@@ -100,8 +96,8 @@ class AlbumListFragment : Fragment() {
         val cache = PreferenceUtil.getCachedJson(activity, PreferenceUtil.Pref.CACHED_ALBUMS_LIST_JSON)
         if (cache != null) {
             val adapter = AlbumAdapter(activity, cache.optJSONArray("albums"), cachedAlbumSet, offlineMode)
-            aq!!.id(R.id.listAlbum).adapter(adapter)
-            adapter.filter.filter(aq!!.id(R.id.search).text)
+            listAlbum.adapter = adapter
+            adapter.filter.filter(search.text)
         }
 
         if (cache == null || forceRefresh) {
@@ -114,21 +110,20 @@ class AlbumListFragment : Fragment() {
                     }
 
                     // Cache the albums list
-                    val listView = aq!!.id(R.id.listAlbum).listView
                     val albums = json!!.optJSONArray("albums")
                     PreferenceUtil.setCachedJson(activity, PreferenceUtil.Pref.CACHED_ALBUMS_LIST_JSON, json)
 
                     // Publish the new albums to the adapter
-                    var adapter: AlbumAdapter? = listView.adapter as AlbumAdapter
+                    var adapter: AlbumAdapter? = listAlbum.adapter as? AlbumAdapter
                     if (adapter != null) {
                         adapter.setAlbums(albums)
                     } else {
                         adapter = AlbumAdapter(activity, albums, cachedAlbumSet, offlineMode)
-                        listView.adapter = adapter
+                        listAlbum.adapter = adapter
                     }
 
                     // Apply the filter on the new result set
-                    adapter.filter.filter(aq!!.id(R.id.search).text)
+                    adapter.filter.filter(search.text)
                 }
             })
         }
@@ -153,9 +148,9 @@ class AlbumListFragment : Fragment() {
      */
     fun onEvent(event: OfflineModeChangedEvent) {
         offlineMode = event.isOfflineMode
-        val adapter = aq!!.id(R.id.listAlbum).listView.adapter as AlbumAdapter
-        adapter?.setOfflineMode(offlineMode)
-        aq!!.id(R.id.search).text("")
+        val adapter = listAlbum.adapter as AlbumAdapter
+        adapter.setOfflineMode(offlineMode)
+        search.setText("")
     }
 
     /**
@@ -167,7 +162,6 @@ class AlbumListFragment : Fragment() {
     }
 
     companion object {
-
         /**
          * Returns a new instance of this fragment.
          */

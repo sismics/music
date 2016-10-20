@@ -5,8 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.SeekBar
-import com.androidquery.AQuery
-import com.mobeta.android.dslv.DragSortListView
 import com.sismics.music.R
 import com.sismics.music.adapter.PlaylistAdapter
 import com.sismics.music.event.MediaPlayerSeekEvent
@@ -16,6 +14,7 @@ import com.sismics.music.event.TrackCacheStatusChangedEvent
 import com.sismics.music.service.MusicService
 import com.sismics.music.service.PlaylistService
 import de.greenrobot.event.EventBus
+import kotlinx.android.synthetic.main.fragment_playlist.*
 
 /**
  * Playlist fragment.
@@ -24,8 +23,6 @@ class PlaylistFragment : Fragment() {
 
     private var playlistAdapter: PlaylistAdapter? = null
     private var eventBus: EventBus? = null
-    private var seekBar: SeekBar? = null
-    private var aq: AQuery? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,38 +48,38 @@ class PlaylistFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        // Inflate the view
-        val view = inflater.inflate(R.layout.fragment_playlist, container, false)
-        aq = AQuery(view)
-        val listTracks = aq!!.id(R.id.listTracks).view as DragSortListView
-        seekBar = aq!!.id(R.id.seekBar).seekBar
-        aq!!.id(R.id.playlistPause).gone()
+        return inflater.inflate(R.layout.fragment_playlist, container, false)
+    }
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        playlistPause.visibility = View.GONE
 
         // Create a new playlist adapter
         playlistAdapter = PlaylistAdapter(activity, listTracks)
 
         // Configure the tracks list
-        aq!!.id(R.id.listTracks).adapter(playlistAdapter).itemClicked { parent, view, position, id ->
+        listTracks.setOnItemClickListener { parent, view, position, id ->
             PlaylistService.change(position - 1)
             val intent = Intent(MusicService.ACTION_PLAY, null, activity, MusicService::class.java)
             intent.putExtra(MusicService.EXTRA_FORCE, true)
             activity.startService(intent)
-        }.listView.emptyView = view.findViewById(R.id.emptyPlaylist)
+        }
+        listTracks.emptyView = emptyPlaylist
 
         // Play button
-        aq!!.id(R.id.playlistPlay).clicked {
+        playlistPlay.setOnClickListener {
             val intent = Intent(MusicService.ACTION_PLAY, null, activity, MusicService::class.java)
             activity.startService(intent)
         }
 
         // Pause button
-        aq!!.id(R.id.playlistPause).clicked {
+        playlistPause.setOnClickListener {
             val intent = Intent(MusicService.ACTION_PAUSE, null, activity, MusicService::class.java)
             activity.startService(intent)
         }
 
         // Stop button
-        aq!!.id(R.id.playlistStop).clicked {
+        playlistStop.setOnClickListener {
             val intent = Intent(MusicService.ACTION_STOP, null, activity, MusicService::class.java)
             activity.startService(intent)
         }
@@ -100,7 +97,7 @@ class PlaylistFragment : Fragment() {
         listTracks.setDropListener { from, to -> PlaylistService.move(from, to) }
 
         // Seekbar moved
-        seekBar!!.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     eventBus!!.post(MediaPlayerSeekEvent(progress))
@@ -116,7 +113,6 @@ class PlaylistFragment : Fragment() {
 
         eventBus = EventBus.getDefault()
         eventBus!!.register(this)
-        return view
     }
 
     /**
@@ -141,11 +137,11 @@ class PlaylistFragment : Fragment() {
      */
     fun onEvent(event: MediaPlayerStateChangedEvent) {
         if (event.state == MusicService.State.Playing) {
-            aq!!.id(R.id.playlistPause).visible()
-            aq!!.id(R.id.playlistPlay).gone()
+            playlistPause.visibility = View.VISIBLE
+            playlistPlay.visibility = View.GONE
         } else {
-            aq!!.id(R.id.playlistPause).gone()
-            aq!!.id(R.id.playlistPlay).visible()
+            playlistPause.visibility = View.GONE
+            playlistPlay.visibility = View.VISIBLE
         }
 
         if (event.state == MusicService.State.Playing || event.state == MusicService.State.Paused) {
