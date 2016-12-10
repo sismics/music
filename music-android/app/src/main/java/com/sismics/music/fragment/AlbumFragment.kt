@@ -12,6 +12,9 @@ import android.view.ViewGroup
 import android.widget.AbsListView
 import android.widget.AdapterView
 import android.widget.Toast
+import com.androidquery.AQuery
+import com.androidquery.callback.BitmapAjaxCallback
+import com.loopj.android.http.JsonHttpResponseHandler
 import com.sismics.music.R
 import com.sismics.music.adapter.TracksAdapter
 import com.sismics.music.event.OfflineModeChangedEvent
@@ -23,6 +26,7 @@ import com.sismics.music.service.MusicService
 import com.sismics.music.service.PlaylistService
 import com.sismics.music.util.CacheUtil
 import com.sismics.music.util.PreferenceUtil
+import de.greenrobot.event.EventBus
 import org.json.JSONObject
 import java.util.*
 

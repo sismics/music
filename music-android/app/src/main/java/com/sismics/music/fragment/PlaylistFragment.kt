@@ -13,6 +13,7 @@ import com.sismics.music.event.PlaylistChangedEvent
 import com.sismics.music.event.TrackCacheStatusChangedEvent
 import com.sismics.music.service.MusicService
 import com.sismics.music.service.PlaylistService
+import de.greenrobot.event.EventBus
 import kotlinx.android.synthetic.main.fragment_playlist.*
 
 /**
