@@ -12,9 +12,6 @@ import android.view.ViewGroup
 import android.widget.AbsListView
 import android.widget.AdapterView
 import android.widget.Toast
-import com.androidquery.AQuery
-import com.androidquery.callback.BitmapAjaxCallback
-import com.loopj.android.http.JsonHttpResponseHandler
 import com.sismics.music.R
 import com.sismics.music.adapter.TracksAdapter
 import com.sismics.music.event.OfflineModeChangedEvent
@@ -26,7 +23,6 @@ import com.sismics.music.service.MusicService
 import com.sismics.music.service.PlaylistService
 import com.sismics.music.util.CacheUtil
 import com.sismics.music.util.PreferenceUtil
-import de.greenrobot.event.EventBus
 import org.json.JSONObject
 import java.util.*
 
@@ -92,11 +88,9 @@ class AlbumFragment : Fragment() {
         listTracks.adapter = tracksAdapter
 
         // Add to queue on click
-        listTracks.onItemClickListener = object: AdapterView.OnItemClickListener {
-            override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                PlaylistService.add(album, tracksAdapter!!.getItem(position - 1))
-                Toast.makeText(activity, R.string.add_toast, Toast.LENGTH_SHORT).show()
-            }
+        listTracks.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+            PlaylistService.add(album, tracksAdapter!!.getItem(position - 1))
+            Toast.makeText(activity, R.string.add_toast, Toast.LENGTH_SHORT).show()
         }
 
         // Play all

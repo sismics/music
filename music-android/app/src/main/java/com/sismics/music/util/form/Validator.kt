@@ -13,12 +13,7 @@ import java.util.*
 
  * @author bgamard
  */
-class Validator
-/**
- * Constructor.
- * @param showErrors True to display validation errors
- */
-(
+class Validator(
         /**
          * True if the validator show validation errors.
          */

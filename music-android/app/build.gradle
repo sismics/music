@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.0.4'
+    ext.kotlin_version = '1.0.5-2'
     repositories {
         mavenCentral()
     }
@@ -18,12 +18,12 @@ repositories {
 }
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 25
     buildToolsVersion "25.0.0"
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 22
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0"
     }
@@ -43,7 +43,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
-    compile 'com.android.support:support-v13:22.0.0'
+    compile 'com.android.support:support-v13:25.0.1'
     compile 'com.loopj.android:android-async-http:1.4.4'
     compile 'ch.acra:acra:4.5.0'
     compile 'org:jaudiotagger:2.0.3'

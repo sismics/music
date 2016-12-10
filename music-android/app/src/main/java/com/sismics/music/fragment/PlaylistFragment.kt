@@ -13,7 +13,6 @@ import com.sismics.music.event.PlaylistChangedEvent
 import com.sismics.music.event.TrackCacheStatusChangedEvent
 import com.sismics.music.service.MusicService
 import com.sismics.music.service.PlaylistService
-import de.greenrobot.event.EventBus
 import kotlinx.android.synthetic.main.fragment_playlist.*
 
 /**
@@ -120,7 +119,7 @@ class PlaylistFragment : Fragment() {
      * @param event Event
      */
     fun onEvent(event: PlaylistChangedEvent) {
-        playlistAdapter!!.notifyDataSetChanged()
+        playlistAdapter?.notifyDataSetChanged()
     }
 
     /**
@@ -128,7 +127,7 @@ class PlaylistFragment : Fragment() {
      * @param event Event
      */
     fun onEvent(event: TrackCacheStatusChangedEvent) {
-        playlistAdapter!!.notifyDataSetChanged()
+        playlistAdapter?.notifyDataSetChanged()
     }
 
     /**
@@ -145,27 +144,26 @@ class PlaylistFragment : Fragment() {
         }
 
         if (event.state == MusicService.State.Playing || event.state == MusicService.State.Paused) {
-            seekBar!!.isEnabled = true
+            seekBar.isEnabled = true
         } else {
-            seekBar!!.isEnabled = false
-            seekBar!!.progress = 0
+            seekBar.isEnabled = false
+            seekBar.progress = 0
         }
 
         if (event.duration < 0) {
             return
         }
 
-        seekBar!!.progress = event.currentPosition
-        seekBar!!.max = event.duration
+        seekBar.progress = event.currentPosition
+        seekBar.max = event.duration
     }
 
     override fun onDestroyView() {
-        eventBus!!.unregister(this)
+        eventBus?.unregister(this)
         super.onDestroyView()
     }
 
     companion object {
-
         /**
          * Returns a new instance of this fragment.
          */

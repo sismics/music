@@ -2,7 +2,8 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -33,23 +34,23 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
-                android:text="Bruno Mars"
-                android:singleLine="true"
+                tools:text="Bruno Mars"
                 android:ellipsize="end"
                 android:textColor="#999"
                 android:fontFamily="sans-serif-light"
-                android:id="@+id/artistName" />
+                android:id="@+id/artistName"
+                android:maxLines="1" />
 
             <TextView
                 android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
-                android:singleLine="true"
                 android:ellipsize="end"
-                android:text="Earth To Mars"
+                tools:text="Earth To Mars"
                 android:fontFamily="sans-serif-light"
-                android:id="@+id/albumName" />
+                android:id="@+id/albumName"
+                android:maxLines="1" />
 
         </LinearLayout>
         

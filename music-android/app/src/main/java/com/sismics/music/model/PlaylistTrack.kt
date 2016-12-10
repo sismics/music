@@ -31,14 +31,6 @@ class PlaylistTrack
     /**
      * Cache status.
      */
-    /**
-     * Returns the track cache status.
-     * @return Track cache status
-     */
-    /**
-     * Set the track cache status.
-     * @param cacheStatus New cache status
-     */
     var cacheStatus: CacheStatus = if (CacheUtil.isComplete(this)) CacheStatus.COMPLETE else CacheStatus.NONE
 
     /**
