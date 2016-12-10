@@ -44,13 +44,13 @@ class PlaylistAdapter
             val vi = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             view = vi.inflate(R.layout.list_item_playlist, null)
             aq.recycle(view)
-            holder = ViewHolder()
-            holder.artistName = aq.id(R.id.artistName).textView
-            holder.trackName = aq.id(R.id.trackName).textView
-            holder.cached = aq.id(R.id.cached).imageView
-            holder.playing = aq.id(R.id.playing).imageView
-            holder.progress = aq.id(R.id.progress).progressBar
-            holder.imgCover = aq.id(R.id.imgCover).imageView
+            holder = ViewHolder(
+                    aq.id(R.id.artistName).textView,
+                    aq.id(R.id.trackName).textView,
+                    aq.id(R.id.cached).imageView,
+                    aq.id(R.id.playing).imageView,
+                    aq.id(R.id.imgCover).imageView,
+                    aq.id(R.id.progress).progressBar)
             view!!.tag = holder
         } else {
             aq.recycle(view)
@@ -59,29 +59,29 @@ class PlaylistAdapter
 
         // Filling playlistTrack data
         val playlistTrack = getItem(position)
-        holder.artistName!!.text = playlistTrack?.artistName
-        holder.trackName!!.text = playlistTrack?.title
+        holder.artistName.text = playlistTrack?.artistName
+        holder.trackName.text = playlistTrack?.title
         when (playlistTrack?.cacheStatus) {
             PlaylistTrack.CacheStatus.NONE -> {
-                holder.cached!!.visibility = View.GONE
-                holder.progress!!.visibility = View.GONE
+                holder.cached.visibility = View.GONE
+                holder.progress.visibility = View.GONE
             }
             PlaylistTrack.CacheStatus.COMPLETE -> {
-                holder.cached!!.visibility = View.VISIBLE
-                holder.progress!!.visibility = View.GONE
+                holder.cached.visibility = View.VISIBLE
+                holder.progress.visibility = View.GONE
             }
             PlaylistTrack.CacheStatus.DOWNLOADING -> {
-                holder.cached!!.visibility = View.GONE
-                holder.progress!!.visibility = View.VISIBLE
+                holder.cached.visibility = View.GONE
+                holder.progress.visibility = View.VISIBLE
             }
         }
 
         // Playing status
         if (PlaylistService.currentTrack() === playlistTrack) {
-            holder.playing!!.visibility = View.VISIBLE
+            holder.playing.visibility = View.VISIBLE
             view.setBackgroundColor(Color.argb(32, 255, 136, 0))
         } else {
-            holder.playing!!.visibility = View.INVISIBLE
+            holder.playing.visibility = View.INVISIBLE
             view.setBackgroundColor(Color.argb(0, 0, 0, 0))
         }
 
@@ -113,17 +113,11 @@ class PlaylistAdapter
         return true
     }
 
-    /**
-     * PlaylistTrack ViewHolder.
-     *
-     * @author bgamard
-     */
-    private class ViewHolder {
-        internal var artistName: TextView? = null
-        internal var trackName: TextView? = null
-        internal var cached: ImageView? = null
-        internal var playing: ImageView? = null
-        internal var imgCover: ImageView? = null
-        internal var progress: ProgressBar? = null
-    }
+    class ViewHolder (
+            val artistName: TextView,
+            val trackName: TextView,
+            val cached: ImageView,
+            val playing: ImageView,
+            val imgCover: ImageView,
+            val progress: ProgressBar)
 }

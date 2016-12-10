@@ -32,6 +32,7 @@ import java.util.*
 
 /**
  * Album details fragment.
+ *
  * @author bgamard
  */
 class AlbumFragment : Fragment() {

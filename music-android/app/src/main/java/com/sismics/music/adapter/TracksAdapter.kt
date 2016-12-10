@@ -56,10 +56,10 @@ class TracksAdapter(
             val vi = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             view = vi.inflate(R.layout.list_item_track, null)
             aq.recycle(view)
-            holder = ViewHolder()
-            holder.trackName = aq.id(R.id.trackName).textView
-            holder.cached = aq.id(R.id.cached).imageView
-            holder.overflow = aq.id(R.id.overflow).view
+            holder = ViewHolder(
+                    aq.id(R.id.trackName).textView,
+                    aq.id(R.id.cached).imageView,
+                    aq.id(R.id.overflow).view)
             view!!.tag = holder
         } else {
             aq.recycle(view)
@@ -68,8 +68,8 @@ class TracksAdapter(
 
         // Filling track data
         val track = getItem(position)
-        holder.trackName!!.text = track.title
-        holder.cached!!.visibility = if (CacheUtil.isComplete(album, track)) View.VISIBLE else View.INVISIBLE
+        holder.trackName.text = track.title
+        holder.cached.visibility = if (CacheUtil.isComplete(album, track)) View.VISIBLE else View.INVISIBLE
 
         // Configuring popup menu
         aq.id(holder.overflow).clicked { v ->
@@ -122,13 +122,8 @@ class TracksAdapter(
         return tracks
     }
 
-    /**
-     * Article ViewHolder.
-     * @author bgamard
-     */
-    private class ViewHolder {
-        internal var trackName: TextView? = null
-        internal var cached: ImageView? = null
-        internal var overflow: View? = null
-    }
+    private class ViewHolder(
+        val trackName: TextView,
+        val cached: ImageView,
+        val overflow: View)
 }

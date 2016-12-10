@@ -64,12 +64,12 @@ class AlbumAdapter(
             val vi = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             view = vi.inflate(R.layout.list_item_album, null)
             aq.recycle(view)
-            holder = ViewHolder()
-            holder.albumName = aq.id(R.id.albumName).textView
-            holder.artistName = aq.id(R.id.artistName).textView
-            holder.imgCover = aq.id(R.id.imgCover).imageView
-            holder.cached = aq.id(R.id.cached).imageView
-            holder.overflow = aq.id(R.id.overflow).view
+            holder = ViewHolder(
+                    aq.id(R.id.albumName).textView,
+                    aq.id(R.id.artistName).textView,
+                    aq.id(R.id.imgCover).imageView,
+                    aq.id(R.id.cached).imageView,
+                    aq.id(R.id.overflow).view)
             view!!.tag = holder
         } else {
             aq.recycle(view)
@@ -88,11 +88,11 @@ class AlbumAdapter(
         }
 
         // Filling album data
-        holder.albumName!!.text = album.optString("name")
+        holder.albumName.text = album.optString("name")
         val artist = album.optJSONObject("artist")
-        holder.artistName!!.text = artist.optString("name")
+        holder.artistName.text = artist.optString("name")
         val cached = holder.cached
-        cached!!.visibility = if (cachedAlbumSet.contains(albumId)) View.VISIBLE else View.GONE
+        cached.visibility = if (cachedAlbumSet.contains(albumId)) View.VISIBLE else View.GONE
 
         // Configuring popup menu
         aq.id(holder.overflow).clicked { v ->
@@ -168,15 +168,11 @@ class AlbumAdapter(
         notifyDataSetChanged()
     }
 
-    /**
-     * Album ViewHolder.
-     * @author bgamard
-     */
-    private class ViewHolder {
-        internal var albumName: TextView? = null
-        internal var artistName: TextView? = null
-        internal var imgCover: ImageView? = null
-        internal var cached: ImageView? = null
-        internal var overflow: View? = null
-    }
+    private class ViewHolder (
+        val albumName: TextView,
+        val artistName: TextView,
+        val imgCover: ImageView,
+        val cached: ImageView,
+        val overflow: View
+    )
 }
