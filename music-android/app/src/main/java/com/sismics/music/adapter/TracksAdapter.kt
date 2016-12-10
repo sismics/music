@@ -89,8 +89,8 @@ class TracksAdapter
                     }
 
                     R.id.remote_play -> {
-                        val command = RemoteControlUtil.buildCommand(RemoteControlUtil.Command.PLAY_TRACK, track.id!!)
-                        RemoteControlUtil.sendCommand(activity, command!!, R.string.remote_play_track)
+                        val command = RemoteControlUtil.buildCommand(RemoteControlUtil.Command.PLAY_TRACK, track.id)
+                        RemoteControlUtil.sendCommand(activity, command, R.string.remote_play_track)
                         return@OnMenuItemClickListener true
                     }
                 }

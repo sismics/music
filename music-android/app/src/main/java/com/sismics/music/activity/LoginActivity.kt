@@ -85,7 +85,7 @@ class LoginActivity : FragmentActivity() {
                 // Given URL is not valid
                 loginForm.visibility = View.VISIBLE
                 progressBar.visibility = View.GONE
-                PreferenceUtil.setServerUrl(this@LoginActivity, null)
+                PreferenceUtil.removeServerUrl(this@LoginActivity)
                 DialogUtil.showOkDialog(this@LoginActivity, R.string.invalid_url_title, R.string.invalid_url)
             }
         }

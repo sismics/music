@@ -2,13 +2,10 @@ package com.sismics.music.util
 
 import android.app.ProgressDialog
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
-
 import com.loopj.android.http.JsonHttpResponseHandler
 import com.sismics.music.R
 import com.sismics.music.resource.PlayerResource
-
 import org.apache.http.Header
 import org.json.JSONArray
 import org.json.JSONException
@@ -65,16 +62,14 @@ object RemoteControlUtil {
      * Build a command.
 
      * @param command Command
-     * *
      * @param data Additionnal data
-     * *
      * @return Built command
      */
-    fun buildCommand(command: Command, vararg data: Any): String? {
+    fun buildCommand(command: Command, vararg data: Any): String {
         try {
             val json = JSONObject()
             json.put("command", command.name)
-            if (data != null && data.size > 0) {
+            if (data.size > 0) {
                 val dataArray = JSONArray()
                 for (dataItem in data) {
                     dataArray.put(dataItem)
@@ -83,19 +78,14 @@ object RemoteControlUtil {
             }
             return json.toString()
         } catch (e: JSONException) {
-            Log.e("RemoteControlUtil", "Error building command", e)
+            throw RuntimeException("Error building command", e)
         }
-
-        return null
     }
 
     /**
      * Send a command.
-
      * @param context Context
-     * *
      * @param command Command
-     * *
      * @param resId Success string ID
      */
     fun sendCommand(context: Context, command: String, resId: Int) {

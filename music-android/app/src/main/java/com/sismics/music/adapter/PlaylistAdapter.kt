@@ -26,7 +26,7 @@ class PlaylistAdapter
  * @param activity Context activity
  */
 (private val activity: Activity, private val absListView: AbsListView) : BaseAdapter() {
-    private val authToken: String
+    private val authToken: String?
     private val serverUrl: String
     private val aq: AQuery
 
@@ -89,7 +89,7 @@ class PlaylistAdapter
         val albumId = playlistTrack?.albumId
         val coverUrl = "$serverUrl/api/album/$albumId/albumart/small"
         if (aq.shouldDelay(position, view, absListView, coverUrl)) {
-            aq.id(holder.imgCover).image(null as Bitmap)
+            aq.id(holder.imgCover).image(null as Bitmap?)
         } else {
             aq.id(holder.imgCover).image(BitmapAjaxCallback().url(coverUrl).animation(AQuery.FADE_IN_NETWORK).cookie("auth_token", authToken))
         }

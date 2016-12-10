@@ -32,7 +32,7 @@ class AlbumAdapter
     private val aq: AQuery
     private var allAlbums: JSONArray? = null
     private var albums: JSONArray? = null
-    private val authToken: String
+    private val authToken: String?
     private val serverUrl: String
 
     init {
@@ -83,7 +83,7 @@ class AlbumAdapter
         val albumId = album.optString("id")
         val coverUrl = "$serverUrl/api/album/$albumId/albumart/small"
         if (aq.shouldDelay(position, view, parent, coverUrl)) {
-            aq.id(holder.imgCover).image(null as Bitmap)
+            aq.id(holder.imgCover).image(null as Bitmap?)
         } else {
             aq.id(holder.imgCover).image(BitmapAjaxCallback().url(coverUrl).animation(AQuery.FADE_IN_NETWORK).cookie("auth_token", authToken))
         }
@@ -136,7 +136,7 @@ class AlbumAdapter
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): Filter.FilterResults {
                 val results = Filter.FilterResults()
-                if (constraint == null || constraint.length == 0) {
+                if (constraint == null || constraint.isEmpty()) {
                     results.values = allAlbums
                     results.count = allAlbums!!.length()
                     return results
