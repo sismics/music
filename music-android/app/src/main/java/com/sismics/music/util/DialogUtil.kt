@@ -6,18 +6,16 @@ import com.sismics.music.R
 
 /**
  * Utility class for dialogs.
-
+ *
  * @author bgamard
  */
 object DialogUtil {
 
     /**
      * Create a dialog with an OK button.
-
+     *
      * @param activity Context activity
-     * *
      * @param title Dialog title
-     * *
      * @param message Dialog message
      */
     fun showOkDialog(activity: Activity?, title: Int, message: Int) {
@@ -25,8 +23,12 @@ object DialogUtil {
             return
         }
 
-        val builder = AlertDialog.Builder(activity)
-
-        builder.setTitle(title).setMessage(message).setCancelable(true).setNeutralButton(R.string.ok) { dialog, id -> dialog.dismiss() }.create().show()
+        AlertDialog.Builder(activity)
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelable(true)
+                .setNeutralButton(R.string.ok) {
+                    dialog, id -> dialog.dismiss()
+                }.create().show()
     }
 }

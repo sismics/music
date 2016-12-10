@@ -22,7 +22,6 @@ import java.util.*
 
 /**
  * Main activity.
-
  * @author bgamard
  */
 class MainActivity : Activity(), ActionBar.TabListener {
@@ -69,7 +68,6 @@ class MainActivity : Activity(), ActionBar.TabListener {
                     actionBar.newTab().setText(sectionsPagerAdapter.getPageTitle(i)).setTabListener(this))
         }
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present

@@ -45,6 +45,8 @@ import java.util.*
  */
 class MusicService : Service(), OnCompletionListener, OnPreparedListener, OnErrorListener, MusicFocusable {
 
+    private val TAG = MusicService.javaClass.simpleName
+
     // Our media player
     internal var mPlayer: MediaPlayer? = null
 
@@ -308,7 +310,7 @@ class MusicService : Service(), OnCompletionListener, OnPreparedListener, OnErro
 
         if (bufferRequestHandle != null) {
             // We are buffering something else, cancel it
-            Log.d("SismicsMusic", "Cancelling a previous download")
+            Log.d(TAG, "Cancelling a previous download")
             bufferRequestHandle!!.cancel(true)
             downloadingPlaylistTrack!!.cacheStatus = PlaylistTrack.CacheStatus.NONE
             EventBus.getDefault().post(TrackCacheStatusChangedEvent(downloadingPlaylistTrack))
@@ -377,10 +379,10 @@ class MusicService : Service(), OnCompletionListener, OnPreparedListener, OnErro
      * @param play If true, play it
      */
     internal fun downloadTrack(playlistTrack: PlaylistTrack, play: Boolean) {
-        Log.d("SismicsMusic", "Start downloading " + playlistTrack.title)
+        Log.d(TAG, "Start downloading " + playlistTrack.title)
         if (bufferRequestHandle != null) {
             // We are buffering something else, cancel it
-            Log.d("SismicsMusic", "Cancelling a previous download")
+            Log.d(TAG, "Cancelling a previous download")
             bufferRequestHandle!!.cancel(true)
             downloadingPlaylistTrack!!.cacheStatus = PlaylistTrack.CacheStatus.NONE
             EventBus.getDefault().post(TrackCacheStatusChangedEvent(downloadingPlaylistTrack))
@@ -412,14 +414,14 @@ class MusicService : Service(), OnCompletionListener, OnPreparedListener, OnErro
                 downloadingPlaylistTrack = null
                 val nextPlaylistTrack = PlaylistService.after(playlistTrack)
                 if (nextPlaylistTrack != null) {
-                    Log.d("SismicsMusic", "Downloading the next playlistTrack " + nextPlaylistTrack.title)
+                    Log.d(TAG, "Downloading the next playlistTrack " + nextPlaylistTrack.title)
                     downloadTrack(nextPlaylistTrack, false)
                 }
             }
         }
 
         if (CacheUtil.isComplete(playlistTrack)) {
-            Log.d("SismicsMusic", "This playlistTrack is already complete, output: " + play)
+            Log.d(TAG, "This playlistTrack is already complete, output: " + play)
 
             // Nothing to buffer, the playlistTrack is already complete in the cache
             if (play) {
@@ -489,7 +491,7 @@ class MusicService : Service(), OnCompletionListener, OnPreparedListener, OnErro
             // the Wifi radio from going to sleep while the song is playing.
             mWifiLock?.acquire()
         } catch (e: IOException) {
-            Log.e("SismicsMusic", "Error playing song", e)
+            Log.e(TAG, "Error playing song", e)
         }
 
     }
@@ -602,7 +604,7 @@ class MusicService : Service(), OnCompletionListener, OnPreparedListener, OnErro
             return
         }
 
-        Log.d("MusicService", "Media player is progressing: " + event.currentPosition + "/" + event.duration)
+        Log.d(TAG, "Media player is progressing: " + event.currentPosition + "/" + event.duration)
         if (event.currentPosition > event.duration / 2 && !songCompleted) {
             // The song is considered completed
             songCompleted = true
@@ -625,9 +627,6 @@ class MusicService : Service(), OnCompletionListener, OnPreparedListener, OnErro
     }
 
     companion object {
-
-        // The tag we put on debug messages
-        internal val TAG = "SismicsMusic"
 
         // Action intents handled by this service
         val ACTION_TOGGLE_PLAYBACK = "com.sismics.music.action.TOGGLE_PLAYBACK"

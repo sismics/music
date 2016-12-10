@@ -19,21 +19,20 @@ import org.json.JSONObject
 
 /**
  * Adapter for albums list.
-
+ *
  * @author bgamard
  */
-class AlbumAdapter
-/**
- * Constructor.
- * @param activity Context activity
- */
-(private val activity: Activity, private var originalAlbums: JSONArray?, private val cachedAlbumSet: Set<String>, private var offlineMode: Boolean) : BaseAdapter(), Filterable {
+class AlbumAdapter(
+        private val activity: Activity,
+        private var originalAlbums: JSONArray?,
+        private val cachedAlbumSet: Set<String>,
+        private var offlineMode: Boolean) : BaseAdapter(), Filterable {
 
     private val aq: AQuery
     private var allAlbums: JSONArray? = null
     private var albums: JSONArray? = null
     private val authToken: String?
-    private val serverUrl: String
+    private val serverUrl: String?
 
     init {
         this.aq = AQuery(activity)
@@ -171,7 +170,6 @@ class AlbumAdapter
 
     /**
      * Album ViewHolder.
-
      * @author bgamard
      */
     private class ViewHolder {

@@ -11,7 +11,7 @@ import org.json.JSONObject
 
 /**
  * Global context of the application.
-
+ *
  * @author bgamard
  */
 object ApplicationContext {
@@ -23,13 +23,15 @@ object ApplicationContext {
 
     /**
      * Returns true if current user is logged in.
+     *
      * @return True if the user is logged in
      */
     val isLoggedIn: Boolean
         get() = userInfo != null && !userInfo!!.optBoolean("anonymous")
 
     /**
-     * Setter of userInfo
+     * Setter of userInfo.
+     *
      * @param json JSON
      */
     fun setUserInfo(context: Context, json: JSONObject?) {
@@ -39,8 +41,8 @@ object ApplicationContext {
 
     /**
      * Asynchronously get user info.
+     *
      * @param activity Activity
-     * *
      * @param callbackListener Callback
      */
     fun fetchUserInfo(activity: Activity, callbackListener: () -> Unit) {

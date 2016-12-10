@@ -7,7 +7,7 @@ import com.sismics.music.util.PreferenceUtil
 
 /**
  * Main application.
-
+ *
  * @author bgamard
  */
 /*@ReportsCrashes(formKey = "",

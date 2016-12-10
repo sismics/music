@@ -12,7 +12,7 @@ import com.sismics.music.R
 class Required : ValidatorType {
 
     override fun validate(text: String): Boolean {
-        return text.trim { it <= ' ' }.length != 0
+        return text.trim { it <= ' ' }.isNotEmpty()
     }
 
     override fun getErrorMessage(context: Context): String {

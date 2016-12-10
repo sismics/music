@@ -4,7 +4,7 @@ import org.json.JSONObject
 
 /**
  * A track.
-
+ *
  * @author bgamard.
  */
 class Track(val id: String, val title: String, val length: Int = 0) {

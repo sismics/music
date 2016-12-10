@@ -6,19 +6,17 @@ import com.loopj.android.http.RequestHandle
 
 /**
  * Access to /track API.
-
+ *
  * @author bgamard
  */
 class TrackResource : BaseResource() {
     companion object {
         /**
          * Download a track.
+         *
          * @param context Context
-         * *
          * @param id PlaylistTrack ID
-         * *
          * @param responseHandler Response handler
-         * *
          * @return Request handle used to cancel
          */
         fun download(context: Context, id: String, responseHandler: FileAsyncHttpResponseHandler): RequestHandle {

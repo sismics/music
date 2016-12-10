@@ -10,22 +10,18 @@ import java.util.*
 
 /**
  * Access to /player API.
-
+ *
  * @author bgamard
  */
 class PlayerResource : BaseResource() {
     companion object {
         /**
          * Post a set of tracks played before.
-
+         *
          * @param context Context
-         * *
          * @param idList Track IDs
-         * *
          * @param dateList Dates of completion
-         * *
          * @param responseHandler Response handler
-         * *
          * @return Request handle used to cancel
          */
         fun listened(context: Context, idList: List<String>, dateList: List<Long>,
@@ -90,7 +86,7 @@ class PlayerResource : BaseResource() {
 
         /**
          * POST /player/command.
-
+         *
          * @param context Context
          * @param token Token
          * @param json JSON

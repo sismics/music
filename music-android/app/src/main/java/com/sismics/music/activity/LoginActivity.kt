@@ -20,7 +20,7 @@ import org.json.JSONObject
 
 /**
  * Login activity.
-
+ *
  * @author bgamard
  */
 class LoginActivity : FragmentActivity() {
@@ -43,9 +43,7 @@ class LoginActivity : FragmentActivity() {
 
         // Preset saved server URL
         val serverUrl = PreferenceUtil.getStringPreference(this, PreferenceUtil.Pref.SERVER_URL)
-        if (serverUrl != null) {
-            txtServer.setText(serverUrl)
-        }
+        txtServer.setText(serverUrl)
 
         tryConnect()
 

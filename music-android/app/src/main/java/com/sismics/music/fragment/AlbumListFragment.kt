@@ -22,7 +22,7 @@ import org.json.JSONObject
 
 /**
  * Albums list fragments.
-
+ *
  * @author bgamard
  */
 class AlbumListFragment : Fragment() {

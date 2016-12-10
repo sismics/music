@@ -6,15 +6,15 @@ import com.loopj.android.http.JsonHttpResponseHandler
 
 /**
  * Access to /album API.
-
+ *
  * @author bgamard
  */
 class AlbumResource : BaseResource() {
     companion object {
         /**
-         * List all albums
+         * List all albums.
+         *
          * @param context Context
-         * *
          * @param responseHandler Response handler
          */
         fun list(context: Context, responseHandler: JsonHttpResponseHandler) {
@@ -25,10 +25,9 @@ class AlbumResource : BaseResource() {
 
         /**
          * Get the album data.
+         *
          * @param context Context
-         * *
          * @param id Album ID
-         * *
          * @param responseHandler Response handler
          */
         fun info(context: Context, id: String, responseHandler: JsonHttpResponseHandler) {

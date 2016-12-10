@@ -7,7 +7,7 @@ import org.json.JSONObject
 
 /**
  * Utility class on preferences.
-
+ *
  * @author bgamard
  */
 object PreferenceUtil {
@@ -23,11 +23,9 @@ object PreferenceUtil {
 
     /**
      * Returns a preference of boolean type.
-
+     *
      * @param context Context
-     * *
      * @param key Shared preference key
-     * *
      * @return Shared preference value
      */
     fun getBooleanPreference(context: Context, key: Pref, defaultValue: Boolean): Boolean {
@@ -37,25 +35,21 @@ object PreferenceUtil {
 
     /**
      * Returns a preference of string type.
-
+     *
      * @param context Context
-     * *
      * @param key Shared preference key
-     * *
      * @return Shared preference value
      */
-    fun getStringPreference(context: Context, key: Pref): String {
+    fun getStringPreference(context: Context, key: Pref): String? {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         return sharedPreferences.getString(key.name, null)
     }
 
     /**
      * Returns a preference of integer type.
-
+     *
      * @param context Context
-     * *
      * @param key Shared preference key
-     * *
      * @return Shared preference value
      */
     fun getIntegerPreference(context: Context, key: Pref, defaultValue: Int): Int {
@@ -71,16 +65,13 @@ object PreferenceUtil {
         } catch (e: ClassCastException) {
             return sharedPreferences.getInt(key.name, defaultValue)
         }
-
     }
 
     /**
      * Update JSON cache.
-
+     *
      * @param context Context
-     * *
      * @param key Shared preference key
-     * *
      * @param json JSON data
      */
     fun setCachedJson(context: Context, key: Pref, json: JSONObject?) {
@@ -90,11 +81,9 @@ object PreferenceUtil {
 
     /**
      * Returns a JSON cache.
-
+     *
      * @param context Context
-     * *
      * @param key Shared preference key
-     * *
      * @return JSON data
      */
     fun getCachedJson(context: Context, key: Pref): JSONObject? {
@@ -110,6 +99,7 @@ object PreferenceUtil {
 
     /**
      * Remove server URL.
+     *
      * @param context Context
      */
     fun removeServerUrl(context: Context) {
@@ -119,6 +109,7 @@ object PreferenceUtil {
 
     /**
      * Update server URL.
+     *
      * @param context Context
      */
     fun setServerUrl(context: Context, serverUrl: String) {
@@ -128,6 +119,7 @@ object PreferenceUtil {
 
     /**
      * Update player token.
+     *
      * @param context Context
      */
     fun setPlayerToken(context: Context, serverUrl: String) {
@@ -137,6 +129,7 @@ object PreferenceUtil {
 
     /**
      * Empty user caches.
+     *
      * @param context Context
      */
     fun resetUserCache(context: Context) {
@@ -150,12 +143,12 @@ object PreferenceUtil {
 
     /**
      * Returns cleaned server URL.
+     *
      * @param context Context
-     * *
      * @return Server URL
      */
-    fun getServerUrl(context: Context): String {
-        var serverUrl: String = getStringPreference(context, Pref.SERVER_URL)
+    fun getServerUrl(context: Context): String? {
+        var serverUrl: String = getStringPreference(context, Pref.SERVER_URL) ?: return null
 
         // Trim
         serverUrl = serverUrl.trim { it <= ' ' }
@@ -186,12 +179,9 @@ object PreferenceUtil {
     fun getAuthToken(context: Context): String? {
         val cookieStore = PersistentCookieStore(context)
         val cookieList = cookieStore.cookies
-        for (cookie in cookieList) {
-            if (cookie.name == "auth_token") {
-                return cookie.value
-            }
-        }
 
-        return null
+        return cookieList
+                .firstOrNull { it.name == "auth_token" }
+                ?.value
     }
 }

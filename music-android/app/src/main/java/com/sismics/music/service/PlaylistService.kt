@@ -9,7 +9,7 @@ import java.util.*
 
 /**
  * Playlist service.
-
+ *
  * @author bgamard.
  */
 object PlaylistService {
@@ -34,8 +34,8 @@ object PlaylistService {
 
     /**
      * Returns the next track.
+     *
      * @param advance If true, advance the current track accordingly
-     * *
      * @return Next track
      */
     fun next(advance: Boolean): PlaylistTrack? {
@@ -61,8 +61,8 @@ object PlaylistService {
 
     /**
      * Returns the track after the given one.
+     *
      * @param before Previous track
-     * *
      * @return Next track
      */
     fun after(before: PlaylistTrack): PlaylistTrack? {
@@ -77,6 +77,7 @@ object PlaylistService {
 
     /**
      * Change the current played track.
+     *
      * @param position Position of the track
      */
     fun change(position: Int) {
@@ -90,6 +91,7 @@ object PlaylistService {
 
     /**
      * Returns the current track.
+     *
      * @return Current track
      */
     fun currentTrack(): PlaylistTrack? {
@@ -101,8 +103,8 @@ object PlaylistService {
 
     /**
      * Get the track at the given position.
+     *
      * @param position PlaylistTrack position
-     * *
      * @return PlaylistTrack or null if there is no track at this position
      */
     fun getAt(position: Int): PlaylistTrack? {
@@ -114,6 +116,7 @@ object PlaylistService {
 
     /**
      * Returns the playlist length.
+     *
      * @return Playlist length
      */
     fun length(): Int {
@@ -122,8 +125,8 @@ object PlaylistService {
 
     /**
      * Add a track at the end of the playlist.
+     *
      * @param album Album
-     * *
      * @param track Track data
      */
     fun add(album: Album, track: Track) {
@@ -145,8 +148,8 @@ object PlaylistService {
 
     /**
      * Add a list of tracks.
+     *
      * @param album Album linked to all tracks
-     * *
      * @param trackList Tracks
      */
     fun addAll(album: Album, trackList: List<Track>) {
@@ -159,6 +162,7 @@ object PlaylistService {
 
     /**
      * Remove a track.
+     *
      * @param position Track position
      */
     fun remove(position: Int) {
@@ -171,8 +175,8 @@ object PlaylistService {
 
     /**
      * Move a track.
+     *
      * @param oldposition Old position
-     * *
      * @param position New position
      */
     fun move(oldposition: Int, position: Int) {

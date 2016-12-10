@@ -13,12 +13,15 @@ import java.util.*
 
 /**
  * Cache utilities.
-
+ *
  * @author bgamard.
  */
 object CacheUtil {
+    private val TAG = CacheUtil.javaClass.simpleName
+
     /**
      * Returns the music cache directory.
+     *
      * @return Music cache directory
      */
     val musicCacheDir: File
@@ -33,8 +36,8 @@ object CacheUtil {
 
     /**
      * Returns true if a playlistTrack is complete.
+     *
      * @param playlistTrack PlaylistTrack
-     * *
      * @return True if complete
      */
     fun isComplete(playlistTrack: PlaylistTrack): Boolean {
@@ -43,10 +46,9 @@ object CacheUtil {
 
     /**
      * Returns true if the given track with album is complete.
+     *
      * @param album Album associated with the track
-     * *
      * @param track Track
-     * *
      * @return True if complete
      */
     fun isComplete(album: Album, track: Track): Boolean {
@@ -56,8 +58,8 @@ object CacheUtil {
 
     /**
      * Returns the complete playlistTrack file.
+     *
      * @param playlistTrack PlaylistTrack
-     * *
      * @return Complete playlistTrack file
      */
     fun getCompleteCacheFile(playlistTrack: PlaylistTrack): File {
@@ -70,8 +72,8 @@ object CacheUtil {
 
     /**
      * Returns the incomplete playlistTrack file.
+     *
      * @param playlistTrack PlaylistTrack
-     * *
      * @return Incomplete playlistTrack file
      */
     fun getIncompleteCacheFile(playlistTrack: PlaylistTrack): File {
@@ -84,8 +86,8 @@ object CacheUtil {
 
     /**
      * Set a track as complete.
+     *
      * @param file File
-     * *
      * @return True if the operation was successful
      */
     fun setComplete(file: File): Boolean {
@@ -94,13 +96,13 @@ object CacheUtil {
 
     /**
      * Returns cached tracks for an album.
+     *
      * @param album Album
-     * *
      * @return Cached tracks
      */
     fun getCachedTrack(album: Album): List<Track> {
         val trackList = ArrayList<Track>()
-        val albumDir = File(musicCacheDir, album.id!!)
+        val albumDir = File(musicCacheDir, album.id)
         if (!albumDir.exists()) {
             return trackList
         }
@@ -123,9 +125,8 @@ object CacheUtil {
             } catch (e: ClosedChannelException) {
                 // We have been interrupted, don't care
             } catch (e: Exception) {
-                Log.e("CacheUtil", "Error extracting metadata from file: " + file.absolutePath, e)
+                Log.e(TAG, "Error extracting metadata from file: " + file.absolutePath, e)
             }
-
         }
 
         return trackList
@@ -133,6 +134,7 @@ object CacheUtil {
 
     /**
      * Returns album IDs containing at least one cached track.
+     *
      * @return Albums IDs
      */
     val cachedAlbumSet: Set<String>
@@ -141,7 +143,7 @@ object CacheUtil {
             val albumList = cacheDir.listFiles()
             val output = HashSet<String>()
             for (album in albumList) {
-                if (album.list { dir, filename -> filename.endsWith(".complete") }.size > 0) {
+                if (album.list { dir, filename -> filename.endsWith(".complete") }.isNotEmpty()) {
                     output.add(album.name)
                 }
             }
@@ -150,8 +152,8 @@ object CacheUtil {
 
     /**
      * Remove a track from the cache.
+     *
      * @param album Album
-     * *
      * @param track Track
      */
     fun removeTrack(album: Album, track: Track) {
@@ -164,6 +166,7 @@ object CacheUtil {
 
     /**
      * Remove an album from the cache.
+     *
      * @param albumId Album ID
      */
     fun removeAlbum(albumId: String) {

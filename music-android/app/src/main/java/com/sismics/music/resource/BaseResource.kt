@@ -20,14 +20,14 @@ import javax.net.ssl.X509TrustManager
 
 /**
  * Base class for API access.
-
+ *
  * @author bgamard
  */
 open class BaseResource {
 
     /**
      * Socket factory to allow self-signed certificates.
-
+     *
      * @author bgamard
      */
     class MySSLSocketFactory @Throws(NoSuchAlgorithmException::class, KeyManagementException::class, KeyStoreException::class, UnrecoverableKeyException::class)
@@ -99,6 +99,7 @@ open class BaseResource {
 
         /**
          * Resource initialization.
+         *
          * @param context Context
          */
         fun init(context: Context) {
@@ -119,8 +120,8 @@ open class BaseResource {
 
         /**
          * Returns cleaned API URL.
+         *
          * @param context Context
-         * *
          * @return Cleaned API URL
          */
         fun getApiUrl(context: Context): String? {

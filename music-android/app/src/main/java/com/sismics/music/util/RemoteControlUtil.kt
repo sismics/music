@@ -13,7 +13,7 @@ import org.json.JSONObject
 
 /**
  * Utility class for remote controlling.
-
+ *
  * @author bgamard.
  */
 object RemoteControlUtil {
@@ -31,9 +31,8 @@ object RemoteControlUtil {
     /**
      * "Connect" to a web player.
      * If fact, send a hello command, and save the token.
-
+     *
      * @param context Context
-     * *
      * @param token Token
      */
     fun connect(context: Context, token: String) {
@@ -60,7 +59,7 @@ object RemoteControlUtil {
 
     /**
      * Build a command.
-
+     *
      * @param command Command
      * @param data Additionnal data
      * @return Built command
@@ -69,7 +68,7 @@ object RemoteControlUtil {
         try {
             val json = JSONObject()
             json.put("command", command.name)
-            if (data.size > 0) {
+            if (data.isNotEmpty()) {
                 val dataArray = JSONArray()
                 for (dataItem in data) {
                     dataArray.put(dataItem)
@@ -84,6 +83,7 @@ object RemoteControlUtil {
 
     /**
      * Send a command.
+     *
      * @param context Context
      * @param command Command
      * @param resId Success string ID

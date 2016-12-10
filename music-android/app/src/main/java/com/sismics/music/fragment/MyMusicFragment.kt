@@ -15,7 +15,7 @@ import de.greenrobot.event.EventBus
 
 /**
  * Fragment displaying the music collection.
-
+ *
  * @author bgamard
  */
 class MyMusicFragment : Fragment() {

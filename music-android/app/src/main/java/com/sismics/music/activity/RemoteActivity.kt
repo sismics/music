@@ -13,7 +13,6 @@ import com.sismics.music.util.RemoteControlUtil
 
 /**
  * Remote control activity.
-
  * @author bgamard
  */
 class RemoteActivity : Activity() {

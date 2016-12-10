@@ -17,7 +17,7 @@ import com.sismics.music.util.PreferenceUtil
 
 /**
  * Adapter for tracks list.
-
+ *
  * @author bgamard
  */
 class PlaylistAdapter
@@ -27,7 +27,7 @@ class PlaylistAdapter
  */
 (private val activity: Activity, private val absListView: AbsListView) : BaseAdapter() {
     private val authToken: String?
-    private val serverUrl: String
+    private val serverUrl: String?
     private val aq: AQuery
 
     init {
@@ -115,7 +115,7 @@ class PlaylistAdapter
 
     /**
      * PlaylistTrack ViewHolder.
-
+     *
      * @author bgamard
      */
     private class ViewHolder {

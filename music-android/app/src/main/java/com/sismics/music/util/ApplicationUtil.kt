@@ -12,9 +12,7 @@ object ApplicationUtil {
 
     /**
      * Returns version name.
-
      * @param context Context
-     * *
      * @return Version name
      */
     fun getVersionName(context: Context): String {
@@ -24,14 +22,11 @@ object ApplicationUtil {
         } catch (e: NameNotFoundException) {
             return ""
         }
-
     }
 
     /**
      * Returns version number.
-
      * @param context Context
-     * *
      * @return Version code
      */
     fun getVersionCode(context: Context): Int {

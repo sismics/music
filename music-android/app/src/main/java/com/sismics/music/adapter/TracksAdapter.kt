@@ -20,23 +20,20 @@ import de.greenrobot.event.EventBus
 
 /**
  * Adapter for tracks list.
-
+ *
  * @author bgamard
  */
-class TracksAdapter
-/**
- * Constructor.
- * @param activity Context activity
- */
-(
+class TracksAdapter(
         /**
          * Context.
          */
         private val activity: Activity,
+
         /**
          * Album.
          */
         private val album: Album,
+
         /**
          * Tracks.
          */
@@ -127,7 +124,6 @@ class TracksAdapter
 
     /**
      * Article ViewHolder.
-
      * @author bgamard
      */
     private class ViewHolder {

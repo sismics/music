@@ -7,7 +7,7 @@ import com.loopj.android.http.RequestParams
 
 /**
  * Access to /user API.
-
+ *
  * @author bgamard
  */
 class UserResource : BaseResource() {
@@ -15,12 +15,10 @@ class UserResource : BaseResource() {
 
         /**
          * POST /user/login.
+         *
          * @param context Context
-         * *
          * @param username Username
-         * *
          * @param password Password
-         * *
          * @param responseHandler Callback
          */
         fun login(context: Context, username: String, password: String, responseHandler: JsonHttpResponseHandler) {
@@ -35,8 +33,8 @@ class UserResource : BaseResource() {
 
         /**
          * GET /user.
+         *
          * @param context Context
-         * *
          * @param responseHandler Callback
          */
         fun info(context: Context, responseHandler: JsonHttpResponseHandler) {
@@ -48,8 +46,8 @@ class UserResource : BaseResource() {
 
         /**
          * POST /user/logout.
+         *
          * @param context Context
-         * *
          * @param responseHandler Callback
          */
         fun logout(context: Context, responseHandler: JsonHttpResponseHandler) {

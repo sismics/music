@@ -60,21 +60,21 @@ class PlaylistTrack
      * @return Track artist name
      */
     val artistName: String
-        get() = album.artistName!!
+        get() = album.artistName
 
     /**
      * Returns the track album ID.
      * @return Track album ID
      */
     val albumId: String
-        get() = album.id!!
+        get() = album.id
 
     /**
      * Returns the track album name.
      * @return Track album name
      */
     val albumName: String
-        get() = album.name!!
+        get() = album.name
 
     /**
      * Returns the track length.
