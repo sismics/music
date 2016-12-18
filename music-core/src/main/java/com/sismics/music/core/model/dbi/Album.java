@@ -58,6 +58,10 @@ public class Album {
     public Album() {
     }
 
+    public Album(String id) {
+        this.id = id;
+    }
+
     public Album(String id, String directoryId, String artistId, String name, String albumArt, Date createDate, Date updateDate, Date deleteDate, String location) {
         this.id = id;
         this.directoryId = directoryId;

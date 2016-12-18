@@ -82,6 +82,24 @@ public class AlbumDao {
     }
 
     /**
+     * Updates an album date.
+     *
+     * @param album Album to update
+     * @return Updated album
+     */
+    public Album updateAlbumDate(Album album) {
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("update T_ALBUM a set " +
+                " a.ALB_UPDATEDATE_D = :updateDate " +
+                " where a.ALB_ID_C = :id and a.ALB_DELETEDATE_D is null")
+                .bind("id", album.getId())
+                .bind("updateDate", new Timestamp(album.getUpdateDate().getTime()))
+                .execute();
+
+        return album;
+    }
+
+    /**
      * Gets an active album by its name.
      * 
      * @param name Album name

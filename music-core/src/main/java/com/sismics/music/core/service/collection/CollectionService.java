@@ -158,12 +158,20 @@ public class CollectionService extends AbstractScheduledService {
             if (track != null) {
                 readTrackMetadata(directory, file, track);
                 trackDao.update(track);
+
+                // FIXME update album date if track has changed?
             } else {
                 track = new Track();
                 track.setFileName(file.toAbsolutePath().toString());
 
                 readTrackMetadata(directory, file, track);
                 trackDao.create(track);
+
+                // Update the album date
+                Album album = new Album(track.getAlbumId());
+                album.setUpdateDate(track.getCreateDate());
+                AlbumDao albumDao = new AlbumDao();
+                albumDao.updateAlbumDate(album);
             }
         } catch (Exception e) {
             log.error("Error extracting metadata from file: " + file, e);
