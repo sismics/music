@@ -1,4 +1,4 @@
-FROM sismics/debian-java7-jetty9
+FROM sismics/jetty:9.2.20-jdk7
 MAINTAINER benjamin.gam@gmail.com
 
 RUN echo "deb http://www.deb-multimedia.org jessie main non-free" >> /etc/apt/sources.list \
