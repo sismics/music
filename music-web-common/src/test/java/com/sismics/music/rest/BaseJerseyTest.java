@@ -1,5 +1,6 @@
 package com.sismics.music.rest;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import com.sismics.util.dbi.DBIF;
 import com.sismics.util.filter.RequestContextFilter;
@@ -234,12 +235,10 @@ public abstract class BaseJerseyTest extends JerseyTest {
      * @return Authentication token
      */
     public String login(String username, String password, Boolean remember) {
-        Form form = new Form();
-        form.param("username", username);
-        form.param("password", password);
-        form.param("remember", remember.toString());
-        response = target().path("/user/login").request()
-                .post(Entity.form(form));
+        POST("/user/login", ImmutableMap.of(
+                "username", username,
+                "password", password,
+                "remember", remember.toString()));
         assertIsOk();
 
         return getAuthenticationCookie(response);
@@ -272,9 +271,9 @@ public abstract class BaseJerseyTest extends JerseyTest {
     protected void GET(String url, Map<String, String> queryParams) {
         WebTarget resource = target().path(url);
         for (Map.Entry<String, String> entry : queryParams.entrySet()) {
-            resource.queryParam(entry.getKey(), entry.getValue());
+            resource = resource.queryParam(entry.getKey(), entry.getValue());
         }
-        response = builder(resource).get(Response.class);
+        response = builder(resource).get();
     }
 
     protected void GET(String resource) {
@@ -286,7 +285,17 @@ public abstract class BaseJerseyTest extends JerseyTest {
         WebTarget resource = target().path(url);
         Form form = new Form();
         for (Map.Entry<String, String> entry : putParams.entrySet()) {
-            form.param(entry.getKey(), entry.getValue());
+            form = form.param(entry.getKey(), entry.getValue());
+        }
+        response = builder(resource).put(Entity.form(form));
+        addCookiesFromResponse();
+    }
+
+    protected void PUT(String url, Multimap<String, String> putParams) {
+        WebTarget resource = target().path(url);
+        Form form = new Form();
+        for (Map.Entry<String, String> entry : putParams.entries()) {
+            form = form.param(entry.getKey(), entry.getValue());
         }
         response = builder(resource).put(Entity.form(form));
         addCookiesFromResponse();
@@ -300,7 +309,7 @@ public abstract class BaseJerseyTest extends JerseyTest {
         WebTarget resource = target().path(url);
         Form form = new Form();
         for (Map.Entry<String, String> entry : postParams.entrySet()) {
-            form.param(entry.getKey(), entry.getValue());
+            form = form.param(entry.getKey(), entry.getValue());
         }
         response = builder(resource).post(Entity.form(form));
         addCookiesFromResponse();
@@ -310,7 +319,7 @@ public abstract class BaseJerseyTest extends JerseyTest {
         WebTarget resource = target().path(url);
         Form form = new Form();
         for (Map.Entry<String, String> entry : postParams.entries()) {
-            form.param(entry.getKey(), entry.getValue());
+            form = form.param(entry.getKey(), entry.getValue());
         }
         response = builder(resource).post(Entity.form(form));
         addCookiesFromResponse();
@@ -343,6 +352,6 @@ public abstract class BaseJerseyTest extends JerseyTest {
     }
 
     protected JsonObject getJsonResult() {
-        return (JsonObject) response.getEntity();
+        return response.readEntity(JsonObject.class);
     }
 }
