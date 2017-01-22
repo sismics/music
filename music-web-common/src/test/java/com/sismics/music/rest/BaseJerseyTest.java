@@ -212,6 +212,14 @@ public abstract class BaseJerseyTest extends JerseyTest {
         assertStatus(403, response);
     }
 
+    public void assertIsNotFound() {
+        assertIsNotFound(response);
+    }
+
+    public void assertIsNotFound(Response response) {
+        assertStatus(404, response);
+    }
+
     public void assertStatus(int status, Response response) {
         Assert.assertEquals("Response status error, out: " + response.toString(), status, response.getStatus());
     }

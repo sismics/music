@@ -17,7 +17,9 @@ public class TestLocaleResource extends BaseJerseyTest {
      */
     @Test
     public void testLocaleResource() {
-        JsonObject json = target().path("/locale").request().get(JsonObject.class);
+        GET("/locale");
+        assertIsOk();
+        JsonObject json = getJsonResult();
         JsonArray locale = json.getJsonArray("locales");
         Assert.assertTrue(locale.size() > 0);
     }

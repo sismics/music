@@ -1,15 +1,11 @@
 package com.sismics.music.rest;
 
-import com.sismics.util.filter.TokenBasedSecurityFilter;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Form;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,27 +19,22 @@ public class TestAlbumResource extends BaseJerseyTest {
     /**
      * Test the album resource.
      *
-     * @throws Exception
      */
     @Test
     public void testAlbumResource() throws Exception {
         // Login users
-        String adminAuthenticationToken = login("admin", "admin", false);
+        login("admin", "admin", false);
 
         // Admin adds an album to the collection
-        JsonObject json = target().path("/directory").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .put(Entity.form(new Form()
-                        .param("location", Paths.get(getClass().getResource("/music/").toURI()).toString())), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        PUT("/directory", ImmutableMap.of("location", Paths.get(getClass().getResource("/music/").toURI()).toString()));
+        assertIsOk();
 
         // Check that the albums are correctly added
-        json = target().path("/album")
-                .queryParam("sort_column", "0")
-                .queryParam("asc", "false")
-                .request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/album", ImmutableMap.of(
+                "sort_column", "0",
+                "asc", "false"));
+        assertIsOk();
+        JsonObject json = getJsonResult();
         Assert.assertEquals(2, json.getJsonNumber("total").intValue());
         JsonArray albums = json.getJsonArray("albums");
         Assert.assertNotNull(albums);
@@ -58,9 +49,9 @@ public class TestAlbumResource extends BaseJerseyTest {
         Assert.assertNotNull(artist0.getString("id"));
 
         // Get an album by its ID
-        json = target().path("/album/" + album0Id).request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/album/" + album0Id);
+        assertIsOk();
+        json = getJsonResult();
         Assert.assertEquals(album0Id, json.getString("id"));
         Assert.assertEquals("Coachella 2010 Day 01 Mixtape", json.getString("name"));
         Assert.assertTrue(json.getBoolean("albumart"));
@@ -75,36 +66,30 @@ public class TestAlbumResource extends BaseJerseyTest {
         Assert.assertEquals("Gil Scott-Heron", artist.getString("name"));
 
         // Get an album art
-        Response response = target().path("/album/" + album0Id + "/albumart/small").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken).get();
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        GET("/album/" + album0Id + "/albumart/small");
+        assertIsOk();
 
         // Get an album art
-        response = target().path("/album/" + album0Id + "/albumart/large").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken).get();
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        GET("/album/" + album0Id + "/albumart/large");
+        assertIsOk();
         
         // Get an album art
-        response = target().path("/album/" + album0Id + "/albumart/medium").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken).get();
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        GET("/album/" + album0Id + "/albumart/medium");
+        assertIsOk();
 
         // Get an album art: KO, this size doesn't exist
-        response = target().path("/album/" + album0Id + "/albumart/huge").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken).get();
-        Assert.assertEquals(Status.NOT_FOUND, Status.fromStatusCode(response.getStatus()));
+        GET("/album/" + album0Id + "/albumart/huge");
+        assertIsNotFound();
         
         // Update an album art
-        json = target().path("/album/" + album0Id + "/albumart").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .post(Entity.form(new Form()
-                            .param("url", "http://lorempixel.com/200/200/")), JsonObject.class);
+        POST("/album/" + album0Id + "/albumart", ImmutableMap.of("url", "http://lorempixel.com/200/200/"));
+        assertIsOk();
+        json = getJsonResult();
         Assert.assertNull(json.get("message"));
         
         // Get an album art
-        response = target().path("/album/" + album0Id + "/albumart/large").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken).get();
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        GET("/album/" + album0Id + "/albumart/large");
+        assertIsOk();
         
         // Check that the original file has been copied to the collection
         Path musicPath = Paths.get(getClass().getResource("/music/").toURI());
@@ -115,16 +100,14 @@ public class TestAlbumResource extends BaseJerseyTest {
         albumArtFile.setWritable(false);
         
         // Update an album art
-        json = target().path("/album/" + album0Id + "/albumart").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .post(Entity.form(new Form()
-                        .param("url", "http://lorempixel.com/200/200/")), JsonObject.class);
+        POST("/album/" + album0Id + "/albumart", ImmutableMap.of("url", "http://lorempixel.com/200/200/"));
+        assertIsOk();
+        json = getJsonResult();
         Assert.assertEquals("AlbumArtNotCopied", json.getString("message"));
         albumArtFile.setWritable(true);
         
         // Get an album art
-        response = target().path("/album/" + album0Id + "/albumart/large").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken).get();
-        Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
+        GET("/album/" + album0Id + "/albumart/large");
+        assertIsOk();
     }
 }

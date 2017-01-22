@@ -1,13 +1,11 @@
 package com.sismics.music.rest;
 
-import com.sismics.util.filter.TokenBasedSecurityFilter;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Form;
 import java.nio.file.Paths;
 import java.util.Date;
 
@@ -20,27 +18,22 @@ public class TestPlayerResource extends BaseJerseyTest {
     /**
      * Test the track resource.
      *
-     * @throws Exception
      */
     @Test
     public void testPlayerResource() throws Exception {
         // Login users
-        String adminAuthenticationToken = login("admin", "admin", false);
+        login("admin", "admin", false);
 
         // Admin adds a track to the collection
-        JsonObject json = target().path("/directory").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .put(Entity.form(new Form()
-                        .param("location", Paths.get(getClass().getResource("/music/").toURI()).toString())), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        PUT("/directory", ImmutableMap.of("location", Paths.get(getClass().getResource("/music/").toURI()).toString()));
+        assertIsOk();
 
         // Check that the albums are correctly added
-        json = target().path("/album")
-                .queryParam("sort_column", "0")
-                .queryParam("asc", "false")
-                .request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/album", ImmutableMap.of(
+                "sort_column", "0",
+                "asc", "false"));
+        assertIsOk();
+        JsonObject json = getJsonResult();
         JsonArray albums = json.getJsonArray("albums");
         Assert.assertNotNull(albums);
         Assert.assertEquals(2, albums.size());
@@ -49,9 +42,9 @@ public class TestPlayerResource extends BaseJerseyTest {
         Assert.assertNotNull(album0Id);
 
         // Check the tracks info
-        json = target().path("/album/" + album0Id).request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/album/" + album0Id);
+        assertIsOk();
+        json = getJsonResult();
         JsonArray tracks = json.getJsonArray("tracks");
         Assert.assertNotNull(tracks);
         Assert.assertEquals(2, tracks.size());
@@ -61,18 +54,16 @@ public class TestPlayerResource extends BaseJerseyTest {
         Assert.assertEquals(0, track0.getInt("play_count"));
 
         // Marks a track as played
-        json = target().path("/player/listening").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .post(Entity.form(new Form()
-                        .param("id", track0Id)
-                        .param("date", Long.toString(new Date().getTime()))
-                        .param("duration", Integer.toString(track0Length / 2 + 1))), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        POST("/player/listening", ImmutableMap.of(
+                "id", track0Id,
+                "date", Long.toString(new Date().getTime()),
+                "duration", Integer.toString(track0Length / 2 + 1)));
+        assertIsOk();
 
         // Check the tracks info
-        json = target().path("/album/" + album0Id).request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/album/" + album0Id);
+        assertIsOk();
+        json = getJsonResult();
         tracks = json.getJsonArray("tracks");
         Assert.assertNotNull(tracks);
         Assert.assertEquals(2, tracks.size());
@@ -81,17 +72,15 @@ public class TestPlayerResource extends BaseJerseyTest {
         Assert.assertEquals(1, track0.getInt("play_count"));
         
         // Marks tracks as played
-        json = target().path("/player/listened").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .post(Entity.form(new Form()
-                        .param("id", track0Id)
-                        .param("date", Long.toString(new Date().getTime()))), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
-        
+        POST("/player/listened", ImmutableMap.of(
+                "id", track0Id,
+                "date", Long.toString(new Date().getTime())));
+        assertIsOk();
+
         // Check the tracks info
-        json = target().path("/album/" + album0Id).request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/album/" + album0Id);
+        assertIsOk();
+        json = getJsonResult();
         tracks = json.getJsonArray("tracks");
         Assert.assertNotNull(tracks);
         Assert.assertEquals(2, tracks.size());
@@ -103,24 +92,21 @@ public class TestPlayerResource extends BaseJerseyTest {
     /**
      * Test remote control resources.
      * 
-     * @throws Exception
      */
     @Test
     public void testRemoteControl() throws Exception {
         // Login users
-        String adminAuthenticationToken = login("admin", "admin", false);
+        login("admin", "admin", false);
         
         // Register a player
-        JsonObject json = target().path("/player/register").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .post(null, JsonObject.class);
+        POST("/player/register");
+        assertIsOk();
+        JsonObject json = getJsonResult();
         String playerToken = json.getString("token");
         Assert.assertNotNull(playerToken);
         
         // Unregister a player
-        json = target().path("/player/register").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .post(Entity.form(new Form()
-                        .param("token", playerToken)), JsonObject.class);
+        POST("/player/register", ImmutableMap.of("token", playerToken));
+        assertIsOk();
     }
 }
