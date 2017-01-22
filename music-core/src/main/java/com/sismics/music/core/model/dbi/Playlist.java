@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
 
 /**
  * Playlist entity.
+ * A playlist is either the list of current played tracks (the "default" playlist), or a saved playlist with a name.
  * 
  * @author jtremeaux
  */
@@ -17,6 +18,11 @@ public class Playlist {
      * User ID.
      */
     private String userId;
+
+    /**
+     * Playlist name.
+     */
+    private String name;
 
     public Playlist() {
     }
@@ -53,6 +59,14 @@ public class Playlist {
         return userId;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     /**
      * Setter of userId.
      *
@@ -67,6 +81,7 @@ public class Playlist {
         return Objects.toStringHelper(this)
                 .add("id", id)
                 .add("userId", userId)
+                .add("name", name)
                 .toString();
     }
 }

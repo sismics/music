@@ -1,27 +1,11 @@
 package com.sismics.music.rest.resource;
 
-import java.text.MessageFormat;
-import java.util.List;
-
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Response;
-
 import com.sismics.music.core.dao.dbi.PlaylistDao;
 import com.sismics.music.core.dao.dbi.PlaylistTrackDao;
 import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
+import com.sismics.music.core.dao.dbi.dto.PlaylistDto;
 import com.sismics.music.core.dao.dbi.dto.TrackDto;
-import com.sismics.music.core.model.dbi.Playlist;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.util.dbi.PaginatedList;
 import com.sismics.music.core.util.dbi.PaginatedLists;
@@ -30,6 +14,15 @@ import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
 import com.sismics.rest.util.ValidationUtil;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import java.text.MessageFormat;
+import java.util.List;
 
 /**
  * Playlist REST resources.
@@ -64,7 +57,7 @@ public class PlaylistResource extends BaseResource {
 
         // Get the playlist
         PlaylistDao playlistDao = new PlaylistDao();
-        Playlist playlist = playlistDao.getActiveByUserId(principal.getId());
+        PlaylistDto playlist = playlistDao.getDefaultPlaylistByUserId(principal.getId());
         if (playlist == null) {
             throw new ServerException("UnknownError", MessageFormat.format("Playlist not found for user {0}", principal.getId()));
         }
@@ -109,7 +102,7 @@ public class PlaylistResource extends BaseResource {
         
         // Get the playlist
         PlaylistDao playlistDao = new PlaylistDao();
-        Playlist playlist = playlistDao.getActiveByUserId(principal.getId());
+        PlaylistDto playlist = playlistDao.getDefaultPlaylistByUserId(principal.getId());
         if (playlist == null) {
             throw new ServerException("UnknownError", MessageFormat.format("Playlist not found for user {0}", principal.getId()));
         }
@@ -157,7 +150,7 @@ public class PlaylistResource extends BaseResource {
         
         // Get the playlist
         PlaylistDao playlistDao = new PlaylistDao();
-        Playlist playlist = playlistDao.getActiveByUserId(principal.getId());
+        PlaylistDto playlist = playlistDao.getDefaultPlaylistByUserId(principal.getId());
         if (playlist == null) {
             throw new ServerException("UnknownError", MessageFormat.format("Playlist not found for user {0}", principal.getId()));
         }
@@ -209,7 +202,7 @@ public class PlaylistResource extends BaseResource {
 
         // Get the playlist
         PlaylistDao playlistDao = new PlaylistDao();
-        Playlist playlist = playlistDao.getActiveByUserId(principal.getId());
+        PlaylistDto playlist = playlistDao.getDefaultPlaylistByUserId(principal.getId());
         if (playlist == null) {
             throw new ServerException("UnknownError", MessageFormat.format("Playlist not found for user {0}", principal.getId()));
         }
@@ -248,7 +241,7 @@ public class PlaylistResource extends BaseResource {
 
         // Get the playlist
         PlaylistDao playlistDao = new PlaylistDao();
-        Playlist playlist = playlistDao.getActiveByUserId(principal.getId());
+        PlaylistDto playlist = playlistDao.getDefaultPlaylistByUserId(principal.getId());
         if (playlist == null) {
             throw new ServerException("UnknownError", MessageFormat.format("Playlist not found for user {0}", principal.getId()));
         }
@@ -278,7 +271,7 @@ public class PlaylistResource extends BaseResource {
         }
 
         // Output the playlist
-        Playlist playlist = new PlaylistDao().getActiveByUserId(principal.getId());
+        PlaylistDto playlist = new PlaylistDao().getDefaultPlaylistByUserId(principal.getId());
 
         return Response.ok()
                 .entity(buildPlaylistJson(playlist))
@@ -291,14 +284,14 @@ public class PlaylistResource extends BaseResource {
      * @return Response
      */
     @DELETE
-    public Response delete() {
+    public Response clear() {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
 
         // Get the playlist
         PlaylistDao playlistDao = new PlaylistDao();
-        Playlist playlist = playlistDao.getActiveByUserId(principal.getId());
+        PlaylistDto playlist = playlistDao.getDefaultPlaylistByUserId(principal.getId());
         if (playlist == null) {
             throw new ServerException("UnknownError", MessageFormat.format("Playlist not found for user {0}", principal.getId()));
         }
@@ -319,7 +312,7 @@ public class PlaylistResource extends BaseResource {
      * @param playlist Playlist
      * @return JSON
      */
-    private JsonObject buildPlaylistJson(Playlist playlist) {
+    private JsonObject buildPlaylistJson(PlaylistDto playlist) {
         JsonObjectBuilder response = Json.createObjectBuilder();
         JsonArrayBuilder tracks = Json.createArrayBuilder();
         TrackDao trackDao = new TrackDao();
