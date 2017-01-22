@@ -7,6 +7,7 @@ import com.sismics.music.core.dao.dbi.criteria.PlaylistCriteria;
 import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
 import com.sismics.music.core.dao.dbi.dto.PlaylistDto;
 import com.sismics.music.core.dao.dbi.dto.TrackDto;
+import com.sismics.music.core.model.dbi.Playlist;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.util.dbi.PaginatedList;
 import com.sismics.music.core.util.dbi.PaginatedLists;
@@ -34,6 +35,37 @@ import java.util.List;
 @Path("/playlist")
 public class PlaylistResource extends BaseResource {
     public static final String DEFAULT_PLAYLIST = "default";
+
+    /**
+     * Create a named playlist.
+     *
+     * @param name The name
+     * @return Response
+     */
+    @PUT
+    public Response createPlaylist(
+            @FormParam("name") String name) {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+
+        ValidationUtil.validateRequired(name, "name");
+
+        // Create the playlist
+        Playlist playlist = new Playlist();
+        playlist.setUserId(principal.getId());
+        playlist.setName(name);
+        Playlist.createPlaylist(playlist);
+
+        // Output the playlist
+        return Response.ok()
+                .entity(Json.createObjectBuilder()
+                        .add("item", Json.createObjectBuilder()
+                                .add("id", playlist.getId())
+                                .build())
+                        .build())
+                .build();
+    }
 
     /**
      * Inserts a track in the playlist.
@@ -76,7 +108,7 @@ public class PlaylistResource extends BaseResource {
             // Delete all tracks in the playlist
             playlistTrackDao.deleteByPlaylistId(playlist.getId());
         }
-        
+
         // Get the track order
         if (order == null) {
             order = playlistTrackDao.getPlaylistTrackNextOrder(playlist.getId());

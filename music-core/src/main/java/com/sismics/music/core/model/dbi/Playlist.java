@@ -1,6 +1,9 @@
 package com.sismics.music.core.model.dbi;
 
 import com.google.common.base.Objects;
+import com.sismics.music.core.dao.dbi.PlaylistDao;
+
+import java.util.UUID;
 
 /**
  * Playlist entity.
@@ -74,6 +77,11 @@ public class Playlist {
      */
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public static void createPlaylist(Playlist playlist) {
+        playlist.id = UUID.randomUUID().toString();
+        new PlaylistDao().create(playlist);
     }
 
     @Override

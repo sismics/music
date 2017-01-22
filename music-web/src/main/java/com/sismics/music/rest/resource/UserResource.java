@@ -2,7 +2,6 @@ package com.sismics.music.rest.resource;
 
 import com.sismics.music.core.constant.Constants;
 import com.sismics.music.core.dao.dbi.AuthenticationTokenDao;
-import com.sismics.music.core.dao.dbi.PlaylistDao;
 import com.sismics.music.core.dao.dbi.RoleBaseFunctionDao;
 import com.sismics.music.core.dao.dbi.UserDao;
 import com.sismics.music.core.dao.dbi.criteria.UserCriteria;
@@ -106,9 +105,7 @@ public class UserResource extends BaseResource {
         // Create the default playlist for this user
         Playlist playlist = new Playlist();
         playlist.setUserId(userId);
-
-        PlaylistDao playlistDao = new PlaylistDao();
-        playlistDao.create(playlist);
+        Playlist.createPlaylist(playlist);
 
         // Raise a user creation event
         UserCreatedEvent userCreatedEvent = new UserCreatedEvent();
@@ -187,10 +184,8 @@ public class UserResource extends BaseResource {
      * @param username Username
      * @param password Password
      * @param email E-Mail
-     * @param themeId Theme
      * @param localeId Locale ID
      * @return Response
-     * @throws JSONException
      */
     @POST
     @Path("{username: [a-zA-Z0-9_]+}")
@@ -397,7 +392,6 @@ public class UserResource extends BaseResource {
      * 
      * @param username Username
      * @return Response
-     * @throws JSONException
      */
     @DELETE
     @Path("{username: [a-zA-Z0-9_]+}")

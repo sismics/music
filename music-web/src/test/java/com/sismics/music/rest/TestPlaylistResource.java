@@ -16,11 +16,11 @@ import java.nio.file.Paths;
  */
 public class TestPlaylistResource extends BaseJerseyTest {
     /**
-     * Test the playlist resource.
+     * Test the default playlist resource.
      *
      */
     @Test
-    public void testPlaylistResource() throws Exception {
+    public void testDefaultPlaylistResource() throws Exception {
         // Login users
         login("admin", "admin", false);
 
@@ -215,5 +215,52 @@ public class TestPlaylistResource extends BaseJerseyTest {
         tracks = json.getJsonArray("tracks");
         Assert.assertNotNull(tracks);
         Assert.assertEquals(2, tracks.size());
+    }
+
+    /**
+     * Test the default playlist resource.
+     *
+     */
+    @Test
+    public void testNamedPlaylistResource() throws Exception {
+        // Login users
+        login("admin", "admin", false);
+
+        // Admin adds a directory to the collection
+        PUT("directory", ImmutableMap.of("location", Paths.get(getClass().getResource("/music/").toURI()).toString()));
+        assertIsOk();
+
+        // Check that the albums are correctly added
+        GET("/album", ImmutableMap.of(
+                "sort_column", "0",
+                "asc", "false"));
+        assertIsOk();
+        JsonObject json = getJsonResult();
+        JsonArray albums = json.getJsonArray("albums");
+        Assert.assertNotNull(albums);
+        Assert.assertEquals(2, albums.size());
+        JsonObject album0 = albums.getJsonObject(1);
+        String album0Id = album0.getString("id");
+        Assert.assertNotNull(album0Id);
+
+        // List all playlists
+        GET("/playlist");
+        assertIsOk();
+        json = getJsonResult();
+        JsonArray items = json.getJsonArray("items");
+        Assert.assertEquals(0, items.size());
+
+        // Create a playlist
+        PUT("/playlist", ImmutableMap.of("name", "Test playlist 0"));
+        assertIsOk();
+
+        // List all playlists
+        GET("/playlist");
+        assertIsOk();
+        json = getJsonResult();
+        items = json.getJsonArray("items");
+        Assert.assertEquals(1, items.size());
+        JsonObject item = items.getJsonObject(0);
+        Assert.assertEquals("Test playlist 0", item.getString("name"));
     }
 }

@@ -9,7 +9,10 @@ import com.sismics.util.context.ThreadLocalContext;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Playlist DAO.
@@ -24,8 +27,6 @@ public class PlaylistDao {
      * @return Playlist ID
      */
     public String create(Playlist playlist) {
-        playlist.setId(UUID.randomUUID().toString());
-
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
                 "  T_PLAYLIST(PLL_ID_C, PLL_IDUSER_C, PLL_NAME_C)" +
