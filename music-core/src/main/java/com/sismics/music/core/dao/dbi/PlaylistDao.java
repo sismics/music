@@ -4,9 +4,7 @@ import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.dbi.criteria.PlaylistCriteria;
 import com.sismics.music.core.dao.dbi.dto.PlaylistDto;
 import com.sismics.music.core.model.dbi.Playlist;
-import com.sismics.music.core.util.dbi.ColumnIndexMapper;
-import com.sismics.music.core.util.dbi.QueryParam;
-import com.sismics.music.core.util.dbi.QueryUtil;
+import com.sismics.music.core.util.dbi.*;
 import com.sismics.util.context.ThreadLocalContext;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
@@ -59,7 +57,7 @@ public class PlaylistDao {
     private QueryParam getQueryParam(PlaylistCriteria criteria) {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-        StringBuilder sb = new StringBuilder("select p.PLL_ID_C, p.PLL_NAME_C,")
+        StringBuilder sb = new StringBuilder("select p.PLL_ID_C, p.PLL_NAME_C as c0,")
                 .append("  p.PLL_IDUSER_C ")
                 .append("  from T_PLAYLIST p ");
         
@@ -104,6 +102,20 @@ public class PlaylistDao {
         Query<Map<String, Object>> q = QueryUtil.getNativeQuery(queryParam);
         List<Object[]> l = q.map(ColumnIndexMapper.INSTANCE).list();
         return assembleResultList(l);
+    }
+
+    /**
+     * Searches playlists by criteria.
+     *
+     * @param paginatedList Paginated list (populated by side effects)
+     * @param criteria Search criteria
+     * @param sortCriteria Sort criteria
+     */
+    public void findByCriteria(PaginatedList<PlaylistDto> paginatedList, PlaylistCriteria criteria, SortCriteria sortCriteria) {
+        QueryParam queryParam = getQueryParam(criteria);
+        List<Object[]> l = PaginatedLists.executePaginatedQuery(paginatedList, queryParam, sortCriteria, true);
+        List<PlaylistDto> playlistDtoList = assembleResultList(l);
+        paginatedList.setResultList(playlistDtoList);
     }
 
     /**

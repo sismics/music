@@ -1,27 +1,5 @@
 package com.sismics.music.rest.atmosphere;
 
-import java.io.StringReader;
-
-import javax.json.Json;
-import javax.json.JsonException;
-import javax.json.JsonReader;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-
-import org.atmosphere.client.TrackMessageSizeInterceptor;
-import org.atmosphere.config.service.AtmosphereService;
-import org.atmosphere.cpr.ApplicationConfig;
-import org.atmosphere.cpr.AtmosphereResource;
-import org.atmosphere.cpr.Broadcaster;
-import org.atmosphere.cpr.BroadcasterFactory;
-import org.atmosphere.interceptor.AtmosphereResourceLifecycleInterceptor;
-
 import com.sismics.atmosphere.interceptor.DbiTransactionInterceptor;
 import com.sismics.music.core.dao.dbi.PlayerDao;
 import com.sismics.music.core.model.dbi.Player;
@@ -29,6 +7,24 @@ import com.sismics.music.rest.resource.BaseResource;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.util.ValidationUtil;
+import org.atmosphere.client.TrackMessageSizeInterceptor;
+import org.atmosphere.config.service.AtmosphereService;
+import org.atmosphere.cpr.ApplicationConfig;
+import org.atmosphere.cpr.AtmosphereResource;
+import org.atmosphere.cpr.Broadcaster;
+import org.atmosphere.cpr.BroadcasterFactory;
+import org.atmosphere.interceptor.AtmosphereResourceLifecycleInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.json.Json;
+import javax.json.JsonException;
+import javax.json.JsonReader;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import java.io.StringReader;
 
 /**
  * Player resource, managed by Atmosphere.
@@ -44,12 +40,16 @@ import com.sismics.rest.util.ValidationUtil;
 public class PlayerResource extends BaseResource {
     @Context
     private HttpServletRequest request;
-    
+
+    /**
+     * Logger.
+     */
+    private static final Logger log = LoggerFactory.getLogger(PlayerResource.class);
+
     /**
      * Connect a player by websocket.
      * 
      * @param token Player token
-     * @return Response
      */
     @GET
     public void suspend(@QueryParam("token") String token) {
@@ -76,7 +76,6 @@ public class PlayerResource extends BaseResource {
     /**
      * Send a command to a player.
      *
-     * @param message
      */
     @POST
     @Path("command")
@@ -109,7 +108,8 @@ public class PlayerResource extends BaseResource {
         try (JsonReader jsonReader = Json.createReader(new StringReader(json))) {
             broadcaster.broadcast(jsonReader.readObject());
         } catch (JsonException e) {
-            throw new ClientException("CommandError", "Command not parsable: " + json, e);
+            log.error("Command not parsable: " + json, e);
+            throw new ClientException("CommandError", "Command not parsable: " + json);
         }
         
         // Always return OK

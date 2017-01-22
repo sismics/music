@@ -57,8 +57,8 @@ public class TestPlaylistResource extends BaseJerseyTest {
         JsonObject track1 = tracks.getJsonObject(1);
         String track1Id = track1.getString("id");
 
-        // Admin checks that his playlist is empty
-        GET("/playlist");
+        // Admin checks that his default playlist is empty
+        GET("/playlist/default");
         assertIsOk();
         json = getJsonResult();
         tracks = json.getJsonArray("tracks");
@@ -66,7 +66,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(0, tracks.size());
 
         // Admin adds a track to the playlist
-        PUT("/playlist", ImmutableMap.of("id", track1Id));
+        PUT("/playlist/default", ImmutableMap.of("id", track1Id));
         assertIsOk();
         json = getJsonResult();
         tracks = json.getJsonArray("tracks");
@@ -75,7 +75,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(track1Id, tracks.getJsonObject(0).getString("id"));
 
         // Admin checks that his playlist contains one track
-        GET("/playlist");
+        GET("/playlist/default");
         assertIsOk();
         json = getJsonResult();
         tracks = json.getJsonArray("tracks");
@@ -84,7 +84,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(track1Id, tracks.getJsonObject(0).getString("id"));
 
         // Admin adds a track to the playlist before the first one
-        PUT("/playlist", ImmutableMap.of(
+        PUT("/playlist/default", ImmutableMap.of(
                 "id", track0Id,
                 "order", "0"));
         assertIsOk();
@@ -96,7 +96,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(track1Id, tracks.getJsonObject(1).getString("id"));
 
         // Admin checks that his playlist contains 2 tracks in the right order
-        GET("/playlist");
+        GET("/playlist/default");
         assertIsOk();
         json = getJsonResult();
         tracks = json.getJsonArray("tracks");
@@ -106,7 +106,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(track1Id, tracks.getJsonObject(1).getString("id"));
 
         // Admin reverses the order of the 2 tracks
-        POST("/playlist/1/move", ImmutableMap.of("neworder", "0"));
+        POST("/playlist/default/1/move", ImmutableMap.of("neworder", "0"));
         assertIsOk();
         json = getJsonResult();
         tracks = json.getJsonArray("tracks");
@@ -116,7 +116,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(track0Id, tracks.getJsonObject(1).getString("id"));
 
         // Admin checks that his playlist contains 2 tracks in the right order
-        GET("/playlist");
+        GET("/playlist/default");
         assertIsOk();
         json = getJsonResult();
         tracks = json.getJsonArray("tracks");
@@ -126,7 +126,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(track0Id, tracks.getJsonObject(1).getString("id"));
 
         // Admin removes the 1st track from the playlist
-        DELETE("/playlist/0");
+        DELETE("/playlist/default/0");
         assertIsOk();
         json = getJsonResult();
         tracks = json.getJsonArray("tracks");
@@ -135,7 +135,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(track0Id, tracks.getJsonObject(0).getString("id"));
 
         // Admin checks that his playlist contains 1 track
-        GET("/playlist");
+        GET("/playlist/default");
         assertIsOk();
         json = getJsonResult();
         tracks = json.getJsonArray("tracks");
@@ -144,13 +144,13 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(track0Id, tracks.getJsonObject(0).getString("id"));
         
         // Admin clears his playlist
-        DELETE("/playlist");
+        DELETE("/playlist/default");
         assertIsOk();
         json = getJsonResult();
         Assert.assertEquals("ok", json.getString("status"));
         
         // Admin checks that his playlist is empty
-        GET("/playlist");
+        GET("/playlist/default");
         assertIsOk();
         json = getJsonResult();
         tracks = json.getJsonArray("tracks");
@@ -158,7 +158,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(0, tracks.size());
         
         // Admin adds 2 tracks at the same time
-        PUT("/playlist/multiple", ImmutableMultimap.of(
+        PUT("/playlist/default/multiple", ImmutableMultimap.of(
                 "ids", track0Id,
                 "ids", track1Id));
         assertIsOk();
@@ -170,7 +170,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(track1Id, tracks.getJsonObject(1).getString("id"));
         
         // Admin checks that his playlist contains 2 tracks in the right order
-        GET("/playlist");
+        GET("/playlist/default");
         assertIsOk();
         json = getJsonResult();
         tracks = json.getJsonArray("tracks");
@@ -180,7 +180,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(track1Id, tracks.getJsonObject(1).getString("id"));
         
         // Admin clears and adds a track to the playlist
-        PUT("/playlist", ImmutableMap.of(
+        PUT("/playlist/default", ImmutableMap.of(
                 "id", track1Id,
                 "clear", "true"));
         assertIsOk();
@@ -190,7 +190,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(1, tracks.size());
         
         // Admin checks that his playlist contains 1 track
-        GET("/playlist");
+        GET("/playlist/default");
         assertIsOk();
         json = getJsonResult();
         tracks = json.getJsonArray("tracks");
@@ -198,7 +198,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(1, tracks.size());
         
         // Admin clears and adds 2 tracks at the same time
-        PUT("/playlist/multiple", ImmutableMultimap.of(
+        PUT("/playlist/default/multiple", ImmutableMultimap.of(
                 "ids", track0Id,
                 "ids", track1Id,
                 "clear", "true"));
@@ -209,7 +209,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(2, tracks.size());
         
         // Admin checks that his playlist contains 2 tracks
-        GET("/playlist");
+        GET("/playlist/default");
         assertIsOk();
         json = getJsonResult();
         tracks = json.getJsonArray("tracks");

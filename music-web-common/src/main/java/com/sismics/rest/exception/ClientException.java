@@ -1,8 +1,5 @@
 package com.sismics.rest.exception;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.json.Json;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -20,20 +17,13 @@ public class ClientException extends WebApplicationException {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Logger.
-     */
-    private static final Logger log = LoggerFactory.getLogger(ClientException.class);
-
-    /**
      * Constructor of ClientException.
      * 
      * @param type Error type (e.g. AlreadyExistingEmail, ValidationError)
      * @param message Human readable error message
-     * @param e Readable error message
      */
-    public ClientException(String type, String message, Exception e) {
-        this(type, message);
-        log.error(type + ": " + message, e);
+    public ClientException(String type, String message) {
+        this(type, message, Status.BAD_REQUEST);
     }
 
     /**
@@ -42,9 +32,10 @@ public class ClientException extends WebApplicationException {
      * @param type Error type (e.g. AlreadyExistingEmail, ValidationError)
      * @param message Human readable error message
      */
-    public ClientException(String type, String message) {
-        super(Response.status(Status.BAD_REQUEST).entity(Json.createObjectBuilder()
+    public ClientException(String type, String message, Status status) {
+        super(Response.status(status).entity(Json.createObjectBuilder()
             .add("type", type)
-            .add("message", message).build()).build());
+            .add("message", message).build())
+                .build());
     }
 }

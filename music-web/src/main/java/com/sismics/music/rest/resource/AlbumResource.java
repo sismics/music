@@ -1,28 +1,5 @@
 package com.sismics.music.rest.resource;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-
-import org.apache.commons.io.IOUtils;
-
 import com.sismics.music.core.dao.dbi.AlbumDao;
 import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.criteria.AlbumCriteria;
@@ -40,6 +17,20 @@ import com.sismics.music.core.util.dbi.SortCriteria;
 import com.sismics.music.rest.util.JsonUtil;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import java.io.*;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Album REST resources.
@@ -48,6 +39,11 @@ import com.sismics.rest.exception.ForbiddenClientException;
  */
 @Path("/album")
 public class AlbumResource extends BaseResource {
+    /**
+     * Logger.
+     */
+    private static final Logger log = LoggerFactory.getLogger(AlbumResource.class);
+
     /**
      * Returns an album detail.
      *
@@ -184,7 +180,8 @@ public class AlbumResource extends BaseResource {
                 IOUtils.copy(urlStream, imageStream);
             }
         } catch (IOException e) {
-            throw new ClientException("IOError", "Error while reading the remote URL", e);
+            log.error("Error reading remote URL", e);
+            throw new ClientException("IOError", "Error while reading the remote URL");
         }
         
         JsonObjectBuilder reponse = Json.createObjectBuilder().add("status", "ok");
@@ -198,7 +195,8 @@ public class AlbumResource extends BaseResource {
             // The album art could't be copied to the album folder
             reponse.add("message", "AlbumArtNotCopied");
         } catch (Exception e) {
-            throw new ClientException("ImageError", "The provided URL is not an image", e);
+            log.error("The provided URL is not an image", e);
+            throw new ClientException("ImageError", "The provided URL is not an image");
         }
         albumDao.update(album);
         

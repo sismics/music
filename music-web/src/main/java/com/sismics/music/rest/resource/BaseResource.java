@@ -1,17 +1,18 @@
 package com.sismics.music.rest.resource;
 
-import java.security.Principal;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-
 import com.sismics.music.rest.constant.BaseFunction;
+import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.security.IPrincipal;
 import com.sismics.security.UserPrincipal;
 import com.sismics.util.filter.TokenBasedSecurityFilter;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import java.security.Principal;
+import java.util.Set;
 
 /**
  * Base class of REST resources.
@@ -74,5 +75,11 @@ public abstract class BaseResource {
         }
         Set<String> baseFunctionSet = ((UserPrincipal) principal).getBaseFunctionSet();
         return baseFunctionSet != null && baseFunctionSet.contains(baseFunction.name());
+    }
+
+    protected void notFoundIfNull(Object object, String message) {
+        if (object == null) {
+            throw new ClientException("NotFound", message, Response.Status.NOT_FOUND);
+        }
     }
 }

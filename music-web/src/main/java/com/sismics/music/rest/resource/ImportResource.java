@@ -1,31 +1,5 @@
 package com.sismics.music.rest.resource;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Collections;
-import java.util.List;
-
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.comparator.LastModifiedFileComparator;
-import org.glassfish.jersey.media.multipart.FormDataBodyPart;
-import org.glassfish.jersey.media.multipart.FormDataParam;
-
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import com.sismics.music.core.dao.dbi.DirectoryDao;
@@ -36,6 +10,22 @@ import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
 import com.sismics.rest.util.ValidationUtil;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.comparator.LastModifiedFileComparator;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Import REST resources.
@@ -155,7 +145,7 @@ public class ImportResource extends BaseResource {
         try {
             AppContext.getInstance().getImportAudioService().retryImportAudio(id);
         } catch (Exception e) {
-            throw new ClientException("ImportError", e.getMessage(), e);
+            throw new ServerException("ImportError", e.getMessage(), e);
         }
         
         // Always return OK
@@ -174,7 +164,7 @@ public class ImportResource extends BaseResource {
         try {
             AppContext.getInstance().getImportAudioService().killImportAudio(id);
         } catch (Exception e) {
-            throw new ClientException("ImportError", e.getMessage(), e);
+            throw new ClientException("ImportError", e.getMessage());
         }
         
         // Always return OK
