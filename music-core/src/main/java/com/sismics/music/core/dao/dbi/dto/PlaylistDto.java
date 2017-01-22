@@ -21,38 +21,18 @@ public class PlaylistDto {
      */
     private String userId;
 
-    /**
-     * Getter of id.
-     *
-     * @return id
-     */
     public String getId() {
         return id;
     }
 
-    /**
-     * Setter of id.
-     *
-     * @param id id
-     */
     public void setId(String id) {
         this.id = id;
     }
 
-    /**
-     * Getter of name.
-     *
-     * @return name
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * Setter of name.
-     *
-     * @param name name
-     */
     public void setName(String name) {
         this.name = name;
     }
