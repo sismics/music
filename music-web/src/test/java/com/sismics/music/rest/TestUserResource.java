@@ -31,10 +31,10 @@ public class TestUserResource extends BaseJerseyTest {
         Assert.assertTrue(json.getBoolean("is_default_password"));
         
         // Create alice user
-        clientUtil.createUser("alice");
+        createUser("alice");
 
         // Login admin
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        String adminAuthenticationToken = login("admin", "admin", false);
         
         // List all users
         json = target().path("/user/list")
@@ -116,10 +116,10 @@ public class TestUserResource extends BaseJerseyTest {
                         .param("username", " alice ")
                         .param("password", " 12345678 ")));
         Assert.assertEquals(Status.OK, Status.fromStatusCode(response.getStatus()));
-        String aliceAuthToken = clientUtil.getAuthenticationCookie(response);
+        String aliceAuthToken = getAuthenticationCookie(response);
 
         // Login user bob
-        String bobAuthToken = clientUtil.login("bob");
+        String bobAuthToken = login("bob");
 
         // Check alice user information
         json = target().path("/user").request()
@@ -183,10 +183,10 @@ public class TestUserResource extends BaseJerseyTest {
     @Test
     public void testUserResourceAdmin() {
         // Create admin_user1 user
-        clientUtil.createUser("admin_user1");
+        createUser("admin_user1");
 
         // Login admin
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        String adminAuthenticationToken = login("admin", "admin", false);
 
         // Check admin information
         JsonObject json = target().path("/user").request()
@@ -246,8 +246,8 @@ public class TestUserResource extends BaseJerseyTest {
     @Ignore
     public void testUserLastFmRegistration() {
         // Create and login user
-        clientUtil.createUser("user_lastfm0");
-        String lastFm0AuthenticationToken = clientUtil.login("user_lastfm0");
+        createUser("user_lastfm0");
+        String lastFm0AuthenticationToken = login("user_lastfm0");
 
         // The user checks his information
         JsonObject json = target().path("/user").request()

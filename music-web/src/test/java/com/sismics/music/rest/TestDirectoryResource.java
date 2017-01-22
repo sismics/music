@@ -24,11 +24,11 @@ public class TestDirectoryResource extends BaseJerseyTest {
     @Test
     public void testDirectoryResource() throws Exception {
         // Create alice user
-        clientUtil.createUser("alice");
+        createUser("alice");
 
         // Login users
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
-        String aliceAuthenticationToken = clientUtil.login("alice");
+        String adminAuthenticationToken = login("admin", "admin", false);
+        String aliceAuthenticationToken = login("alice");
 
         // Alice lists the directories: access to this resource is forbidden
         Response response = target().path("/directory").request()
@@ -119,7 +119,7 @@ public class TestDirectoryResource extends BaseJerseyTest {
     @Test
     public void testCollectionIndexing() throws Exception {
         // Login users
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        String adminAuthenticationToken = login("admin", "admin", false);
 
         // Admin adds a directory to the collection
         JsonObject json = target().path("/directory").request()

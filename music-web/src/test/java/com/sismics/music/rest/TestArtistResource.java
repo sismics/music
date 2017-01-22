@@ -1,16 +1,14 @@
 package com.sismics.music.rest;
 
-import java.nio.file.Paths;
+import com.sismics.util.filter.TokenBasedSecurityFilter;
+import org.junit.Assert;
+import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.sismics.util.filter.TokenBasedSecurityFilter;
+import java.nio.file.Paths;
 
 /**
  * Exhaustive test of the artist resource.
@@ -26,7 +24,7 @@ public class TestArtistResource extends BaseJerseyTest {
     @Test
     public void testArtistResource() throws Exception {
         // Login users
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        String adminAuthenticationToken = login("admin", "admin", false);
 
         // Admin adds an album to the collection
         JsonObject json = target().path("/directory").request()

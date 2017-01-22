@@ -1,14 +1,13 @@
 package com.sismics.music.rest;
 
+import com.sismics.util.filter.TokenBasedSecurityFilter;
+import org.junit.Assert;
+import org.junit.Test;
+
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.sismics.util.filter.TokenBasedSecurityFilter;
 
 /**
  * Exhaustive test of the transcoder resource.
@@ -24,7 +23,7 @@ public class TestTranscoderResource extends BaseJerseyTest {
     @Test
     public void testTranscoderResource() throws Exception {
         // Login admin
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        String adminAuthenticationToken = login("admin", "admin", false);
 
         // List all transcoders
         JsonObject json = target().path("/transcoder").request()

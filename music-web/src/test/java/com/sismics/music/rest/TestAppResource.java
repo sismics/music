@@ -41,7 +41,7 @@ public class TestAppResource extends BaseJerseyTest {
     @Ignore
     public void testMapPortResource() {
         // Login admin
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        String adminAuthenticationToken = login("admin", "admin", false);
         
         // Map port using UPnP
         target().path("/app/map_port").request()
@@ -55,7 +55,7 @@ public class TestAppResource extends BaseJerseyTest {
     @Test
     public void testLogResource() {
         // Login admin
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        String adminAuthenticationToken = login("admin", "admin", false);
         
         // Check the logs (page 1)
         JsonObject json = target().path("/app/log").queryParam("level", "DEBUG").request()
@@ -86,7 +86,7 @@ public class TestAppResource extends BaseJerseyTest {
     @Test
     public void testReindexBatch() throws Exception {
         // Login users
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        String adminAuthenticationToken = login("admin", "admin", false);
 
         // Admin adds a directory to the collection
         JsonObject json = target().path("/directory").request()

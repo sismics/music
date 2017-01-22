@@ -69,7 +69,7 @@ public class TestImportResource extends BaseJerseyTest {
     @Ignore // youtube-dl is not installed on Travis
     public void testImportResource() throws Exception {
         // Login users
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        String adminAuthenticationToken = login("admin", "admin", false);
         
         // This test is destructive, copy the test music to a temporary directory
         File collectionDir = copyTempResource("/music/");
@@ -197,7 +197,7 @@ public class TestImportResource extends BaseJerseyTest {
     @Ignore // youtube-dl is not installed on Travis
     public void testImportResourceRetry() throws Exception {
         // Login users
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        String adminAuthenticationToken = login("admin", "admin", false);
         
         // Admin import a new URL
         JsonObject json = target().path("/import").request()
@@ -264,7 +264,7 @@ public class TestImportResource extends BaseJerseyTest {
     @Ignore // youtube-dl is not installed on Travis
     public void testDependecies() throws Exception {
         // Login users
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        String adminAuthenticationToken = login("admin", "admin", false);
         
         // Admin checks dependencies
         JsonObject json = target().path("/import/dependencies").request()
@@ -282,7 +282,7 @@ public class TestImportResource extends BaseJerseyTest {
     @SuppressWarnings("resource")
     public void testImportUpload() throws Exception {
         // Login users
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        String adminAuthenticationToken = login("admin", "admin", false);
 
         // Admin import a ZIP
         try (InputStream is = Resources.getResource("music-album.zip").openStream()) {
@@ -353,7 +353,7 @@ public class TestImportResource extends BaseJerseyTest {
     @Test
     public void testTagImportedMusic() throws Exception {
         // Login users
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        String adminAuthenticationToken = login("admin", "admin", false);
 
         // This test is destructive, copy the test music to a temporary directory
         File collectionDir = copyTempResource("/music2/");

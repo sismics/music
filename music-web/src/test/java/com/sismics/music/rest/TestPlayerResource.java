@@ -1,17 +1,15 @@
 package com.sismics.music.rest;
 
-import java.nio.file.Paths;
-import java.util.Date;
+import com.sismics.util.filter.TokenBasedSecurityFilter;
+import org.junit.Assert;
+import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.sismics.util.filter.TokenBasedSecurityFilter;
+import java.nio.file.Paths;
+import java.util.Date;
 
 /**
  * Exhaustive test of the player resource.
@@ -27,7 +25,7 @@ public class TestPlayerResource extends BaseJerseyTest {
     @Test
     public void testPlayerResource() throws Exception {
         // Login users
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        String adminAuthenticationToken = login("admin", "admin", false);
 
         // Admin adds a track to the collection
         JsonObject json = target().path("/directory").request()
@@ -110,7 +108,7 @@ public class TestPlayerResource extends BaseJerseyTest {
     @Test
     public void testRemoteControl() throws Exception {
         // Login users
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        String adminAuthenticationToken = login("admin", "admin", false);
         
         // Register a player
         JsonObject json = target().path("/player/register").request()

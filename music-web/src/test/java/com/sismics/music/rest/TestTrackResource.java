@@ -1,8 +1,10 @@
 package com.sismics.music.rest;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import com.google.common.io.Files;
+import com.sismics.util.filter.TokenBasedSecurityFilter;
+import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -10,13 +12,9 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.google.common.io.Files;
-import com.sismics.util.filter.TokenBasedSecurityFilter;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Exhaustive test of the track resource.
@@ -32,7 +30,7 @@ public class TestTrackResource extends BaseJerseyTest {
     @Test
     public void testTrackResource() throws Exception {
         // Login users
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        String adminAuthenticationToken = login("admin", "admin", false);
 
         // This test is destructive, copy the test music to a temporary directory
         Path sourceDir = Paths.get(getClass().getResource("/music/").toURI());

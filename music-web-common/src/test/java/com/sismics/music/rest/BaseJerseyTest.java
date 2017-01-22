@@ -1,19 +1,9 @@
 package com.sismics.music.rest;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URI;
-import java.net.URLDecoder;
-import java.util.List;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeUtility;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.UriBuilder;
-
+import com.google.common.collect.Multimap;
+import com.sismics.util.dbi.DBIF;
+import com.sismics.util.filter.RequestContextFilter;
+import com.sismics.util.filter.TokenBasedSecurityFilter;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
@@ -24,14 +14,28 @@ import org.glassfish.jersey.test.external.ExternalTestContainerFactory;
 import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
-import com.sismics.music.rest.util.ClientUtil;
-import com.sismics.util.dbi.DBIF;
-import com.sismics.util.filter.RequestContextFilter;
-import com.sismics.util.filter.TokenBasedSecurityFilter;
+import javax.json.JsonObject;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeUtility;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Base class of integration tests with Jersey.
@@ -48,12 +52,20 @@ public abstract class BaseJerseyTest extends JerseyTest {
      * Test HTTP server.
      */
     HttpServer httpServer;
-    
+
+    /**
+     * The response from the last request.
+     */
+    protected Response response;
+
+    /**
+     * The set of current cookies.
+     */
+    protected Map<String, String> cookies = new HashMap<String, String>();
+
     /**
      * Utility class for the REST client.
      */
-    protected ClientUtil clientUtil;
-    
     @Override
     protected TestContainerFactory getTestContainerFactory() throws TestContainerException {
         return new ExternalTestContainerFactory();
@@ -76,8 +88,6 @@ public abstract class BaseJerseyTest extends JerseyTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        clientUtil = new ClientUtil(target());
-        
         wiser = new Wiser();
         wiser.setPort(2500);
         wiser.start();
@@ -151,5 +161,188 @@ public abstract class BaseJerseyTest extends JerseyTest {
         os.write(input.getBytes());
         os.close();
         return baos.toString();
+    }
+
+    /**
+     * Creates a user.
+     *
+     * @param username Username
+     */
+    public void createUser(String username) {
+        // Login admin to create the user
+        String adminAuthenticationToken = login("admin", "admin", false);
+
+        // Create the user
+        Form form = new Form();
+        form.param("username", username);
+        form.param("email", username + "@music.com");
+        form.param("password", "12345678");
+        form.param("time_zone", "Asia/Tokyo");
+        target().path("/user").request()
+                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
+                .put(Entity.form(form), JsonObject.class);
+
+        // Logout admin
+        logout();
+    }
+
+
+    public void assertIsOk() {
+        assertIsOk(response);
+    }
+
+    public void assertIsOk(Response response) {
+        assertStatus(200, response);
+    }
+
+    public void assertIsBadRequest() {
+        assertIsBadRequest(response);
+    }
+
+    public void assertIsBadRequest(Response response) {
+        assertStatus(400, response);
+    }
+
+    public void assertIsForbidden() {
+        assertIsForbidden(response);
+    }
+
+    public void assertIsForbidden(Response response) {
+        assertStatus(403, response);
+    }
+
+    public void assertStatus(int status, Response response) {
+        Assert.assertEquals("Response status error, out: " + response.toString(), status, response.getStatus());
+    }
+
+    /**
+     * Connects a user to the application.
+     *
+     * @param username Username
+     * @return Authentication token
+     */
+    public String login(String username) {
+        return login(username, "12345678", false);
+    }
+
+    /**
+     * Connects a user to the application.
+     *
+     * @param username Username
+     * @param password Password
+     * @param remember Remember user
+     * @return Authentication token
+     */
+    public String login(String username, String password, Boolean remember) {
+        Form form = new Form();
+        form.param("username", username);
+        form.param("password", password);
+        form.param("remember", remember.toString());
+        response = target().path("/user/login").request()
+                .post(Entity.form(form));
+        assertIsOk();
+
+        return getAuthenticationCookie(response);
+    }
+
+    /**
+     * Disconnects a user from the application.
+     *
+     */
+    public void logout() {
+        POST("/user/logout");
+    }
+
+    /**
+     * Extracts the authentication token of the response.
+     *
+     * @param response Response
+     * @return Authentication token
+     */
+    public String getAuthenticationCookie(Response response) {
+        String authToken = null;
+        for (NewCookie cookie : response.getCookies().values()) {
+            if (TokenBasedSecurityFilter.COOKIE_NAME.equals(cookie.getName())) {
+                authToken = cookie.getValue();
+            }
+        }
+        return authToken;
+    }
+
+    protected void GET(String url, Map<String, String> queryParams) {
+        WebTarget resource = target().path(url);
+        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+            resource.queryParam(entry.getKey(), entry.getValue());
+        }
+        response = builder(resource).get(Response.class);
+    }
+
+    protected void GET(String resource) {
+        GET(resource, new HashMap<String, String>());
+        addCookiesFromResponse();
+    }
+
+    protected void PUT(String url, Map<String, String> putParams) {
+        WebTarget resource = target().path(url);
+        Form form = new Form();
+        for (Map.Entry<String, String> entry : putParams.entrySet()) {
+            form.param(entry.getKey(), entry.getValue());
+        }
+        response = builder(resource).put(Entity.form(form));
+        addCookiesFromResponse();
+    }
+
+    protected void PUT(String url) {
+        PUT(url, new HashMap<String, String>());
+    }
+
+    protected void POST(String url, Map<String, String> postParams) {
+        WebTarget resource = target().path(url);
+        Form form = new Form();
+        for (Map.Entry<String, String> entry : postParams.entrySet()) {
+            form.param(entry.getKey(), entry.getValue());
+        }
+        response = builder(resource).post(Entity.form(form));
+        addCookiesFromResponse();
+    }
+
+    protected void POST(String url, Multimap<String, String> postParams) {
+        WebTarget resource = target().path(url);
+        Form form = new Form();
+        for (Map.Entry<String, String> entry : postParams.entries()) {
+            form.param(entry.getKey(), entry.getValue());
+        }
+        response = builder(resource).post(Entity.form(form));
+        addCookiesFromResponse();
+    }
+
+    protected void POST(String url) {
+        POST(url, new HashMap<String, String>());
+    }
+
+    protected void DELETE(String url) {
+        WebTarget resource = target().path(url);
+        response = builder(resource).delete(Response.class);
+        addCookiesFromResponse();
+    }
+
+    protected Invocation.Builder builder(WebTarget resource) {
+        Invocation.Builder builder = resource.request();
+        for (Map.Entry<String, String> entry : cookies.entrySet()) {
+            builder.cookie(entry.getKey(), entry.getValue());
+        }
+        return builder;
+    }
+
+    private void addCookiesFromResponse() {
+        for (Cookie cookie : response.getCookies().values()) {
+            if (cookie.getName().equals(TokenBasedSecurityFilter.COOKIE_NAME)) {
+                cookies.put(cookie.getName(), cookie.getValue());
+            }
+        }
+    }
+
+    protected JsonObject getJsonResult() {
+        return (JsonObject) response.getEntity();
     }
 }

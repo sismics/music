@@ -23,7 +23,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
     @Test
     public void testPlaylistResource() throws Exception {
         // Login users
-        String adminAuthenticationToken = clientUtil.login("admin", "admin", false);
+        String adminAuthenticationToken = login("admin", "admin", false);
 
         // Admin adds a directory to the collection
         JsonObject json = target().path("/directory").request()

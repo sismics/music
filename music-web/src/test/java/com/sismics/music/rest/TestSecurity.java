@@ -23,7 +23,7 @@ public class TestSecurity extends BaseJerseyTest {
     @Test
     public void testSecurity() {
         // Create a user
-        clientUtil.createUser("testsecurity");
+        createUser("testsecurity");
 
         // Changes a user's email KO : the user is not connected
         Response response = target().path("/user/update").request()
@@ -34,7 +34,7 @@ public class TestSecurity extends BaseJerseyTest {
         Assert.assertEquals("You don't have access to this resource", json.getString("message"));
 
         // User testsecurity logs in
-        String testSecurityAuthenticationToken = clientUtil.login("testsecurity");
+        String testSecurityAuthenticationToken = login("testsecurity");
 
         // User testsecurity creates a new user KO : no permission
         response = target().path("/user").request()
@@ -57,7 +57,7 @@ public class TestSecurity extends BaseJerseyTest {
         json = target().path("/user/logout").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, testSecurityAuthenticationToken)
                 .post(Entity.form(new Form()), JsonObject.class);
-        testSecurityAuthenticationToken = clientUtil.getAuthenticationCookie(response);
+        testSecurityAuthenticationToken = getAuthenticationCookie(response);
         Assert.assertTrue(StringUtils.isEmpty(testSecurityAuthenticationToken));
 
         // User testsecurity logs out KO : he is not connected anymore
@@ -67,9 +67,9 @@ public class TestSecurity extends BaseJerseyTest {
         Assert.assertEquals(Status.FORBIDDEN, Status.fromStatusCode(response.getStatus()));
 
         // User testsecurity logs in with a long lived session
-        testSecurityAuthenticationToken = clientUtil.login("testsecurity", "12345678", true);
+        testSecurityAuthenticationToken = login("testsecurity", "12345678", true);
 
         // User testsecurity logs out
-        clientUtil.logout(testSecurityAuthenticationToken);
+        logout();
     }
 }
