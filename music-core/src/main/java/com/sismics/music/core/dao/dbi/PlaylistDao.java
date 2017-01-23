@@ -1,5 +1,6 @@
 package com.sismics.music.core.dao.dbi;
 
+import com.google.common.collect.Lists;
 import com.sismics.music.core.dao.dbi.criteria.PlaylistCriteria;
 import com.sismics.music.core.dao.dbi.dto.PlaylistDto;
 import com.sismics.music.core.dao.dbi.mapper.PlaylistMapper;
@@ -27,8 +28,12 @@ public class PlaylistDao extends BaseDao<PlaylistDto, PlaylistCriteria> {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
         StringBuilder sb = new StringBuilder("select p.PLL_ID_C as id, p.PLL_NAME_C as c0,")
-                .append("  p.PLL_IDUSER_C as userId ")
-                .append("  from T_PLAYLIST p ");
+                .append("  p.PLL_IDUSER_C as userId,")
+                .append("  count(pt.PLT_ID_C) as c1,")
+                .append("  sum(utr.UST_PLAYCOUNT_N) as c2")
+                .append("  from T_PLAYLIST p")
+                .append("  left join T_PLAYLIST_TRACK pt on(pt.PLT_IDPLAYLIST_C = p.PLL_ID_C)")
+                .append("  left join T_USER_TRACK utr on(utr.UST_IDTRACK_C = pt.PLT_IDTRACK_C)");
 
         // Adds search criteria
         if (criteria.getId() != null) {
@@ -51,7 +56,7 @@ public class PlaylistDao extends BaseDao<PlaylistDto, PlaylistCriteria> {
             parameterMap.put("nameLike", "%" + criteria.getNameLike() + "%");
         }
 
-        return new QueryParam(sb.toString(), criteriaList, parameterMap, null, filterCriteria, new PlaylistMapper());
+        return new QueryParam(sb.toString(), criteriaList, parameterMap, null, filterCriteria, Lists.newArrayList("p.PLL_ID_C"), new PlaylistMapper());
     }
 
     /**
@@ -114,7 +119,9 @@ public class PlaylistDao extends BaseDao<PlaylistDto, PlaylistCriteria> {
      * @return Playlist
      */
     public PlaylistDto getDefaultPlaylistByUserId(String userId) {
-        return findFirstByCriteria(new PlaylistCriteria().setUserId(userId));
+        return findFirstByCriteria(new PlaylistCriteria()
+                .setDefaultPlaylist(true)
+                .setUserId(userId));
     }
 
     /**

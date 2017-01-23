@@ -6,8 +6,6 @@ import com.sismics.util.dbi.ObjectMapper;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.util.StringMapper;
 
-import java.util.UUID;
-
 /**
  * Playlist track DAO.
  * 
@@ -21,9 +19,6 @@ public class PlaylistTrackDao {
      * @return Playlist track ID
      */
     public String create(PlaylistTrack playlistTrack) {
-        // Create the playlist UUID
-        playlistTrack.setId(UUID.randomUUID().toString());
-
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
                 "  T_PLAYLIST_TRACK (PLT_ID_C, PLT_IDPLAYLIST_C, PLT_IDTRACK_C, PLT_ORDER_N)" +
@@ -84,7 +79,7 @@ public class PlaylistTrackDao {
         playlistTrack.setPlaylistId(playlistId);
         playlistTrack.setTrackId(trackId);
         playlistTrack.setOrder(order);
-        create(playlistTrack);
+        PlaylistTrack.createPlaylistTrack(playlistTrack);
     }
 
     /**

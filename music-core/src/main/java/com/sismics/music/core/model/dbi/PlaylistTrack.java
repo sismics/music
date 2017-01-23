@@ -1,6 +1,9 @@
 package com.sismics.music.core.model.dbi;
 
 import com.google.common.base.Objects;
+import com.sismics.music.core.dao.dbi.PlaylistTrackDao;
+
+import java.util.UUID;
 
 /**
  * Playlist track entity.
@@ -118,5 +121,10 @@ public class PlaylistTrack {
                 .add("playlistId", playlistId)
                 .add("trackId", trackId)
                 .toString();
+    }
+
+    public static void createPlaylistTrack(PlaylistTrack playlistTrack) {
+        playlistTrack.setId(UUID.randomUUID().toString());
+        new PlaylistTrackDao().create(playlistTrack);
     }
 }

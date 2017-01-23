@@ -8,6 +8,7 @@ import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
 import com.sismics.music.core.dao.dbi.dto.PlaylistDto;
 import com.sismics.music.core.dao.dbi.dto.TrackDto;
 import com.sismics.music.core.model.dbi.Playlist;
+import com.sismics.music.core.model.dbi.PlaylistTrack;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.util.dbi.PaginatedList;
 import com.sismics.music.core.util.dbi.PaginatedLists;
@@ -236,15 +237,15 @@ public class PlaylistResource extends BaseResource {
         ValidationUtil.validateRequired(playlistId, "id");
 
         // Get the named playlist
-        PlaylistDto playlist = new PlaylistDao().findFirstByCriteria(new PlaylistCriteria()
+        PlaylistDto namedPlaylist = new PlaylistDao().findFirstByCriteria(new PlaylistCriteria()
                 .setUserId(principal.getId())
                 .setDefaultPlaylist(false)
                 .setId(playlistId));
-        notFoundIfNull(playlist, "Playlist: " + playlistId);
+        notFoundIfNull(namedPlaylist, "Playlist: " + playlistId);
 
         // Get the default playlist
         PlaylistDto defaultPlaylist = new PlaylistDao().getDefaultPlaylistByUserId(principal.getId());
-        if (playlist == null) {
+        if (defaultPlaylist == null) {
             throw new ServerException("UnknownError", MessageFormat.format("Default playlist not found for user {0}", principal.getId()));
         }
 
@@ -255,14 +256,18 @@ public class PlaylistResource extends BaseResource {
         }
 
         // Get the track order
-        int order = playlistTrackDao.getPlaylistTrackNextOrder(playlist.getId());
+        int order = playlistTrackDao.getPlaylistTrackNextOrder(namedPlaylist.getId());
 
         // Insert the tracks into the playlist
         List<TrackDto> trackList = new TrackDao().findByCriteria(new TrackCriteria()
                 .setUserId(principal.getId())
-                .setPlaylistId(playlist.getId()));
+                .setPlaylistId(namedPlaylist.getId()));
         for (TrackDto trackDto : trackList) {
-            playlistTrackDao.insertPlaylistTrack(defaultPlaylist.getId(), trackDto.getId(), order++);
+            PlaylistTrack playlistTrack = new PlaylistTrack();
+            playlistTrack.setPlaylistId(defaultPlaylist.getId());
+            playlistTrack.setTrackId(trackDto.getId());
+            playlistTrack.setOrder(order++);
+            PlaylistTrack.createPlaylistTrack(playlistTrack);
         }
 
         // Output the playlist
@@ -444,7 +449,7 @@ public class PlaylistResource extends BaseResource {
      * @return Response
      */
     @GET
-    public Response list(
+    public Response listPlaylist(
             @QueryParam("limit") Integer limit,
             @QueryParam("offset") Integer offset,
             @QueryParam("sort_column") Integer sortColumn,
@@ -466,7 +471,9 @@ public class PlaylistResource extends BaseResource {
         for (PlaylistDto playlist : paginatedList.getResultList()) {
             items.add(Json.createObjectBuilder()
                     .add("id", playlist.getId())
-                    .add("name", playlist.getName()));
+                    .add("name", playlist.getName())
+                    .add("trackCount", playlist.getPlaylistTrackCount())
+                    .add("userTrackPlayCount", playlist.getUserTrackPlayCount()));
         }
 
         response.add("total", paginatedList.getResultCount());

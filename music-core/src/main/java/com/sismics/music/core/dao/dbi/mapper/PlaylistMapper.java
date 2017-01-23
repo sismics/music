@@ -19,6 +19,8 @@ public class PlaylistMapper implements ResultSetMapper<PlaylistDto> {
         dto.setId(r.getString("id"));
         dto.setName(r.getString("c0"));
         dto.setUserId(r.getString("userId"));
+        dto.setPlaylistTrackCount(r.getLong("c1"));
+        dto.setUserTrackPlayCount(r.getLong("c2"));
         return dto;
     }
 }
