@@ -243,6 +243,20 @@ public class TestPlaylistResource extends BaseJerseyTest {
         String album0Id = album0.getString("id");
         Assert.assertNotNull(album0Id);
 
+        // Check that the album contains some tracks
+        GET("/album/" + album0Id);
+        assertIsOk();
+        json = getJsonResult();
+        Assert.assertEquals(album0Id, json.getString("id"));
+        Assert.assertEquals("Coachella 2010 Day 01 Mixtape", json.getString("name"));
+        JsonObject albumArtist = json.getJsonObject("artist");
+        Assert.assertEquals("[A] Proxy", albumArtist.getString("name"));
+        JsonArray tracks = json.getJsonArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(2, tracks.size());
+        JsonObject track0 = tracks.getJsonObject(0);
+        String track0Id = track0.getString("id");
+
         // List all playlists
         GET("/playlist");
         assertIsOk();
@@ -254,6 +268,15 @@ public class TestPlaylistResource extends BaseJerseyTest {
         PUT("/playlist", ImmutableMap.of("name", "Test playlist 0"));
         assertIsOk();
         String playlist0Id = getItemId();
+
+        // Add a track to the playlist
+        PUT("/playlist/" + playlist0Id, ImmutableMap.of("id", track0Id));
+        assertIsOk();
+        json = getJsonResult();
+        tracks = json.getJsonArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(1, tracks.size());
+        Assert.assertEquals(track0Id, tracks.getJsonObject(0).getString("id"));
 
         // List all playlists
         GET("/playlist");
@@ -277,6 +300,37 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(1, items.size());
         item = items.getJsonObject(0);
         Assert.assertEquals("Test playlist updated 0", item.getString("name"));
+
+        // Load a playlist into the default playlist
+        POST("/playlist/" + playlist0Id + "/load");
+        assertIsOk();
+
+        // Load a playlist into the default playlist, twice
+        POST("/playlist/" + playlist0Id + "/load");
+        assertIsOk();
+
+        // Check that the playlist is loaded: OK
+        GET("/playlist/default");
+        assertIsOk();
+        json = getJsonResult();
+        tracks = json.getJsonArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(2, tracks.size());
+        Assert.assertEquals(track0Id, tracks.getJsonObject(0).getString("id"));
+        Assert.assertEquals(track0Id, tracks.getJsonObject(1).getString("id"));
+
+        // Load a playlist into the default playlist, clearing the old tracks
+        POST("/playlist/" + playlist0Id + "/load", ImmutableMap.of("clear", "true"));
+        assertIsOk();
+
+        // Check that the playlist is loaded: OK
+        GET("/playlist/default");
+        assertIsOk();
+        json = getJsonResult();
+        tracks = json.getJsonArray("tracks");
+        Assert.assertNotNull(tracks);
+        Assert.assertEquals(1, tracks.size());
+        Assert.assertEquals(track0Id, tracks.getJsonObject(0).getString("id"));
 
         // Delete a playlist
         DELETE("/playlist/" + playlist0Id);

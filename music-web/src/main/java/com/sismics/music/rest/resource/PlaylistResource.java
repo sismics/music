@@ -218,6 +218,60 @@ public class PlaylistResource extends BaseResource {
     }
     
     /**
+     * Load a named playlist into the default playlist.
+     *
+     * @param playlistId Playlist ID
+     * @param clear If true, clear the default playlist
+     * @return Response
+     */
+    @POST
+    @Path("{id: [a-z0-9\\-]+}/load")
+    public Response loadPlaylist(
+            @PathParam("id") String playlistId,
+            @FormParam("clear") Boolean clear) {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+
+        ValidationUtil.validateRequired(playlistId, "id");
+
+        // Get the named playlist
+        PlaylistDto playlist = new PlaylistDao().findFirstByCriteria(new PlaylistCriteria()
+                .setUserId(principal.getId())
+                .setDefaultPlaylist(false)
+                .setId(playlistId));
+        notFoundIfNull(playlist, "Playlist: " + playlistId);
+
+        // Get the default playlist
+        PlaylistDto defaultPlaylist = new PlaylistDao().getDefaultPlaylistByUserId(principal.getId());
+        if (playlist == null) {
+            throw new ServerException("UnknownError", MessageFormat.format("Default playlist not found for user {0}", principal.getId()));
+        }
+
+        PlaylistTrackDao playlistTrackDao = new PlaylistTrackDao();
+        if (clear != null && clear) {
+            // Delete all tracks in the default playlist
+            playlistTrackDao.deleteByPlaylistId(defaultPlaylist.getId());
+        }
+
+        // Get the track order
+        int order = playlistTrackDao.getPlaylistTrackNextOrder(playlist.getId());
+
+        // Insert the tracks into the playlist
+        List<TrackDto> trackList = new TrackDao().findByCriteria(new TrackCriteria()
+                .setUserId(principal.getId())
+                .setPlaylistId(playlist.getId()));
+        for (TrackDto trackDto : trackList) {
+            playlistTrackDao.insertPlaylistTrack(defaultPlaylist.getId(), trackDto.getId(), order++);
+        }
+
+        // Output the playlist
+        return Response.ok()
+                .entity(buildPlaylistJson(defaultPlaylist))
+                .build();
+    }
+
+    /**
      * Start or continue party mode.
      * Adds some good tracks.
      * 
@@ -231,13 +285,13 @@ public class PlaylistResource extends BaseResource {
             throw new ForbiddenClientException();
         }
         
-        // Get the playlist
+        // Get the default playlist
         PlaylistDto playlist = new PlaylistDao().getDefaultPlaylistByUserId(principal.getId());
         if (playlist == null) {
             throw new ServerException("UnknownError", MessageFormat.format("Default playlist not found for user {0}", principal.getId()));
         }
+
         PlaylistTrackDao playlistTrackDao = new PlaylistTrackDao();
-        
         if (clear != null && clear) {
             // Delete all tracks in the playlist
             playlistTrackDao.deleteByPlaylistId(playlist.getId());
