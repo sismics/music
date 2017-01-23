@@ -369,4 +369,11 @@ public abstract class BaseJerseyTest extends JerseyTest {
     protected JsonObject getJsonResult() {
         return response.readEntity(JsonObject.class);
     }
+
+    protected String getItemId() {
+        JsonObject json;
+        json = getJsonResult();
+        JsonObject item = json.getJsonObject("item");
+        return item.getString("id");
+    }
 }

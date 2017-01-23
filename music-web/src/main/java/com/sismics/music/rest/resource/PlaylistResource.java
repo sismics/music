@@ -321,6 +321,36 @@ public class PlaylistResource extends BaseResource {
     }
 
     /**
+     * Delete a named playlist.
+     *
+     * @param playlistId Playlist ID
+     * @return Response
+     */
+    @DELETE
+    @Path("{id: [a-z0-9\\-]+}")
+    public Response deletePlaylist(
+            @PathParam("id") String playlistId) {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+
+        // Get the playlist
+        PlaylistDto playlistDto = new PlaylistDao().findFirstByCriteria(new PlaylistCriteria()
+                .setDefaultPlaylist(false)
+                .setUserId(principal.getId())
+                .setId(playlistId));
+        notFoundIfNull(playlistDto, "Playlist: " + playlistId);
+
+        // Delete the playlist
+        Playlist playlist = new Playlist(playlistDto.getId());
+        Playlist.deletePlaylist(playlist);
+
+        // Output the playlist
+        return Response.ok()
+                .build();
+    }
+
+    /**
      * Returns all named playlists.
      *
      * @return Response
@@ -394,8 +424,8 @@ public class PlaylistResource extends BaseResource {
      * @param playlistId Playlist ID
      * @return Response
      */
-    @DELETE
-    @Path("{id: [a-z0-9\\-]+}")
+    @POST
+    @Path("{id: [a-z0-9\\-]+}/clear")
     public Response clear(
             @PathParam("id") String playlistId) {
         if (!authenticate()) {

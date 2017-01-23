@@ -40,6 +40,25 @@ public class PlaylistDao {
     }
 
     /**
+     * Delete a playlist.
+     *
+     * @param playlist Playlist to delete
+     */
+    public void delete(Playlist playlist) {
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("delete from " +
+                "  T_PLAYLIST_TRACK" +
+                "  where PLT_IDPLAYLIST_C = :playlistId")
+                .bind("playlistId", playlist.getId())
+                .execute();
+        handle.createStatement("delete from " +
+                "  T_PLAYLIST" +
+                "  where PLL_ID_C = :id")
+                .bind("id", playlist.getId())
+                .execute();
+    }
+
+    /**
      * Gets a playlist by user ID.
      *
      * @param userId User ID

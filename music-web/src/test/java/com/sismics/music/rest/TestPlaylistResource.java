@@ -144,7 +144,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(track0Id, tracks.getJsonObject(0).getString("id"));
         
         // Admin clears his playlist
-        DELETE("/playlist/default");
+        POST("/playlist/default/clear");
         assertIsOk();
         json = getJsonResult();
         Assert.assertEquals("ok", json.getString("status"));
@@ -253,6 +253,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
         // Create a playlist
         PUT("/playlist", ImmutableMap.of("name", "Test playlist 0"));
         assertIsOk();
+        String playlist0Id = getItemId();
 
         // List all playlists
         GET("/playlist");
@@ -261,6 +262,18 @@ public class TestPlaylistResource extends BaseJerseyTest {
         items = json.getJsonArray("items");
         Assert.assertEquals(1, items.size());
         JsonObject item = items.getJsonObject(0);
+        Assert.assertEquals(playlist0Id, item.getString("id"));
         Assert.assertEquals("Test playlist 0", item.getString("name"));
+
+        // Delete a playlist
+        DELETE("/playlist/" + playlist0Id);
+        assertIsOk();
+
+        // List all playlists
+        GET("/playlist");
+        assertIsOk();
+        json = getJsonResult();
+        items = json.getJsonArray("items");
+        Assert.assertEquals(0, items.size());
     }
 }

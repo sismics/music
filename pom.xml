@@ -26,7 +26,7 @@
     <com.h2database.h2.version>1.4.184</com.h2database.h2.version>
     <com.mchange.c3p0.version>0.9.5-pre6</com.mchange.c3p0.version>
     <org.jdbi.jdbi.version>2.51</org.jdbi.jdbi.version>
-    <org.glassfish.jersey.version>2.21</org.glassfish.jersey.version>
+    <org.glassfish.jersey.version>2.22.2</org.glassfish.jersey.version>
     <org.mindrot.jbcrypt>0.3m</org.mindrot.jbcrypt>
     <org.subethamail.subethasmtp.version>3.1.6</org.subethamail.subethasmtp.version>
     <org.subethamail.subethasmtp-wiser.version>1.2</org.subethamail.subethasmtp-wiser.version>

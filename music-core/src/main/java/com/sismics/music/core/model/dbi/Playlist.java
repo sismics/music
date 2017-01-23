@@ -30,6 +30,10 @@ public class Playlist {
     public Playlist() {
     }
 
+    public Playlist(String id) {
+        this.id = id;
+    }
+
     public Playlist(String id, String userId) {
         this.id = id;
         this.userId = userId;
@@ -79,9 +83,23 @@ public class Playlist {
         this.userId = userId;
     }
 
+    /**
+     * Create a named playlist.
+     *
+     * @param playlist The playlist to create
+     */
     public static void createPlaylist(Playlist playlist) {
         playlist.id = UUID.randomUUID().toString();
         new PlaylistDao().create(playlist);
+    }
+
+    /**
+     * Delete a named playlist.
+     *
+     * @param playlist The playlist to delete
+     */
+    public static void deletePlaylist(Playlist playlist) {
+        new PlaylistDao().delete(playlist);
     }
 
     @Override
