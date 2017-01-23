@@ -40,6 +40,21 @@ public class PlaylistDao {
     }
 
     /**
+     * Update a playlist.
+     *
+     * @param playlist Playlist to update
+     */
+    public void update(Playlist playlist) {
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        handle.createStatement("update T_PLAYLIST" +
+                "  set PLL_NAME_C = :name" +
+                "  where PLL_ID_C = :id")
+                .bind("name", playlist.getName())
+                .bind("id", playlist.getId())
+                .execute();
+    }
+
+    /**
      * Delete a playlist.
      *
      * @param playlist Playlist to delete

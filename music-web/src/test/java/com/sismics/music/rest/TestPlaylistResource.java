@@ -265,6 +265,19 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(playlist0Id, item.getString("id"));
         Assert.assertEquals("Test playlist 0", item.getString("name"));
 
+        // Update a playlist
+        POST("/playlist/" + playlist0Id, ImmutableMap.of("name", "Test playlist updated 0"));
+        assertIsOk();
+
+        // List all playlists
+        GET("/playlist");
+        assertIsOk();
+        json = getJsonResult();
+        items = json.getJsonArray("items");
+        Assert.assertEquals(1, items.size());
+        item = items.getJsonObject(0);
+        Assert.assertEquals("Test playlist updated 0", item.getString("name"));
+
         // Delete a playlist
         DELETE("/playlist/" + playlist0Id);
         assertIsOk();

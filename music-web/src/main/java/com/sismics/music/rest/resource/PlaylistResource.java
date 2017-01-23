@@ -68,6 +68,41 @@ public class PlaylistResource extends BaseResource {
     }
 
     /**
+     * Update a named playlist.
+     *
+     * @param name The name
+     * @return Response
+     */
+    @POST
+    @Path("{id: [a-z0-9\\-]+}")
+    public Response updatePlaylist(
+            @PathParam("id") String playlistId,
+            @FormParam("name") String name) {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+
+        ValidationUtil.validateRequired(playlistId, "id");
+        ValidationUtil.validateRequired(name, "name");
+
+        // Get the playlist
+        PlaylistDto playlistDto = new PlaylistDao().findFirstByCriteria(new PlaylistCriteria()
+                .setUserId(principal.getId())
+                .setDefaultPlaylist(false)
+                .setId(playlistId));
+        notFoundIfNull(playlistDto, "Playlist: " + playlistId);
+
+        // Update the playlist
+        Playlist playlist = new Playlist(playlistDto.getId());
+        playlist.setName(name);
+        Playlist.updatePlaylist(playlist);
+
+        // Output the playlist
+        return Response.ok()
+                .build();
+    }
+
+    /**
      * Inserts a track in the playlist.
      *
      * @param playlistId Playlist ID

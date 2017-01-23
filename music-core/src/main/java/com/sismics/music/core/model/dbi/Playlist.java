@@ -94,6 +94,15 @@ public class Playlist {
     }
 
     /**
+     * Update a named playlist.
+     *
+     * @param playlist The playlist to update
+     */
+    public static void updatePlaylist(Playlist playlist) {
+        new PlaylistDao().update(playlist);
+    }
+
+    /**
      * Delete a named playlist.
      *
      * @param playlist The playlist to delete
