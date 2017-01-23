@@ -48,7 +48,6 @@ public class TestImportResource extends BaseJerseyTest {
      *
      * @param source The source collection
      * @return The directory of the copy
-     * @throws Exception
      */
     public File copyTempResource(String source) throws Exception {
         // This test is destructive, copy the test music to a temporary directory
@@ -191,7 +190,6 @@ public class TestImportResource extends BaseJerseyTest {
      * Test the import resource (retry).
      * youtube-dl is not available on Travis, can't be tested systematically.
      *
-     * @throws Exception
      */
     @Test
     @Ignore // youtube-dl is not installed on Travis
@@ -276,7 +274,6 @@ public class TestImportResource extends BaseJerseyTest {
     /**
      * Test the import resource (upload).
      *
-     * @throws Exception
      */
     @Test
     @SuppressWarnings("resource")
@@ -348,7 +345,6 @@ public class TestImportResource extends BaseJerseyTest {
     /**
      * Test the tagging of imported music.
      *
-     * @throws Exception
      */
     @Test
     public void testTagImportedMusic() throws Exception {

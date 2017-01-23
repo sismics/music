@@ -1,14 +1,12 @@
 package com.sismics.music.rest;
 
-import com.sismics.util.filter.TokenBasedSecurityFilter;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Form;
 import java.nio.file.Paths;
 
 /**
@@ -23,7 +21,9 @@ public class TestAppResource extends BaseJerseyTest {
     @Test
     public void testAppResource() {
         // Check the application info
-        JsonObject json = target().path("/app").request().get(JsonObject.class);
+        GET("/app");
+        assertIsOk();
+        JsonObject json = getJsonResult();
         String currentVersion = json.getString("current_version");
         Assert.assertNotNull(currentVersion);
         String minVersion = json.getString("min_version");
@@ -41,12 +41,11 @@ public class TestAppResource extends BaseJerseyTest {
     @Ignore
     public void testMapPortResource() {
         // Login admin
-        String adminAuthenticationToken = login("admin", "admin", false);
-        
+        loginAdmin();
+
         // Map port using UPnP
-        target().path("/app/map_port").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .post(Entity.form(new Form()), JsonObject.class);
+        POST("/app/map_port");
+        assertIsOk();
     }
     
     /**
@@ -55,12 +54,12 @@ public class TestAppResource extends BaseJerseyTest {
     @Test
     public void testLogResource() {
         // Login admin
-        String adminAuthenticationToken = login("admin", "admin", false);
-        
+        loginAdmin();
+
         // Check the logs (page 1)
-        JsonObject json = target().path("/app/log").queryParam("level", "DEBUG").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/app/log", ImmutableMap.of("level", "DEBUG"));
+        assertIsOk();
+        JsonObject json = getJsonResult();
         JsonArray logs = json.getJsonArray("logs");
         Assert.assertTrue(logs.size() == 10);
         Long date1 = logs.getJsonObject(0).getJsonNumber("date").longValue();
@@ -68,9 +67,11 @@ public class TestAppResource extends BaseJerseyTest {
         Assert.assertTrue(date1 > date2);
         
         // Check the logs (page 2)
-        json = target().path("/app/log").queryParam("offset",  "10").queryParam("level", "DEBUG").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/app/log", ImmutableMap.of(
+                "offset",  "10",
+                "level", "DEBUG"));
+        assertIsOk();
+        json = getJsonResult();
         logs = json.getJsonArray("logs");
         Assert.assertTrue(logs.size() == 10);
         Long date3 = logs.getJsonObject(0).getJsonNumber("date").longValue();
@@ -81,24 +82,20 @@ public class TestAppResource extends BaseJerseyTest {
     /**
      * Test the collection reindexing batch.
      *
-     * @throws Exception
      */
     @Test
     public void testReindexBatch() throws Exception {
         // Login users
-        String adminAuthenticationToken = login("admin", "admin", false);
+        loginAdmin();
 
         // Admin adds a directory to the collection
-        JsonObject json = target().path("/directory").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .put(Entity.form(new Form()
-                        .param("location", Paths.get(getClass().getResource("/music/").toURI()).toString())), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        PUT("/directory", ImmutableMap.of("location", Paths.get(getClass().getResource("/music/").toURI()).toString()));
+        assertIsOk();
 
         // Check that the albums are correctly added
-        json = target().path("/album").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/album");
+        assertIsOk();
+        JsonObject json = getJsonResult();
         JsonArray albums = json.getJsonArray("albums");
         Assert.assertNotNull(albums);
         Assert.assertEquals(2, albums.size());
@@ -122,4 +119,5 @@ public class TestAppResource extends BaseJerseyTest {
 //        Assert.assertNotNull(albums);
 //        Assert.assertEquals(1, albums.length());
     }
+
 }

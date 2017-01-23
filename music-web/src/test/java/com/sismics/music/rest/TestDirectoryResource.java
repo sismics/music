@@ -1,15 +1,11 @@
 package com.sismics.music.rest;
 
-import com.sismics.util.filter.TokenBasedSecurityFilter;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Form;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.nio.file.Paths;
 
 /**
@@ -26,42 +22,31 @@ public class TestDirectoryResource extends BaseJerseyTest {
         // Create alice user
         createUser("alice");
 
-        // Login users
-        String adminAuthenticationToken = login("admin", "admin", false);
-        String aliceAuthenticationToken = login("alice");
-
         // Alice lists the directories: access to this resource is forbidden
-        Response response = target().path("/directory").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, aliceAuthenticationToken).get();
-        Assert.assertEquals(Status.FORBIDDEN, Status.fromStatusCode(response.getStatus()));
+        login("alice");
+        GET("/directory");
+        assertIsForbidden();
 
         // Admin creates a directory : bad request (location required)
-        response = target().path("/directory").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .put(Entity.form(new Form()));
-        Assert.assertEquals(Status.BAD_REQUEST, Status.fromStatusCode(response.getStatus()));
+        loginAdmin();
+        PUT("/directory");
+        assertIsBadRequest();
         JsonObject json = response.readEntity(JsonObject.class);
         Assert.assertEquals("ValidationError", json.getString("type"));
         Assert.assertTrue(json.getString("message"), json.getString("message").contains("location must be set"));
 
         // Admin creates a directory : OK
-        json = target().path("/directory").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .put(Entity.form(new Form()
-                        .param("location", "/vartest/music/main")), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        PUT("/directory", ImmutableMap.of("location", "/vartest/music/main"));
+        assertIsOk();
 
         // Admin creates a directory : OK
-        json = target().path("/directory").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .put(Entity.form(new Form()
-                        .param("location", "/vartest/music/mix")), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        PUT("/directory", ImmutableMap.of("location", "/vartest/music/mix"));
+        assertIsOk();
 
         // Admin lists all directories
-        json = target().path("/directory").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/directory");
+        assertIsOk();
+        json = getJsonResult();
         JsonArray directories = json.getJsonArray("directories");
         Assert.assertNotNull(directories);
         Assert.assertEquals(2, directories.size());
@@ -74,17 +59,15 @@ public class TestDirectoryResource extends BaseJerseyTest {
         String directory1Id = directories.getJsonObject(1).getString("id");
 
         // Admin updates the directory info
-        json = target().path("/directory/" + directory0Id).request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .post(Entity.form(new Form()
-                        .param("location", "/vartest/music/mainstream")
-                        .param("active", "true")), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        POST("/directory/" + directory0Id, ImmutableMap.of(
+                "location", "/vartest/music/mainstream",
+                "active", "true"));
+        assertIsOk();
 
         // Check the update
-        json = target().path("/directory").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/directory");
+        assertIsOk();
+        json = getJsonResult();
         directories = json.getJsonArray("directories");
         Assert.assertNotNull(directories);
         Assert.assertEquals(2, directories.size());
@@ -94,18 +77,16 @@ public class TestDirectoryResource extends BaseJerseyTest {
         Assert.assertTrue(directory0.getBoolean("active"));
 
         // Admin deletes the directories
-        target().path("/directory/" + directory0Id).request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .delete(JsonObject.class);
+        DELETE("/directory/" + directory0Id);
+        assertIsOk();
 
-        target().path("/directory/" + directory1Id).request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .delete(JsonObject.class);
+        DELETE("/directory/" + directory1Id);
+        assertIsOk();
 
         // Check the deletion
-        json = target().path("/directory").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/directory");
+        assertIsOk();
+        json = getJsonResult();
         directories = json.getJsonArray("directories");
         Assert.assertNotNull(directories);
         Assert.assertEquals(0, directories.size());
@@ -114,24 +95,20 @@ public class TestDirectoryResource extends BaseJerseyTest {
     /**
      * Test the collection indexing service.
      *
-     * @throws Exception
      */
     @Test
     public void testCollectionIndexing() throws Exception {
         // Login users
-        String adminAuthenticationToken = login("admin", "admin", false);
+        loginAdmin();
 
         // Admin adds a directory to the collection
-        JsonObject json = target().path("/directory").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .put(Entity.form(new Form()
-                        .param("location", Paths.get(getClass().getResource("/music/").toURI()).toString())), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        PUT("/directory", ImmutableMap.of("location", Paths.get(getClass().getResource("/music/").toURI()).toString()));
+        assertIsOk();
 
         // Admin lists all directories
-        json = target().path("/directory").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/directory");
+        assertIsOk();
+        JsonObject json = getJsonResult();
         JsonArray directories = json.getJsonArray("directories");
         Assert.assertNotNull(directories);
         Assert.assertEquals(1, directories.size());
@@ -139,22 +116,21 @@ public class TestDirectoryResource extends BaseJerseyTest {
         String directory0Id = directory0.getString("id");
 
         // Check that the albums are correctly added
-        json = target().path("/album").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/album");
+        assertIsOk();
+        json = getJsonResult();
         JsonArray albums = json.getJsonArray("albums");
         Assert.assertNotNull(albums);
         Assert.assertEquals(2, albums.size());
 
         // Admin deletes the directory
-        target().path("/directory/" + directory0Id).request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .delete(JsonObject.class);
+        DELETE("/directory/" + directory0Id);
+        assertIsOk();
 
         // Check that the albums are correctly removed
-        json = target().path("/album").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/album");
+        assertIsOk();
+        json = getJsonResult();
         albums = json.getJsonArray("albums");
         Assert.assertNotNull(albums);
         Assert.assertEquals(0, albums.size());

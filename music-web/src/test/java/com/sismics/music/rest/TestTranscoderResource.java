@@ -1,13 +1,11 @@
 package com.sismics.music.rest;
 
-import com.sismics.util.filter.TokenBasedSecurityFilter;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Form;
 
 /**
  * Exhaustive test of the transcoder resource.
@@ -18,34 +16,31 @@ public class TestTranscoderResource extends BaseJerseyTest {
     /**
      * Test the transcoder resource.
      * 
-     * @throws Exception
      */
     @Test
     public void testTranscoderResource() throws Exception {
         // Login admin
-        String adminAuthenticationToken = login("admin", "admin", false);
+        loginAdmin();
 
         // List all transcoders
-        JsonObject json = target().path("/transcoder").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/transcoder");
+        assertIsOk();
+        JsonObject json = getJsonResult();
         JsonArray transcoders = json.getJsonArray("transcoders");
         Assert.assertEquals(0, transcoders.size());
 
         // Create a transcoder
-        json = target().path("/transcoder").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .put(Entity.form(new Form()
-                        .param("name", "mp3")
-                        .param("source", "ogg")
-                        .param("destination", "mp4")
-                        .param("step1", "ffmpeg")), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        PUT("/transcoder", ImmutableMap.of(
+                "name", "mp3",
+                "source", "ogg",
+                "destination", "mp4",
+                "step1", "ffmpeg"));
+        assertIsOk();
 
         // List all transcoders
-        json = target().path("/transcoder").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/transcoder");
+        assertIsOk();
+        json = getJsonResult();
         transcoders = json.getJsonArray("transcoders");
         Assert.assertEquals(1, transcoders.size());
         JsonObject transcoder0 = transcoders.getJsonObject(0);
@@ -53,34 +48,30 @@ public class TestTranscoderResource extends BaseJerseyTest {
         Assert.assertEquals("mp3", transcoder0.getString("name"));
 
         // Update a transcoder
-        json = target().path("/transcoder/" + transcoder0Id).request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .post(Entity.form(new Form()
-                        .param("name", "mp3 audio")
-                        .param("source", "ogg oga aac m4a flac wav wma aif aiff ape mpc shn")
-                        .param("destination", "mp3")
-                        .param("step1", "ffmpeg -i %s -ab %bk -v 0 -f mp3 -")), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        POST("/transcoder/" + transcoder0Id, ImmutableMap.of(
+                "name", "mp3 audio",
+                "source", "ogg oga aac m4a flac wav wma aif aiff ape mpc shn",
+                "destination", "mp3",
+                "step1", "ffmpeg -i %s -ab %bk -v 0 -f mp3 -"));
+        assertIsOk();
 
         // Check the update
-        json = target().path("/transcoder").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/transcoder");
+        assertIsOk();
+        json = getJsonResult();
         transcoders = json.getJsonArray("transcoders");
         Assert.assertEquals(1, transcoders.size());
         transcoder0 = transcoders.getJsonObject(0);
         Assert.assertEquals("mp3 audio", transcoder0.getString("name"));
 
         // Delete the transcoder
-        json = target().path("/transcoder/" + transcoder0Id).request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .delete(JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        DELETE("/transcoder/" + transcoder0Id);
+        assertIsOk();
 
         // Check the deletion
-        json = target().path("/transcoder").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/transcoder");
+        assertIsOk();
+        json = getJsonResult();
         transcoders = json.getJsonArray("transcoders");
         Assert.assertEquals(0, transcoders.size());
     }

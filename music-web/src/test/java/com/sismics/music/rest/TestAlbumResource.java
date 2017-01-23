@@ -23,7 +23,7 @@ public class TestAlbumResource extends BaseJerseyTest {
     @Test
     public void testAlbumResource() throws Exception {
         // Login users
-        login("admin", "admin", false);
+        loginAdmin();
 
         // Admin adds an album to the collection
         PUT("/directory", ImmutableMap.of("location", Paths.get(getClass().getResource("/music/").toURI()).toString()));
@@ -97,14 +97,14 @@ public class TestAlbumResource extends BaseJerseyTest {
         Assert.assertTrue(albumArtFile.exists());
         
         // Make the album art not writable
-        albumArtFile.setWritable(false);
+        Assert.assertTrue(albumArtFile.setWritable(false));
         
         // Update an album art
         POST("/album/" + album0Id + "/albumart", ImmutableMap.of("url", "http://lorempixel.com/200/200/"));
         assertIsOk();
         json = getJsonResult();
         Assert.assertEquals("AlbumArtNotCopied", json.getString("message"));
-        albumArtFile.setWritable(true);
+        Assert.assertTrue(albumArtFile.setWritable(true));
         
         // Get an album art
         GET("/album/" + album0Id + "/albumart/large");

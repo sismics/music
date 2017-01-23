@@ -22,7 +22,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
     @Test
     public void testDefaultPlaylistResource() throws Exception {
         // Login users
-        login("admin", "admin", false);
+        loginAdmin();
 
         // Admin adds a directory to the collection
         PUT("directory", ImmutableMap.of("location", Paths.get(getClass().getResource("/music/").toURI()).toString()));
@@ -224,7 +224,7 @@ public class TestPlaylistResource extends BaseJerseyTest {
     @Test
     public void testNamedPlaylistResource() throws Exception {
         // Login users
-        login("admin", "admin", false);
+        loginAdmin();
 
         // Admin adds a directory to the collection
         PUT("directory", ImmutableMap.of("location", Paths.get(getClass().getResource("/music/").toURI()).toString()));

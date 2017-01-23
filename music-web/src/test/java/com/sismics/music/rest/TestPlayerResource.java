@@ -22,7 +22,7 @@ public class TestPlayerResource extends BaseJerseyTest {
     @Test
     public void testPlayerResource() throws Exception {
         // Login users
-        login("admin", "admin", false);
+        loginAdmin();
 
         // Admin adds a track to the collection
         PUT("/directory", ImmutableMap.of("location", Paths.get(getClass().getResource("/music/").toURI()).toString()));
@@ -96,8 +96,8 @@ public class TestPlayerResource extends BaseJerseyTest {
     @Test
     public void testRemoteControl() throws Exception {
         // Login users
-        login("admin", "admin", false);
-        
+        loginAdmin();
+
         // Register a player
         POST("/player/register");
         assertIsOk();

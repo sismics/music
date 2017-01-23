@@ -17,12 +17,11 @@ public class TestSearchResource extends BaseJerseyTest {
     /**
      * Test the search resource.
      *
-     * @throws Exception
      */
     @Test
     public void testSearchResource() throws Exception {
         // Login users
-        login("admin", "admin", false);
+        loginAdmin();
 
         // Admin adds an album to the collection
         PUT("/directory", ImmutableMap.of("location", Paths.get(getClass().getResource("/music/").toURI()).toString()));

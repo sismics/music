@@ -228,16 +228,6 @@ public abstract class BaseJerseyTest extends JerseyTest {
      * Connects a user to the application.
      *
      * @param username Username
-     * @return Authentication token
-     */
-    public String login(String username) {
-        return login(username, "12345678", false);
-    }
-
-    /**
-     * Connects a user to the application.
-     *
-     * @param username Username
      * @param password Password
      * @param remember Remember user
      * @return Authentication token
@@ -250,6 +240,23 @@ public abstract class BaseJerseyTest extends JerseyTest {
         assertIsOk();
 
         return getAuthenticationCookie(response);
+    }
+
+    /**
+     * Connects a user to the application.
+     *
+     * @param username Username
+     * @return Authentication token
+     */
+    public String login(String username) {
+        return login(username, "12345678", false);
+    }
+
+    /**
+     * Login the admin user.
+     */
+    protected void loginAdmin() {
+        login("admin", "admin", false);
     }
 
     /**

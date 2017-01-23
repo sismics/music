@@ -1,13 +1,11 @@
 package com.sismics.music.rest;
 
-import com.sismics.util.filter.TokenBasedSecurityFilter;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Form;
 import java.nio.file.Paths;
 
 /**
@@ -19,27 +17,24 @@ public class TestArtistResource extends BaseJerseyTest {
     /**
      * Test the artist resource.
      *
-     * @throws Exception
      */
     @Test
     public void testArtistResource() throws Exception {
         // Login users
-        String adminAuthenticationToken = login("admin", "admin", false);
+        loginAdmin();
 
         // Admin adds an album to the collection
-        JsonObject json = target().path("/directory").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .put(Entity.form(new Form()
-                        .param("location", Paths.get(getClass().getResource("/music/").toURI()).toString())), JsonObject.class);
+        PUT("/directory", ImmutableMap.of("location", Paths.get(getClass().getResource("/music/").toURI()).toString()));
+        assertIsOk();
+        JsonObject json = getJsonResult();
         Assert.assertEquals("ok", json.getString("status"));
 
         // Check that the artists are correctly added
-        json = target().path("/artist")
-                .queryParam("sort_column", "0")
-                .queryParam("asc", "true")
-                .request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/artist", ImmutableMap.of(
+                "sort_column", "0",
+                "asc", "true"));
+        assertIsOk();
+        json = getJsonResult();
         Assert.assertEquals(4, json.getJsonNumber("total").intValue());
         JsonArray artists = json.getJsonArray("artists");
         Assert.assertNotNull(artists);
@@ -50,9 +45,9 @@ public class TestArtistResource extends BaseJerseyTest {
         Assert.assertNotNull(artist0.getString("name"));
         
         // Get an artist details
-        json = target().path("/artist/" + artist0Id).request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/artist/" + artist0Id);
+        assertIsOk();
+        json = getJsonResult();
         Assert.assertEquals("Gil Scott-Heron", json.getString("name"));
         JsonArray albums = json.getJsonArray("albums");
         Assert.assertEquals(0, albums.size());
