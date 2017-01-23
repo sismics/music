@@ -1,13 +1,14 @@
 package com.sismics.music.core.dao.dbi;
 
-import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.dbi.criteria.PlaylistCriteria;
 import com.sismics.music.core.dao.dbi.dto.PlaylistDto;
+import com.sismics.music.core.dao.dbi.mapper.PlaylistMapper;
 import com.sismics.music.core.model.dbi.Playlist;
-import com.sismics.music.core.util.dbi.*;
+import com.sismics.music.core.util.dbi.QueryParam;
 import com.sismics.util.context.ThreadLocalContext;
+import com.sismics.util.dbi.BaseDao;
+import com.sismics.util.dbi.filter.FilterCriteria;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.Query;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +20,40 @@ import java.util.Map;
  * 
  * @author jtremeaux
  */
-public class PlaylistDao {
+public class PlaylistDao extends BaseDao<PlaylistDto, PlaylistCriteria> {
+    @Override
+    protected QueryParam getQueryParam(PlaylistCriteria criteria, FilterCriteria filterCriteria) {
+        List<String> criteriaList = new ArrayList<String>();
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
+
+        StringBuilder sb = new StringBuilder("select p.PLL_ID_C as id, p.PLL_NAME_C as c0,")
+                .append("  p.PLL_IDUSER_C as userId ")
+                .append("  from T_PLAYLIST p ");
+
+        // Adds search criteria
+        if (criteria.getId() != null) {
+            criteriaList.add("p.PLL_ID_C = :id");
+            parameterMap.put("id", criteria.getId());
+        }
+        if (criteria.getUserId() != null) {
+            criteriaList.add("p.PLL_IDUSER_C = :userId");
+            parameterMap.put("userId", criteria.getUserId());
+        }
+        if (criteria.getDefaultPlaylist() != null) {
+            if (criteria.getDefaultPlaylist()) {
+                criteriaList.add("p.PLL_NAME_C is null");
+            } else {
+                criteriaList.add("p.PLL_NAME_C is not null");
+            }
+        }
+        if (criteria.getNameLike() != null) {
+            criteriaList.add("lower(p.PLL_NAME_C) like lower(:nameLike)");
+            parameterMap.put("nameLike", "%" + criteria.getNameLike() + "%");
+        }
+
+        return new QueryParam(sb.toString(), criteriaList, parameterMap, null, filterCriteria, new PlaylistMapper());
+    }
+
     /**
      * Creates a new playlist.
      * 
@@ -81,91 +115,6 @@ public class PlaylistDao {
      */
     public PlaylistDto getDefaultPlaylistByUserId(String userId) {
         return findFirstByCriteria(new PlaylistCriteria().setUserId(userId));
-    }
-
-    /**
-     * Creates the query parameters from the criteria.
-     *
-     * @param criteria Search criteria
-     * @return Query parameters
-     */
-    private QueryParam getQueryParam(PlaylistCriteria criteria) {
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
-
-        StringBuilder sb = new StringBuilder("select p.PLL_ID_C, p.PLL_NAME_C as c0,")
-                .append("  p.PLL_IDUSER_C ")
-                .append("  from T_PLAYLIST p ");
-        
-        // Adds search criteria
-        List<String> criteriaList = new ArrayList<String>();
-        if (criteria.getId() != null) {
-            criteriaList.add("p.PLL_ID_C = :id");
-            parameterMap.put("id", criteria.getId());
-        }
-        if (criteria.getUserId() != null) {
-            criteriaList.add("p.PLL_IDUSER_C = :userId");
-            parameterMap.put("userId", criteria.getUserId());
-        }
-        if (criteria.getDefaultPlaylist() != null) {
-            if (criteria.getDefaultPlaylist()) {
-                criteriaList.add("p.PLL_NAME_C is null");
-            } else {
-                criteriaList.add("p.PLL_NAME_C is not null");
-            }
-        }
-        if (criteria.getNameLike() != null) {
-            criteriaList.add("lower(p.PLL_NAME_C) like lower(:nameLike)");
-            parameterMap.put("nameLike", "%" + criteria.getNameLike() + "%");
-        }
-
-        if (!criteriaList.isEmpty()) {
-            sb.append(" where ");
-            sb.append(Joiner.on(" and ").join(criteriaList));
-        }
-
-        return new QueryParam(sb.toString(), parameterMap);
-    }
-
-    /**
-     * Searches playlists by criteria.
-     *
-     * @param criteria Search criteria
-     * @return List of playlists
-     */
-    public List<PlaylistDto> findByCriteria(PlaylistCriteria criteria) {
-        QueryParam queryParam = getQueryParam(criteria);
-        Query<Map<String, Object>> q = QueryUtil.getNativeQuery(queryParam);
-        List<Object[]> l = q.map(ColumnIndexMapper.INSTANCE).list();
-        return assembleResultList(l);
-    }
-
-    /**
-     * Searches playlists by criteria.
-     *
-     * @param paginatedList Paginated list (populated by side effects)
-     * @param criteria Search criteria
-     * @param sortCriteria Sort criteria
-     */
-    public void findByCriteria(PaginatedList<PlaylistDto> paginatedList, PlaylistCriteria criteria, SortCriteria sortCriteria) {
-        QueryParam queryParam = getQueryParam(criteria);
-        List<Object[]> l = PaginatedLists.executePaginatedQuery(paginatedList, queryParam, sortCriteria, true);
-        List<PlaylistDto> playlistDtoList = assembleResultList(l);
-        paginatedList.setResultList(playlistDtoList);
-    }
-
-    /**
-     * Searches playlists by criteria.
-     *
-     * @param criteria Search criteria
-     * @return List of playlists
-     */
-    public PlaylistDto findFirstByCriteria(PlaylistCriteria criteria) {
-        List<PlaylistDto> list = findByCriteria(criteria);
-        if (list != null && !list.isEmpty()) {
-            return list.iterator().next();
-        } else {
-            return null;
-        }
     }
 
     /**

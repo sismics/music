@@ -1,16 +1,5 @@
 package com.sismics.music.rest.resource;
 
-import java.util.List;
-
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-
 import com.sismics.music.core.dao.dbi.AlbumDao;
 import com.sismics.music.core.dao.dbi.ArtistDao;
 import com.sismics.music.core.dao.dbi.TrackDao;
@@ -25,6 +14,16 @@ import com.sismics.music.core.util.dbi.PaginatedLists;
 import com.sismics.music.rest.util.JsonUtil;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.util.ValidationUtil;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  * Search REST resources.
@@ -55,9 +54,10 @@ public class SearchResource extends BaseResource {
         ValidationUtil.validateRequired(query, "query");
 
         // Search tracks
-        TrackDao trackDao = new TrackDao();
         PaginatedList<TrackDto> paginatedList = PaginatedLists.create(limit, offset);
-        trackDao.findByCriteria(new TrackCriteria().setUserId(principal.getId()).setLike(query), paginatedList);
+        new TrackDao().findByCriteria(paginatedList, new TrackCriteria()
+                .setUserId(principal.getId())
+                .setLike(query), null, null);
 
         JsonArrayBuilder tracks = Json.createArrayBuilder();
         JsonObjectBuilder response = Json.createObjectBuilder();

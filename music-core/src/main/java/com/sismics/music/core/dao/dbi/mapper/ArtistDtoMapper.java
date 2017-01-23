@@ -1,6 +1,6 @@
 package com.sismics.music.core.dao.dbi.mapper;
 
-import com.sismics.music.core.dao.dbi.dto.PlaylistDto;
+import com.sismics.music.core.dao.dbi.dto.ArtistDto;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -8,17 +8,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * Playlist result set mapper.
+ * Artist result set mapper.
  *
  * @author jtremeaux
  */
-public class PlaylistMapper implements ResultSetMapper<PlaylistDto> {
+public class ArtistDtoMapper implements ResultSetMapper<ArtistDto> {
     @Override
-    public PlaylistDto map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-        PlaylistDto dto = new PlaylistDto();
+    public ArtistDto map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+        ArtistDto dto = new ArtistDto();
         dto.setId(r.getString("id"));
         dto.setName(r.getString("c0"));
-        dto.setUserId(r.getString("userId"));
         return dto;
     }
 }

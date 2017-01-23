@@ -1,36 +1,43 @@
 package com.sismics.music.core.dao.dbi;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
+import com.sismics.music.core.dao.dbi.criteria.UserCriteria;
+import com.sismics.music.core.dao.dbi.dto.UserDto;
+import com.sismics.music.core.dao.dbi.mapper.UserDtoMapper;
+import com.sismics.music.core.dao.dbi.mapper.UserMapper;
+import com.sismics.music.core.model.dbi.User;
+import com.sismics.music.core.util.dbi.QueryParam;
+import com.sismics.util.context.ThreadLocalContext;
+import com.sismics.util.dbi.BaseDao;
+import com.sismics.util.dbi.filter.FilterCriteria;
 import org.mindrot.jbcrypt.BCrypt;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
 
-import com.google.common.base.Joiner;
-import com.sismics.music.core.dao.dbi.criteria.UserCriteria;
-import com.sismics.music.core.dao.dbi.dto.UserDto;
-import com.sismics.music.core.dao.dbi.mapper.UserMapper;
-import com.sismics.music.core.model.dbi.User;
-import com.sismics.music.core.util.dbi.ColumnIndexMapper;
-import com.sismics.music.core.util.dbi.PaginatedList;
-import com.sismics.music.core.util.dbi.PaginatedLists;
-import com.sismics.music.core.util.dbi.QueryParam;
-import com.sismics.music.core.util.dbi.QueryUtil;
-import com.sismics.music.core.util.dbi.SortCriteria;
-import com.sismics.util.context.ThreadLocalContext;
+import java.sql.Timestamp;
+import java.util.*;
 
 /**
  * User DAO.
  * 
  * @author jtremeaux
  */
-public class UserDao {
+public class UserDao extends BaseDao<UserDto, UserCriteria> {
+    @Override
+    protected QueryParam getQueryParam(UserCriteria criteria, FilterCriteria filterCriteria) {
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
+        StringBuilder sb = new StringBuilder("select u.USE_ID_C as c0, u.USE_USERNAME_C as c1, u.USE_EMAIL_C as c2, u.USE_CREATEDATE_D as c3, u.USE_IDLOCALE_C as c4");
+        sb.append("  from T_USER u ");
+
+        // Add search criterias
+        List<String> criteriaList = new ArrayList<String>();
+        if (criteria.isLastFmSessionTokenNotNull()) {
+            criteriaList.add("USE_LASTFMSESSIONTOKEN_C is not null");
+        }
+        criteriaList.add("u.USE_DELETEDATE_D is null");
+
+        return new QueryParam(sb.toString(), criteriaList, parameterMap, null, filterCriteria, new UserDtoMapper());
+    }
+
     /**
      * Authenticates an user.
      * 
@@ -217,80 +224,5 @@ public class UserDao {
      */
     protected String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
-    }
-
-    /**
-     * Searches users by criteria.
-     *
-     * @param paginatedList Paginated list (populated by side effects)
-     * @param criteria Search criteria
-     * @param sortCriteria Sort criteria
-     */
-    public void findByCriteria(PaginatedList<UserDto> paginatedList, UserCriteria criteria, SortCriteria sortCriteria) {
-        QueryParam queryParam = getQueryParam(criteria);
-        List<Object[]> l = PaginatedLists.executePaginatedQuery(paginatedList, queryParam, sortCriteria, true);
-        List<UserDto> userDtoList = assembleResultList(l);
-        paginatedList.setResultList(userDtoList);
-    }
-
-    /**
-     * Searches users by criteria.
-     *
-     * @param criteria Search criteria
-     * @return List of users
-     */
-    public List<UserDto> findByCriteria(UserCriteria criteria) {
-        QueryParam queryParam = getQueryParam(criteria);
-        Query<Map<String, Object>> q = QueryUtil.getNativeQuery(queryParam);
-        List<Object[]> l = q.map(ColumnIndexMapper.INSTANCE).list();
-        return assembleResultList(l);
-    }
-
-    /**
-     * Creates the query parameters from the criteria.
-     *
-     * @param criteria Search criteria
-     * @return Query parameters
-     */
-    private QueryParam getQueryParam(UserCriteria criteria) {
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
-        StringBuilder sb = new StringBuilder("select u.USE_ID_C as c0, u.USE_USERNAME_C as c1, u.USE_EMAIL_C as c2, u.USE_CREATEDATE_D as c3, u.USE_IDLOCALE_C as c4");
-        sb.append(" from T_USER u ");
-
-        // Add search criterias
-        List<String> criteriaList = new ArrayList<String>();
-        if (criteria.isLastFmSessionTokenNotNull()) {
-            criteriaList.add("USE_LASTFMSESSIONTOKEN_C is not null");
-        }
-        criteriaList.add("u.USE_DELETEDATE_D is null");
-
-        if (!criteriaList.isEmpty()) {
-            sb.append(" where ");
-            sb.append(Joiner.on(" and ").join(criteriaList));
-        }
-
-        QueryParam queryParam = new QueryParam(sb.toString(), parameterMap);
-        return queryParam;
-    }
-
-    /**
-     * Assemble the query results.
-     *
-     * @param l Query results as a table
-     * @return Query results as a list of domain objects
-     */
-    private List<UserDto> assembleResultList(List<Object[]> l) {
-        List<UserDto> userDtoList = new ArrayList<UserDto>();
-        for (Object[] o : l) {
-            int i = 0;
-            UserDto userDto = new UserDto();
-            userDto.setId((String) o[i++]);
-            userDto.setUsername((String) o[i++]);
-            userDto.setEmail((String) o[i++]);
-            userDto.setCreateTimestamp(((Timestamp) o[i++]).getTime());
-            userDto.setLocaleId((String) o[i++]);
-            userDtoList.add(userDto);
-        }
-        return userDtoList;
     }
 }

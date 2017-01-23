@@ -1,13 +1,12 @@
 package com.sismics.music.core.dao.dbi;
 
+import com.sismics.music.core.model.dbi.UserAlbum;
+import com.sismics.util.context.ThreadLocalContext;
+import org.skife.jdbi.v2.Handle;
+
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.UUID;
-
-import org.skife.jdbi.v2.Handle;
-
-import com.sismics.music.core.model.dbi.UserAlbum;
-import com.sismics.util.context.ThreadLocalContext;
 
 /**
  * User / album DAO.

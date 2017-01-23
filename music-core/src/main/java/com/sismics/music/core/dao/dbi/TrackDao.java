@@ -1,14 +1,16 @@
 package com.sismics.music.core.dao.dbi;
 
-import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.dbi.criteria.TrackCriteria;
 import com.sismics.music.core.dao.dbi.dto.TrackDto;
+import com.sismics.music.core.dao.dbi.mapper.TrackDtoMapper;
 import com.sismics.music.core.dao.dbi.mapper.TrackMapper;
 import com.sismics.music.core.model.dbi.Track;
-import com.sismics.music.core.util.dbi.*;
+import com.sismics.music.core.util.dbi.QueryParam;
+import com.sismics.music.core.util.dbi.SortCriteria;
 import com.sismics.util.context.ThreadLocalContext;
+import com.sismics.util.dbi.BaseDao;
+import com.sismics.util.dbi.filter.FilterCriteria;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.Query;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -18,7 +20,79 @@ import java.util.*;
  * 
  * @author jtremeaux
  */
-public class TrackDao {
+public class TrackDao extends BaseDao<TrackDto, TrackCriteria> {
+    @Override
+    protected QueryParam getQueryParam(TrackCriteria criteria, FilterCriteria filterCriteria) {
+        List<String> criteriaList = new ArrayList<String>();
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
+
+        StringBuilder sb = new StringBuilder("select t.TRK_ID_C as id, t.TRK_FILENAME_C as fileName, t.TRK_TITLE_C as title, t.TRK_YEAR_N as year, t.TRK_GENRE_C as genre, t.TRK_LENGTH_N as length, t.TRK_BITRATE_N as bitrate, t.TRK_ORDER_N as trackOrder, t.TRK_VBR_B as vbr, t.TRK_FORMAT_C as format,");
+        if (criteria.getUserId() != null) {
+            sb.append(" ut.UST_PLAYCOUNT_N as userTrackPlayCount, ut.UST_LIKE_B userTrackLike, ");
+        } else {
+            sb.append(" 0 as userTrackPlayCount, false as userTrackLike, ");
+        }
+        sb.append(" a.ART_ID_C as artistId, a.ART_NAME_C as artistName, t.TRK_IDALBUM_C as albumId, alb.ALB_NAME_C as albumName, alb.ALB_ALBUMART_C as albumArt");
+        if (criteria.getPlaylistId() != null) {
+            sb.append("  from T_PLAYLIST_TRACK pt, T_TRACK t ");
+        } else {
+            sb.append("  from T_TRACK t ");
+        }
+        sb.append("  join T_ARTIST a ON(a.ART_ID_C = t.TRK_IDARTIST_C and ART_DELETEDATE_D is null) ");
+        sb.append("  join T_ALBUM alb ON(t.TRK_IDALBUM_C = alb.ALB_ID_C and alb.ALB_DELETEDATE_D is null) ");
+        if (criteria.getUserId() != null) {
+            sb.append("  left join T_USER_TRACK ut ON(ut.UST_IDTRACK_C = t.TRK_ID_C and ut.UST_IDUSER_C = :userId and ut.UST_DELETEDATE_D is null) ");
+        }
+
+        // Adds search criteria
+        criteriaList.add("t.TRK_DELETEDATE_D is null");
+        if (criteria.getPlaylistId() != null) {
+            criteriaList.add("pt.PLT_IDTRACK_C = t.TRK_ID_C");
+            criteriaList.add("pt.PLT_IDPLAYLIST_C = :playlistId");
+            parameterMap.put("playlistId", criteria.getPlaylistId());
+        }
+        if (criteria.getAlbumId() != null) {
+            criteriaList.add("t.TRK_IDALBUM_C = :albumId");
+            parameterMap.put("albumId", criteria.getAlbumId());
+        }
+        if (criteria.getDirectoryId() != null) {
+            criteriaList.add("alb.ALB_IDDIRECTORY_C = :directoryId");
+            parameterMap.put("directoryId", criteria.getDirectoryId());
+        }
+        if (criteria.getArtistId() != null) {
+            criteriaList.add("a.ART_ID_C = :artistId");
+            parameterMap.put("artistId", criteria.getArtistId());
+        }
+        if (criteria.getTitle() != null) {
+            criteriaList.add("lower(t.TRK_TITLE_C) like lower(:title)");
+            parameterMap.put("title", criteria.getTitle());
+        }
+        if (criteria.getArtistName() != null) {
+            criteriaList.add("lower(a.ART_NAME_C) like lower(:artistName)");
+            parameterMap.put("artistName", criteria.getArtistName());
+        }
+        if (criteria.getLike() != null) {
+            criteriaList.add("(lower(t.TRK_TITLE_C) like lower(:like) or lower(alb.ALB_NAME_C) like lower(:like) or lower(a.ART_NAME_C) like lower(:like))");
+            parameterMap.put("like", "%" + criteria.getLike() + "%");
+        }
+        if (criteria.getUserId() != null) {
+            parameterMap.put("userId", criteria.getUserId());
+        }
+
+        SortCriteria sortCriteria;
+        if (criteria.getPlaylistId() != null) {
+            sortCriteria = new SortCriteria(" order by pt.PLT_ORDER_N asc");
+        } else if (criteria.getLike() != null || criteria.getArtistId() != null) {
+            sortCriteria = new SortCriteria(" order by alb.ALB_NAME_C, t.TRK_ORDER_N, t.TRK_TITLE_C asc");
+        } else if (criteria.getRandom() != null && criteria.getRandom()) {
+            sortCriteria = new SortCriteria(" order by rand()");
+        } else {
+            sortCriteria = new SortCriteria(" order by t.TRK_ORDER_N, t.TRK_TITLE_C asc");
+        }
+
+        return new QueryParam(sb.toString(), criteriaList, parameterMap, sortCriteria, filterCriteria, new TrackDtoMapper());
+    }
+
     /**
      * Creates a new track.
      * 
@@ -146,154 +220,6 @@ public class TrackDao {
                 .bind("id", id)
                 .mapTo(Track.class)
                 .first();
-    }
-
-    /**
-     * Searches tracks by criteria.
-     *
-     * @param criteria Search criteria
-     * @param paginatedList Paginated list (populated by side effects)
-     */
-    public void findByCriteria(TrackCriteria criteria, PaginatedList<TrackDto> paginatedList) {
-        QueryParam queryParam = getQueryParam(criteria);
-        List<Object[]> l = PaginatedLists.executePaginatedQuery(paginatedList, queryParam, false);
-        List<TrackDto> trackDtoList = assembleResultList(l);
-        paginatedList.setResultList(trackDtoList);
-    }
-
-    /**
-     * Searches tracks by criteria.
-     *
-     * @param criteria Search criteria
-     * @return List of tracks
-     */
-    public List<TrackDto> findByCriteria(TrackCriteria criteria) {
-        QueryParam queryParam = getQueryParam(criteria);
-        Query<Map<String, Object>> q = QueryUtil.getNativeQuery(queryParam);
-        List<Object[]> l = q.map(ColumnIndexMapper.INSTANCE).list();
-        return assembleResultList(l);
-    }
-
-    /**
-     * Creates the query parameters from the criteria.
-     *
-     * @param criteria Search criteria
-     * @return Query parameters
-     */
-    private QueryParam getQueryParam(TrackCriteria criteria) {
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
-        List<String> criteriaList = new ArrayList<String>();
-
-        StringBuilder sb = new StringBuilder("select t.TRK_ID_C, t.TRK_FILENAME_C, t.TRK_TITLE_C, t.TRK_YEAR_N, t.TRK_GENRE_C, t.TRK_LENGTH_N, t.TRK_BITRATE_N, t.TRK_ORDER_N, t.TRK_VBR_B, t.TRK_FORMAT_C,");
-        if (criteria.getUserId() != null) {
-            sb.append(" ut.UST_PLAYCOUNT_N, ut.UST_LIKE_B, ");
-        } else {
-            sb.append(" 0, false, ");
-        }
-        sb.append(" a.ART_ID_C, a.ART_NAME_C, t.TRK_IDALBUM_C, alb.ALB_NAME_C, alb.ALB_ALBUMART_C ");
-        if (criteria.getPlaylistId() != null) {
-            sb.append(" from T_PLAYLIST_TRACK pt, T_TRACK t ");
-        } else {
-            sb.append(" from T_TRACK t ");
-        }
-        sb.append(" join T_ARTIST a ON(a.ART_ID_C = t.TRK_IDARTIST_C and ART_DELETEDATE_D is null) ");
-        sb.append(" join T_ALBUM alb ON(t.TRK_IDALBUM_C = alb.ALB_ID_C and alb.ALB_DELETEDATE_D is null) ");
-        if (criteria.getUserId() != null) {
-            sb.append(" left join T_USER_TRACK ut ON(ut.UST_IDTRACK_C = t.TRK_ID_C and ut.UST_IDUSER_C = :userId and ut.UST_DELETEDATE_D is null) ");
-        }
-
-        // Adds search criteria
-        if (criteria.getPlaylistId() != null) {
-            criteriaList.add("pt.PLT_IDTRACK_C = t.TRK_ID_C");
-            criteriaList.add("pt.PLT_IDPLAYLIST_C = :playlistId");
-            parameterMap.put("playlistId", criteria.getPlaylistId());
-        }
-        if (criteria.getAlbumId() != null) {
-            criteriaList.add("t.TRK_IDALBUM_C = :albumId");
-            parameterMap.put("albumId", criteria.getAlbumId());
-        }
-        if (criteria.getDirectoryId() != null) {
-            criteriaList.add("alb.ALB_IDDIRECTORY_C = :directoryId");
-            parameterMap.put("directoryId", criteria.getDirectoryId());
-        }
-        if (criteria.getArtistId() != null) {
-            criteriaList.add("a.ART_ID_C = :artistId");
-            parameterMap.put("artistId", criteria.getArtistId());
-        }
-        if (criteria.getTitle() != null) {
-            criteriaList.add("lower(t.TRK_TITLE_C) like lower(:title)");
-            parameterMap.put("title", criteria.getTitle());
-        }
-        if (criteria.getArtistName() != null) {
-            criteriaList.add("lower(a.ART_NAME_C) like lower(:artistName)");
-            parameterMap.put("artistName", criteria.getArtistName());
-        }
-        if (criteria.getLike() != null) {
-            criteriaList.add("(lower(t.TRK_TITLE_C) like lower(:like) or lower(alb.ALB_NAME_C) like lower(:like) or lower(a.ART_NAME_C) like lower(:like))");
-            parameterMap.put("like", "%" + criteria.getLike() + "%");
-        }
-        if (criteria.getUserId() != null) {
-            parameterMap.put("userId", criteria.getUserId());
-        }
-        criteriaList.add("t.TRK_DELETEDATE_D is null");
-
-        if (!criteriaList.isEmpty()) {
-            sb.append(" where ");
-            sb.append(Joiner.on(" and ").join(criteriaList));
-        }
-
-        if (criteria.getPlaylistId() != null) {
-            sb.append(" order by pt.PLT_ORDER_N asc");
-        } else if (criteria.getLike() != null || criteria.getArtistId() != null) {
-            sb.append(" order by alb.ALB_NAME_C, t.TRK_ORDER_N, t.TRK_TITLE_C asc");
-        } else if (criteria.getRandom() != null && criteria.getRandom()) {
-            sb.append(" order by rand()");
-        } else {
-            sb.append(" order by t.TRK_ORDER_N, t.TRK_TITLE_C asc");
-        }
-
-        QueryParam queryParam = new QueryParam(sb.toString(), parameterMap);
-        return queryParam;
-    }
-
-    /**
-     * Assemble the query results.
-     *
-     * @param l Query results as a table
-     * @return Query results as a list of domain objects
-     */
-    private List<TrackDto> assembleResultList(List<Object[]> l) {
-        List<TrackDto> trackDtoList = new ArrayList<TrackDto>();
-        for (Object[] o : l) {
-            int i = 0;
-            TrackDto trackDto = new TrackDto();
-            trackDto.setId((String) o[i++]);
-            trackDto.setFileName((String) o[i++]);
-            trackDto.setTitle((String) o[i++]);
-            trackDto.setYear((Integer) o[i++]);
-            trackDto.setGenre((String) o[i++]);
-            trackDto.setLength((Integer) o[i++]);
-            trackDto.setBitrate((Integer) o[i++]);
-            trackDto.setOrder((Integer) o[i++]);
-            trackDto.setVbr((Boolean) o[i++]);
-            trackDto.setFormat((String) o[i++]);
-            Integer trackCount = (Integer) o[i++];
-            if (trackCount == null) {
-                trackCount = 0;
-            }
-            trackDto.setUserTrackPlayCount(trackCount);
-            Boolean favorite = (Boolean) o[i++];
-            if (favorite != null) {
-                trackDto.setUserTrackLike(favorite);
-            }
-            trackDto.setArtistId((String) o[i++]);
-            trackDto.setArtistName((String) o[i++]);
-            trackDto.setAlbumId((String) o[i++]);
-            trackDto.setAlbumName((String) o[i++]);
-            trackDto.setAlbumArt((String) o[i++]);
-            trackDtoList.add(trackDto);
-        }
-        return trackDtoList;
     }
 
     /**

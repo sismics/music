@@ -1,27 +1,11 @@
 package com.sismics.util.dbi;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.sismics.music.core.dao.dbi.mapper.*;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-import com.sismics.music.core.dao.dbi.mapper.AlbumMapper;
-import com.sismics.music.core.dao.dbi.mapper.ArtistMapper;
-import com.sismics.music.core.dao.dbi.mapper.AuthenticationTokenMapper;
-import com.sismics.music.core.dao.dbi.mapper.BaseFunctionMapper;
-import com.sismics.music.core.dao.dbi.mapper.ConfigMapper;
-import com.sismics.music.core.dao.dbi.mapper.DirectoryMapper;
-import com.sismics.music.core.dao.dbi.mapper.LocaleMapper;
-import com.sismics.music.core.dao.dbi.mapper.PlayerMapper;
-import com.sismics.music.core.dao.dbi.mapper.PlaylistMapper;
-import com.sismics.music.core.dao.dbi.mapper.PlaylistTrackMapper;
-import com.sismics.music.core.dao.dbi.mapper.RoleBaseFunctionMapper;
-import com.sismics.music.core.dao.dbi.mapper.RoleMapper;
-import com.sismics.music.core.dao.dbi.mapper.TrackMapper;
-import com.sismics.music.core.dao.dbi.mapper.TranscoderMapper;
-import com.sismics.music.core.dao.dbi.mapper.UserMapper;
-import com.sismics.music.core.dao.dbi.mapper.UserTrackMapper;
 
 /**
  * DBI factory.

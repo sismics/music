@@ -1,35 +1,47 @@
 package com.sismics.music.core.dao.dbi;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.Query;
-
-import com.google.common.base.Joiner;
 import com.sismics.music.core.dao.dbi.criteria.ArtistCriteria;
 import com.sismics.music.core.dao.dbi.dto.ArtistDto;
+import com.sismics.music.core.dao.dbi.mapper.ArtistDtoMapper;
 import com.sismics.music.core.dao.dbi.mapper.ArtistMapper;
 import com.sismics.music.core.model.dbi.Artist;
-import com.sismics.music.core.util.dbi.ColumnIndexMapper;
-import com.sismics.music.core.util.dbi.PaginatedList;
-import com.sismics.music.core.util.dbi.PaginatedLists;
 import com.sismics.music.core.util.dbi.QueryParam;
-import com.sismics.music.core.util.dbi.QueryUtil;
-import com.sismics.music.core.util.dbi.SortCriteria;
 import com.sismics.util.context.ThreadLocalContext;
+import com.sismics.util.dbi.BaseDao;
+import com.sismics.util.dbi.filter.FilterCriteria;
+import org.skife.jdbi.v2.Handle;
+
+import java.sql.Timestamp;
+import java.util.*;
 
 /**
  * Artist DAO.
  * 
  * @author jtremeaux
  */
-public class ArtistDao {
+public class ArtistDao extends BaseDao<ArtistDto, ArtistCriteria> {
+    @Override
+    protected QueryParam getQueryParam(ArtistCriteria criteria, FilterCriteria filterCriteria) {
+        List<String> criteriaList = new ArrayList<String>();
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
+
+        StringBuilder sb = new StringBuilder("select a.ART_ID_C as id, a.ART_NAME_C as c0 ");
+        sb.append(" from T_ARTIST a ");
+
+        // Adds search criteria
+        criteriaList.add("a.ART_DELETEDATE_D is null");
+        if (criteria.getId() != null) {
+            criteriaList.add("a.ART_ID_C = :id");
+            parameterMap.put("id", criteria.getId());
+        }
+        if (criteria.getNameLike() != null) {
+            criteriaList.add("lower(a.ART_NAME_C) like lower(:nameLike)");
+            parameterMap.put("nameLike", "%" + criteria.getNameLike() + "%");
+        }
+
+        return new QueryParam(sb.toString(), criteriaList, parameterMap, null, filterCriteria, new ArtistDtoMapper());
+    }
+
     /**
      * Creates a new artist.
      * 
@@ -137,66 +149,6 @@ public class ArtistDao {
                 .execute();
     }
     
-    /**
-     * Searches artists by criteria.
-     *
-     * @param criteria Search criteria
-     * @return List of artists
-     */
-    public List<ArtistDto> findByCriteria(ArtistCriteria criteria) {
-        QueryParam queryParam = getQueryParam(criteria);
-        Query<Map<String, Object>> q = QueryUtil.getNativeQuery(queryParam);
-        List<Object[]> l = q.map(ColumnIndexMapper.INSTANCE).list();
-        return assembleResultList(l);
-    }
-    
-    /**
-     * Searches artists by criteria.
-     *
-     * @param paginatedList Paginated list (populated by side effects)
-     * @param criteria Search criteria
-     * @param sortCriteria Sort criteria
-     */
-    public void findByCriteria(PaginatedList<ArtistDto> paginatedList, ArtistCriteria criteria, SortCriteria sortCriteria) {
-        QueryParam queryParam = getQueryParam(criteria);
-        List<Object[]> l = PaginatedLists.executePaginatedQuery(paginatedList, queryParam, sortCriteria, true);
-        List<ArtistDto> albumDtoList = assembleResultList(l);
-        paginatedList.setResultList(albumDtoList);
-    }
-    
-    /**
-     * Creates the query parameters from the criteria.
-     *
-     * @param criteria Search criteria
-     * @return Query parameters
-     */
-    private QueryParam getQueryParam(ArtistCriteria criteria) {
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
-
-        StringBuilder sb = new StringBuilder("select a.ART_ID_C, a.ART_NAME_C as c0 ");
-        sb.append(" from T_ARTIST a ");
-
-        // Adds search criteria
-        List<String> criteriaList = new ArrayList<String>();
-        if (criteria.getId() != null) {
-            criteriaList.add("a.ART_ID_C = :id");
-            parameterMap.put("id", criteria.getId());
-        }
-        if (criteria.getNameLike() != null) {
-            criteriaList.add("lower(a.ART_NAME_C) like lower(:nameLike)");
-            parameterMap.put("nameLike", "%" + criteria.getNameLike() + "%");
-        }
-        criteriaList.add("a.ART_DELETEDATE_D is null");
-
-        if (!criteriaList.isEmpty()) {
-            sb.append(" where ");
-            sb.append(Joiner.on(" and ").join(criteriaList));
-        }
-
-        QueryParam queryParam = new QueryParam(sb.toString(), parameterMap);
-        return queryParam;
-    }
-
     /**
      * Assemble the query results.
      *

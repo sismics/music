@@ -16,6 +16,15 @@ public class SortCriteria {
      */
     private boolean asc = true;
 
+    private String sortQuery;
+
+    /**
+     * Constructor of sortCriteria.
+     */
+    public SortCriteria(String sortQuery) {
+        this.sortQuery = sortQuery;
+    }
+
     /**
      * Constructor of sortCriteria.
      */
@@ -27,7 +36,11 @@ public class SortCriteria {
             this.asc = asc;
         }
     }
-    
+
+    public String getSortQuery() {
+        return sortQuery;
+    }
+
     /**
      * Getter of column.
      *

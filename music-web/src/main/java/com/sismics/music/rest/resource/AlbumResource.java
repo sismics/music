@@ -233,7 +233,7 @@ public class AlbumResource extends BaseResource {
         AlbumCriteria albumCriteria = new AlbumCriteria()
                 .setUserId(principal.getId())
                 .setNameLike(search);
-        albumDao.findByCriteria(paginatedList, albumCriteria, sortCriteria);
+        albumDao.findByCriteria(paginatedList, albumCriteria, sortCriteria, null);
 
         JsonObjectBuilder response = Json.createObjectBuilder();
         JsonArrayBuilder items = Json.createArrayBuilder();

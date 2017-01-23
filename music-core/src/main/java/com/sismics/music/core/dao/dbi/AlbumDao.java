@@ -1,14 +1,16 @@
 package com.sismics.music.core.dao.dbi;
 
-import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.sismics.music.core.dao.dbi.criteria.AlbumCriteria;
 import com.sismics.music.core.dao.dbi.dto.AlbumDto;
+import com.sismics.music.core.dao.dbi.mapper.AlbumDtoMapper;
 import com.sismics.music.core.dao.dbi.mapper.AlbumMapper;
 import com.sismics.music.core.model.dbi.Album;
-import com.sismics.music.core.util.dbi.*;
+import com.sismics.music.core.util.dbi.QueryParam;
 import com.sismics.util.context.ThreadLocalContext;
+import com.sismics.util.dbi.BaseDao;
+import com.sismics.util.dbi.filter.FilterCriteria;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.util.IntegerMapper;
 
 import java.sql.Timestamp;
@@ -19,7 +21,48 @@ import java.util.*;
  * 
  * @author jtremeaux
  */
-public class AlbumDao {
+public class AlbumDao extends BaseDao<AlbumDto, AlbumCriteria> {
+    @Override
+    public QueryParam getQueryParam(AlbumCriteria criteria, FilterCriteria filterCriteria) {
+        List<String> criteriaList = new ArrayList<String>();
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
+
+        StringBuilder sb = new StringBuilder("select a.ALB_ID_C as id, a.ALB_NAME_C as c0, a.ALB_ALBUMART_C as albumArt, ar.ART_ID_C as artistId, ar.ART_NAME_C as artistName, a.ALB_UPDATEDATE_D as c1, ");
+        if (criteria.getUserId() == null) {
+            sb.append("sum(0) as c2");
+        } else {
+            sb.append("sum(utr.UST_PLAYCOUNT_N) as c2");
+        }
+        sb.append(" from T_ALBUM a ");
+        sb.append(" join T_ARTIST ar on(ar.ART_ID_C = a.ALB_IDARTIST_C) ");
+        if (criteria.getUserId() != null) {
+            sb.append(" left join T_TRACK tr on(tr.TRK_IDALBUM_C = a.ALB_ID_C) ");
+            sb.append(" left join T_USER_TRACK utr on(tr.TRK_ID_C = utr.UST_IDTRACK_C) ");
+        }
+
+        // Adds search criteria
+        criteriaList.add("ar.ART_DELETEDATE_D is null");
+        criteriaList.add("a.ALB_DELETEDATE_D is null");
+        if (criteria.getId() != null) {
+            criteriaList.add("a.ALB_ID_C = :id");
+            parameterMap.put("id", criteria.getId());
+        }
+        if (criteria.getDirectoryId() != null) {
+            criteriaList.add("a.ALB_IDDIRECTORY_C = :directoryId");
+            parameterMap.put("directoryId", criteria.getDirectoryId());
+        }
+        if (criteria.getArtistId() != null) {
+            criteriaList.add("ar.ART_ID_C = :artistId");
+            parameterMap.put("artistId", criteria.getArtistId());
+        }
+        if (criteria.getNameLike() != null) {
+            criteriaList.add("(lower(a.ALB_NAME_C) like lower(:like) or lower(ar.ART_NAME_C) like lower(:like))");
+            parameterMap.put("like", "%" + criteria.getNameLike() + "%");
+        }
+
+        return new QueryParam(sb.toString(), criteriaList, parameterMap, null, filterCriteria, Lists.newArrayList("a.ALB_ID_C"), new AlbumDtoMapper());
+    }
+
     /**
      * Creates a new album.
      * 
@@ -162,111 +205,6 @@ public class AlbumDao {
                 .bind("id", id)
                 .map(IntegerMapper.FIRST)
                 .first();
-    }
-
-    /**
-     * Searches albums by criteria.
-     *
-     * @param criteria Search criteria
-     * @return List of albums
-     */
-    public List<AlbumDto> findByCriteria(AlbumCriteria criteria) {
-        QueryParam queryParam = getQueryParam(criteria);
-        Query<Map<String, Object>> q = QueryUtil.getNativeQuery(queryParam);
-        List<Object[]> l = q.map(ColumnIndexMapper.INSTANCE).list();
-        return assembleResultList(l);
-    }
-
-    /**
-     * Searches albums by criteria.
-     *
-     * @param paginatedList Paginated list (populated by side effects)
-     * @param criteria Search criteria
-     * @param sortCriteria Sort criteria
-     */
-    public void findByCriteria(PaginatedList<AlbumDto> paginatedList, AlbumCriteria criteria, SortCriteria sortCriteria) {
-        QueryParam queryParam = getQueryParam(criteria);
-        List<Object[]> l = PaginatedLists.executePaginatedQuery(paginatedList, queryParam, sortCriteria, true);
-        List<AlbumDto> albumDtoList = assembleResultList(l);
-        paginatedList.setResultList(albumDtoList);
-    }
-    
-    /**
-     * Creates the query parameters from the criteria.
-     *
-     * @param criteria Search criteria
-     * @return Query parameters
-     */
-    private QueryParam getQueryParam(AlbumCriteria criteria) {
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
-
-        StringBuilder sb = new StringBuilder("select a.ALB_ID_C, a.ALB_NAME_C as c0,  a.ALB_ALBUMART_C, ar.ART_ID_C, ar.ART_NAME_C, a.ALB_UPDATEDATE_D as c1, ");
-        if (criteria.getUserId() == null) {
-            sb.append("sum(0)");
-        } else {
-            sb.append("sum(utr.UST_PLAYCOUNT_N) as c2");
-        }
-        sb.append(" from T_ALBUM a ");
-        sb.append(" join T_ARTIST ar on(ar.ART_ID_C = a.ALB_IDARTIST_C) ");
-        if (criteria.getUserId() != null) {
-            sb.append(" left join T_TRACK tr on(tr.TRK_IDALBUM_C = a.ALB_ID_C) ");
-            sb.append(" left join T_USER_TRACK utr on(tr.TRK_ID_C = utr.UST_IDTRACK_C) ");
-        }
-
-        // Adds search criteria
-        List<String> criteriaList = new ArrayList<String>();
-        if (criteria.getId() != null) {
-            criteriaList.add("a.ALB_ID_C = :id");
-            parameterMap.put("id", criteria.getId());
-        }
-        if (criteria.getDirectoryId() != null) {
-            criteriaList.add("a.ALB_IDDIRECTORY_C = :directoryId");
-            parameterMap.put("directoryId", criteria.getDirectoryId());
-        }
-        if (criteria.getArtistId() != null) {
-            criteriaList.add("ar.ART_ID_C = :artistId");
-            parameterMap.put("artistId", criteria.getArtistId());
-        }
-        if (criteria.getNameLike() != null) {
-            criteriaList.add("(lower(a.ALB_NAME_C) like lower(:like) or lower(ar.ART_NAME_C) like lower(:like))");
-            parameterMap.put("like", "%" + criteria.getNameLike() + "%");
-        }
-        criteriaList.add("ar.ART_DELETEDATE_D is null");
-        criteriaList.add("a.ALB_DELETEDATE_D is null");
-
-        if (!criteriaList.isEmpty()) {
-            sb.append(" where ");
-            sb.append(Joiner.on(" and ").join(criteriaList));
-        }
-
-        sb.append(" group by a.ALB_ID_C ");
-
-        QueryParam queryParam = new QueryParam(sb.toString(), parameterMap);
-        return queryParam;
-    }
-
-    /**
-     * Assemble the query results.
-     *
-     * @param resultList Query results as a table
-     * @return Query results as a list of domain objects
-     */
-    private List<AlbumDto> assembleResultList(List<Object[]> resultList) {
-        List<AlbumDto> albumDtoList = new ArrayList<AlbumDto>();
-        for (Object[] o : resultList) {
-            int i = 0;
-            AlbumDto albumDto = new AlbumDto();
-            albumDto.setId((String) o[i++]);
-            albumDto.setName((String) o[i++]);
-            albumDto.setAlbumArt((String) o[i++]);
-            albumDto.setArtistId((String) o[i++]);
-            albumDto.setArtistName((String) o[i++]);
-            albumDto.setUpdateDate((Timestamp) o[i++]);
-            Long playCount = (Long) o[i++];
-            albumDto.setUserPlayCount(playCount == null ? 0 : playCount);
-            albumDtoList.add(albumDto);
-        }
-        return albumDtoList;
     }
 
     /**

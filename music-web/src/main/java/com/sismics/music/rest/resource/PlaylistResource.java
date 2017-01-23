@@ -302,9 +302,8 @@ public class PlaylistResource extends BaseResource {
         
         // TODO Add prefered tracks
         // Add random tracks
-        TrackDao trackDao = new TrackDao();
         PaginatedList<TrackDto> paginatedList = PaginatedLists.create();
-        trackDao.findByCriteria(new TrackCriteria().setRandom(true), paginatedList);
+        new TrackDao().findByCriteria(paginatedList, new TrackCriteria().setRandom(true), null, null);
         
         for (TrackDto trackDto : paginatedList.getResultList()) {
             // Insert the track into the playlist
@@ -459,7 +458,7 @@ public class PlaylistResource extends BaseResource {
         SortCriteria sortCriteria = new SortCriteria(sortColumn, asc);
         new PlaylistDao().findByCriteria(paginatedList, new PlaylistCriteria()
                 .setDefaultPlaylist(false)
-                .setUserId(principal.getId()), sortCriteria);
+                .setUserId(principal.getId()), sortCriteria, null);
 
         // Output the list
         JsonObjectBuilder response = Json.createObjectBuilder();

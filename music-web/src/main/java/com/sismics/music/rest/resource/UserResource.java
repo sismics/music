@@ -522,7 +522,7 @@ public class UserResource extends BaseResource {
         SortCriteria sortCriteria = new SortCriteria(sortColumn, asc);
 
         UserDao userDao = new UserDao();
-        userDao.findByCriteria(paginatedList, new UserCriteria(), sortCriteria);
+        userDao.findByCriteria(paginatedList, new UserCriteria(), sortCriteria, null);
         for (UserDto userDto : paginatedList.getResultList()) {
             users.add(Json.createObjectBuilder()
                     .add("id", userDto.getId())
