@@ -8,6 +8,7 @@ import org.junit.Test;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import java.nio.file.Paths;
+import java.util.Date;
 
 /**
  * Exhaustive test of the playlist resource.
@@ -288,6 +289,16 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(playlist0Id, item.getString("id"));
         Assert.assertEquals("Test playlist 0", item.getString("name"));
 
+        // List all playlists
+        GET("/playlist");
+        assertIsOk();
+        json = getJsonResult();
+        items = json.getJsonArray("items");
+        Assert.assertEquals(1, items.size());
+        item = items.getJsonObject(0);
+        Assert.assertEquals(1, item.getInt("trackCount"));
+        Assert.assertEquals(0, item.getInt("userTrackPlayCount"));
+
         // Update a playlist
         POST("/playlist/" + playlist0Id, ImmutableMap.of("name", "Test playlist updated 0"));
         assertIsOk();
@@ -319,16 +330,6 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertEquals(track0Id, tracks.getJsonObject(0).getString("id"));
         Assert.assertEquals(track0Id, tracks.getJsonObject(1).getString("id"));
 
-        // List all playlists
-        GET("/playlist");
-        assertIsOk();
-        json = getJsonResult();
-        items = json.getJsonArray("items");
-        Assert.assertEquals(1, items.size());
-        item = items.getJsonObject(0);
-        Assert.assertEquals(1, item.getInt("trackCount"));
-        Assert.assertEquals(0, item.getInt("userTrackPlayCount"));
-
         // Load a playlist into the default playlist, clearing the old tracks
         POST("/playlist/" + playlist0Id + "/load", ImmutableMap.of("clear", "true"));
         assertIsOk();
@@ -341,6 +342,23 @@ public class TestPlaylistResource extends BaseJerseyTest {
         Assert.assertNotNull(tracks);
         Assert.assertEquals(1, tracks.size());
         Assert.assertEquals(track0Id, tracks.getJsonObject(0).getString("id"));
+
+        // Marks a track as played
+        POST("/player/listening", ImmutableMap.of(
+                "id", track0Id,
+                "date", Long.toString(new Date().getTime()),
+                "duration", "60"));
+        assertIsOk();
+
+        // List all playlists
+        GET("/playlist");
+        assertIsOk();
+        json = getJsonResult();
+        items = json.getJsonArray("items");
+        Assert.assertEquals(1, items.size());
+        item = items.getJsonObject(0);
+        Assert.assertEquals(1, item.getInt("trackCount"));
+        Assert.assertEquals(1, item.getInt("userTrackPlayCount"));
 
         // Delete a playlist
         DELETE("/playlist/" + playlist0Id);
