@@ -89,7 +89,7 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
         }
       }
 
-      Restangular.one('playlist', order).post('move', {
+      Restangular.one('playlist/default', order).post('move', {
         neworder: neworder
       }).then(function(data) {
         service.setTracks(data.tracks);
@@ -100,7 +100,7 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
      * Update the playlist.
      */
     update: function() {
-      var promise = Restangular.one('playlist').get();
+      var promise = Restangular.one('playlist/default').get();
       promise.then(function(data) {
         service.setTracks(data.tracks);
       });
@@ -159,7 +159,7 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
     add: function(track, clear, play) {
       service.setPartyMode(false);
 
-      Restangular.one('playlist').put({
+      Restangular.one('playlist/default').put({
         id: track.id,
         clear: clear,
         order: null
@@ -183,7 +183,7 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
     addAll: function(trackIdList, clear, play) {
       service.setPartyMode(false);
 
-      Restangular.one('playlist/multiple').put({
+      Restangular.one('playlist/default/multiple').put({
         ids: trackIdList,
         clear: clear
       }).then(function(data) {
@@ -205,7 +205,7 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
      * @param play If true, immediately play the first track once added
      */
     party: function(clear, play) {
-      Restangular.one('playlist').post('party', {
+      Restangular.one('playlist/default').post('party', {
         clear: clear
       }).then(function(data) {
             service.setTracks(data.tracks);
@@ -233,7 +233,7 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
         }
       }
 
-      Restangular.one('playlist', order).remove().then(function(data) {
+      Restangular.one('playlist/default', order).remove().then(function(data) {
         service.setTracks(data.tracks);
       });
     },
@@ -248,7 +248,7 @@ angular.module('music').factory('Playlist', function($rootScope, Restangular, to
       service.setPartyMode(false);
       $rootScope.$broadcast('audio.stop');
 
-      return Restangular.one('playlist').remove().then(function() {
+      return Restangular.one('playlist/default').post('clear', {}).then(function() {
         service.setTracks([]);
       });
     },
