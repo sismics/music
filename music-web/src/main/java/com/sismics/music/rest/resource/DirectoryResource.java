@@ -1,21 +1,5 @@
 package com.sismics.music.rest.resource;
 
-import java.nio.file.Paths;
-import java.util.Date;
-import java.util.List;
-
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Response;
-
 import com.sismics.music.core.dao.dbi.DirectoryDao;
 import com.sismics.music.core.event.async.DirectoryCreatedAsyncEvent;
 import com.sismics.music.core.event.async.DirectoryDeletedAsyncEvent;
@@ -25,6 +9,15 @@ import com.sismics.music.rest.constant.BaseFunction;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.util.ValidationUtil;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import java.nio.file.Paths;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Directory REST resources.
@@ -36,7 +29,6 @@ public class DirectoryResource extends BaseResource {
     /**
      * Creates a new directory.
      *
-     * @param name Directory name
      * @param location Directory location
      * @return Response
      */
@@ -74,7 +66,7 @@ public class DirectoryResource extends BaseResource {
     /**
      * Updates directory informations.
      *
-     * @param name Directory name
+     * @param id The directory ID
      * @param location Location
      * @param active True if the directory is active.
      * @return Response

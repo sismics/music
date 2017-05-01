@@ -62,7 +62,6 @@ public class TestImportResource extends BaseJerseyTest {
      * Test the import resource.
      * youtube-dl is not available on Travis, can't be tested systematically.
      *
-     * @throws Exception
      */
     @Test
     @Ignore // youtube-dl is not installed on Travis
