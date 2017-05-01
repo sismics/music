@@ -543,9 +543,7 @@ public class PlaylistResource extends BaseResource {
         new PlaylistTrackDao().deleteByPlaylistId(playlist.getId());
 
         // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build();
+        return okJson();
     }
     
     /**

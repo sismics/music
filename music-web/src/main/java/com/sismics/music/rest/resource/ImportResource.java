@@ -68,9 +68,7 @@ public class ImportResource extends BaseResource {
         AppContext.getInstance().getImportAudioService().downloadAudio(urlList, quality, format);
         
         // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build();
+        return okJson();
     }
     
     /**
@@ -149,9 +147,7 @@ public class ImportResource extends BaseResource {
         }
         
         // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build();
+        return okJson();
     }
     
     @POST
@@ -168,9 +164,7 @@ public class ImportResource extends BaseResource {
         }
         
         // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build();
+        return okJson();
     }
     
     /**
@@ -188,9 +182,7 @@ public class ImportResource extends BaseResource {
         AppContext.getInstance().getImportAudioService().cleanup();
         
         // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build(); 
+        return okJson();
     }
     
     /**
@@ -235,9 +227,7 @@ public class ImportResource extends BaseResource {
         }
         
         // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build(); 
+        return okJson();
     }
     
     /**
@@ -322,9 +312,7 @@ public class ImportResource extends BaseResource {
         }
         
         // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build();
+        return okJson();
     }
     
     /**
@@ -363,8 +351,6 @@ public class ImportResource extends BaseResource {
         }
         
         // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build(); 
+        return okJson();
     }
 }

@@ -1,19 +1,5 @@
 package com.sismics.music.rest.resource;
 
-import java.util.List;
-
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Response;
-
 import com.sismics.music.core.dao.dbi.TranscoderDao;
 import com.sismics.music.core.model.dbi.Transcoder;
 import com.sismics.music.rest.constant.BaseFunction;
@@ -21,6 +7,13 @@ import com.sismics.music.rest.util.JsonUtil;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.util.ValidationUtil;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  * Transcoder REST resources.
@@ -71,9 +64,7 @@ public class TranscoderResource extends BaseResource {
         transcoderDao.create(transcoder);
 
         // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build();
+        return okJson();
     }
 
     /**
@@ -120,9 +111,7 @@ public class TranscoderResource extends BaseResource {
         transcoder = transcoderDao.update(transcoder);
 
         // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build();
+        return okJson();
     }
 
     /**
@@ -150,9 +139,7 @@ public class TranscoderResource extends BaseResource {
         transcoderDao.delete(transcoder.getId());
 
         // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build();
+        return okJson();
     }
 
     /**

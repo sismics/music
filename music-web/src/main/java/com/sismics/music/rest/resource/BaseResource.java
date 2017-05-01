@@ -7,6 +7,7 @@ import com.sismics.security.IPrincipal;
 import com.sismics.security.UserPrincipal;
 import com.sismics.util.filter.TokenBasedSecurityFilter;
 
+import javax.json.Json;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -75,6 +76,17 @@ public abstract class BaseResource {
         }
         Set<String> baseFunctionSet = ((UserPrincipal) principal).getBaseFunctionSet();
         return baseFunctionSet != null && baseFunctionSet.contains(baseFunction.name());
+    }
+
+    /**
+     * Returns an OK JSON message.
+     *
+     * @return The JSON message
+     */
+    protected Response okJson() {
+        return Response.ok()
+                .entity(Json.createObjectBuilder().add("status", "ok").build())
+                .build();
     }
 
     protected void notFoundIfNull(Object object, String message) {

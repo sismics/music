@@ -113,8 +113,6 @@ public class PlayerResource extends BaseResource {
         }
         
         // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build();
+        return okJson();
     }
 }

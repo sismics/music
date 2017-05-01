@@ -58,9 +58,7 @@ public class DirectoryResource extends BaseResource {
         AppContext.getInstance().getCollectionEventBus().post(directoryCreatedAsyncEvent);
 
         // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build();
+        return okJson();
     }
 
     /**
@@ -108,9 +106,7 @@ public class DirectoryResource extends BaseResource {
         AppContext.getInstance().getCollectionEventBus().post(directoryCreatedAsyncEvent);
 
         // Always return "ok"
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build();
+        return okJson();
     }
 
     /**
@@ -143,9 +139,7 @@ public class DirectoryResource extends BaseResource {
         AppContext.getInstance().getCollectionEventBus().post(directoryDeletedAsyncEvent);
 
         // Always return ok
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build();
+        return okJson();
     }
 
     /**

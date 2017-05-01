@@ -1,15 +1,5 @@
 package com.sismics.music.rest.resource;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.json.Json;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
-
 import com.sismics.music.core.dao.dbi.PlayerDao;
 import com.sismics.music.core.dao.dbi.TrackDao;
 import com.sismics.music.core.dao.dbi.UserDao;
@@ -24,6 +14,15 @@ import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.util.ValidationUtil;
 import com.sismics.util.MathUtil;
+
+import javax.json.Json;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Player REST resources.
@@ -65,9 +64,7 @@ public class PlayerResource extends BaseResource {
         playerService.notifyPlaying(principal.getId(), track, date, duration);
 
         // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build();
+        return okJson();
     }
 
     /**
@@ -112,9 +109,7 @@ public class PlayerResource extends BaseResource {
         }
 
         // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build();
+        return okJson();
     }
     
     /**
@@ -164,8 +159,6 @@ public class PlayerResource extends BaseResource {
         playerDao.delete(token);
         
         // Always return OK
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("status", "ok").build())
-                .build();
+        return okJson();
     }
 }
