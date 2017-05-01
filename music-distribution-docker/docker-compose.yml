@@ -1,0 +1,13 @@
+version: '2'
+services:
+  web:
+    image: sismics/music:latest
+    restart: always
+    ports:
+     - 8123:8080
+    volumes:
+      - music_data:/data
+    network_mode: bridge
+
+volumes:
+  music_data:

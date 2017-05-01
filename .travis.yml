@@ -1,1 +1,22 @@
+dist: trusty
 language: java
+services:
+  - docker
+script:
+  - if [ "$TRAVIS_BRANCH" == "release" ]; then
+    mvn -B -Pprod,hosted -DskipTests clean install -pl music-web,music-core,music-web-common;
+    elif [ "$TRAVIS_BRANCH" == "demo" ]; then
+    mvn -B -Pprod,demo -DskipTests clean install -pl music-web,music-core,music-web-common;
+    else
+    mvn -B test;
+    fi
+after_success:
+  - if [ "$TRAVIS_BRANCH" == "release" ]; then
+    docker build -f music-distribution-docker/Dockerfile -t sismics/music:latest .;
+    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+    docker push sismics/music:latest;
+    elif [ "$TRAVIS_BRANCH" == "demo" ]; then
+    docker build -f music-distribution-docker/Dockerfile -t sismics/music:demo-latest .;
+    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+    docker push sismics/music:demo-latest;
+    fi
