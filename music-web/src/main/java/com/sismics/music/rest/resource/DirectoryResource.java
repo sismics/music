@@ -8,7 +8,7 @@ import com.sismics.music.core.model.dbi.Directory;
 import com.sismics.music.rest.constant.BaseFunction;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
-import com.sismics.rest.util.ValidationUtil;
+import com.sismics.rest.util.Validation;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -42,7 +42,7 @@ public class DirectoryResource extends BaseResource {
         checkBaseFunction(BaseFunction.ADMIN);
 
         // Validate the input data
-        location = ValidationUtil.validateLength(location, "location", 1, 1000);
+        location = Validation.length(location, "location", 1, 1000);
 
         // Create the directory
         Directory directory = new Directory();
@@ -82,7 +82,7 @@ public class DirectoryResource extends BaseResource {
         checkBaseFunction(BaseFunction.ADMIN);
 
         // Validate the input data
-        location = ValidationUtil.validateLength(location, "location", 1, 1000);
+        location = Validation.length(location, "location", 1, 1000);
 
         // Check if the directory exists
         DirectoryDao directoryDao = new DirectoryDao();

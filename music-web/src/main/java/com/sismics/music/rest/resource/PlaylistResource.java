@@ -17,7 +17,7 @@ import com.sismics.music.rest.util.JsonUtil;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
-import com.sismics.rest.util.ValidationUtil;
+import com.sismics.rest.util.Validation;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -49,7 +49,7 @@ public class PlaylistResource extends BaseResource {
             throw new ForbiddenClientException();
         }
 
-        ValidationUtil.validateRequired(name, "name");
+        Validation.required(name, "name");
 
         // Create the playlist
         Playlist playlist = new Playlist();
@@ -79,8 +79,8 @@ public class PlaylistResource extends BaseResource {
             throw new ForbiddenClientException();
         }
 
-        ValidationUtil.validateRequired(playlistId, "id");
-        ValidationUtil.validateRequired(name, "name");
+        Validation.required(playlistId, "id");
+        Validation.required(name, "name");
 
         // Get the playlist
         PlaylistDto playlistDto = new PlaylistDao().findFirstByCriteria(new PlaylistCriteria()
@@ -171,7 +171,7 @@ public class PlaylistResource extends BaseResource {
             throw new ForbiddenClientException();
         }
         
-        ValidationUtil.validateRequired(idList, "ids");
+        Validation.required(idList, "ids");
 
         // Get the playlist
         PlaylistCriteria criteria = new PlaylistCriteria()
@@ -226,7 +226,7 @@ public class PlaylistResource extends BaseResource {
             throw new ForbiddenClientException();
         }
 
-        ValidationUtil.validateRequired(playlistId, "id");
+        Validation.required(playlistId, "id");
 
         // Get the named playlist
         PlaylistDto namedPlaylist = new PlaylistDao().findFirstByCriteria(new PlaylistCriteria()
@@ -327,8 +327,8 @@ public class PlaylistResource extends BaseResource {
             throw new ForbiddenClientException();
         }
 
-        ValidationUtil.validateRequired(order, "order");
-        ValidationUtil.validateRequired(newOrder, "neworder");
+        Validation.required(order, "order");
+        Validation.required(newOrder, "neworder");
 
         // Get the playlist
         PlaylistCriteria criteria = new PlaylistCriteria()
@@ -372,7 +372,7 @@ public class PlaylistResource extends BaseResource {
             throw new ForbiddenClientException();
         }
 
-        ValidationUtil.validateRequired(order, "order");
+        Validation.required(order, "order");
 
         // Get the playlist
         PlaylistCriteria criteria = new PlaylistCriteria()

@@ -31,6 +31,11 @@
       <artifactId>jersey-media-json-processing</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.glassfish.jersey.media</groupId>
+      <artifactId>jersey-media-multipart</artifactId>
+    </dependency>
+
     <!-- Dependencies to Atmosphere -->
     <dependency>
       <groupId>org.atmosphere</groupId>

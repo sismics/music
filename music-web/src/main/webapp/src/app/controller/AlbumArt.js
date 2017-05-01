@@ -30,7 +30,7 @@ angular.module('music').controller('AlbumArt', function($scope, $stateParams, $s
   // Update the album art with the given URL
   $scope.uploadLink = function() {
     Restangular.one('album', $stateParams.id)
-        .post('albumart', { url: $scope.url })
+        .post('albumart/fromurl', { url: $scope.url })
         .then(function(data) {
           if (!_.isUndefined(data.message) && data.message == 'AlbumArtNotCopied') {
             toaster.pop('warning', 'Album art not copied', 'Album directory not writable');

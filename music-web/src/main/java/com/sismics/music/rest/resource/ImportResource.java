@@ -1,16 +1,15 @@
 package com.sismics.music.rest.resource;
 
 import com.google.common.collect.Lists;
-import com.google.common.io.Files;
 import com.sismics.music.core.dao.dbi.DirectoryDao;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Directory;
 import com.sismics.music.core.service.importaudio.ImportAudio;
+import com.sismics.rest.FormDataUtil;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
-import com.sismics.rest.util.ValidationUtil;
-import org.apache.commons.io.IOUtils;
+import com.sismics.rest.util.Validation;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -21,9 +20,6 @@ import javax.json.JsonObjectBuilder;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -55,8 +51,8 @@ public class ImportResource extends BaseResource {
         if (urlList == null || urlList.size() == 0) {
             throw new ClientException("ValidationError", "url must be set and not empty");
         }
-        ValidationUtil.validateRequired(quality, "quality");
-        ValidationUtil.validateRequired(format, "format");
+        Validation.required(quality, "quality");
+        Validation.required(format, "format");
         if (!Lists.newArrayList("128K", "192K", "256K").contains(quality)) {
             throw new ClientException("ValidationError", "quality must be 128K, 192K or 256K");
         }
@@ -199,19 +195,12 @@ public class ImportResource extends BaseResource {
         }
         
         // Validate input data
-        ValidationUtil.validateRequired(fileBodyPart, "file");
-        ValidationUtil.validateRequired(fileBodyPart.getFormDataContentDisposition().getFileName(), "filename");
-        
-        InputStream in = fileBodyPart.getValueAs(InputStream.class);
-        File tempDir = null, importFile = null;
+        Validation.required(fileBodyPart, "file");
+        Validation.required(fileBodyPart.getFormDataContentDisposition().getFileName(), "filename");
+
+        File importFile = null;
         try {
-            // Copy the incoming stream content into a temporary file
-            tempDir = Files.createTempDir();
-            importFile = new File(tempDir.getAbsolutePath() + File.separator + fileBodyPart.getFormDataContentDisposition().getFileName());
-            try (OutputStream os = new FileOutputStream(importFile)) {
-                IOUtils.copy(in, os);
-            }
-            
+            importFile = FormDataUtil.getAsTempFile(fileBodyPart);
             AppContext.getInstance().getImportAudioService().importFile(importFile);
         } catch (Exception e) {
             throw new ServerException("ImportError", e.getMessage(), e);
@@ -219,15 +208,12 @@ public class ImportResource extends BaseResource {
             if (importFile != null) {
                 importFile.delete();
             }
-            if (tempDir != null) {
-                tempDir.delete();
-            }
         }
-        
+
         // Always return OK
         return okJson();
     }
-    
+
     /**
      * List imported tracks.
      * 
@@ -272,14 +258,14 @@ public class ImportResource extends BaseResource {
         }
         
         // Validate input
-        ValidationUtil.validateRequired(fileName, "file");
-        artist = ValidationUtil.validateLength(artist, "artist", 1, 1000);
-        albumArtist = ValidationUtil.validateLength(albumArtist, "album_artist", 0, 1000, true);
-        album = ValidationUtil.validateLength(album, "album", 1, 1000);
-        title = ValidationUtil.validateLength(title, "title", 1, 2000);
+        Validation.required(fileName, "file");
+        artist = Validation.length(artist, "artist", 1, 1000);
+        albumArtist = Validation.length(albumArtist, "album_artist", 0, 1000, true);
+        album = Validation.length(album, "album", 1, 1000);
+        title = Validation.length(title, "title", 1, 2000);
         Integer order = null;
         if (orderStr != null) {
-            order = ValidationUtil.validateInteger(orderStr, "order");
+            order = Validation.integer(orderStr, "order");
         }
         
         if (albumArtist == null) {
@@ -327,7 +313,7 @@ public class ImportResource extends BaseResource {
         }
         
         // Validate input
-        ValidationUtil.validateRequired(fileName, "file");
+        Validation.required(fileName, "file");
         
         // Retrieve the file from imported files
         List<File> importedFileList = AppContext.getInstance().getImportAudioService().getImportedFileList();

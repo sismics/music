@@ -22,7 +22,7 @@ import com.sismics.music.rest.constant.BaseFunction;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
-import com.sismics.rest.util.ValidationUtil;
+import com.sismics.rest.util.Validation;
 import com.sismics.security.UserPrincipal;
 import com.sismics.util.LocaleUtil;
 import com.sismics.util.filter.TokenBasedSecurityFilter;
@@ -69,11 +69,11 @@ public class UserResource extends BaseResource {
         checkBaseFunction(BaseFunction.ADMIN);
         
         // Validate the input data
-        username = ValidationUtil.validateLength(username, "username", 3, 50);
-        ValidationUtil.validateAlphanumeric(username, "username");
-        password = ValidationUtil.validateLength(password, "password", 8, 50);
-        email = ValidationUtil.validateLength(email, "email", 3, 50);
-        ValidationUtil.validateEmail(email, "email");
+        username = Validation.length(username, "username", 3, 50);
+        Validation.alphanumeric(username, "username");
+        password = Validation.length(password, "password", 8, 50);
+        email = Validation.length(email, "email", 3, 50);
+        Validation.email(email, "email");
         
         // Create the user
         User user = new User();
@@ -136,8 +136,8 @@ public class UserResource extends BaseResource {
         }
         
         // Validate the input data
-        password = ValidationUtil.validateLength(password, "password", 8, 50, true);
-        email = ValidationUtil.validateLength(email, "email", null, 100, true);
+        password = Validation.length(password, "password", 8, 50, true);
+        email = Validation.length(email, "email", null, 100, true);
         localeId = com.sismics.music.rest.util.ValidationUtil.validateLocale(localeId, "locale", true);
         
         // Update the user
@@ -193,8 +193,8 @@ public class UserResource extends BaseResource {
         checkBaseFunction(BaseFunction.ADMIN);
         
         // Validate the input data
-        password = ValidationUtil.validateLength(password, "password", 8, 50, true);
-        email = ValidationUtil.validateLength(email, "email", null, 100, true);
+        password = Validation.length(password, "password", 8, 50, true);
+        email = Validation.length(email, "email", null, 100, true);
         localeId = com.sismics.music.rest.util.ValidationUtil.validateLocale(localeId, "locale", true);
         
         // Check if the user exists
@@ -540,8 +540,8 @@ public class UserResource extends BaseResource {
             throw new ForbiddenClientException();
         }
 
-        ValidationUtil.validateRequired(lastFmUsername, "username");
-        ValidationUtil.validateRequired(lastFmPassword, "password");
+        Validation.required(lastFmUsername, "username");
+        Validation.required(lastFmPassword, "password");
 
         // Get the value of the session token
         final LastFmService lastFmService = AppContext.getInstance().getLastFmService();

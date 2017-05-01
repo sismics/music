@@ -1,10 +1,9 @@
 package com.sismics.music.rest.util;
 
+import com.sismics.rest.exception.ClientException;
+import com.sismics.rest.util.Validation;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.sismics.rest.exception.ClientException;
-import com.sismics.rest.util.ValidationUtil;
 
 /**
  * Test the validations.
@@ -14,17 +13,17 @@ import com.sismics.rest.util.ValidationUtil;
 public class TestValidationUtil {
     @Test
     public void testValidateHttpUrlFail() throws Exception {
-        ValidationUtil.validateHttpUrl("http://www.google.com", "url");
-        ValidationUtil.validateHttpUrl("https://www.google.com", "url");
-        ValidationUtil.validateHttpUrl(" https://www.google.com ", "url");
+        Validation.httpUrl("http://www.google.com", "url");
+        Validation.httpUrl("https://www.google.com", "url");
+        Validation.httpUrl(" https://www.google.com ", "url");
         try {
-            ValidationUtil.validateHttpUrl("ftp://www.google.com", "url");
+            Validation.httpUrl("ftp://www.google.com", "url");
             Assert.fail();
         } catch (ClientException e) {
             // NOP
         }
         try {
-            ValidationUtil.validateHttpUrl("http://", "url");
+            Validation.httpUrl("http://", "url");
             Assert.fail();
         } catch (ClientException e) {
             // NOP

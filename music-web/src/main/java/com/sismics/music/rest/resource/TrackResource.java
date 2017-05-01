@@ -16,7 +16,7 @@ import com.sismics.music.core.util.TransactionUtil;
 import com.sismics.music.rest.util.MediaStreamer;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
-import com.sismics.rest.util.ValidationUtil;
+import com.sismics.rest.util.Validation;
 import com.sismics.util.LyricUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jaudiotagger.audio.AudioFile;
@@ -267,17 +267,17 @@ public class TrackResource extends BaseResource {
             throw new ForbiddenClientException();
         }
         
-        title = ValidationUtil.validateLength(title, "title", 1, 2000);
-        album = ValidationUtil.validateLength(album, "album", 1, 1000);
-        artist = ValidationUtil.validateLength(artist, "artist", 1, 1000);
-        albumArtist = ValidationUtil.validateLength(albumArtist, "album_artist", 1, 1000);
+        title = Validation.length(title, "title", 1, 2000);
+        album = Validation.length(album, "album", 1, 1000);
+        artist = Validation.length(artist, "artist", 1, 1000);
+        albumArtist = Validation.length(albumArtist, "album_artist", 1, 1000);
         Integer year = null;
         if (yearStr != null) {
-            year = ValidationUtil.validateInteger(yearStr, "year");
+            year = Validation.integer(yearStr, "year");
         }
         Integer order = null;
         if (orderStr != null) {
-            order = ValidationUtil.validateInteger(orderStr, "order");
+            order = Validation.integer(orderStr, "order");
         }
 
         TrackDao trackDao = new TrackDao();

@@ -13,7 +13,7 @@ import com.sismics.music.core.util.dbi.PaginatedList;
 import com.sismics.music.core.util.dbi.PaginatedLists;
 import com.sismics.music.rest.util.JsonUtil;
 import com.sismics.rest.exception.ForbiddenClientException;
-import com.sismics.rest.util.ValidationUtil;
+import com.sismics.rest.util.Validation;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -51,7 +51,7 @@ public class SearchResource extends BaseResource {
             throw new ForbiddenClientException();
         }
 
-        ValidationUtil.validateRequired(query, "query");
+        Validation.required(query, "query");
 
         // Search tracks
         PaginatedList<TrackDto> paginatedList = PaginatedLists.create(limit, offset);

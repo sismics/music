@@ -6,7 +6,7 @@ import com.sismics.music.rest.constant.BaseFunction;
 import com.sismics.music.rest.util.JsonUtil;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
-import com.sismics.rest.util.ValidationUtil;
+import com.sismics.rest.util.Validation;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -46,11 +46,11 @@ public class TranscoderResource extends BaseResource {
         checkBaseFunction(BaseFunction.ADMIN);
 
         // Validate the input data
-        name = ValidationUtil.validateLength(name, "name", 1, 100);
-        source = ValidationUtil.validateLength(source, "source", 1, 1000);
-        destination = ValidationUtil.validateLength(destination, "destination", 1, 100);
-        step1 = ValidationUtil.validateLength(step1, "step1", 1, 1000);
-        step2 = ValidationUtil.validateLength(step2, "step2", 1, 1000, true);
+        name = Validation.length(name, "name", 1, 100);
+        source = Validation.length(source, "source", 1, 1000);
+        destination = Validation.length(destination, "destination", 1, 100);
+        step1 = Validation.length(step1, "step1", 1, 1000);
+        step2 = Validation.length(step2, "step2", 1, 1000, true);
 
         // Create the transcoder
         Transcoder transcoder = new Transcoder();
@@ -94,11 +94,11 @@ public class TranscoderResource extends BaseResource {
         checkBaseFunction(BaseFunction.ADMIN);
 
         // Validate the input data
-        name = ValidationUtil.validateLength(name, "name", 1, 100);
-        source = ValidationUtil.validateLength(source, "source", 1, 1000);
-        destination = ValidationUtil.validateLength(destination, "destination", 1, 100);
-        step1 = ValidationUtil.validateLength(step1, "step1", 1, 1000);
-        step2 = ValidationUtil.validateLength(step2, "step2", 1, 1000, true);
+        name = Validation.length(name, "name", 1, 100);
+        source = Validation.length(source, "source", 1, 1000);
+        destination = Validation.length(destination, "destination", 1, 100);
+        step1 = Validation.length(step1, "step1", 1, 1000);
+        step2 = Validation.length(step2, "step2", 1, 1000, true);
 
         // Update the transcoder
         TranscoderDao transcoderDao = new TranscoderDao();

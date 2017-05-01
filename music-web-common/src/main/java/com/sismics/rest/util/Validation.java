@@ -1,21 +1,20 @@
 package com.sismics.rest.util;
 
-import java.text.MessageFormat;
-import java.util.Date;
-import java.util.regex.Pattern;
-
+import com.google.common.base.Strings;
+import com.sismics.rest.exception.ClientException;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 
-import com.google.common.base.Strings;
-import com.sismics.rest.exception.ClientException;
+import java.text.MessageFormat;
+import java.util.Date;
+import java.util.regex.Pattern;
 
 /**
  * Utility class to validate parameters.
  *
  * @author jtremeaux
  */
-public class ValidationUtil {
+public class Validation {
     private static Pattern EMAIL_PATTERN = Pattern.compile(".+@.+");
     
     private static Pattern HTTP_URL_PATTERN = Pattern.compile("https?://.+");
@@ -29,7 +28,7 @@ public class ValidationUtil {
      * @param name Name of the parameter
      * @throws ClientException
      */
-    public static void validateRequired(Object s, String name) throws ClientException {
+    public static void required(Object s, String name) throws ClientException {
         if (s == null) {
             throw new ClientException("ValidationError", MessageFormat.format("{0} must be set", name));
         }
@@ -46,7 +45,7 @@ public class ValidationUtil {
      * @return String without white spaces
      * @throws ClientException
      */
-    public static String validateLength(String s, String name, Integer lengthMin, Integer lengthMax, boolean nullable) throws ClientException {
+    public static String length(String s, String name, Integer lengthMin, Integer lengthMax, boolean nullable) throws ClientException {
         s = StringUtils.strip(s);
         if (nullable && StringUtils.isEmpty(s)) {
             return s;
@@ -73,20 +72,8 @@ public class ValidationUtil {
      * @return String without white spaces
      * @throws ClientException
      */
-    public static String validateLength(String s, String name, Integer lengthMin, Integer lengthMax) throws ClientException {
-        return validateLength(s, name, lengthMin, lengthMax, false);
-    }
-    
-    /**
-     * Checks if the string is not null and is not only whitespaces.
-     * 
-     * @param s String to validate
-     * @param name Name of the parameter
-     * @return String without white spaces
-     * @throws ClientException
-     */
-    public static String validateStringNotBlank(String s, String name) throws ClientException {
-        return validateLength(s, name, 1, null, false);
+    public static String length(String s, String name, Integer lengthMin, Integer lengthMax) throws ClientException {
+        return length(s, name, lengthMin, lengthMax, false);
     }
     
     /**
@@ -96,7 +83,7 @@ public class ValidationUtil {
      * @param name Name of the parameter
      * @throws ClientException
      */
-    public static void validateEmail(String s, String name) throws ClientException {
+    public static void email(String s, String name) throws ClientException {
         if (!EMAIL_PATTERN.matcher(s).matches()) {
             throw new ClientException("ValidationError", MessageFormat.format("{0} must be an email", name));
         }
@@ -110,7 +97,7 @@ public class ValidationUtil {
      * @return Stripped URL
      * @throws ClientException
      */
-    public static String validateHttpUrl(String s, String name) throws ClientException {
+    public static String httpUrl(String s, String name) throws ClientException {
         s = StringUtils.strip(s);
         if (!HTTP_URL_PATTERN.matcher(s).matches()) {
             throw new ClientException("ValidationError", MessageFormat.format("{0} must be an HTTP(s) URL", name));
@@ -125,7 +112,7 @@ public class ValidationUtil {
      * @param name Name of the parameter
      * @throws ClientException
      */
-    public static void validateAlphanumeric(String s, String name) throws ClientException {
+    public static void alphanumeric(String s, String name) throws ClientException {
         if (!ALPHANUMERIC_PATTERN.matcher(s).matches()) {
             throw new ClientException("ValidationError", MessageFormat.format("{0} must have only alphanumeric or underscore characters", name));
         }
@@ -139,7 +126,7 @@ public class ValidationUtil {
      * @return Parsed number
      * @throws ClientException
      */
-    public static Integer validateInteger(String s, String name) throws ClientException {
+    public static Integer integer(String s, String name) throws ClientException {
         try {
             return Integer.valueOf(s);
         } catch (NumberFormatException e) {
@@ -156,7 +143,7 @@ public class ValidationUtil {
      * @return Parsed date
      * @throws ClientException
      */
-    public static Date validateDate(String s, String name, boolean nullable) throws ClientException {
+    public static Date date(String s, String name, boolean nullable) throws ClientException {
         if (Strings.isNullOrEmpty(s)) {
             if (!nullable) {
                 throw new ClientException("ValidationError", MessageFormat.format("{0} must be set", name));

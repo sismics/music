@@ -15,9 +15,14 @@ import com.sismics.music.core.util.dbi.PaginatedList;
 import com.sismics.music.core.util.dbi.PaginatedLists;
 import com.sismics.music.core.util.dbi.SortCriteria;
 import com.sismics.music.rest.util.JsonUtil;
+import com.sismics.rest.FormDataUtil;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
+import com.sismics.rest.exception.ServerException;
+import com.sismics.rest.util.Validation;
 import org.apache.commons.io.IOUtils;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,14 +127,13 @@ public class AlbumResource extends BaseResource {
         }
 
         // Get the album
-        AlbumDao albumDao = new AlbumDao();
-        Album album = albumDao.getActiveById(id);
+        Album album = Album.getActiveById(id);
         if (album == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
         // Get the album art size
-        AlbumArtSize albumArtSize = null;
+        AlbumArtSize albumArtSize;
         try {
             albumArtSize = AlbumArtSize.valueOf(size.toUpperCase());
         } catch (Exception e) {
@@ -149,14 +153,14 @@ public class AlbumResource extends BaseResource {
     }
     
     /**
-     * Update an album cover.
+     * Download an album cover from an URL and update the cover.
      *
      * @param id Album ID
      * @param url Image URL
      * @return Response
      */
     @POST
-    @Path("{id: [a-z0-9\\-]+}/albumart")
+    @Path("{id: [a-z0-9\\-]+}/albumart/fromurl")
     public Response updateAlbumart(
             @PathParam("id") String id,
             @FormParam("url") String url) {
@@ -165,25 +169,12 @@ public class AlbumResource extends BaseResource {
         }
 
         // Get the album
-        AlbumDao albumDao = new AlbumDao();
-        Album album = albumDao.getActiveById(id);
-        if (album == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+        Album album = Album.getActiveById(id);
+        notFoundIfNull(album, "id");
 
         // Copy the remote URL to a temporary file
-        File imageFile;
-        try {
-            imageFile = File.createTempFile("music_albumart", null);
-            try (InputStream urlStream = new URL(url).openStream();
-                    OutputStream imageStream = new FileOutputStream(imageFile)) {
-                IOUtils.copy(urlStream, imageStream);
-            }
-        } catch (IOException e) {
-            log.error("Error reading remote URL", e);
-            throw new ClientException("IOError", "Error while reading the remote URL");
-        }
-        
+        File imageFile = downloadAlbumArt(url);
+
         JsonObjectBuilder response = Json.createObjectBuilder().add("status", "ok");
         
         // Update the album art
@@ -198,11 +189,70 @@ public class AlbumResource extends BaseResource {
             log.error("The provided URL is not an image", e);
             throw new ClientException("ImageError", "The provided URL is not an image");
         }
-        albumDao.update(album);
+        AlbumDao.update(album);
         
         // Delete the previous album art
         if (oldAlbumArtId != null) {
             albumArtService.deleteAlbumArt(oldAlbumArtId);
+        }
+
+        return renderJson(response);
+    }
+
+    /**
+     * Download an album cover from an URL and update the cover.
+     *
+     * @param id Album ID
+     * @param fileBodyPart The image
+     * @return Response
+     */
+    @PUT
+    @Path("{id: [a-z0-9\\-]+}/albumart")
+    @Consumes("multipart/form-data")
+    public Response updateAlbumart(
+            @PathParam("id") String id,
+            @FormDataParam("file") FormDataBodyPart fileBodyPart) {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+
+        // Get the album
+        Album album = Album.getActiveById(id);
+        notFoundIfNull(album, "id");
+
+        // Validate input data
+        Validation.required(fileBodyPart, "file");
+        Validation.required(fileBodyPart.getFormDataContentDisposition().getFileName(), "filename");
+
+        JsonObjectBuilder response = Json.createObjectBuilder().add("status", "ok");
+        File importFile = null;
+        try {
+            importFile = FormDataUtil.getAsTempFile(fileBodyPart);
+
+            // Update the album art
+            final AlbumArtService albumArtService = AppContext.getInstance().getAlbumArtService();
+            String oldAlbumArtId = album.getAlbumArt();
+            try {
+                albumArtService.importAlbumArt(album, importFile, true);
+            } catch (NonWritableException e) {
+                // The album art could't be copied to the album folder
+                response.add("message", "AlbumArtNotCopied");
+            } catch (Exception e) {
+                log.error("The provided URL is not an image", e);
+                throw new ClientException("ImageError", "The provided URL is not an image");
+            }
+            AlbumDao.update(album);
+
+            // Delete the previous album art
+            if (oldAlbumArtId != null) {
+                albumArtService.deleteAlbumArt(oldAlbumArtId);
+            }
+        } catch (Exception e) {
+            throw new ServerException("ImportError", e.getMessage(), e);
+        } finally {
+            if (importFile != null) {
+                importFile.delete();
+            }
         }
 
         return renderJson(response);
@@ -250,5 +300,21 @@ public class AlbumResource extends BaseResource {
         response.add("albums", items);
 
         return renderJson(response);
+    }
+
+    // FIXME Handle HTTP Client https://github.com/sismics/music/issues/78
+    public static File downloadAlbumArt(String url) {
+        File imageFile;
+        try {
+            imageFile = File.createTempFile("music_albumart", null);
+            try (InputStream urlStream = new URL(url).openStream();
+                 OutputStream imageStream = new FileOutputStream(imageFile)) {
+                IOUtils.copy(urlStream, imageStream);
+            }
+        } catch (IOException e) {
+            log.error("Error reading remote URL", e);
+            throw new ClientException("IOError", "Error while reading the remote URL");
+        }
+        return imageFile;
     }
 }

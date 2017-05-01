@@ -12,7 +12,7 @@ import com.sismics.music.core.service.lastfm.LastFmService;
 import com.sismics.music.core.service.player.PlayerService;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
-import com.sismics.rest.util.ValidationUtil;
+import com.sismics.rest.util.Validation;
 import com.sismics.util.MathUtil;
 
 import javax.json.Json;
@@ -48,8 +48,8 @@ public class PlayerResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        Date date = ValidationUtil.validateDate(dateStr, "date", false);
-        ValidationUtil.validateRequired(duration, "duration");
+        Date date = Validation.date(dateStr, "date", false);
+        Validation.required(duration, "duration");
 
         // Load the track
         TrackDao trackDao = new TrackDao();
@@ -94,7 +94,7 @@ public class PlayerResource extends BaseResource {
         for (int i = 0; i < idList.size(); i++) {
             Track track = trackDao.getActiveById(idList.get(i));
             if (track != null) {
-                Date date = ValidationUtil.validateDate(dateStrList.get(i), "date", false);
+                Date date = Validation.date(dateStrList.get(i), "date", false);
                 trackList.add(track);
                 dateList.add(date);
                 
@@ -146,7 +146,7 @@ public class PlayerResource extends BaseResource {
             throw new ForbiddenClientException();
         }
         
-        ValidationUtil.validateRequired(token, "token");
+        Validation.required(token, "token");
         
         // Delete the player
         PlayerDao playerDao = new PlayerDao();

@@ -246,7 +246,7 @@ public abstract class BaseJerseyTest extends JerseyTest {
      * Connects a user to the application.
      *
      * @param username Username
-     * @return Authentication token
+     * @return The authentication token
      */
     public String login(String username) {
         return login(username, "12345678", false);
@@ -254,9 +254,11 @@ public abstract class BaseJerseyTest extends JerseyTest {
 
     /**
      * Login the admin user.
+     *
+     * @return The authentication token
      */
-    protected void loginAdmin() {
-        login("admin", "admin", false);
+    protected String loginAdmin() {
+        return login("admin", "admin", false);
     }
 
     /**

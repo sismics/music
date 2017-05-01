@@ -1,6 +1,9 @@
 package com.sismics.music.core.model.dbi;
 
 import com.google.common.base.Objects;
+import com.sismics.music.core.dao.dbi.mapper.AlbumMapper;
+import com.sismics.util.context.ThreadLocalContext;
+import org.skife.jdbi.v2.Handle;
 
 import java.util.Date;
 
@@ -72,6 +75,22 @@ public class Album {
         this.updateDate = updateDate;
         this.deleteDate = deleteDate;
         this.location = location;
+    }
+
+    /**
+     * Gets an active album by its ID.
+     *
+     * @param id Album ID
+     * @return Album
+     */
+    public static Album getActiveById(String id) {
+        final Handle handle = ThreadLocalContext.get().getHandle();
+        return handle.createQuery("select " + new AlbumMapper().getJoinedColumns("a") +
+                "  from T_ALBUM a" +
+                "  where a.ALB_ID_C = :id and a.ALB_DELETEDATE_D is null")
+                .bind("id", id)
+                .mapTo(Album.class)
+                .first();
     }
 
     /**

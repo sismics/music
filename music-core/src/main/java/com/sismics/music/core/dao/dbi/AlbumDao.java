@@ -102,7 +102,7 @@ public class AlbumDao extends BaseDao<AlbumDto, AlbumCriteria> {
      * @param album Album to update
      * @return Updated album
      */
-    public Album update(Album album) {
+    public static Album update(Album album) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("update T_ALBUM a set " +
                 " a.ALB_IDDIRECTORY_C = :directoryId," +
@@ -173,22 +173,6 @@ public class AlbumDao extends BaseDao<AlbumDto, AlbumCriteria> {
                 .bind("artistId", artistId)
                 .mapTo(Album.class)
                 .list();
-    }
-    
-    /**
-     * Gets an active album by its ID.
-     *
-     * @param id Album ID
-     * @return Album
-     */
-    public Album getActiveById(String id) {
-        final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select " + new AlbumMapper().getJoinedColumns("a") +
-                "  from T_ALBUM a" +
-                "  where a.ALB_ID_C = :id and a.ALB_DELETEDATE_D is null")
-                .bind("id", id)
-                .mapTo(Album.class)
-                .first();
     }
 
     /**

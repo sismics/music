@@ -6,7 +6,7 @@ import com.sismics.music.core.model.dbi.Player;
 import com.sismics.music.rest.resource.BaseResource;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
-import com.sismics.rest.util.ValidationUtil;
+import com.sismics.rest.util.Validation;
 import org.atmosphere.client.TrackMessageSizeInterceptor;
 import org.atmosphere.config.service.AtmosphereService;
 import org.atmosphere.cpr.ApplicationConfig;
@@ -57,7 +57,7 @@ public class PlayerResource extends BaseResource {
             throw new ForbiddenClientException();
         }
         
-        ValidationUtil.validateRequired(token, "token");
+        Validation.required(token, "token");
         
         // Get the player
         PlayerDao playerDao = new PlayerDao();
@@ -86,8 +86,8 @@ public class PlayerResource extends BaseResource {
             throw new ForbiddenClientException();
         }
         
-        ValidationUtil.validateRequired(token, "token");
-        ValidationUtil.validateRequired(json, "json");
+        Validation.required(token, "token");
+        Validation.required(json, "json");
         
 
         // Get the player
