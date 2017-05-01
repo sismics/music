@@ -7,14 +7,13 @@ import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import java.nio.file.Paths;
 
 /**
  * Test the app resource.
  * 
  * @author jtremeaux
  */
-public class TestAppResource extends BaseJerseyTest {
+public class TestAppResource extends BaseMusicTest {
     /**
      * Test the API resource.
      */
@@ -89,8 +88,7 @@ public class TestAppResource extends BaseJerseyTest {
         loginAdmin();
 
         // Admin adds a directory to the collection
-        PUT("/directory", ImmutableMap.of("location", Paths.get(getClass().getResource("/music/").toURI()).toString()));
-        assertIsOk();
+        addDirectory("/music/");
 
         // Check that the albums are correctly added
         GET("/album");

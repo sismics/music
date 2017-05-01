@@ -6,14 +6,13 @@ import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import java.nio.file.Paths;
 
 /**
  * Exhaustive test of the artist resource.
  * 
  * @author bgamard
  */
-public class TestArtistResource extends BaseJerseyTest {
+public class TestArtistResource extends BaseMusicTest {
     /**
      * Test the artist resource.
      *
@@ -24,17 +23,14 @@ public class TestArtistResource extends BaseJerseyTest {
         loginAdmin();
 
         // Admin adds an album to the collection
-        PUT("/directory", ImmutableMap.of("location", Paths.get(getClass().getResource("/music/").toURI()).toString()));
-        assertIsOk();
-        JsonObject json = getJsonResult();
-        Assert.assertEquals("ok", json.getString("status"));
+        addDirectory("/music/");
 
         // Check that the artists are correctly added
         GET("/artist", ImmutableMap.of(
                 "sort_column", "0",
                 "asc", "true"));
         assertIsOk();
-        json = getJsonResult();
+        JsonObject json = getJsonResult();
         Assert.assertEquals(4, json.getJsonNumber("total").intValue());
         JsonArray artists = json.getJsonArray("artists");
         Assert.assertNotNull(artists);

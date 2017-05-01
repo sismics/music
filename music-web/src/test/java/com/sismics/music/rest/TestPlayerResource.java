@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import java.nio.file.Paths;
 import java.util.Date;
 
 /**
@@ -14,7 +13,7 @@ import java.util.Date;
  * 
  * @author jtremeaux
  */
-public class TestPlayerResource extends BaseJerseyTest {
+public class TestPlayerResource extends BaseMusicTest {
     /**
      * Test the track resource.
      *
@@ -25,8 +24,7 @@ public class TestPlayerResource extends BaseJerseyTest {
         loginAdmin();
 
         // Admin adds a track to the collection
-        PUT("/directory", ImmutableMap.of("location", Paths.get(getClass().getResource("/music/").toURI()).toString()));
-        assertIsOk();
+        addDirectory("/music/");
 
         // Check that the albums are correctly added
         GET("/album", ImmutableMap.of(

@@ -17,7 +17,7 @@ import java.nio.file.Paths;
  * 
  * @author jtremeaux
  */
-public class TestTrackResource extends BaseJerseyTest {
+public class TestTrackResource extends BaseMusicTest {
     /**
      * Test the track resource.
      *
@@ -34,8 +34,7 @@ public class TestTrackResource extends BaseJerseyTest {
         destDir.deleteOnExit();
         
         // Admin adds a directory to the collection
-        PUT("/directory", ImmutableMap.of("location", destDir.toPath().toString()));
-        assertIsOk();
+        addDirectory("/music/");
 
         // Check that the albums are correctly added
         GET("/album", ImmutableMap.of(

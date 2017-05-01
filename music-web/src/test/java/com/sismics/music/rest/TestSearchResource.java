@@ -1,19 +1,17 @@
 package com.sismics.music.rest;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import java.nio.file.Paths;
 
 /**
  * Exhaustive test of the search resource.
  * 
  * @author jtremeaux
  */
-public class TestSearchResource extends BaseJerseyTest {
+public class TestSearchResource extends BaseMusicTest {
     /**
      * Test the search resource.
      *
@@ -24,8 +22,7 @@ public class TestSearchResource extends BaseJerseyTest {
         loginAdmin();
 
         // Admin adds an album to the collection
-        PUT("/directory", ImmutableMap.of("location", Paths.get(getClass().getResource("/music/").toURI()).toString()));
-        assertIsOk();
+        addDirectory("/music/");
 
         // Search by track name
         GET("/search/revolution");
