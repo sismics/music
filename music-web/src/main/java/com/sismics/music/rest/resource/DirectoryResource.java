@@ -169,6 +169,6 @@ public class DirectoryResource extends BaseResource {
         }
         response.add("directories", items);
 
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
 }

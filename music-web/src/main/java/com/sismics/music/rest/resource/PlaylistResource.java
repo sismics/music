@@ -21,7 +21,6 @@ import com.sismics.rest.util.ValidationUtil;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -59,13 +58,10 @@ public class PlaylistResource extends BaseResource {
         Playlist.createPlaylist(playlist);
 
         // Output the playlist
-        return Response.ok()
-                .entity(Json.createObjectBuilder()
-                        .add("item", Json.createObjectBuilder()
-                                .add("id", playlist.getId())
-                                .build())
-                        .build())
-                .build();
+        return renderJson(Json.createObjectBuilder()
+                .add("item", Json.createObjectBuilder()
+                        .add("id", playlist.getId())
+                        .build()));
     }
 
     /**
@@ -154,9 +150,7 @@ public class PlaylistResource extends BaseResource {
         playlistTrackDao.insertPlaylistTrack(playlist.getId(), track.getId(), order);
 
         // Output the playlist
-        return Response.ok()
-                .entity(buildPlaylistJson(playlist))
-                .build();
+        return renderJson(buildPlaylistJson(playlist));
     }
 
     /**
@@ -213,9 +207,7 @@ public class PlaylistResource extends BaseResource {
         }
 
         // Output the playlist
-        return Response.ok()
-                .entity(buildPlaylistJson(playlist))
-                .build();
+        return renderJson(buildPlaylistJson(playlist));
     }
     
     /**
@@ -271,9 +263,7 @@ public class PlaylistResource extends BaseResource {
         }
 
         // Output the playlist
-        return Response.ok()
-                .entity(buildPlaylistJson(defaultPlaylist))
-                .build();
+        return renderJson(buildPlaylistJson(defaultPlaylist));
     }
 
     /**
@@ -316,9 +306,7 @@ public class PlaylistResource extends BaseResource {
         }
         
         // Output the playlist
-        return Response.ok()
-                .entity(buildPlaylistJson(playlist))
-                .build();
+        return renderJson(buildPlaylistJson(playlist));
     }
 
     /**
@@ -365,9 +353,7 @@ public class PlaylistResource extends BaseResource {
         playlistTrackDao.insertPlaylistTrack(playlist.getId(), trackId, newOrder);
 
         // Output the playlist
-        return Response.ok()
-                .entity(buildPlaylistJson(playlist))
-                .build();
+        return renderJson(buildPlaylistJson(playlist));
     }
 
     /**
@@ -408,9 +394,7 @@ public class PlaylistResource extends BaseResource {
         }
 
         // Output the playlist
-        return Response.ok()
-                .entity(buildPlaylistJson(playlist))
-                .build();
+        return renderJson(buildPlaylistJson(playlist));
     }
 
     /**
@@ -479,7 +463,7 @@ public class PlaylistResource extends BaseResource {
         response.add("total", paginatedList.getResultCount());
         response.add("items", items);
 
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
 
     /**
@@ -508,9 +492,7 @@ public class PlaylistResource extends BaseResource {
         notFoundIfNull(playlist, "Playlist: " + playlistId);
 
         // Output the playlist
-        return Response.ok()
-                .entity(buildPlaylistJson(playlist))
-                .build();
+        return renderJson(buildPlaylistJson(playlist));
     }
 
     /**
@@ -552,7 +534,7 @@ public class PlaylistResource extends BaseResource {
      * @param playlist Playlist
      * @return JSON
      */
-    private JsonObject buildPlaylistJson(PlaylistDto playlist) {
+    private JsonObjectBuilder buildPlaylistJson(PlaylistDto playlist) {
         JsonObjectBuilder response = Json.createObjectBuilder();
         JsonArrayBuilder tracks = Json.createArrayBuilder();
         TrackDao trackDao = new TrackDao();
@@ -584,6 +566,6 @@ public class PlaylistResource extends BaseResource {
                             .add("albumart", trackDto.getAlbumArt() != null)));
         }
         response.add("tracks", tracks);
-        return response.build();
+        return response;
     }
 }

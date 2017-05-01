@@ -102,7 +102,7 @@ public class AlbumResource extends BaseResource {
         }
         response.add("tracks", tracks);
 
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
 
     /**
@@ -172,7 +172,7 @@ public class AlbumResource extends BaseResource {
         }
 
         // Copy the remote URL to a temporary file
-        File imageFile = null;
+        File imageFile;
         try {
             imageFile = File.createTempFile("music_albumart", null);
             try (InputStream urlStream = new URL(url).openStream();
@@ -184,7 +184,7 @@ public class AlbumResource extends BaseResource {
             throw new ClientException("IOError", "Error while reading the remote URL");
         }
         
-        JsonObjectBuilder reponse = Json.createObjectBuilder().add("status", "ok");
+        JsonObjectBuilder response = Json.createObjectBuilder().add("status", "ok");
         
         // Update the album art
         final AlbumArtService albumArtService = AppContext.getInstance().getAlbumArtService();
@@ -193,7 +193,7 @@ public class AlbumResource extends BaseResource {
             albumArtService.importAlbumArt(album, imageFile, true);
         } catch (NonWritableException e) {
             // The album art could't be copied to the album folder
-            reponse.add("message", "AlbumArtNotCopied");
+            response.add("message", "AlbumArtNotCopied");
         } catch (Exception e) {
             log.error("The provided URL is not an image", e);
             throw new ClientException("ImageError", "The provided URL is not an image");
@@ -205,10 +205,7 @@ public class AlbumResource extends BaseResource {
             albumArtService.deleteAlbumArt(oldAlbumArtId);
         }
 
-        // Always return OK
-        return Response.ok()
-                .entity(reponse.build())
-                .build();
+        return renderJson(response);
     }
 
     /**
@@ -252,6 +249,6 @@ public class AlbumResource extends BaseResource {
         response.add("total", paginatedList.getResultCount());
         response.add("albums", items);
 
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
 }

@@ -130,9 +130,7 @@ public class PlayerResource extends BaseResource {
         String id = playerDao.create(player);
         
         // Return the token
-        return Response.ok()
-                .entity(Json.createObjectBuilder().add("token", id).build())
-                .build();
+        return renderJson(Json.createObjectBuilder().add("token", id));
     }
     
     /**

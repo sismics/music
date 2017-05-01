@@ -93,9 +93,7 @@ public class ImportResource extends BaseResource {
         if (version != null) {
             response.add("ffmpeg", version);
         }
-        return Response.ok()
-                .entity(response.build())
-                .build();
+        return renderJson(response);
     }
     
     /**
@@ -125,7 +123,7 @@ public class ImportResource extends BaseResource {
         }
         response.add("imports", items);
 
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
     
     /**
@@ -252,7 +250,7 @@ public class ImportResource extends BaseResource {
         }
         response.add("files", items);
         
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
     
     /**

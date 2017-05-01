@@ -169,9 +169,7 @@ public class TrackResource extends BaseResource {
                 jsonLyrics.add(lyrics);
             }
             
-            return Response.ok()
-                    .entity(Json.createObjectBuilder().add("lyrics", jsonLyrics.build()).build())
-                    .build();
+            return renderJson(Json.createObjectBuilder().add("lyrics", jsonLyrics.build()));
         } catch (IOException e) {
             throw new ServerException("LyricsError", "No lyrics for this track", e);
         }

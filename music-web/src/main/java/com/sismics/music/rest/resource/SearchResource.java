@@ -112,6 +112,6 @@ public class SearchResource extends BaseResource {
         }
         response.add("artists", artists);
         
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
 }

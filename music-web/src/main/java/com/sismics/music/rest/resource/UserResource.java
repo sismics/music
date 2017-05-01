@@ -112,11 +112,7 @@ public class UserResource extends BaseResource {
         userCreatedEvent.setUser(user);
         AppContext.getInstance().getAsyncEventBus().post(userCreatedEvent);
 
-        // Always return OK
-        JsonObject response = Json.createObjectBuilder()
-                .add("status", "ok")
-                .build();
-        return Response.ok().entity(response).build();
+        return okJson();
     }
 
     /**
@@ -170,12 +166,8 @@ public class UserResource extends BaseResource {
             passwordChangedEvent.setUser(user);
             AppContext.getInstance().getAsyncEventBus().post(passwordChangedEvent);
         }
-        
-        // Always return "ok"
-        JsonObject response = Json.createObjectBuilder()
-                .add("status", "ok")
-                .build();
-        return Response.ok().entity(response).build();
+
+        return okJson();
     }
 
     /**
@@ -264,7 +256,7 @@ public class UserResource extends BaseResource {
             response.add("status", "ok");
         }
         
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
 
     /**
@@ -379,12 +371,8 @@ public class UserResource extends BaseResource {
         // Delete the user
         UserDao userDao = new UserDao();
         userDao.delete(principal.getName());
-        
-        // Always return ok
-        JsonObject response = Json.createObjectBuilder()
-                .add("status", "ok")
-                .build();
-        return Response.ok().entity(response).build();
+
+        return okJson();
     }
     
     /**
@@ -462,7 +450,7 @@ public class UserResource extends BaseResource {
                     .add("is_default_password", hasBaseFunction(BaseFunction.ADMIN) && Constants.DEFAULT_ADMIN_PASSWORD.equals(user.getPassword()));
         }
         
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
 
     /**
@@ -491,7 +479,7 @@ public class UserResource extends BaseResource {
                 .add("email", user.getEmail())
                 .add("locale", user.getLocaleId());
         
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
     
     /**
@@ -533,7 +521,7 @@ public class UserResource extends BaseResource {
         response.add("total", paginatedList.getResultCount());
         response.add("users", users);
         
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
 
     /**
@@ -608,7 +596,7 @@ public class UserResource extends BaseResource {
             response.add("status", "not_connected");
         }
 
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
     
     /**

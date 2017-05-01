@@ -51,7 +51,7 @@ public class AppResource extends BaseResource {
                 .add("min_version", minVersion)
                 .add("total_memory", Runtime.getRuntime().totalMemory())
                 .add("free_memory", Runtime.getRuntime().freeMemory());
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
     
     /**
@@ -105,7 +105,7 @@ public class AppResource extends BaseResource {
         response.add("total", paginatedList.getResultCount());
         response.add("logs", logs);
         
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
     
     /**
@@ -154,7 +154,6 @@ public class AppResource extends BaseResource {
      * Start the DB console.
      *
      * @return Response
-     * @throws Exception
      */
     @GET
     @Path("db")

@@ -1,6 +1,7 @@
 package com.sismics.music.rest.resource;
 
-import java.util.List;
+import com.sismics.music.core.dao.dbi.LocaleDao;
+import com.sismics.music.core.model.dbi.Locale;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -8,9 +9,7 @@ import javax.json.JsonObjectBuilder;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
-
-import com.sismics.music.core.dao.dbi.LocaleDao;
-import com.sismics.music.core.model.dbi.Locale;
+import java.util.List;
 
 /**
  * Locale REST resources.
@@ -35,6 +34,6 @@ public class LocaleResource extends BaseResource {
                     .add("id", locale.getId()));
         }
         response.add("locales", items);
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
 }

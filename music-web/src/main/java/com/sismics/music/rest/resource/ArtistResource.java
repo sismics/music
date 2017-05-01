@@ -79,7 +79,7 @@ public class ArtistResource extends BaseResource {
         response.add("total", paginatedList.getResultCount());
         response.add("artists", items);
 
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
     
     /**
@@ -158,7 +158,7 @@ public class ArtistResource extends BaseResource {
         }
         response.add("tracks", tracks);
 
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
     
     /**

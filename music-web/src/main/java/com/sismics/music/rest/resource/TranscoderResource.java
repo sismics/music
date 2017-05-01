@@ -170,6 +170,6 @@ public class TranscoderResource extends BaseResource {
         }
         response.add("transcoders", items);
 
-        return Response.ok().entity(response.build()).build();
+        return renderJson(response);
     }
 }
