@@ -18,21 +18,15 @@ import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.model.dbi.User;
 import com.sismics.music.core.util.ConfigUtil;
 import com.sismics.music.core.util.TransactionUtil;
-import com.sismics.util.LastFmUtil;
-import de.umass.lastfm.Authenticator;
-import de.umass.lastfm.PaginatedResult;
-import de.umass.lastfm.Result;
-import de.umass.lastfm.Session;
+import com.sismics.util.lastfm.LastFmUtil;
+import de.umass.lastfm.*;
 import de.umass.lastfm.scrobble.ScrobbleData;
 import de.umass.lastfm.scrobble.ScrobbleResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -45,17 +39,6 @@ public class LastFmService extends AbstractScheduledService {
      * Logger.
      */
     private static final Logger log = LoggerFactory.getLogger(LastFmService.class);
-
-    public LastFmService() {
-    }
-
-    @Override
-    protected void startUp() {
-    }
-
-    @Override
-    protected void shutDown() {
-    }
 
     @Override
     protected void runOneIteration() throws Exception {
@@ -88,8 +71,8 @@ public class LastFmService extends AbstractScheduledService {
     public Session createSession(String lastFmUsername, String lastFmPassword) {
         String key = ConfigUtil.getConfigStringValue(ConfigType.LAST_FM_API_KEY);
         String secret = ConfigUtil.getConfigStringValue(ConfigType.LAST_FM_API_SECRET);
-        Session session = Authenticator.getMobileSession(lastFmUsername, lastFmPassword, key, secret);
-        return session;
+
+        return Authenticator.getMobileSession(lastFmUsername, lastFmPassword, key, secret);
     }
 
     /**
@@ -101,6 +84,7 @@ public class LastFmService extends AbstractScheduledService {
     public Session restoreSession(User user) {
         String key = ConfigUtil.getConfigStringValue(ConfigType.LAST_FM_API_KEY);
         String secret = ConfigUtil.getConfigStringValue(ConfigType.LAST_FM_API_SECRET);
+
         return Session.createSession(key, secret, user.getLastFmSessionToken());
     }
 
@@ -246,7 +230,7 @@ public class LastFmService extends AbstractScheduledService {
         int page = 1;
         int lastFmCount = 0;
         int localCount = 0;
-        PaginatedResult<de.umass.lastfm.Track> result = null;
+        PaginatedResult<de.umass.lastfm.Track> result;
         do {
             log.info(MessageFormat.format("Getting page {0} of Last.fm user library", page - 1));
             result = LastFmUtil.getAllTracks(lastFmUser.getName(), page, 1000, session.getApiKey());
@@ -307,5 +291,15 @@ public class LastFmService extends AbstractScheduledService {
         } while (result != null && page <= result.getTotalPages());
 
         log.info(MessageFormat.format("Retrieved {0} loved tracks from Last.fm, imported {1} into the local collection", lastFmCount, localCount));
+    }
+
+    /**
+     * Search album arts.
+     *
+     * @param query The query
+     * @return The albums
+     */
+    public Collection<Album> searchAlbumArt(String query) {
+        return Album.search(query, ConfigUtil.getConfigStringValue(ConfigType.LAST_FM_API_KEY));
     }
 }

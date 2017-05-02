@@ -1,4 +1,4 @@
-package com.sismics.util;
+package com.sismics.util.lastfm;
 
 import de.umass.lastfm.*;
 

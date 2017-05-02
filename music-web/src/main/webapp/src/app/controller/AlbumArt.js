@@ -12,13 +12,10 @@ angular.module('music').controller('AlbumArt', function($scope, $stateParams, $s
 
   // Search with an external API
   $scope.apiSearch = function() {
-    $http({
-      method: 'JSONP',
-      url: 'https://ajax.googleapis.com/ajax/services/search/images?v=1.0&rsz=8&q=' + $scope.query + '&callback=JSON_CALLBACK'
-    })
-        .success(function(data) {
-          $scope.results = data.responseData.results;
-        });
+    Restangular.one('albumart').one('search').get({query: $scope.query})
+      .then(function (data) {
+        $scope.results = data.albumArts;
+      });
   };
 
   // Select a search result
