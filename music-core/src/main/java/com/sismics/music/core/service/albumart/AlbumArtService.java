@@ -1,19 +1,18 @@
 package com.sismics.music.core.service.albumart;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.util.concurrent.AbstractService;
 import com.sismics.music.core.exception.NonWritableException;
 import com.sismics.music.core.model.dbi.Album;
 import com.sismics.music.core.util.DirectoryUtil;
 import com.sismics.music.core.util.ImageUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 /**
  * Album art service.
@@ -33,7 +32,6 @@ public class AlbumArtService  {
      * @param album Album
      * @param originalFile File to import
      * @param copyOriginal If true, copy the original file to the album directory
-     * @throws Exception
      */
     public void importAlbumArt(Album album, File originalFile, boolean copyOriginal) throws Exception {
         ImageUtil.FileType fileType = ImageUtil.getFileFormat(originalFile);
@@ -68,7 +66,6 @@ public class AlbumArtService  {
      * @param id ID of the album art
      * @param originalImage Original image
      * @param albumArtSize Album art size
-     * @throws Exception
      */
     protected void importAlbumArt(String id, BufferedImage originalImage, AlbumArtSize albumArtSize) throws Exception {
         String albumArtFileName = getAlbumArtFileName(id, albumArtSize);

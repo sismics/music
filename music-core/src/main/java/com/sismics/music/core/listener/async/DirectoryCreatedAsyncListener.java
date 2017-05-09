@@ -27,7 +27,6 @@ public class DirectoryCreatedAsyncListener {
      * Process the event.
      *
      * @param directoryCreatedAsyncEvent New directory created event
-     * @throws Exception
      */
     @Subscribe
     public void onDirectoryCreated(final DirectoryCreatedAsyncEvent directoryCreatedAsyncEvent) throws Exception {
@@ -38,19 +37,16 @@ public class DirectoryCreatedAsyncListener {
 
         final Directory directory = directoryCreatedAsyncEvent.getDirectory();
 
-        TransactionUtil.handle(new Runnable() {
-            @Override
-            public void run() {
-                // Index new directory
-                CollectionService collectionService = AppContext.getInstance().getCollectionService();
-                collectionService.addDirectoryToIndex(directory);
+        TransactionUtil.handle(() -> {
+            // Index new directory
+            CollectionService collectionService = AppContext.getInstance().getCollectionService();
+            collectionService.addDirectoryToIndex(directory);
 
-                // Watch new directory
-                AppContext.getInstance().getCollectionWatchService().watchDirectory(directory);
-                
-                // Update the scores
-                collectionService.updateScore();
-            }
+            // Watch new directory
+            AppContext.getInstance().getCollectionWatchService().watchDirectory(directory);
+
+            // Update the scores
+            collectionService.updateScore();
         });
 
         if (log.isInfoEnabled()) {

@@ -26,7 +26,6 @@ public class CollectionReindexAsyncListener {
      * Process the event.
      *
      * @param collectionReindexAsyncEvent Collection reindex event
-     * @throws Exception
      */
     @Subscribe
     public void onCollectionReindex(final CollectionReindexAsyncEvent collectionReindexAsyncEvent) throws Exception {
@@ -35,16 +34,13 @@ public class CollectionReindexAsyncListener {
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        TransactionUtil.handle(new Runnable() {
-            @Override
-            public void run() {
-                // Reindex the whole collection
-                CollectionService collectionService = AppContext.getInstance().getCollectionService();
-                collectionService.reindex();
+        TransactionUtil.handle(() -> {
+            // Reindex the whole collection
+            CollectionService collectionService = AppContext.getInstance().getCollectionService();
+            collectionService.reindex();
 
-                // Update the scores
-                collectionService.updateScore();
-            }
+            // Update the scores
+            collectionService.updateScore();
         });
 
         if (log.isInfoEnabled()) {

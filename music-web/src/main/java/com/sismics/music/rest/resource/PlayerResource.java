@@ -89,8 +89,8 @@ public class PlayerResource extends BaseResource {
         // Scrobble tracks on Last.fm
         final TrackDao trackDao = new TrackDao();
         final UserTrackDao userTrackDao = new UserTrackDao();
-        List<Track> trackList = new ArrayList<Track>();
-        List<Date> dateList = new ArrayList<Date>();
+        List<Track> trackList = new ArrayList<>();
+        List<Date> dateList = new ArrayList<>();
         for (int i = 0; i < idList.size(); i++) {
             Track track = trackDao.getActiveById(idList.get(i));
             if (track != null) {

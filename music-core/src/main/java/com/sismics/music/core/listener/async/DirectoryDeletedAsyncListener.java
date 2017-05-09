@@ -27,7 +27,6 @@ public class DirectoryDeletedAsyncListener {
      * Process the event.
      *
      * @param directoryDeletedAsyncEvent New directory deleted event
-     * @throws Exception
      */
     @Subscribe
     public void onDirectoryDeleted(final DirectoryDeletedAsyncEvent directoryDeletedAsyncEvent) throws Exception {
@@ -38,16 +37,13 @@ public class DirectoryDeletedAsyncListener {
 
         final Directory directory = directoryDeletedAsyncEvent.getDirectory();
 
-        TransactionUtil.handle(new Runnable() {
-            @Override
-            public void run() {
-                // Stop watching the directory
-                AppContext.getInstance().getCollectionWatchService().unwatchDirectory(directory);
-                
-                // Remove directory from index
-                CollectionService collectionService = AppContext.getInstance().getCollectionService();
-                collectionService.removeDirectoryFromIndex(directory);
-            }
+        TransactionUtil.handle(() -> {
+            // Stop watching the directory
+            AppContext.getInstance().getCollectionWatchService().unwatchDirectory(directory);
+
+            // Remove directory from index
+            CollectionService collectionService = AppContext.getInstance().getCollectionService();
+            collectionService.removeDirectoryFromIndex(directory);
         });
 
         if (log.isInfoEnabled()) {

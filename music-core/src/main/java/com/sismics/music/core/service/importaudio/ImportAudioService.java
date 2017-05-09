@@ -270,7 +270,6 @@ public class ImportAudioService extends AbstractExecutionThreadService {
      * Retry a failed import from an external source.
      * 
      * @param id ID
-     * @throws Exception 
      */
     public void retryImportAudio(String id) throws Exception {
         synchronized (importAudioList) {
@@ -297,7 +296,6 @@ public class ImportAudioService extends AbstractExecutionThreadService {
      * Kill an in progess import from an external source.
      * 
      * @param id ID
-     * @throws Exception 
      */
     public void killImportAudio(String id) throws Exception {
         synchronized (importAudioList) {
@@ -320,7 +318,6 @@ public class ImportAudioService extends AbstractExecutionThreadService {
      * Import a file. ZIP or single track are accepted.
      * 
      * @param file File
-     * @throws Exception 
      */
     public void importFile(File file) throws Exception {
         String mimeType = MimeTypeUtil.guessMimeType(file);
@@ -361,12 +358,9 @@ public class ImportAudioService extends AbstractExecutionThreadService {
      */
     public List<File> getImportedFileList() {
         // Grab all audio files
-        List<File> fileList = Lists.newArrayList(DirectoryUtil.getImportAudioDirectory().listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String fileName) {
-                String extension = Files.getFileExtension(fileName);
-                return Constants.SUPPORTED_AUDIO_EXTENSIONS.contains(extension);
-            }
+        List<File> fileList = Lists.newArrayList(DirectoryUtil.getImportAudioDirectory().listFiles((dir, fileName) -> {
+            String extension = Files.getFileExtension(fileName);
+            return Constants.SUPPORTED_AUDIO_EXTENSIONS.contains(extension);
         }));
         
         // Exclude working files
@@ -394,62 +388,58 @@ public class ImportAudioService extends AbstractExecutionThreadService {
      * @param artist Artist
      * @param albumArtist Album artist
      * @param directory Directory
-     * @throws Exception
      */
     public void tagFile(final String fileName, final Integer order, final String title, final String album, final String artist,
             final String albumArtist, final Directory directory) throws Exception {
-        syncExecutor.submit(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                // Retrieve the file from imported files
-                List<File> importedFileList = AppContext.getInstance().getImportAudioService().getImportedFileList();
-                File file = null;
-                for (File importedFile : importedFileList) {
-                    if (importedFile.getName().equals(fileName)) {
-                        file = importedFile;
-                        break;
-                    }
+        syncExecutor.submit((Callable<Void>) () -> {
+            // Retrieve the file from imported files
+            List<File> importedFileList = AppContext.getInstance().getImportAudioService().getImportedFileList();
+            File file = null;
+            for (File importedFile : importedFileList) {
+                if (importedFile.getName().equals(fileName)) {
+                    file = importedFile;
+                    break;
                 }
-                
-                if (file == null) {
-                    throw new Exception("File not found: " + fileName);
-                }
-                
-                // Tag the file
-                try {
-                    AudioFile audioFile = AudioFileIO.read(file);
-                    Tag tag = audioFile.getTagOrCreateAndSetDefault();
-                    if (order == null) {
-                        tag.deleteField(FieldKey.TRACK);
-                    } else {
-                        tag.setField(FieldKey.TRACK, order.toString());
-                    }
-                    tag.setField(FieldKey.TITLE, title);
-                    tag.setField(FieldKey.ALBUM, album);
-                    tag.setField(FieldKey.ARTIST, artist);
-                    tag.setField(FieldKey.ALBUM_ARTIST, albumArtist);
-                    AudioFileIO.write(audioFile);
-                } catch (Exception e) {
-                    throw new Exception("Error tagging the file", e);
-                }
-                
-                // Create album directory
-                String albumDirectory = FilenameUtil.cleanFileName(albumArtist) + " - " + FilenameUtil.cleanFileName(album);
-                Paths.get(directory.getLocation(), albumDirectory).toFile().mkdirs();
-                
-                // Move the file to the right place and let to collection watch service index it
-                String extension = Files.getFileExtension(fileName);
-                Path path = Paths.get(directory.getLocation(),
-                        albumDirectory,
-                        FilenameUtil.cleanFileName(title) + "." + extension);
-                try {
-                    Files.move(file, path.toFile());
-                } catch (IOException e) {
-                    throw new Exception("Cannot move the imported file to the music directory", e);
-                }
-                
-                return null;
             }
+
+            if (file == null) {
+                throw new Exception("File not found: " + fileName);
+            }
+
+            // Tag the file
+            try {
+                AudioFile audioFile = AudioFileIO.read(file);
+                Tag tag = audioFile.getTagOrCreateAndSetDefault();
+                if (order == null) {
+                    tag.deleteField(FieldKey.TRACK);
+                } else {
+                    tag.setField(FieldKey.TRACK, order.toString());
+                }
+                tag.setField(FieldKey.TITLE, title);
+                tag.setField(FieldKey.ALBUM, album);
+                tag.setField(FieldKey.ARTIST, artist);
+                tag.setField(FieldKey.ALBUM_ARTIST, albumArtist);
+                AudioFileIO.write(audioFile);
+            } catch (Exception e) {
+                throw new Exception("Error tagging the file", e);
+            }
+
+            // Create album directory
+            String albumDirectory = FilenameUtil.cleanFileName(albumArtist) + " - " + FilenameUtil.cleanFileName(album);
+            Paths.get(directory.getLocation(), albumDirectory).toFile().mkdirs();
+
+            // Move the file to the right place and let to collection watch service index it
+            String extension = Files.getFileExtension(fileName);
+            Path path = Paths.get(directory.getLocation(),
+                    albumDirectory,
+                    FilenameUtil.cleanFileName(title) + "." + extension);
+            try {
+                Files.move(file, path.toFile());
+            } catch (IOException e) {
+                throw new Exception("Cannot move the imported file to the music directory", e);
+            }
+
+            return null;
         }).get();
     }
 }

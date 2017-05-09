@@ -26,7 +26,6 @@ public class Validation {
      * 
      * @param s Object tu validate
      * @param name Name of the parameter
-     * @throws ClientException
      */
     public static void required(Object s, String name) throws ClientException {
         if (s == null) {
@@ -43,7 +42,6 @@ public class Validation {
      * @param lengthMax Maximum length (or null)
      * @param nullable True if the string can be empty or null
      * @return String without white spaces
-     * @throws ClientException
      */
     public static String length(String s, String name, Integer lengthMin, Integer lengthMax, boolean nullable) throws ClientException {
         s = StringUtils.strip(s);
@@ -70,7 +68,6 @@ public class Validation {
      * @param lengthMin Minimum length (or null)
      * @param lengthMax Maximum length (or null)
      * @return String without white spaces
-     * @throws ClientException
      */
     public static String length(String s, String name, Integer lengthMin, Integer lengthMax) throws ClientException {
         return length(s, name, lengthMin, lengthMax, false);
@@ -81,7 +78,6 @@ public class Validation {
      * 
      * @param s String to validate
      * @param name Name of the parameter
-     * @throws ClientException
      */
     public static void email(String s, String name) throws ClientException {
         if (!EMAIL_PATTERN.matcher(s).matches()) {
@@ -95,7 +91,6 @@ public class Validation {
      * @param s String to validate
      * @param name Name of the parameter
      * @return Stripped URL
-     * @throws ClientException
      */
     public static String httpUrl(String s, String name) throws ClientException {
         s = StringUtils.strip(s);
@@ -110,7 +105,6 @@ public class Validation {
      * 
      * @param s String to validate
      * @param name Name of the parameter
-     * @throws ClientException
      */
     public static void alphanumeric(String s, String name) throws ClientException {
         if (!ALPHANUMERIC_PATTERN.matcher(s).matches()) {
@@ -124,7 +118,6 @@ public class Validation {
      * @param s String to validate
      * @param name Name of the parameter
      * @return Parsed number
-     * @throws ClientException
      */
     public static Integer integer(String s, String name) throws ClientException {
         try {
@@ -141,7 +134,6 @@ public class Validation {
      * @param name Name of the parameter
      * @param nullable True if the string can be empty or null
      * @return Parsed date
-     * @throws ClientException
      */
     public static Date date(String s, String name, boolean nullable) throws ClientException {
         if (Strings.isNullOrEmpty(s)) {

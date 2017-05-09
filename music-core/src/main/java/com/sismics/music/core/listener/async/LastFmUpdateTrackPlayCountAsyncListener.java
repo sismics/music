@@ -27,7 +27,6 @@ public class LastFmUpdateTrackPlayCountAsyncListener {
      * Process the event.
      *
      * @param lastFmUpdateTrackPlayCountAsyncEvent Update track play count event
-     * @throws Exception
      */
     @Subscribe
     public void onLastFmUpdateTrackPlayCount(final LastFmUpdateTrackPlayCountAsyncEvent lastFmUpdateTrackPlayCountAsyncEvent) throws Exception {
@@ -38,12 +37,9 @@ public class LastFmUpdateTrackPlayCountAsyncListener {
 
         final User user = lastFmUpdateTrackPlayCountAsyncEvent.getUser();
 
-        TransactionUtil.handle(new Runnable() {
-            @Override
-            public void run() {
-                final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
-                lastFmService.importTrackPlayCount(user);
-            }
+        TransactionUtil.handle(() -> {
+            final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
+            lastFmService.importTrackPlayCount(user);
         });
 
         if (log.isInfoEnabled()) {

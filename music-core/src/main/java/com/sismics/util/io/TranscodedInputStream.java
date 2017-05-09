@@ -1,10 +1,10 @@
 package com.sismics.util.io;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Input stream that transcodes on the fly.
@@ -30,7 +30,6 @@ public class TranscodedInputStream extends InputStream {
      *
      * @param processBuilder Builder to create the transcoder process
      * @param fileSize Expected transcoded file size
-     * @throws IOException
      */
     public TranscodedInputStream(ProcessBuilder processBuilder, int fileSize) throws IOException {
         if (log.isDebugEnabled()) {

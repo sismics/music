@@ -1,32 +1,5 @@
 package com.sismics.music.core.service.collection;
 
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-
-import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitOption;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.sismics.music.core.constant.Constants;
@@ -38,6 +11,17 @@ import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Directory;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.util.TransactionUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.*;
+import java.util.Map.Entry;
+
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 
 /**
  * Collection watch service.
@@ -70,23 +54,20 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
 
     @Override
     protected void startUp() {
-        TransactionUtil.handle(new Runnable() {
-            @Override
-            public void run() {
-                // Create a NIO watch service
-                try {
-                    watchService = FileSystems.getDefault().newWatchService();
-                } catch (IOException e) {
-                    log.error("Cannot create a NIO watch service", e);
-                    stopAsync();
-                }
-                
-                // Start watching all directories
-                DirectoryDao directoryDao = new DirectoryDao();
-                List<Directory> directoryList = directoryDao.findAllEnabled();
-                for (Directory directory : directoryList) {
-                    watchDirectory(directory);
-                }
+        TransactionUtil.handle(() -> {
+            // Create a NIO watch service
+            try {
+                watchService = FileSystems.getDefault().newWatchService();
+            } catch (IOException e) {
+                log.error("Cannot create a NIO watch service", e);
+                stopAsync();
+            }
+
+            // Start watching all directories
+            DirectoryDao directoryDao = new DirectoryDao();
+            List<Directory> directoryList = directoryDao.findAllEnabled();
+            for (Directory directory : directoryList) {
+                watchDirectory(directory);
             }
         });
     }
@@ -195,7 +176,6 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
      * Watch a new path.
      * 
      * @param path Path
-     * @throws IOException
      */
     private void watchPath(Path path) throws IOException {
         watchKeyMap.put(path.register(watchService, ENTRY_CREATE, ENTRY_DELETE), path);
@@ -206,7 +186,6 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
      * 
      * @param directory Directory
      * @param file File
-     * @throws Exception
      */
     private void indexNewFile(final Directory directory, final Path file) {
         // Validate the file for indexing
@@ -233,12 +212,7 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
         } while(isGrowing);
         
         // Add the audio file to the index
-        TransactionUtil.handle(new Runnable() {
-            @Override
-            public void run() {
-                AppContext.getInstance().getCollectionService().indexFile(directory, file);
-            }
-        });
+        TransactionUtil.handle(() -> AppContext.getInstance().getCollectionService().indexFile(directory, file));
     }
     
     /**
@@ -246,7 +220,6 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
      * 
      * @param directory Directory
      * @param path Path to folder
-     * @throws IOException
      */
     private void indexFolder(final Directory directory, final Path path) throws IOException {
         Files.walkFileTree(path, EnumSet.noneOf(FileVisitOption.class), 1, new SimpleFileVisitor<Path>() {
@@ -272,16 +245,13 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
      * @param path File
      */
     private void pathRemoved(final Directory directory, final Path path) {
-        TransactionUtil.handle(new Runnable() {
-            @Override
-            public void run() {
-                // Search all tracks included in the deleted path and remove them
-                TrackDao trackDao = new TrackDao();
-                List<Track> trackList = trackDao.getActiveByDirectoryInLocation(directory.getId(), path.toAbsolutePath().toString());
-                log.info("Path removed, deleting all related tracks (" + trackList.size() + "): " + path);
-                for (Track track : trackList) {
-                    trackDao.delete(track.getId());
-                }
+        TransactionUtil.handle(() -> {
+            // Search all tracks included in the deleted path and remove them
+            TrackDao trackDao = new TrackDao();
+            List<Track> trackList = trackDao.getActiveByDirectoryInLocation(directory.getId(), path.toAbsolutePath().toString());
+            log.info("Path removed, deleting all related tracks (" + trackList.size() + "): " + path);
+            for (Track track : trackList) {
+                trackDao.delete(track.getId());
             }
         });
     }
@@ -308,17 +278,14 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
      * Cleanup empty albums and artists.
      */
     private void cleanupOrphans() {
-        TransactionUtil.handle(new Runnable() {
-            @Override
-            public void run() {
-                // Cleanup empty albums
-                AlbumDao albumDao = new AlbumDao();
-                albumDao.deleteEmptyAlbum();
-                
-                // Delete all artists that don't have any album or track
-                ArtistDao artistDao = new ArtistDao();
-                artistDao.deleteEmptyArtist();
-            }
+        TransactionUtil.handle(() -> {
+            // Cleanup empty albums
+            AlbumDao albumDao = new AlbumDao();
+            albumDao.deleteEmptyAlbum();
+
+            // Delete all artists that don't have any album or track
+            ArtistDao artistDao = new ArtistDao();
+            artistDao.deleteEmptyArtist();
         });
     }
 }

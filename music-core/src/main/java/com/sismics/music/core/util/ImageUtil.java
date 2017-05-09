@@ -1,31 +1,20 @@
 package com.sismics.music.core.util;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferInt;
-import java.awt.image.DirectColorModel;
-import java.awt.image.PixelGrabber;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
+import org.imgscalr.Scalr;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
-
-import org.imgscalr.Scalr;
+import java.awt.*;
+import java.awt.image.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Utility class to manage image files.
@@ -55,7 +44,6 @@ public class ImageUtil {
      * 
      * @param file Image file
      * @return File twpe
-     * @throws Exception
      */
     public static FileType getFileFormat(File file) throws Exception {
         // Load the file header
@@ -96,7 +84,6 @@ public class ImageUtil {
      * @param originalImage Image to resize
      * @param resizedImageMaxSize Target size
      * @return Resized image
-     * @throws Exception
      */
     public static BufferedImage resizeImage(BufferedImage originalImage, int resizedImageMaxSize) throws Exception {
         return resizeImage(originalImage, resizedImageMaxSize, null, null, null, null, 0);
@@ -112,7 +99,6 @@ public class ImageUtil {
      * @param w Width of the cropped image
      * @param h Height of the cropped image
      * @return Resized image
-     * @throws Exception
      */
     public static BufferedImage resizeImage(BufferedImage originalImage, Integer resizedImageMaxSize,
             Integer x, Integer y, Integer w, Integer h) throws Exception {
@@ -130,7 +116,6 @@ public class ImageUtil {
      * @param h Height of the cropped image
      * @param orientation Orientation in the EXIF format
      * @return Resized image
-     * @throws Exception
      */
     public static BufferedImage resizeImage(BufferedImage originalImage, Integer resizedImageMaxSize,
             Integer x, Integer y, Integer w, Integer h, int orientation) throws Exception {
@@ -167,7 +152,6 @@ public class ImageUtil {
      * 
      * @param image Image to convert
      * @param file Output file
-     * @throws java.io.IOException
      */
     public static void writeJpeg(BufferedImage image, File file) throws IOException {
         Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
@@ -200,7 +184,6 @@ public class ImageUtil {
      * Read an image and remove the alpha channel.
      * @param file Image file
      * @return Image without alpha channel
-     * @throws Exception 
      */
     public static BufferedImage readImageWithoutAlphaChannel(File file) throws Exception {
         Image img = Toolkit.getDefaultToolkit().createImage(file.getAbsolutePath());
@@ -217,7 +200,6 @@ public class ImageUtil {
      * @param imageList List of images
      * @param size Final size
      * @return Mosaic
-     * @throws Exception
      */
     public static BufferedImage makeMosaic(List<BufferedImage> imageList, int size) throws Exception {
         if (imageList.size() == 0) {

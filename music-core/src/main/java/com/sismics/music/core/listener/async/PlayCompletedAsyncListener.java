@@ -27,7 +27,6 @@ public class PlayCompletedAsyncListener {
      * Process the event.
      *
      * @param playCompletedEvent Play completed event
-     * @throws Exception
      */
     @Subscribe
     public void onPlayCompleted(final PlayCompletedEvent playCompletedEvent) throws Exception {
@@ -38,18 +37,15 @@ public class PlayCompletedAsyncListener {
         final String userId = playCompletedEvent.getUserId();
         final Track track = playCompletedEvent.getTrack();
 
-        TransactionUtil.handle(new Runnable() {
-            @Override
-            public void run() {
-                // Increment the play count
-                UserTrackDao userTrackDao = new UserTrackDao();
-                userTrackDao.incrementPlayCount(userId, track.getId());
+        TransactionUtil.handle(() -> {
+            // Increment the play count
+            UserTrackDao userTrackDao = new UserTrackDao();
+            userTrackDao.incrementPlayCount(userId, track.getId());
 
-                final User user = new UserDao().getActiveById(userId);
-                if (user != null && user.getLastFmSessionToken() != null) {
-                    final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
-                    lastFmService.scrobbleTrack(user, track);
-                }
+            final User user = new UserDao().getActiveById(userId);
+            if (user != null && user.getLastFmSessionToken() != null) {
+                final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
+                lastFmService.scrobbleTrack(user, track);
             }
         });
     }

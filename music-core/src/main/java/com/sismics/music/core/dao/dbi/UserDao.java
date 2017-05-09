@@ -64,7 +64,6 @@ public class UserDao extends BaseDao<UserDto, UserCriteria> {
      * 
      * @param user User to create
      * @return User ID
-     * @throws Exception
      */
     public String create(User user) throws Exception {
         // Init user data

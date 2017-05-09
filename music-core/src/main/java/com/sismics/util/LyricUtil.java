@@ -1,15 +1,14 @@
 package com.sismics.util;
 
+import com.google.common.collect.Lists;
+import org.apache.commons.lang.WordUtils;
+
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang.WordUtils;
-
-import com.google.common.collect.Lists;
 
 /**
  * Lyrics utilities.
@@ -38,7 +37,6 @@ public class LyricUtil {
      * @param artist Artist
      * @param title Title
      * @return Lyrics
-     * @throws IOException
      */
     public static List<String> getLyrics(String artist, String title) throws IOException {
         if (artist == null || title == null) {
@@ -79,7 +77,6 @@ public class LyricUtil {
      * 
      * @param s Input
      * @return Encoded string
-     * @throws IOException
      */
     private static String wikiStyle(String s) throws IOException {
         s = WordUtils.capitalize(s);

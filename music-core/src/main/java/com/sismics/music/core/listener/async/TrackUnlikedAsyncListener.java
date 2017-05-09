@@ -28,7 +28,6 @@ public class TrackUnlikedAsyncListener {
      * Process the event.
      *
      * @param trackUnlikedAsyncEvent New directory created event
-     * @throws Exception
      */
     @Subscribe
     public void onTrackLiked(final TrackUnlikedAsyncEvent trackUnlikedAsyncEvent) throws Exception {
@@ -40,14 +39,11 @@ public class TrackUnlikedAsyncListener {
         final User user = trackUnlikedAsyncEvent.getUser();
         final Track track = trackUnlikedAsyncEvent.getTrack();
 
-        TransactionUtil.handle(new Runnable() {
-            @Override
-            public void run() {
-            if (user.getLastFmSessionToken() != null) {
-                final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
-                lastFmService.unloveTrack(user, track);
-            }
-            }
+        TransactionUtil.handle(() -> {
+        if (user.getLastFmSessionToken() != null) {
+            final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
+            lastFmService.unloveTrack(user, track);
+        }
         });
 
         if (log.isInfoEnabled()) {

@@ -61,12 +61,7 @@ public class CollectionService extends AbstractScheduledService {
 
     @Override
     protected void runOneIteration() throws Exception {
-        TransactionUtil.handle(new Runnable() {
-            @Override
-            public void run() {
-                reindex();
-            }
-        });
+        TransactionUtil.handle(() -> reindex());
     }
 
     @Override

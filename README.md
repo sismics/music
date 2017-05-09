@@ -35,7 +35,7 @@ Translations
 How to build Music from the sources
 ------------------------------------
 
-Prerequisites: JDK 7, Maven 3, NPM
+Prerequisites: JDK 8, Maven 3, NPM
 
 Music is organized in several Maven modules:
 

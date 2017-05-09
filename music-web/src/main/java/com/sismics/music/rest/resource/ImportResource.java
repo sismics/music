@@ -20,7 +20,6 @@ import javax.json.JsonObjectBuilder;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -226,7 +225,7 @@ public class ImportResource extends BaseResource {
         }
         
         List<File> importedFileList = AppContext.getInstance().getImportAudioService().getImportedFileList();
-        Collections.sort(importedFileList, new LastModifiedFileComparator());
+        importedFileList.sort(new LastModifiedFileComparator());
         
         JsonObjectBuilder response = Json.createObjectBuilder();
         JsonArrayBuilder items = Json.createArrayBuilder();

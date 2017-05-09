@@ -84,6 +84,10 @@ public abstract class BaseJerseyTest extends JerseyTest {
         return UriBuilder.fromUri(super.getBaseUri()).path("music").build();
     }
     
+    protected String getFakeHttpUri() {
+        return "http://localhost:" + getPort() + "/fakehttp";
+    }
+
     @Override
     @Before
     public void setUp() throws Exception {
@@ -130,8 +134,6 @@ public abstract class BaseJerseyTest extends JerseyTest {
      * Extracts an email from the queue and consumes the email.
      * 
      * @return Text of the email
-     * @throws MessagingException
-     * @throws IOException
      */
     protected String popEmail() throws MessagingException, IOException {
         List<WiserMessage> wiserMessageList = wiser.getMessages();
@@ -153,8 +155,6 @@ public abstract class BaseJerseyTest extends JerseyTest {
      * 
      * @param input String to encode
      * @return Encoded string
-     * @throws MessagingException
-     * @throws IOException
      */
     protected String encodeQuotedPrintable(String input) throws MessagingException, IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

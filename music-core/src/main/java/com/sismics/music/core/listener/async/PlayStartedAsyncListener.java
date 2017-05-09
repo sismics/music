@@ -26,7 +26,6 @@ public class PlayStartedAsyncListener {
      * Process the event.
      *
      * @param playStartedEvent Play started event
-     * @throws Exception
      */
     @Subscribe
     public void onPlayStarted(final PlayStartedEvent playStartedEvent) throws Exception {
@@ -37,14 +36,11 @@ public class PlayStartedAsyncListener {
         final String userId = playStartedEvent.getUserId();
         final Track track = playStartedEvent.getTrack();
 
-        TransactionUtil.handle(new Runnable() {
-            @Override
-            public void run() {
-                final User user = new UserDao().getActiveById(userId);
-                if (user != null && user.getLastFmSessionToken() != null) {
-                    final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
-                    lastFmService.nowPlayingTrack(user, track);
-                }
+        TransactionUtil.handle(() -> {
+            final User user = new UserDao().getActiveById(userId);
+            if (user != null && user.getLastFmSessionToken() != null) {
+                final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
+                lastFmService.nowPlayingTrack(user, track);
             }
         });
     }

@@ -1,10 +1,10 @@
 package com.sismics.music.core.service.importaudio;
 
-import java.util.List;
-import java.util.UUID;
-
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
+
+import java.util.List;
+import java.util.UUID;
 
 /**
  * An audio import in progress.
@@ -233,7 +233,7 @@ public class ImportAudio {
     /**
      * Add a working file.
      *
-     * @param workingFiles workingFiles
+     * @param workingFile workingFiles
      */
     public void addWorkingFiles(String workingFile) {
         this.workingFiles.add(workingFile);

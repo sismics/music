@@ -158,7 +158,7 @@ public class TestAlbumResource extends BaseMusicTest {
         assertIsNotFound();
 
         // Update an album art
-        POST("/album/" + album0Id + "/albumart/fromurl", ImmutableMap.of("url", "http://lorempixel.com/200/200/"));
+        POST("/album/" + album0Id + "/albumart/fromurl", ImmutableMap.of("url", getFakeHttpUri() + "/lorempixel/200x200.jpg"));
         assertIsOk();
         json = getJsonResult();
         assertNull(json.get("message"));
@@ -175,7 +175,7 @@ public class TestAlbumResource extends BaseMusicTest {
         assertTrue(albumArtFile.setWritable(false));
 
         // Update an album art
-        POST("/album/" + album0Id + "/albumart/fromurl", ImmutableMap.of("url", "http://lorempixel.com/200/200/"));
+        POST("/album/" + album0Id + "/albumart/fromurl", ImmutableMap.of("url", getFakeHttpUri() + "/lorempixel/200x200.jpg"));
         assertIsOk();
         json = getJsonResult();
         assertEquals("AlbumArtNotCopied", json.getString("message"));

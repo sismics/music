@@ -1,11 +1,12 @@
 package com.sismics.util;
 
 
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.util.List;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * Test of the lyrics utilities.
@@ -15,6 +16,7 @@ import org.junit.Test;
 public class TestLyricUtil {
 
     @Test
+    @Ignore
     public void getLyrics() throws Exception {
         List<String> lyrics = LyricUtil.getLyrics("John Lennon", "Imagine");
         Assert.assertEquals(1, lyrics.size());

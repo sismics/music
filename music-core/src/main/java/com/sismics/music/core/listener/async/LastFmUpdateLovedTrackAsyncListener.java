@@ -27,7 +27,6 @@ public class LastFmUpdateLovedTrackAsyncListener {
      * Process the event.
      *
      * @param lastFmUpdateLovedTrackAsyncEvent Update loved track event
-     * @throws Exception
      */
     @Subscribe
     public void onLastFmUpdateLovedTrack(final LastFmUpdateLovedTrackAsyncEvent lastFmUpdateLovedTrackAsyncEvent) throws Exception {
@@ -38,12 +37,9 @@ public class LastFmUpdateLovedTrackAsyncListener {
 
         final User user = lastFmUpdateLovedTrackAsyncEvent.getUser();
 
-        TransactionUtil.handle(new Runnable() {
-            @Override
-            public void run() {
-                final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
-                lastFmService.importLovedTrack(user);
-            }
+        TransactionUtil.handle(() -> {
+            final LastFmService lastFmService = AppContext.getInstance().getLastFmService();
+            lastFmService.importLovedTrack(user);
         });
 
         if (log.isInfoEnabled()) {

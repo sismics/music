@@ -42,16 +42,13 @@ public class LastFmService extends AbstractScheduledService {
 
     @Override
     protected void runOneIteration() throws Exception {
-        TransactionUtil.handle(new Runnable() {
-            @Override
-            public void run() {
-                UserDao userDao = new UserDao();
-                List<UserDto> userList = userDao.findByCriteria(new UserCriteria().setLastFmSessionTokenNotNull(true));
-                for (UserDto userDto : userList) {
-                    User user = userDao.getActiveById(userDto.getId());
-                    AppContext.getInstance().getLastFmEventBus().post(new LastFmUpdateLovedTrackAsyncEvent(user));
-                    AppContext.getInstance().getLastFmEventBus().post(new LastFmUpdateTrackPlayCountAsyncEvent(user));
-                }
+        TransactionUtil.handle(() -> {
+            UserDao userDao = new UserDao();
+            List<UserDto> userList = userDao.findByCriteria(new UserCriteria().setLastFmSessionTokenNotNull(true));
+            for (UserDto userDto : userList) {
+                User user = userDao.getActiveById(userDto.getId());
+                AppContext.getInstance().getLastFmEventBus().post(new LastFmUpdateLovedTrackAsyncEvent(user));
+                AppContext.getInstance().getLastFmEventBus().post(new LastFmUpdateTrackPlayCountAsyncEvent(user));
             }
         });
     }

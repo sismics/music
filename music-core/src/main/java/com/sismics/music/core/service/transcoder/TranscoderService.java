@@ -1,17 +1,16 @@
 package com.sismics.music.core.service.transcoder;
 
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.google.common.io.Files;
 import com.sismics.music.core.dao.dbi.TranscoderDao;
 import com.sismics.music.core.model.dbi.Track;
 import com.sismics.music.core.model.dbi.Transcoder;
 import com.sismics.util.io.TranscodedInputStream;
+import org.apache.commons.lang.StringUtils;
+
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Transcoder service.
@@ -24,9 +23,8 @@ public class TranscoderService {
      *
      * @param track Track to transcode
      * @param seek Time to seek (in seconds)
-     * @parma fileSize Expected transcoded file size
+     * @param fileSize Expected transcoded file size
      * @return Transcoded input stream
-     * @throws Exception
      */
     public InputStream getTranscodedInputStream(Track track, int seek, int fileSize, Transcoder transcoder) throws Exception {
         ProcessBuilder pb = getProcessBuilder(track, seek, transcoder);

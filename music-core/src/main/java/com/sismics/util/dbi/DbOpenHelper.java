@@ -8,8 +8,6 @@ import org.skife.jdbi.v2.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
@@ -81,15 +79,11 @@ public abstract class DbOpenHelper {
      * Execute all upgrade scripts in ascending order for a given version.
      * 
      * @param version Version number
-     * @throws Exception
      */
     protected void executeAllScript(final int version) throws Exception {
-        List<String> fileNameList = ResourceUtil.list(getClass(), "/db/update/", new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                String versionString = String.format("%03d", version);
-                return name.matches("dbupdate-" + versionString + "-\\d+\\.sql");
-            }
+        List<String> fileNameList = ResourceUtil.list(getClass(), "/db/update/", (dir, name) -> {
+            String versionString = String.format("%03d", version);
+            return name.matches("dbupdate-" + versionString + "-\\d+\\.sql");
         });
         Collections.sort(fileNameList);
         
@@ -106,7 +100,6 @@ public abstract class DbOpenHelper {
      * Execute a SQL script. All statements must be one line only.
      * 
      * @param inputScript Script to execute
-     * @throws Exception
      */
     protected void executeScript(InputStream inputScript) throws Exception {
         List<String> lines = CharStreams.readLines(new InputStreamReader(inputScript));

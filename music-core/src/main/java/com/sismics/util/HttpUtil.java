@@ -18,7 +18,6 @@ public class HttpUtil {
      * 
      * @param url URL to load
      * @return Contents of the resource
-     * @throws IOException
      */
     public static String readUrlIntoString(URL url) throws IOException {
         URLConnection connection;

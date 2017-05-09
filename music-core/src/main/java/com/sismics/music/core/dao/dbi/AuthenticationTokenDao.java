@@ -2,7 +2,6 @@ package com.sismics.music.core.dao.dbi;
 
 import com.sismics.music.core.model.dbi.AuthenticationToken;
 import com.sismics.util.context.ThreadLocalContext;
-
 import org.joda.time.DateTime;
 import org.skife.jdbi.v2.Handle;
 
@@ -59,7 +58,6 @@ public class AuthenticationTokenDao {
      * Deletes the authentication token.
      * 
      * @param authenticationTokenId Authentication token ID
-     * @throws Exception
      */
     public void delete(String authenticationTokenId) throws Exception {
         final Handle handle = ThreadLocalContext.get().getHandle();

@@ -1,12 +1,11 @@
 package com.sismics.music.rest.util;
 
-import java.text.MessageFormat;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.sismics.music.core.dao.dbi.LocaleDao;
 import com.sismics.music.core.model.dbi.Locale;
 import com.sismics.rest.exception.ClientException;
+import org.apache.commons.lang.StringUtils;
+
+import java.text.MessageFormat;
 
 /**
  * Utility class to validate parameters.
@@ -21,7 +20,6 @@ public class ValidationUtil {
      * @param name Name of the parameter
      * @return String without white spaces
      * @param nullable True if the string can be empty or null
-     * @throws ClientException
      */
     public static String validateLocale(String localeId, String name, boolean nullable) throws ClientException {
         localeId = StringUtils.strip(localeId);
