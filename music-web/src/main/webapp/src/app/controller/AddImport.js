@@ -9,19 +9,15 @@ angular.module('music').controller('AddImport', function($scope, Restangular, $d
   // Refresh imported files
   $scope.refresh = function() {
     Restangular.one('import').get().then(function(data) {
-      $scope.files = data.files;
-
-      // Guess artist and title
-      _.each($scope.files, function(file) {
-        var sep = file.file.indexOf(' - ');
-        if (sep > -1) {
-          file.artist = file.file.substring(0, sep);
-          file.album_artist = file.artist;
-          file.title = file.file.substring(sep + 3, file.file.lastIndexOf('.'));
-        } else {
-          file.title = file.file.substring(0, file.file.lastIndexOf('.'));
-        }
-      });
+      $scope.files = _(data.files).map(function(file) {
+          return {
+            order: file.order,
+            album_artist: file.albumArtist,
+            album: file.album,
+            artist: file.artist,
+            title: file.title
+          }
+        });
     });
   };
 
