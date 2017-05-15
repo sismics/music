@@ -6,6 +6,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -33,11 +34,22 @@ public abstract class BaseMusicTest extends BaseJerseyTest {
      */
     protected File addDirectory(String directoryName) throws Exception {
         Path tempDirectory = Files.createTempDirectory("music");
-        FileUtils.copyDirectory(new File(getClass().getResource(directoryName).toURI()), tempDirectory.toFile());
+        FileUtils.copyDirectory(getFile(directoryName), tempDirectory.toFile());
 
         PUT("/directory", ImmutableMap.of("location", tempDirectory.toString()));
         assertIsOk();
 
         return tempDirectory.toFile();
+    }
+
+    /**
+     * Get a file from the project resources.
+     *
+     * @param fileName The file name
+     * @return The file
+     * @throws URISyntaxException
+     */
+    protected File getFile(String fileName) throws URISyntaxException {
+        return new File(getClass().getResource(fileName).toURI());
     }
 }

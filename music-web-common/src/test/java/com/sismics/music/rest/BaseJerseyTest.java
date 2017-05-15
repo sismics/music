@@ -8,6 +8,9 @@ import com.sismics.util.filter.TokenBasedSecurityFilter;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
@@ -28,12 +31,10 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.*;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -220,6 +221,14 @@ public abstract class BaseJerseyTest extends JerseyTest {
         assertStatus(404, response);
     }
 
+    public void assertIsInternalServerError() {
+        assertIsInternalServerError(response);
+    }
+
+    public void assertIsInternalServerError(Response response) {
+        assertStatus(500, response);
+    }
+
     public void assertStatus(int status, Response response) {
         Assert.assertEquals("Response status error, out: " + response.toString(), status, response.getStatus());
     }
@@ -316,6 +325,34 @@ public abstract class BaseJerseyTest extends JerseyTest {
         }
         response = builder(resource).put(Entity.form(form));
         addCookiesFromResponse();
+    }
+
+    protected void PUT(String url, Map<String, String> putParams, Map<String, File> files) {
+        WebTarget resource = target()
+                .register(MultiPartFeature.class)
+                .path(url);
+        FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
+        List<InputStream> isList = new ArrayList<>();
+        try {
+            for (Map.Entry<String, File> file : files.entrySet()) {
+                InputStream is = new FileInputStream(file.getValue());
+                isList.add(is);
+                formDataMultiPart.bodyPart(new StreamDataBodyPart(file.getKey(), is, file.getValue().getName()));
+            }
+            response = builder(resource).put(Entity.entity(formDataMultiPart,
+                    MediaType.MULTIPART_FORM_DATA_TYPE));
+            addCookiesFromResponse();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            for (InputStream is : isList) {
+                try {
+                    is.close();
+                } catch (Exception e) {
+                    // NOP
+                }
+            }
+        }
     }
 
     protected void PUT(String url) {

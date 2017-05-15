@@ -1,12 +1,9 @@
 package com.sismics.music.rest;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
-import com.google.common.io.Resources;
 import com.sismics.util.filter.TokenBasedSecurityFilter;
 import org.apache.commons.io.FileUtils;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -14,13 +11,10 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.io.File;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -264,70 +258,55 @@ public class TestImportResource extends BaseMusicTest {
      *
      */
     @Test
-    @SuppressWarnings("resource")
-    public void shouldImportFromZipFile() throws Exception {
+    public void shouldImportFromMp3File() throws Exception {
         // Login users
-        String adminAuthenticationToken = login("admin", "admin", false);
-
-        // Admin import a ZIP
-        try (InputStream is = Resources.getResource("music-album.zip").openStream()) {
-            StreamDataBodyPart streamDataBodyPart = new StreamDataBodyPart("file", is, "music-album.zip");
-            JsonObject json = target()
-                    .register(MultiPartFeature.class)
-                    .path("/import/upload").request()
-                    .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                    .put(Entity.entity(new FormDataMultiPart().bodyPart(streamDataBodyPart),
-                            MediaType.MULTIPART_FORM_DATA_TYPE), JsonObject.class);
-            assertEquals("ok", json.getString("status"));
-        }
-
-        // Admin lists imported files
-        JsonObject json = target().path("/import").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
-        JsonArray files = json.getJsonArray("files");
-        assertEquals(3, files.size());
+        loginAdmin();
 
         // Admin import a single track
-        try (InputStream is = Resources.getResource("music/Kevin MacLeod - Robot Brain/Robot Brain A.mp3").openStream()) {
-            StreamDataBodyPart streamDataBodyPart = new StreamDataBodyPart("file", is, "Robot Brain A.mp3");
-            json = target()
-                    .register(MultiPartFeature.class)
-                    .path("/import/upload").request()
-                    .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                    .put(Entity.entity(new FormDataMultiPart().bodyPart(streamDataBodyPart),
-                            MediaType.MULTIPART_FORM_DATA_TYPE), JsonObject.class);
-            assertEquals("ok", json.getString("status"));
-        }
+        PUT("/import/upload", new HashMap<>(), ImmutableMap.of("file", getFile("/music/Kevin MacLeod - Robot Brain/Robot Brain A.mp3")));
+        assertIsOk();
 
         // Admin lists imported files
-        json = target().path("/import").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
-        files = json.getJsonArray("files");
-        assertEquals(4, files.size());
+        GET("/import");
+        assertIsOk();
+        JsonObject json = getJsonResult();
+        JsonArray files = json.getJsonArray("files");
+        assertEquals(1, files.size());
 
         // Admin import a non audio
-        try (InputStream is = Resources.getResource("log4j.properties").openStream()) {
-            StreamDataBodyPart streamDataBodyPart = new StreamDataBodyPart("file", is, "log4j.properties");
-            Response response = target()
-                    .register(MultiPartFeature.class)
-                    .path("/import/upload").request()
-                    .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                    .put(Entity.entity(new FormDataMultiPart().bodyPart(streamDataBodyPart),
-                            MediaType.MULTIPART_FORM_DATA_TYPE));
-            assertEquals(Status.INTERNAL_SERVER_ERROR, Status.fromStatusCode(response.getStatus()));
-            json = response.readEntity(JsonObject.class);
-            assertEquals("ImportError", json.getString("type"));
-            assertEquals("File not supported", json.getString("message"));
-        }
+        PUT("/import/upload", new HashMap<>(), ImmutableMap.of("file", getFile("/log4j.properties")));
+        assertIsInternalServerError();
+        json = getJsonResult();
+        assertEquals("ImportError", json.getString("type"));
+        assertEquals("File not supported", json.getString("message"));
 
         // Admin lists imported files
-        json = target().path("/import").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/import");
+        assertIsOk();
+        json = getJsonResult();
         files = json.getJsonArray("files");
-        assertEquals(4, files.size());
+        assertEquals(1, files.size());
+    }
+
+    /**
+     * Test the import resource (upload).
+     *
+     */
+    @Test
+    public void shouldImportFromZipFile() throws Exception {
+        // Login users
+        loginAdmin();
+
+        // Admin import a ZIP
+        PUT("/import/upload", new HashMap<>(), ImmutableMap.of("file", getFile("/music-album.zip")));
+        assertIsOk();
+
+        // Admin lists imported files
+        GET("/import");
+        assertIsOk();
+        JsonObject json = getJsonResult();
+        JsonArray files = json.getJsonArray("files");
+        assertEquals(3, files.size());
     }
 
     /**
@@ -337,25 +316,17 @@ public class TestImportResource extends BaseMusicTest {
     @Test
     public void shouldTagImportedMusic() throws Exception {
         // Login users
-        String adminAuthenticationToken = login("admin", "admin", false);
-
-        // This test is destructive, copy the test music to a temporary directory
-        File collectionDir = copyTempResource("/music2/");
+        loginAdmin();
 
         // Admin adds a directory to the collection
-        JsonObject json = target().path("/directory").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .put(Entity.form(new Form()
-                        .param("location", collectionDir.toPath().toString())), JsonObject.class);
-        assertEquals("ok", json.getString("status"));
+        addDirectory("/music2/");
 
         // Admin check that the collection is initialized properly
-        json = target().path("/album")
-                .queryParam("sort_column", "1")
-                .queryParam("asc", "false")
-                .request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/album", ImmutableMap.of(
+                "sort_column", "1",
+                "asc", "false"));
+        assertIsOk();
+        JsonObject json = getJsonResult();
         assertEquals(2, json.getJsonNumber("total").intValue());
         JsonArray albums = json.getJsonArray("albums");
         JsonObject album0 = albums.getJsonObject(0);
@@ -372,45 +343,36 @@ public class TestImportResource extends BaseMusicTest {
         String artist1Name = artist1.getString("name");
 
         // Admin import a file
-        try (InputStream is = Resources.getResource("music1/[A] Proxy - Coachella 2010 Day 01 Mixtape/03 Let It Loose Ft. Pharrell (Wale).mp3").openStream()) {
-            StreamDataBodyPart streamDataBodyPart = new StreamDataBodyPart("file", is, "03 Let It Loose Ft. Pharrell (Wale).mp3");
-            json = target()
-                    .register(MultiPartFeature.class)
-                    .path("/import/upload").request()
-                    .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                    .put(Entity.entity(new FormDataMultiPart().bodyPart(streamDataBodyPart),
-                            MediaType.MULTIPART_FORM_DATA_TYPE), JsonObject.class);
-            assertEquals("ok", json.getString("status"));
-        }
+        PUT("/import/upload", new HashMap<>(), ImmutableMap.of("file", getFile("/music1/[A] Proxy - Coachella 2010 Day 01 Mixtape/03 Let It Loose Ft. Pharrell (Wale).mp3")));
+        assertIsOk();
 
         // Admin lists imported files
-        json = target().path("/import").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/import");
+        assertIsOk();
+        json = getJsonResult();
         JsonArray files = json.getJsonArray("files");
         assertEquals(1, files.size());
         String file0Name = files.getJsonObject(0).getString("file");
 
         // Admin tag 1 file of the 1st album
-        json = target().path("/import").request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .post(Entity.form(new Form()
-                        .param("file", file0Name)
-                        .param("order", "0")
-                        .param("title", "tag0title")
-                        .param("artist", artist1Name)
-                        .param("album", album1Name)), JsonObject.class);
+        POST("/import", ImmutableMap.<String, String>builder()
+                .put("file", file0Name)
+                .put("order", "0")
+                .put("title", "tag0title")
+                .put("artist", artist1Name)
+                .put("album", album1Name)
+                .build());
+        assertIsOk();
 
         // Wait for watching service to index our new music
         Thread.sleep(3000);
 
         // Check that the track is properly added, and is listed as most recent
-        json = target().path("/album")
-                .queryParam("sort_column", "1")
-                .queryParam("asc", "false")
-                .request()
-                .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
-                .get(JsonObject.class);
+        GET("/album", ImmutableMap.of(
+                "sort_column", "1",
+                "asc", "false"));
+        assertIsOk();
+        json = getJsonResult();
         assertEquals(2, json.getJsonNumber("total").intValue());
         assertEquals(album1Id, json.getJsonArray("albums").getJsonObject(0).getString("id"));
         assertEquals(album0Id, json.getJsonArray("albums").getJsonObject(1).getString("id"));
