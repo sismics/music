@@ -233,14 +233,27 @@ public class ImportResource extends BaseResource {
         JsonObjectBuilder response = Json.createObjectBuilder();
         JsonArrayBuilder items = Json.createArrayBuilder();
         for (ImportAudioFile importedFile : importedFileList) {
-            items.add(Json.createObjectBuilder()
-                    .add("title", importedFile.getTitle())
-                    .add("album", importedFile.getAlbum())
-                    .add("artist", importedFile.getArtist())
-                    .add("albumArtist", importedFile.getAlbumArtist())
-                    .add("order", importedFile.getOrder())
-                    .add("year", importedFile.getYear())
-                    .add("file", importedFile.getFile().getName()));
+            JsonObjectBuilder item = Json.createObjectBuilder()
+                    .add("file", importedFile.getFile().getName());
+            if (importedFile.getTitle() != null) {
+                item.add("title", importedFile.getTitle());
+            }
+            if (importedFile.getAlbum() != null) {
+                item.add("album", importedFile.getAlbum());
+            }
+            if (importedFile.getArtist() != null) {
+                item.add("artist", importedFile.getArtist());
+            }
+            if (importedFile.getAlbumArtist() != null) {
+                item.add("albumArtist", importedFile.getAlbumArtist());
+            }
+            if (importedFile.getOrder() != null) {
+                item.add("order", importedFile.getOrder());
+            }
+            if (importedFile.getYear() != null) {
+                item.add("year", importedFile.getYear());
+            }
+            items.add(item);
         }
         response.add("files", items);
         
