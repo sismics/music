@@ -29,10 +29,10 @@
           </td>
           <td>
             <div class="input-group">
-              <input type="text" class="form-control" placeholder="Album artist" ng-model="file.album_artist"
+              <input type="text" class="form-control" placeholder="Album artist" ng-model="file.albumArtist"
                      typeahead="artist for artist in artists | filter:$viewValue | limitTo: 8" />
               <span class="input-group-btn">
-                <button class="btn btn-default" type="button" ng-click="copyMetadata('album_artist', file)" ng-if="$first">
+                <button class="btn btn-default" type="button" ng-click="copyMetadata('albumArtist', file)" ng-if="$first">
                   <span class="glyphicon glyphicon-share-alt"></span>
                 </button>
               </span>

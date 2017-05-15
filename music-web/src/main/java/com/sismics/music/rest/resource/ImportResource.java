@@ -270,7 +270,7 @@ public class ImportResource extends BaseResource {
             @FormParam("file") String fileName,
             @FormParam("order") String orderStr,
             @FormParam("artist") String artist,
-            @FormParam("album_artist") String albumArtist,
+            @FormParam("albumArtist") String albumArtist,
             @FormParam("album") String album,
             @FormParam("title") String title,
             @FormParam("directory") String directoryId) {
