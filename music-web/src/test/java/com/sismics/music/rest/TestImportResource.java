@@ -2,14 +2,11 @@ package com.sismics.music.rest;
 
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
-import com.sismics.music.core.util.DirectoryUtil;
 import com.sismics.util.filter.TokenBasedSecurityFilter;
 import org.apache.commons.io.FileUtils;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -25,23 +22,15 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Exhaustive test of the import resource.
  * 
  * @author bgamard
  */
-public class TestImportResource extends BaseJerseyTest {
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-
-        // Cleanup imported files
-        for (File file : DirectoryUtil.getImportAudioDirectory().listFiles()) {
-            file.delete();
-        }
-        DirectoryUtil.getImportAudioDirectory().delete();
-    }
-
+public class TestImportResource extends BaseMusicTest {
     /**
      * Copy some music collection to a temporary directory (in case the collection service modifies, the collection,
      * the test wouldn't be idempotent).
@@ -65,7 +54,7 @@ public class TestImportResource extends BaseJerseyTest {
      */
     @Test
     @Ignore // youtube-dl is not installed on Travis
-    public void testImportResource() throws Exception {
+    public void shouldImportFromWeb() throws Exception {
         // Login users
         String adminAuthenticationToken = login("admin", "admin", false);
         
@@ -77,7 +66,7 @@ public class TestImportResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .put(Entity.form(new Form()
                         .param("location", collectionDir.toPath().toString())), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        assertEquals("ok", json.getString("status"));
         
         // Admin import a new URL
         json = target().path("/import").request()
@@ -86,14 +75,14 @@ public class TestImportResource extends BaseJerseyTest {
                         .param("url", "https://soundcloud.com/monstercat/au5-follow-you-volant")
                         .param("quality", "128K")
                         .param("format", "mp3")), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        assertEquals("ok", json.getString("status"));
         
         // Admin lists imported files
         json = target().path("/import").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         JsonArray files = json.getJsonArray("files");
-        Assert.assertEquals(0, files.size());
+        assertEquals(0, files.size());
         
         // Admin checks import progression
         boolean stop = false;
@@ -102,7 +91,7 @@ public class TestImportResource extends BaseJerseyTest {
                     .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                     .get(JsonObject.class);
             JsonArray imports = json.getJsonArray("imports");
-            Assert.assertEquals(1, imports.size());
+            assertEquals(1, imports.size());
             System.out.println(imports.getJsonObject(0));
             
             if (imports.getJsonObject(0).getString("status").equals("DONE")) {
@@ -115,7 +104,7 @@ public class TestImportResource extends BaseJerseyTest {
                         .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                         .get(JsonObject.class);
                 files = json.getJsonArray("files");
-                Assert.assertEquals(0, files.size());
+                assertEquals(0, files.size());
             }
             
             Thread.sleep(200);
@@ -126,8 +115,8 @@ public class TestImportResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         files = json.getJsonArray("files");
-        Assert.assertEquals(1, files.size());
-        Assert.assertEquals("Au5 - Follow You (feat Danyka Nadeau) (Volant Remix).mp3", files.getJsonObject(0).getString("file"));
+        assertEquals(1, files.size());
+        assertEquals("Au5 - Follow You (feat Danyka Nadeau) (Volant Remix).mp3", files.getJsonObject(0).getString("file"));
         
         // Admin move the imported file to the main directory
         json = target().path("/import").request()
@@ -138,7 +127,7 @@ public class TestImportResource extends BaseJerseyTest {
                         .param("album_artist", "Remixer")
                         .param("album", "Unsorted")
                         .param("title", "Follow You (feat Danyka Nadeau)")), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        assertEquals("ok", json.getString("status"));
         
         // Admin cleanup imports
         json = target().path("/import/progress/cleanup").request()
@@ -155,7 +144,7 @@ public class TestImportResource extends BaseJerseyTest {
                         .param("url", "https://soundcloud.com/monstercat/au5-follow-you-volant")
                         .param("quality", "128K")
                         .param("format", "mp3")), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        assertEquals("ok", json.getString("status"));
 
         // Wait for the process to start
         Thread.sleep(1000);
@@ -165,11 +154,11 @@ public class TestImportResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         JsonArray imports = json.getJsonArray("imports");
-        Assert.assertEquals(1, imports.size());
-        Assert.assertEquals("INPROGRESS", imports.getJsonObject(0).getString("status"));
+        assertEquals(1, imports.size());
+        assertEquals("INPROGRESS", imports.getJsonObject(0).getString("status"));
         
         // Admin kills the current import
-        json = target().path("/import/progress/" + imports.getJsonObject(0).getString("id") + "/kill").request()
+        target().path("/import/progress/" + imports.getJsonObject(0).getString("id") + "/kill").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .post(Entity.form(new Form()), JsonObject.class);
         
@@ -181,8 +170,8 @@ public class TestImportResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         imports = json.getJsonArray("imports");
-        Assert.assertEquals(1, imports.size());
-        Assert.assertEquals("ERROR", imports.getJsonObject(0).getString("status"));
+        assertEquals(1, imports.size());
+        assertEquals("ERROR", imports.getJsonObject(0).getString("status"));
     }
     
     /**
@@ -192,7 +181,7 @@ public class TestImportResource extends BaseJerseyTest {
      */
     @Test
     @Ignore // youtube-dl is not installed on Travis
-    public void testImportResourceRetry() throws Exception {
+    public void shouldRetryImport() throws Exception {
         // Login users
         String adminAuthenticationToken = login("admin", "admin", false);
         
@@ -203,22 +192,22 @@ public class TestImportResource extends BaseJerseyTest {
                         .param("url", "fakeurl")
                         .param("quality", "128K")
                         .param("format", "mp3")), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        assertEquals("ok", json.getString("status"));
         
         // Admin lists imported files
         json = target().path("/import").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         JsonArray files = json.getJsonArray("files");
-        Assert.assertEquals(0, files.size());
+        assertEquals(0, files.size());
         
         // Admin checks import progression
         json = target().path("/import/progress").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         JsonArray imports = json.getJsonArray("imports");
-        Assert.assertEquals(1, imports.size());
-        Assert.assertEquals("INPROGRESS", imports.getJsonObject(0).getString("status"));
+        assertEquals(1, imports.size());
+        assertEquals("INPROGRESS", imports.getJsonObject(0).getString("status"));
         
         Thread.sleep(5000);
         
@@ -227,23 +216,23 @@ public class TestImportResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         imports = json.getJsonArray("imports");
-        Assert.assertEquals(1, imports.size());
+        assertEquals(1, imports.size());
         JsonObject imp = imports.getJsonObject(0);
-        Assert.assertEquals("ERROR", imp.getString("status"));
+        assertEquals("ERROR", imp.getString("status"));
         
         // Retry the failed import
         json = target().path("/import/progress/" + imp.getString("id") + "/retry").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .post(null, JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        assertEquals("ok", json.getString("status"));
         
         // Admin checks import progression
         json = target().path("/import/progress").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         imports = json.getJsonArray("imports");
-        Assert.assertEquals(1, imports.size());
-        Assert.assertEquals("INPROGRESS", imports.getJsonObject(0).getString("status"));
+        assertEquals(1, imports.size());
+        assertEquals("INPROGRESS", imports.getJsonObject(0).getString("status"));
         
         Thread.sleep(5000);
         
@@ -252,14 +241,14 @@ public class TestImportResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         imports = json.getJsonArray("imports");
-        Assert.assertEquals(1, imports.size());
+        assertEquals(1, imports.size());
         imp = imports.getJsonObject(0);
-        Assert.assertEquals("ERROR", imp.getString("status"));
+        assertEquals("ERROR", imp.getString("status"));
     }
     
     @Test
     @Ignore // youtube-dl is not installed on Travis
-    public void testDependecies() throws Exception {
+    public void shouldTestDependencies() throws Exception {
         // Login users
         String adminAuthenticationToken = login("admin", "admin", false);
         
@@ -276,7 +265,7 @@ public class TestImportResource extends BaseJerseyTest {
      */
     @Test
     @SuppressWarnings("resource")
-    public void testImportUpload() throws Exception {
+    public void shouldImportFromZipFile() throws Exception {
         // Login users
         String adminAuthenticationToken = login("admin", "admin", false);
 
@@ -289,7 +278,7 @@ public class TestImportResource extends BaseJerseyTest {
                     .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                     .put(Entity.entity(new FormDataMultiPart().bodyPart(streamDataBodyPart),
                             MediaType.MULTIPART_FORM_DATA_TYPE), JsonObject.class);
-            Assert.assertEquals("ok", json.getString("status"));
+            assertEquals("ok", json.getString("status"));
         }
 
         // Admin lists imported files
@@ -297,7 +286,7 @@ public class TestImportResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         JsonArray files = json.getJsonArray("files");
-        Assert.assertEquals(3, files.size());
+        assertEquals(3, files.size());
 
         // Admin import a single track
         try (InputStream is = Resources.getResource("music/Kevin MacLeod - Robot Brain/Robot Brain A.mp3").openStream()) {
@@ -308,7 +297,7 @@ public class TestImportResource extends BaseJerseyTest {
                     .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                     .put(Entity.entity(new FormDataMultiPart().bodyPart(streamDataBodyPart),
                             MediaType.MULTIPART_FORM_DATA_TYPE), JsonObject.class);
-            Assert.assertEquals("ok", json.getString("status"));
+            assertEquals("ok", json.getString("status"));
         }
 
         // Admin lists imported files
@@ -316,7 +305,7 @@ public class TestImportResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         files = json.getJsonArray("files");
-        Assert.assertEquals(4, files.size());
+        assertEquals(4, files.size());
 
         // Admin import a non audio
         try (InputStream is = Resources.getResource("log4j.properties").openStream()) {
@@ -327,10 +316,10 @@ public class TestImportResource extends BaseJerseyTest {
                     .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                     .put(Entity.entity(new FormDataMultiPart().bodyPart(streamDataBodyPart),
                             MediaType.MULTIPART_FORM_DATA_TYPE));
-            Assert.assertEquals(Status.INTERNAL_SERVER_ERROR, Status.fromStatusCode(response.getStatus()));
+            assertEquals(Status.INTERNAL_SERVER_ERROR, Status.fromStatusCode(response.getStatus()));
             json = response.readEntity(JsonObject.class);
-            Assert.assertEquals("ImportError", json.getString("type"));
-            Assert.assertEquals("File not supported", json.getString("message"));
+            assertEquals("ImportError", json.getString("type"));
+            assertEquals("File not supported", json.getString("message"));
         }
 
         // Admin lists imported files
@@ -338,7 +327,7 @@ public class TestImportResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         files = json.getJsonArray("files");
-        Assert.assertEquals(4, files.size());
+        assertEquals(4, files.size());
     }
 
     /**
@@ -346,7 +335,7 @@ public class TestImportResource extends BaseJerseyTest {
      *
      */
     @Test
-    public void testTagImportedMusic() throws Exception {
+    public void shouldTagImportedMusic() throws Exception {
         // Login users
         String adminAuthenticationToken = login("admin", "admin", false);
 
@@ -358,7 +347,7 @@ public class TestImportResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .put(Entity.form(new Form()
                         .param("location", collectionDir.toPath().toString())), JsonObject.class);
-        Assert.assertEquals("ok", json.getString("status"));
+        assertEquals("ok", json.getString("status"));
 
         // Admin check that the collection is initialized properly
         json = target().path("/album")
@@ -367,7 +356,7 @@ public class TestImportResource extends BaseJerseyTest {
                 .request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
-        Assert.assertEquals(2, json.getJsonNumber("total").intValue());
+        assertEquals(2, json.getJsonNumber("total").intValue());
         JsonArray albums = json.getJsonArray("albums");
         JsonObject album0 = albums.getJsonObject(0);
         String album0Id = album0.getString("id");
@@ -391,7 +380,7 @@ public class TestImportResource extends BaseJerseyTest {
                     .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                     .put(Entity.entity(new FormDataMultiPart().bodyPart(streamDataBodyPart),
                             MediaType.MULTIPART_FORM_DATA_TYPE), JsonObject.class);
-            Assert.assertEquals("ok", json.getString("status"));
+            assertEquals("ok", json.getString("status"));
         }
 
         // Admin lists imported files
@@ -399,7 +388,7 @@ public class TestImportResource extends BaseJerseyTest {
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
         JsonArray files = json.getJsonArray("files");
-        Assert.assertEquals(1, files.size());
+        assertEquals(1, files.size());
         String file0Name = files.getJsonObject(0).getString("file");
 
         // Admin tag 1 file of the 1st album
@@ -422,10 +411,10 @@ public class TestImportResource extends BaseJerseyTest {
                 .request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .get(JsonObject.class);
-        Assert.assertEquals(2, json.getJsonNumber("total").intValue());
-        Assert.assertEquals(album1Id, json.getJsonArray("albums").getJsonObject(0).getString("id"));
-        Assert.assertEquals(album0Id, json.getJsonArray("albums").getJsonObject(1).getString("id"));
-        Assert.assertTrue(json.getJsonArray("albums").getJsonObject(0).getJsonNumber("update_date").longValue() > album0UpdateDate);
-        Assert.assertEquals(json.getJsonArray("albums").getJsonObject(1).getJsonNumber("update_date").longValue(), album0UpdateDate);
+        assertEquals(2, json.getJsonNumber("total").intValue());
+        assertEquals(album1Id, json.getJsonArray("albums").getJsonObject(0).getString("id"));
+        assertEquals(album0Id, json.getJsonArray("albums").getJsonObject(1).getString("id"));
+        assertTrue(json.getJsonArray("albums").getJsonObject(0).getJsonNumber("update_date").longValue() > album0UpdateDate);
+        assertEquals(json.getJsonArray("albums").getJsonObject(1).getJsonNumber("update_date").longValue(), album0UpdateDate);
     }
 }

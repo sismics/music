@@ -3,7 +3,6 @@ package com.sismics.music.rest;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.json.JsonArray;
@@ -11,6 +10,8 @@ import javax.json.JsonObject;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static org.junit.Assert.*;
 
 /**
  * Exhaustive test of the track resource.
@@ -43,20 +44,20 @@ public class TestTrackResource extends BaseMusicTest {
         assertIsOk();
         JsonObject json = getJsonResult();
         JsonArray albums = json.getJsonArray("albums");
-        Assert.assertEquals(2, albums.size());
+        assertEquals(2, albums.size());
         JsonObject album0 = albums.getJsonObject(0);
         String album0Id = album0.getString("id");
-        Assert.assertNotNull(album0Id);
+        assertNotNull(album0Id);
 
         // Admin checks the tracks info
         GET("/album/" + album0Id);
         assertIsOk();
         json = getJsonResult();
         JsonArray tracks = json.getJsonArray("tracks");
-        Assert.assertEquals(1, tracks.size());
+        assertEquals(1, tracks.size());
         JsonObject track0 = tracks.getJsonObject(0);
         String track0Id = track0.getString("id");
-        Assert.assertFalse(track0.getBoolean("liked"));
+        assertFalse(track0.getBoolean("liked"));
 
         // Get an track by its ID (without transcoder)
         GET("/track/" + track0Id);
@@ -72,7 +73,7 @@ public class TestTrackResource extends BaseMusicTest {
 
         // Get an track by its ID (with transcoder)
         GET("/track/" + track0Id);
-        // Assert.assertEquals(Status.OK.getStatusCode(), response.getStatus()); // No ffmpeg on Travis :(
+        // assertEquals(Status.OK.getStatusCode(), response.getStatus()); // No ffmpeg on Travis :(
         
         // Admin likes the track
         POST("/track/" + track0Id + "/like");
@@ -83,9 +84,9 @@ public class TestTrackResource extends BaseMusicTest {
         assertIsOk();
         json = getJsonResult();
         tracks = json.getJsonArray("tracks");
-        Assert.assertEquals(1, tracks.size());
+        assertEquals(1, tracks.size());
         track0 = tracks.getJsonObject(0);
-        Assert.assertTrue(track0.getBoolean("liked"));
+        assertTrue(track0.getBoolean("liked"));
 
         // Admin unlikes the track
         DELETE("/track/" + track0Id + "/like");
@@ -96,9 +97,9 @@ public class TestTrackResource extends BaseMusicTest {
         assertIsOk();
         json = getJsonResult();
         tracks = json.getJsonArray("tracks");
-        Assert.assertEquals(1, tracks.size());
+        assertEquals(1, tracks.size());
         track0 = tracks.getJsonObject(0);
-        Assert.assertFalse(track0.getBoolean("liked"));
+        assertFalse(track0.getBoolean("liked"));
 
         // Admin update a track info
         POST("/track/"+ track0Id, ImmutableMap.<String, String>builder()
@@ -117,15 +118,15 @@ public class TestTrackResource extends BaseMusicTest {
         assertIsOk();
         json = getJsonResult();
         tracks = json.getJsonArray("tracks");
-        Assert.assertNotNull(tracks);
-        Assert.assertEquals(1, tracks.size());
+        assertNotNull(tracks);
+        assertEquals(1, tracks.size());
         
         // Admin checks the new album
         GET("/album");
         assertIsOk();
         json = getJsonResult();
         albums = json.getJsonArray("albums");
-        Assert.assertEquals(2, albums.size());
+        assertEquals(2, albums.size());
         
         // Admin update a track info with minimal data
         POST("/track/"+ track0Id, ImmutableMap.of(
@@ -140,12 +141,12 @@ public class TestTrackResource extends BaseMusicTest {
         assertIsOk();
         json = getJsonResult();
         albums = json.getJsonArray("albums");
-        Assert.assertEquals(2, albums.size());
+        assertEquals(2, albums.size());
         
         // Admin get the lyrics
         GET("/track/" + track0Id + "/lyrics");
         assertIsOk();
         json = getJsonResult();
-        Assert.assertTrue(json.getJsonArray("lyrics").getString(0).contains("Imagine no possessions"));
+        assertTrue(json.getJsonArray("lyrics").getString(0).contains("Imagine no possessions"));
     }
 }

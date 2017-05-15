@@ -66,7 +66,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
     /**
      * Single thread executor used to tag files.
      */
-    ExecutorService syncExecutor = Executors.newSingleThreadExecutor();
+    private ExecutorService syncExecutor = Executors.newSingleThreadExecutor();
     
     public ImportAudioService() {
     }

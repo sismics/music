@@ -1,11 +1,12 @@
 package com.sismics.music.rest;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Exhaustive test of the transcoder resource.
@@ -27,7 +28,7 @@ public class TestTranscoderResource extends BaseJerseyTest {
         assertIsOk();
         JsonObject json = getJsonResult();
         JsonArray transcoders = json.getJsonArray("transcoders");
-        Assert.assertEquals(0, transcoders.size());
+        assertEquals(0, transcoders.size());
 
         // Create a transcoder
         PUT("/transcoder", ImmutableMap.of(
@@ -42,10 +43,10 @@ public class TestTranscoderResource extends BaseJerseyTest {
         assertIsOk();
         json = getJsonResult();
         transcoders = json.getJsonArray("transcoders");
-        Assert.assertEquals(1, transcoders.size());
+        assertEquals(1, transcoders.size());
         JsonObject transcoder0 = transcoders.getJsonObject(0);
         String transcoder0Id = transcoder0.getString("id");
-        Assert.assertEquals("mp3", transcoder0.getString("name"));
+        assertEquals("mp3", transcoder0.getString("name"));
 
         // Update a transcoder
         POST("/transcoder/" + transcoder0Id, ImmutableMap.of(
@@ -60,9 +61,9 @@ public class TestTranscoderResource extends BaseJerseyTest {
         assertIsOk();
         json = getJsonResult();
         transcoders = json.getJsonArray("transcoders");
-        Assert.assertEquals(1, transcoders.size());
+        assertEquals(1, transcoders.size());
         transcoder0 = transcoders.getJsonObject(0);
-        Assert.assertEquals("mp3 audio", transcoder0.getString("name"));
+        assertEquals("mp3 audio", transcoder0.getString("name"));
 
         // Delete the transcoder
         DELETE("/transcoder/" + transcoder0Id);
@@ -73,6 +74,6 @@ public class TestTranscoderResource extends BaseJerseyTest {
         assertIsOk();
         json = getJsonResult();
         transcoders = json.getJsonArray("transcoders");
-        Assert.assertEquals(0, transcoders.size());
+        assertEquals(0, transcoders.size());
     }
 }

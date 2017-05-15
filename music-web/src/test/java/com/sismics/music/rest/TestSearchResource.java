@@ -1,10 +1,11 @@
 package com.sismics.music.rest;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Exhaustive test of the search resource.
@@ -31,10 +32,10 @@ public class TestSearchResource extends BaseMusicTest {
         JsonArray tracks = json.getJsonArray("tracks");
         JsonArray albums = json.getJsonArray("albums");
         JsonArray artists = json.getJsonArray("artists");
-        Assert.assertEquals(1, tracks.size());
-        Assert.assertEquals(0, albums.size());
-        Assert.assertEquals(0, artists.size());
-        Assert.assertEquals("The Revolution Will Not Be Televised", tracks.getJsonObject(0).getString("title"));
+        assertEquals(1, tracks.size());
+        assertEquals(0, albums.size());
+        assertEquals(0, artists.size());
+        assertEquals("The Revolution Will Not Be Televised", tracks.getJsonObject(0).getString("title"));
         
         // Search by album name
         GET("/search/coachella");
@@ -43,10 +44,10 @@ public class TestSearchResource extends BaseMusicTest {
         albums = json.getJsonArray("albums");
         tracks = json.getJsonArray("tracks");
         artists = json.getJsonArray("artists");
-        Assert.assertEquals(1, albums.size());
-        Assert.assertEquals(2, tracks.size());
-        Assert.assertEquals(0, artists.size());
-        Assert.assertEquals("Coachella 2010 Day 01 Mixtape", albums.getJsonObject(0).getString("name"));
+        assertEquals(1, albums.size());
+        assertEquals(2, tracks.size());
+        assertEquals(0, artists.size());
+        assertEquals("Coachella 2010 Day 01 Mixtape", albums.getJsonObject(0).getString("name"));
         
         // Search by artist name
         GET("/search/proxy");
@@ -55,10 +56,10 @@ public class TestSearchResource extends BaseMusicTest {
         albums = json.getJsonArray("albums");
         tracks = json.getJsonArray("tracks");
         artists = json.getJsonArray("artists");
-        Assert.assertEquals(1, artists.size());
-        Assert.assertEquals(0, tracks.size());
-        Assert.assertEquals(1, albums.size());
-        Assert.assertEquals("[A] Proxy", artists.getJsonObject(0).getString("name"));
+        assertEquals(1, artists.size());
+        assertEquals(0, tracks.size());
+        assertEquals(1, albums.size());
+        assertEquals("[A] Proxy", artists.getJsonObject(0).getString("name"));
         
         // Search by artist name
         GET("/search/scott");
@@ -67,17 +68,17 @@ public class TestSearchResource extends BaseMusicTest {
         albums = json.getJsonArray("albums");
         tracks = json.getJsonArray("tracks");
         artists = json.getJsonArray("artists");
-        Assert.assertEquals(1, artists.size());
-        Assert.assertEquals(1, tracks.size());
-        Assert.assertEquals(0, albums.size());
-        Assert.assertEquals("Gil Scott-Heron", artists.getJsonObject(0).getString("name"));
+        assertEquals(1, artists.size());
+        assertEquals(1, tracks.size());
+        assertEquals(0, albums.size());
+        assertEquals("Gil Scott-Heron", artists.getJsonObject(0).getString("name"));
 
         // Search by track name : no result
         GET("/search/NOTRACK");
         assertIsOk();
         json = getJsonResult();
-        Assert.assertEquals(0, json.getJsonArray("tracks").size());
-        Assert.assertEquals(0, json.getJsonArray("albums").size());
-        Assert.assertEquals(0, json.getJsonArray("artists").size());
+        assertEquals(0, json.getJsonArray("tracks").size());
+        assertEquals(0, json.getJsonArray("albums").size());
+        assertEquals(0, json.getJsonArray("artists").size());
     }
 }

@@ -1,11 +1,13 @@
 package com.sismics.music.rest;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+
+import static junit.framework.TestCase.assertFalse;
+import static org.junit.Assert.*;
 
 /**
  * Exhaustive test of the directory resource.
@@ -31,8 +33,8 @@ public class TestDirectoryResource extends BaseMusicTest {
         PUT("/directory");
         assertIsBadRequest();
         JsonObject json = response.readEntity(JsonObject.class);
-        Assert.assertEquals("ValidationError", json.getString("type"));
-        Assert.assertTrue(json.getString("message"), json.getString("message").contains("location must be set"));
+        assertEquals("ValidationError", json.getString("type"));
+        assertTrue(json.getString("message"), json.getString("message").contains("location must be set"));
 
         // Admin creates a directory : OK
         PUT("/directory", ImmutableMap.of("location", "/vartest/music/main"));
@@ -47,14 +49,14 @@ public class TestDirectoryResource extends BaseMusicTest {
         assertIsOk();
         json = getJsonResult();
         JsonArray directories = json.getJsonArray("directories");
-        Assert.assertNotNull(directories);
-        Assert.assertEquals(2, directories.size());
+        assertNotNull(directories);
+        assertEquals(2, directories.size());
         JsonObject directory0 = directories.getJsonObject(0);
         String directory0Id = directory0.getString("id");
-        Assert.assertNotNull(directory0Id);
-        Assert.assertNotNull("/var/music/main", directory0.getString("location"));
-        Assert.assertTrue(directory0.getBoolean("active"));
-        Assert.assertFalse(directory0.getBoolean("valid"));
+        assertNotNull(directory0Id);
+        assertNotNull("/var/music/main", directory0.getString("location"));
+        assertTrue(directory0.getBoolean("active"));
+        assertFalse(directory0.getBoolean("valid"));
         String directory1Id = directories.getJsonObject(1).getString("id");
 
         // Admin updates the directory info
@@ -68,12 +70,12 @@ public class TestDirectoryResource extends BaseMusicTest {
         assertIsOk();
         json = getJsonResult();
         directories = json.getJsonArray("directories");
-        Assert.assertNotNull(directories);
-        Assert.assertEquals(2, directories.size());
+        assertNotNull(directories);
+        assertEquals(2, directories.size());
         directory0 = directories.getJsonObject(0);
-        Assert.assertNotNull(directory0.getString("id"));
-        Assert.assertNotNull("/var/music/mainstream", directory0.getString("location"));
-        Assert.assertTrue(directory0.getBoolean("active"));
+        assertNotNull(directory0.getString("id"));
+        assertNotNull("/var/music/mainstream", directory0.getString("location"));
+        assertTrue(directory0.getBoolean("active"));
 
         // Admin deletes the directories
         DELETE("/directory/" + directory0Id);
@@ -87,8 +89,8 @@ public class TestDirectoryResource extends BaseMusicTest {
         assertIsOk();
         json = getJsonResult();
         directories = json.getJsonArray("directories");
-        Assert.assertNotNull(directories);
-        Assert.assertEquals(0, directories.size());
+        assertNotNull(directories);
+        assertEquals(0, directories.size());
     }
 
     /**
@@ -108,8 +110,8 @@ public class TestDirectoryResource extends BaseMusicTest {
         assertIsOk();
         JsonObject json = getJsonResult();
         JsonArray directories = json.getJsonArray("directories");
-        Assert.assertNotNull(directories);
-        Assert.assertEquals(1, directories.size());
+        assertNotNull(directories);
+        assertEquals(1, directories.size());
         JsonObject directory0 = directories.getJsonObject(0);
         String directory0Id = directory0.getString("id");
 
@@ -118,8 +120,8 @@ public class TestDirectoryResource extends BaseMusicTest {
         assertIsOk();
         json = getJsonResult();
         JsonArray albums = json.getJsonArray("albums");
-        Assert.assertNotNull(albums);
-        Assert.assertEquals(2, albums.size());
+        assertNotNull(albums);
+        assertEquals(2, albums.size());
 
         // Admin deletes the directory
         DELETE("/directory/" + directory0Id);
@@ -130,7 +132,7 @@ public class TestDirectoryResource extends BaseMusicTest {
         assertIsOk();
         json = getJsonResult();
         albums = json.getJsonArray("albums");
-        Assert.assertNotNull(albums);
-        Assert.assertEquals(0, albums.size());
+        assertNotNull(albums);
+        assertEquals(0, albums.size());
     }
 }

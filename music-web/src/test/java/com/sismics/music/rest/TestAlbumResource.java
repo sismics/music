@@ -6,7 +6,6 @@ import com.sismics.util.filter.TokenBasedSecurityFilter;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.json.JsonArray;
@@ -91,7 +90,7 @@ public class TestAlbumResource extends BaseMusicTest {
                     .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                     .put(Entity.entity(new FormDataMultiPart().bodyPart(streamDataBodyPart),
                             MediaType.MULTIPART_FORM_DATA_TYPE), JsonObject.class);
-            Assert.assertEquals("ok", json.getString("status"));
+            assertEquals("ok", json.getString("status"));
         }
 
         // Check that the album art is correctly added
