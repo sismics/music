@@ -124,7 +124,7 @@ public class TestImportResource extends BaseMusicTest {
         assertEquals("ok", json.getString("status"));
         
         // Admin cleanup imports
-        json = target().path("/import/progress/cleanup").request()
+        target().path("/import/progress/cleanup").request()
                 .cookie(TokenBasedSecurityFilter.COOKIE_NAME, adminAuthenticationToken)
                 .post(Entity.form(new Form()), JsonObject.class);
         
@@ -389,17 +389,39 @@ public class TestImportResource extends BaseMusicTest {
         // Login users
         loginAdmin();
 
-        // Admin import a file
-        PUT("/import/upload", new HashMap<>(), ImmutableMap.of("file", getFile("/tagging/withid3.zip")));
+        // Admin import a zip file: OK
+        PUT("/import/upload", new HashMap<>(), ImmutableMap.of("file", getFile("/tagging/withid3_1.zip")));
         assertIsOk();
 
-        // Admin lists imported files
+        // Admin lists imported files: OK, tags read from ID3
         GET("/import");
         assertIsOk();
         JsonObject json = getJsonResult();
         JsonArray files = json.getJsonArray("files");
         assertEquals(2, files.size());
         JsonObject file = files.getJsonObject(0);
+        assertEquals("01Track.mp3", file.getString("file"));
+        assertEquals("AllttA", file.getString("title"));
+        assertEquals("Alltta1", file.getString("artist"));
+        assertEquals("Alltta2", file.getString("albumArtist"));
+        assertEquals("The Upper Hand", file.getString("album"));
+        assertEquals(1, file.getInt("order"));
+        assertEquals(2017, file.getInt("year"));
+
+        // Admin clear the imports: OK
+        POST("/import/progress/cleanup");
+
+        // Admin import a zip file: OK
+        PUT("/import/upload", new HashMap<>(), ImmutableMap.of("file", getFile("/tagging/withid3_2.zip")));
+        assertIsOk();
+
+        // Admin lists imported files: OK, guess missing tags
+        GET("/import");
+        assertIsOk();
+        json = getJsonResult();
+        files = json.getJsonArray("files");
+        assertEquals(2, files.size());
+        file = files.getJsonObject(0);
         assertEquals("01Track.mp3", file.getString("file"));
         assertEquals("AllttA", file.getString("title"));
         assertEquals("Alltta", file.getString("artist"));

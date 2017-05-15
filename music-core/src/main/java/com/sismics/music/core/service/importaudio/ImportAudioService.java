@@ -415,19 +415,19 @@ public class ImportAudioService extends AbstractExecutionThreadService {
             }
 
             // Read track title (can be empty string)
-            importAudioFile.setTitle(StringUtils.abbreviate(tag.getFirst(FieldKey.TITLE), 2000).trim());
+            importAudioFile.setTitle(StringUtils.substring(StringUtils.trimToEmpty(tag.getFirst(FieldKey.TITLE)), 0, 2000));
 
             // Read track artist (can be empty string)
-            importAudioFile.setArtist(StringUtils.abbreviate(tag.getFirst(FieldKey.ARTIST), 1000).trim());
+            importAudioFile.setArtist(StringUtils.substring(StringUtils.trimToEmpty(tag.getFirst(FieldKey.ARTIST)), 0, 1000));
 
             // Read track album artist (can be empty string)
-            importAudioFile.setArtist(StringUtils.abbreviate(tag.getFirst(FieldKey.ALBUM_ARTIST), 1000).trim());
-            if (importAudioFile.getAlbumArtist() == null) {
+            importAudioFile.setAlbumArtist(StringUtils.abbreviate(tag.getFirst(FieldKey.ALBUM_ARTIST), 0, 1000));
+            if (StringUtils.isEmpty(importAudioFile.getAlbumArtist())) {
                 importAudioFile.setAlbumArtist(importAudioFile.getArtist());
             }
 
             // Read track album
-            importAudioFile.setAlbum(StringUtils.abbreviate(tag.getFirst(FieldKey.ALBUM), 1000).trim());
+            importAudioFile.setAlbum(StringUtils.abbreviate(tag.getFirst(FieldKey.ALBUM), 0, 1000));
 
             // Read track order
             String order = tag.getFirst(FieldKey.TRACK);
