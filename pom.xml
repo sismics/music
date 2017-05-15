@@ -52,7 +52,7 @@
     <org.codehaus.mojo.rpm-maven-plugin.version>2.1-alpha-2</org.codehaus.mojo.rpm-maven-plugin.version>
     <org.codehaus.mojo.nsis-maven-plugin.version>1.0-SNAPSHOT</org.codehaus.mojo.nsis-maven-plugin.version>
     <org.codehaus.mojo.osxappbundle-maven-plugin.version>1.0-alpha-2</org.codehaus.mojo.osxappbundle-maven-plugin.version>
-    <org.eclipse.jetty.jetty-maven-plugin.version>9.1.3.v20140225</org.eclipse.jetty.jetty-maven-plugin.version>
+    <org.eclipse.jetty.jetty-maven-plugin.version>9.4.5.v20170502</org.eclipse.jetty.jetty-maven-plugin.version>
     <org.vafer.jdeb.version>1.0.1</org.vafer.jdeb.version>
     <com.samaxes.maven.minify-maven-plugin.version>1.7</com.samaxes.maven.minify-maven-plugin.version>
   </properties> 
