@@ -42,12 +42,12 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
     /**
      * Storage for watch keys.
      */
-    Map<WatchKey, Path> watchKeyMap = Maps.newConcurrentMap();
+    private Map<WatchKey, Path> watchKeyMap = Maps.newConcurrentMap();
 
     /**
      * Watched directories.
      */
-    List<Directory> watchedDirectoryList = Collections.synchronizedList(new ArrayList<Directory>());
+    private List<Directory> watchedDirectoryList = Collections.synchronizedList(new ArrayList<Directory>());
     
     public CollectionWatchService() {
     }

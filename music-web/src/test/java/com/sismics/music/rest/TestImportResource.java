@@ -379,4 +379,33 @@ public class TestImportResource extends BaseMusicTest {
         assertTrue(json.getJsonArray("albums").getJsonObject(0).getJsonNumber("update_date").longValue() > album0UpdateDate);
         assertEquals(json.getJsonArray("albums").getJsonObject(1).getJsonNumber("update_date").longValue(), album0UpdateDate);
     }
+
+    /**
+     * Test the suggestion of imported music with ID3 tags.
+     *
+     */
+    @Test
+    public void shouldSuggestTagWithId3() throws Exception {
+        // Login users
+        loginAdmin();
+
+        // Admin import a file
+        PUT("/import/upload", new HashMap<>(), ImmutableMap.of("file", getFile("/tagging/withid3.zip")));
+        assertIsOk();
+
+        // Admin lists imported files
+        GET("/import");
+        assertIsOk();
+        JsonObject json = getJsonResult();
+        JsonArray files = json.getJsonArray("files");
+        assertEquals(2, files.size());
+        JsonObject file = files.getJsonObject(0);
+        assertEquals("01Track.mp3", file.getString("file"));
+        assertEquals("AllttA", file.getString("title"));
+        assertEquals("Alltta", file.getString("artist"));
+        assertEquals("Alltta", file.getString("albumArtist"));
+        assertEquals("The Upper Hand", file.getString("album"));
+        assertEquals(1, file.getInt("order"));
+        assertEquals(2017, file.getInt("year"));
+    }
 }

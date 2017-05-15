@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Import audio service.
@@ -356,7 +357,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
      * 
      * @return List of imported files
      */
-    public List<File> getImportedFileList() {
+    public List<ImportAudioFile> getImportedFileList() {
         // Grab all audio files
         List<File> fileList = Lists.newArrayList(DirectoryUtil.getImportAudioDirectory().listFiles((dir, fileName) -> {
             String extension = Files.getFileExtension(fileName);
@@ -374,10 +375,75 @@ public class ImportAudioService extends AbstractExecutionThreadService {
                 }
             }
         }
-        
-        return fileList;
+
+        return guessTags(fileList);
     }
-    
+
+    /**
+     * Guess the tags from the list of imported files.
+     *
+     * @param fileList The list of imported files
+     * @return The files with guessed tags
+     */
+    private List<ImportAudioFile> guessTags(List<File> fileList) {
+        return fileList.stream()
+                .map(this::guessTags)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Guess the tags of a single track.
+     *
+     * @param file The file
+     * @return The file with tags
+     */
+    private ImportAudioFile guessTags(File file) {
+        ImportAudioFile importAudioFile = new ImportAudioFile(file);
+
+        try {
+            AudioFile audioFile = AudioFileIO.read(file);
+            Tag tag = audioFile.getTag();
+
+            // Read track year
+            String year = tag.getFirst(FieldKey.YEAR);
+            if (!Strings.isNullOrEmpty(year)) {
+                try {
+                    importAudioFile.setYear(Integer.valueOf(year));
+                } catch (NumberFormatException e) {
+                    // Ignore parsing errors
+                }
+            }
+
+            // Read track title (can be empty string)
+            importAudioFile.setTitle(StringUtils.abbreviate(tag.getFirst(FieldKey.TITLE), 2000).trim());
+
+            // Read track artist (can be empty string)
+            importAudioFile.setArtist(StringUtils.abbreviate(tag.getFirst(FieldKey.ARTIST), 1000).trim());
+
+            // Read track album artist (can be empty string)
+            importAudioFile.setArtist(StringUtils.abbreviate(tag.getFirst(FieldKey.ALBUM_ARTIST), 1000).trim());
+            if (importAudioFile.getAlbumArtist() == null) {
+                importAudioFile.setAlbumArtist(importAudioFile.getArtist());
+            }
+
+            // Read track album
+            importAudioFile.setAlbum(StringUtils.abbreviate(tag.getFirst(FieldKey.ALBUM), 1000).trim());
+
+            // Read track order
+            String order = tag.getFirst(FieldKey.TRACK);
+            if (!Strings.isNullOrEmpty(order)) {
+                try {
+                    importAudioFile.setOrder(Integer.valueOf(order));
+                } catch (NumberFormatException e) {
+                    // Ignore parsing errors
+                }
+            }
+        } catch (Exception e) {
+            // NOP
+        }
+        return importAudioFile;
+    }
+
     /**
      * Tag and move a file in a directory. This method is thread-safe.
      * 
@@ -393,18 +459,12 @@ public class ImportAudioService extends AbstractExecutionThreadService {
             final String albumArtist, final Directory directory) throws Exception {
         syncExecutor.submit((Callable<Void>) () -> {
             // Retrieve the file from imported files
-            List<File> importedFileList = AppContext.getInstance().getImportAudioService().getImportedFileList();
-            File file = null;
-            for (File importedFile : importedFileList) {
-                if (importedFile.getName().equals(fileName)) {
-                    file = importedFile;
-                    break;
-                }
-            }
-
-            if (file == null) {
-                throw new Exception("File not found: " + fileName);
-            }
+            List<ImportAudioFile> importedFileList = AppContext.getInstance().getImportAudioService().getImportedFileList();
+            ImportAudioFile importAudioFile = importedFileList.stream()
+                    .filter(e -> e.getFile().getName().equals(fileName))
+                    .findFirst()
+                    .orElseThrow(() -> new Exception("File not found: " + fileName));
+            File file = importAudioFile.getFile();
 
             // Tag the file
             try {

@@ -5,12 +5,12 @@ import com.sismics.music.core.dao.dbi.DirectoryDao;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Directory;
 import com.sismics.music.core.service.importaudio.ImportAudio;
+import com.sismics.music.core.service.importaudio.ImportAudioFile;
 import com.sismics.rest.FormDataUtil;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
 import com.sismics.rest.util.Validation;
-import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -214,7 +214,7 @@ public class ImportResource extends BaseResource {
     }
 
     /**
-     * List imported tracks.
+     * List imported tracks, and suggest some tags.
      * 
      * @return Response
      */
@@ -224,14 +224,23 @@ public class ImportResource extends BaseResource {
             throw new ForbiddenClientException();
         }
         
-        List<File> importedFileList = AppContext.getInstance().getImportAudioService().getImportedFileList();
-        importedFileList.sort(new LastModifiedFileComparator());
+        List<ImportAudioFile> importedFileList = AppContext.getInstance().getImportAudioService().getImportedFileList();
+        importedFileList.sort((file1, file2) -> {
+            long result = file1.getFile().lastModified() - file2.getFile().lastModified();
+            return result < 0L ? -1 : (result > 0L ? 1 : 0);
+        });
         
         JsonObjectBuilder response = Json.createObjectBuilder();
         JsonArrayBuilder items = Json.createArrayBuilder();
-        for (File importedFile : importedFileList) {
+        for (ImportAudioFile importedFile : importedFileList) {
             items.add(Json.createObjectBuilder()
-                    .add("file", importedFile.getName()));
+                    .add("title", importedFile.getTitle())
+                    .add("album", importedFile.getAlbum())
+                    .add("artist", importedFile.getArtist())
+                    .add("albumArtist", importedFile.getAlbumArtist())
+                    .add("order", importedFile.getOrder())
+                    .add("year", importedFile.getYear())
+                    .add("file", importedFile.getFile().getName()));
         }
         response.add("files", items);
         
@@ -315,11 +324,10 @@ public class ImportResource extends BaseResource {
         Validation.required(fileName, "file");
         
         // Retrieve the file from imported files
-        List<File> importedFileList = AppContext.getInstance().getImportAudioService().getImportedFileList();
         File file = null;
-        for (File importedFile : importedFileList) {
-            if (importedFile.getName().equals(fileName)) {
-                file = importedFile;
+        for (ImportAudioFile importedFile : AppContext.getInstance().getImportAudioService().getImportedFileList()) {
+            if (importedFile.getFile().getName().equals(fileName)) {
+                file = importedFile.getFile();
                 break;
             }
         }
