@@ -18,7 +18,7 @@ public class AlbumResource extends BaseResource {
     public static void list(Context context, JsonHttpResponseHandler responseHandler) {
         init(context);
 
-        client.get(getApiUrl(context) + "/album?limit=0", responseHandler);
+        client.get(getApiUrl(context) + "/album?limit=100000", responseHandler);
     }
 
     /**
