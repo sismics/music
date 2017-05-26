@@ -16,10 +16,10 @@ public class AuthenticationTokenMapper implements ResultSetMapper<Authentication
     @Override
     public AuthenticationToken map(int index, ResultSet r, StatementContext ctx) throws SQLException {
         return new AuthenticationToken(
-                r.getString("AUT_ID_C"),
-                r.getString("AUT_IDUSER_C"),
-                r.getBoolean("AUT_LONGLASTED_B"),
-                r.getTimestamp("AUT_CREATEDATE_D"),
-                r.getTimestamp("AUT_LASTCONNECTIONDATE_D"));
+                r.getString("id"),
+                r.getString("user_id"),
+                r.getBoolean("longlasted"),
+                r.getTimestamp("createdate"),
+                r.getTimestamp("lastconnectiondate"));
     }
 }

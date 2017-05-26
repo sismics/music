@@ -15,6 +15,6 @@ import java.sql.SQLException;
 public class LocaleMapper implements ResultSetMapper<Locale> {
     @Override
     public Locale map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-        return new Locale(r.getString("LOC_ID_C"));
+        return new Locale(r.getString("id"));
     }
 }

@@ -21,12 +21,12 @@ public class PlaylistTrackDao {
     public String create(PlaylistTrack playlistTrack) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                "  T_PLAYLIST_TRACK (PLT_ID_C, PLT_IDPLAYLIST_C, PLT_IDTRACK_C, PLT_ORDER_N)" +
-                "  values(:id, :playlistId, :trackId, :order)")
+                "  t_playlist_track (id, playlist_id, track_id, number)" +
+                "  values(:id, :playlistId, :trackId, :number)")
                 .bind("id", playlistTrack.getId())
                 .bind("playlistId", playlistTrack.getPlaylistId())
                 .bind("trackId", playlistTrack.getTrackId())
-                .bind("order", playlistTrack.getOrder())
+                .bind("number", playlistTrack.getOrder())
                 .execute();
 
         return playlistTrack.getId();
@@ -39,8 +39,8 @@ public class PlaylistTrackDao {
      */
     public void deleteByPlaylistId(String playlistId) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("delete from T_PLAYLIST_TRACK pt" +
-                "  where pt.PLT_IDPLAYLIST_C = :playlistId ")
+        handle.createStatement("delete from t_playlist_track pt" +
+                "  where pt.playlist_id = :playlistId ")
                 .bind("playlistId", playlistId)
                 .execute();
     }
@@ -52,11 +52,11 @@ public class PlaylistTrackDao {
      */
     public Integer getPlaylistTrackNextOrder(String playlistId) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        Object order = handle.createQuery("select max(pt.PLT_ORDER_N) from T_PLAYLIST_TRACK pt where pt.PLT_IDPLAYLIST_C = :playlistId")
+        Object number = handle.createQuery("select max(pt.number) from t_playlist_track pt where pt.playlist_id = :playlistId")
                 .bind("playlistId", playlistId)
                 .map(ObjectMapper.FIRST)
                 .first();
-        return order == null ? 0 : ((Integer) order) + 1;
+        return number == null ? 0 : ((Integer) number) + 1;
     }
 
     /**
@@ -64,21 +64,21 @@ public class PlaylistTrackDao {
      *
      * @param playlistId Playlist ID
      * @param trackId ID of the track to insert
-     * @param order Position to insert
+     * @param number Position to insert
      */
-    public void insertPlaylistTrack(String playlistId, String trackId, Integer order) {
+    public void insertPlaylistTrack(String playlistId, String trackId, Integer number) {
         // Reorder currrent tracks
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_PLAYLIST_TRACK pt set pt.PLT_ORDER_N = pt.PLT_ORDER_N + 1 where pt.PLT_IDPLAYLIST_C = :playlistId and pt.PLT_ORDER_N >= :order")
+        handle.createStatement("update t_playlist_track pt set pt.number = pt.number + 1 where pt.playlist_id = :playlistId and pt.number >= :number")
                 .bind("playlistId", playlistId)
-                .bind("order", order)
+                .bind("number", number)
                 .execute();
 
         // Insert new track
         PlaylistTrack playlistTrack = new PlaylistTrack();
         playlistTrack.setPlaylistId(playlistId);
         playlistTrack.setTrackId(trackId);
-        playlistTrack.setOrder(order);
+        playlistTrack.setOrder(number);
         PlaylistTrack.createPlaylistTrack(playlistTrack);
     }
 
@@ -86,15 +86,15 @@ public class PlaylistTrackDao {
      * Remove a track from the given position.
      *
      * @param playlistId Playlist ID
-     * @param order Position to remove
-     * @return Removed track ID, or null if no track could be found ot the specified order
+     * @param number Position to remove
+     * @return Removed track ID, or null if no track could be found ot the specified number
      */
-    public String removePlaylistTrack(String playlistId, Integer order) {
-        // Get track at the specified order
+    public String removePlaylistTrack(String playlistId, Integer number) {
+        // Get track at the specified number
         final Handle handle = ThreadLocalContext.get().getHandle();
-        String trackId = handle.createQuery("select pt.PLT_IDTRACK_C from T_PLAYLIST_TRACK pt where pt.PLT_IDPLAYLIST_C = :playlistId and pt.PLT_ORDER_N = :order")
+        String trackId = handle.createQuery("select pt.track_id from t_playlist_track pt where pt.playlist_id = :playlistId and pt.number = :number")
                 .bind("playlistId", playlistId)
-                .bind("order", order)
+                .bind("number", number)
                 .map(StringMapper.FIRST)
                 .first();
         if (trackId == null) {
@@ -102,15 +102,15 @@ public class PlaylistTrackDao {
         }
 
         // Delete the track
-        handle.createStatement("delete from T_PLAYLIST_TRACK pt where pt.PLT_IDPLAYLIST_C = :playlistId and pt.PLT_ORDER_N = :order")
+        handle.createStatement("delete from t_playlist_track pt where pt.playlist_id = :playlistId and pt.number = :number")
                 .bind("playlistId", playlistId)
-                .bind("order", order)
+                .bind("number", number)
                 .execute();
 
         // Reorder currrent tracks
-        handle.createStatement("update T_PLAYLIST_TRACK pt set pt.PLT_ORDER_N = pt.PLT_ORDER_N - 1 where pt.PLT_IDPLAYLIST_C = :playlistId and pt.PLT_ORDER_N > :order")
+        handle.createStatement("update t_playlist_track pt set pt.number = pt.number - 1 where pt.playlist_id = :playlistId and pt.number > :number")
                 .bind("playlistId", playlistId)
-                .bind("order", order)
+                .bind("number", number)
                 .execute();
 
         return trackId;

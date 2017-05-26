@@ -25,17 +25,17 @@ public class ArtistDao extends BaseDao<ArtistDto, ArtistCriteria> {
         List<String> criteriaList = new ArrayList<String>();
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-        StringBuilder sb = new StringBuilder("select a.ART_ID_C as id, a.ART_NAME_C as c0 ");
-        sb.append(" from T_ARTIST a ");
+        StringBuilder sb = new StringBuilder("select a.id as id, a.name as c0 ");
+        sb.append(" from t_artist a ");
 
         // Adds search criteria
-        criteriaList.add("a.ART_DELETEDATE_D is null");
+        criteriaList.add("a.deletedate is null");
         if (criteria.getId() != null) {
-            criteriaList.add("a.ART_ID_C = :id");
+            criteriaList.add("a.id = :id");
             parameterMap.put("id", criteria.getId());
         }
         if (criteria.getNameLike() != null) {
-            criteriaList.add("lower(a.ART_NAME_C) like lower(:nameLike)");
+            criteriaList.add("lower(a.name) like lower(:nameLike)");
             parameterMap.put("nameLike", "%" + criteria.getNameLike() + "%");
         }
 
@@ -54,7 +54,7 @@ public class ArtistDao extends BaseDao<ArtistDto, ArtistCriteria> {
 
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                "  T_ARTIST (ART_ID_C, ART_NAME_C, ART_NAMECORRECTED_C, ART_CREATEDATE_D)" +
+                "  t_artist (id, name, namecorrected, createdate)" +
                 "  values(:id, :name, :nameCorrected, :createDate)")
                 .bind("id", artist.getId())
                 .bind("name", artist.getName())
@@ -73,10 +73,10 @@ public class ArtistDao extends BaseDao<ArtistDto, ArtistCriteria> {
      */
     public Artist update(Artist artist) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_ARTIST a set " +
-                " a.ART_NAME_C = :name," +
-                " a.ART_NAMECORRECTED_C = :nameCorrected" +
-                " where a.ART_ID_C = :id and a.ART_DELETEDATE_D is null")
+        handle.createStatement("update t_artist a set " +
+                " a.name = :name," +
+                " a.namecorrected = :nameCorrected" +
+                " where a.id = :id and a.deletedate is null")
                 .bind("id", artist.getId())
                 .bind("name", artist.getName())
                 .bind("nameCorrected", artist.getNameCorrected())
@@ -94,8 +94,8 @@ public class ArtistDao extends BaseDao<ArtistDto, ArtistCriteria> {
     public Artist getActiveByName(String name) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         return handle.createQuery("select " + new ArtistMapper().getJoinedColumns("a") +
-                "  from T_ARTIST a" +
-                "  where lower(a.ART_NAME_C) = lower(:name) and a.ART_DELETEDATE_D is null")
+                "  from t_artist a" +
+                "  where lower(a.name) = lower(:name) and a.deletedate is null")
                 .bind("name", name)
                 .mapTo(Artist.class)
                 .first();
@@ -110,8 +110,8 @@ public class ArtistDao extends BaseDao<ArtistDto, ArtistCriteria> {
     public Artist getActiveById(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         return handle.createQuery("select " + new ArtistMapper().getJoinedColumns("a") +
-                "  from T_ARTIST a" +
-                "  where a.ART_ID_C = :id and a.ART_DELETEDATE_D is null")
+                "  from t_artist a" +
+                "  where a.id = :id and a.deletedate is null")
                 .bind("id", id)
                 .mapTo(Artist.class)
                 .first();
@@ -124,9 +124,9 @@ public class ArtistDao extends BaseDao<ArtistDto, ArtistCriteria> {
      */
     public void delete(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_ARTIST a" +
-                "  set a.ART_DELETEDATE_D = :deleteDate" +
-                "  where a.ART_ID_C = :id and a.ART_DELETEDATE_D is null")
+        handle.createStatement("update t_artist a" +
+                "  set a.deletedate = :deleteDate" +
+                "  where a.id = :id and a.deletedate is null")
                 .bind("id", id)
                 .bind("deleteDate", new Timestamp(new Date().getTime()))
                 .execute();
@@ -137,14 +137,14 @@ public class ArtistDao extends BaseDao<ArtistDto, ArtistCriteria> {
      */
     public void deleteEmptyArtist() {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_ARTIST a set a.ART_DELETEDATE_D = :deleteDate where a.ART_ID_C NOT IN (" +
-                "  select al.ALB_IDARTIST_C from T_ALBUM al " +
-                "    where al.ALB_DELETEDATE_D is null " +
-                "    group by al.ALB_IDARTIST_C" +
+        handle.createStatement("update t_artist a set a.deletedate = :deleteDate where a.id not in (" +
+                "  select al.artist_id from t_album al " +
+                "    where al.deletedate is null " +
+                "    group by al.artist_id" +
                 " union " +
-                "  select t.TRK_IDARTIST_C from T_TRACK t " +
-                "    where t.TRK_DELETEDATE_D is null " +
-                "    group by t.TRK_IDARTIST_C)")
+                "  select t.artist_id from t_track t " +
+                "    where t.deletedate is null " +
+                "    group by t.artist_id)")
                 .bind("deleteDate", new Timestamp(new Date().getTime()))
                 .execute();
     }

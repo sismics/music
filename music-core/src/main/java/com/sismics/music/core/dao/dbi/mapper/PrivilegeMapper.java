@@ -1,6 +1,6 @@
 package com.sismics.music.core.dao.dbi.mapper;
 
-import com.sismics.music.core.model.dbi.BaseFunction;
+import com.sismics.music.core.model.dbi.Privilege;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -12,9 +12,9 @@ import java.sql.SQLException;
  *
  * @author jtremeaux
  */
-public class BaseFunctionMapper implements ResultSetMapper<BaseFunction> {
+public class PrivilegeMapper implements ResultSetMapper<Privilege> {
     @Override
-    public BaseFunction map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-        return new BaseFunction(r.getString("BAF_ID_C"));
+    public Privilege map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+        return new Privilege(r.getString("id"));
     }
 }

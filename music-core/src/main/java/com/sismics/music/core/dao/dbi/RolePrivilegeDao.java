@@ -9,28 +9,28 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Role base functions DAO.
+ * Role privileges DAO.
  * 
  * @author jtremeaux
  */
-public class RoleBaseFunctionDao {
+public class RolePrivilegeDao {
     /**
-     * Find the set of base functions of a role.
+     * Find the set of privileges of a role.
      * 
      * @param roleId Role ID
-     * @return Set of base functions
+     * @return Set of privileges
      */
     public Set<String> findByRoleId(String roleId) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        List<Map<String, Object>> resultList = handle.createQuery("select rbf.RBF_IDBASEFUNCTION_C " +
-                "  from T_ROLE_BASE_FUNCTION rbf, T_ROLE r" +
-                "  where rbf.RBF_IDROLE_C = :roleId and rbf.RBF_DELETEDATE_D is null" +
-                "  and r.ROL_ID_C = rbf.RBF_IDROLE_C and r.ROL_DELETEDATE_D is null")
+        List<Map<String, Object>> resultList = handle.createQuery("select rpr.privilege_id " +
+                "  from t_role_privilege rpr, t_role r" +
+                "  where rpr.role_id = :roleId and rpr.deletedate is null" +
+                "  and r.id = rpr.role_id and r.deletedate is null")
                 .bind("roleId", roleId)
                 .list();
         Set<String> roleSet = Sets.newHashSet();
         for (Map<String, Object> role : resultList) {
-            roleSet.add((String) role.get("RBF_IDBASEFUNCTION_C"));
+            roleSet.add((String) role.get("privilege_id"));
         }
         return roleSet;
     }

@@ -17,7 +17,7 @@ public class ConfigMapper implements ResultSetMapper<Config> {
     @Override
     public Config map(int index, ResultSet r, StatementContext ctx) throws SQLException {
         return new Config(
-                ConfigType.valueOf(r.getString("CFG_ID_C")),
-                r.getString("CFG_VALUE_C"));
+                ConfigType.valueOf(r.getString("id")),
+                r.getString("value"));
     }
 }

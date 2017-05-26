@@ -26,53 +26,53 @@ public class TrackDao extends BaseDao<TrackDto, TrackCriteria> {
         List<String> criteriaList = new ArrayList<String>();
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-        StringBuilder sb = new StringBuilder("select t.TRK_ID_C as id, t.TRK_FILENAME_C as fileName, t.TRK_TITLE_C as title, t.TRK_YEAR_N as year, t.TRK_GENRE_C as genre, t.TRK_LENGTH_N as length, t.TRK_BITRATE_N as bitrate, t.TRK_ORDER_N as trackOrder, t.TRK_VBR_B as vbr, t.TRK_FORMAT_C as format,");
+        StringBuilder sb = new StringBuilder("select t.id as id, t.filename as fileName, t.title as title, t.year as year, t.genre as genre, t.length as length, t.bitrate as bitrate, t.number as trackOrder, t.vbr as vbr, t.format as format,");
         if (criteria.getUserId() != null) {
-            sb.append(" ut.UST_PLAYCOUNT_N as userTrackPlayCount, ut.UST_LIKE_B userTrackLike, ");
+            sb.append(" ut.playcount as userTrackPlayCount, ut.liked userTrackLike, ");
         } else {
             sb.append(" 0 as userTrackPlayCount, false as userTrackLike, ");
         }
-        sb.append(" a.ART_ID_C as artistId, a.ART_NAME_C as artistName, t.TRK_IDALBUM_C as albumId, alb.ALB_NAME_C as albumName, alb.ALB_ALBUMART_C as albumArt");
+        sb.append(" a.id as artistId, a.name as artistName, t.album_id as albumId, alb.name as albumName, alb.albumart as albumArt");
         if (criteria.getPlaylistId() != null) {
-            sb.append("  from T_PLAYLIST_TRACK pt, T_TRACK t ");
+            sb.append("  from t_playlist_track pt, t_track t ");
         } else {
-            sb.append("  from T_TRACK t ");
+            sb.append("  from t_track t ");
         }
-        sb.append("  join T_ARTIST a ON(a.ART_ID_C = t.TRK_IDARTIST_C and ART_DELETEDATE_D is null) ");
-        sb.append("  join T_ALBUM alb ON(t.TRK_IDALBUM_C = alb.ALB_ID_C and alb.ALB_DELETEDATE_D is null) ");
+        sb.append("  join t_artist a on(a.id = t.artist_id and a.deletedate is null)");
+        sb.append("  join t_album alb on(t.album_id = alb.id and alb.deletedate is null)");
         if (criteria.getUserId() != null) {
-            sb.append("  left join T_USER_TRACK ut ON(ut.UST_IDTRACK_C = t.TRK_ID_C and ut.UST_IDUSER_C = :userId and ut.UST_DELETEDATE_D is null) ");
+            sb.append("  left join t_user_track ut on(ut.track_id = t.id and ut.user_id = :userId and ut.deletedate is null)");
         }
 
         // Adds search criteria
-        criteriaList.add("t.TRK_DELETEDATE_D is null");
+        criteriaList.add("t.deletedate is null");
         if (criteria.getPlaylistId() != null) {
-            criteriaList.add("pt.PLT_IDTRACK_C = t.TRK_ID_C");
-            criteriaList.add("pt.PLT_IDPLAYLIST_C = :playlistId");
+            criteriaList.add("pt.track_id = t.id");
+            criteriaList.add("pt.playlist_id = :playlistId");
             parameterMap.put("playlistId", criteria.getPlaylistId());
         }
         if (criteria.getAlbumId() != null) {
-            criteriaList.add("t.TRK_IDALBUM_C = :albumId");
+            criteriaList.add("t.album_id = :albumId");
             parameterMap.put("albumId", criteria.getAlbumId());
         }
         if (criteria.getDirectoryId() != null) {
-            criteriaList.add("alb.ALB_IDDIRECTORY_C = :directoryId");
+            criteriaList.add("alb.directory_id = :directoryId");
             parameterMap.put("directoryId", criteria.getDirectoryId());
         }
         if (criteria.getArtistId() != null) {
-            criteriaList.add("a.ART_ID_C = :artistId");
+            criteriaList.add("a.id = :artistId");
             parameterMap.put("artistId", criteria.getArtistId());
         }
         if (criteria.getTitle() != null) {
-            criteriaList.add("lower(t.TRK_TITLE_C) like lower(:title)");
+            criteriaList.add("lower(t.title) like lower(:title)");
             parameterMap.put("title", criteria.getTitle());
         }
         if (criteria.getArtistName() != null) {
-            criteriaList.add("lower(a.ART_NAME_C) like lower(:artistName)");
+            criteriaList.add("lower(a.name) like lower(:artistName)");
             parameterMap.put("artistName", criteria.getArtistName());
         }
         if (criteria.getLike() != null) {
-            criteriaList.add("(lower(t.TRK_TITLE_C) like lower(:like) or lower(alb.ALB_NAME_C) like lower(:like) or lower(a.ART_NAME_C) like lower(:like))");
+            criteriaList.add("(lower(t.title) like lower(:like) or lower(alb.name) like lower(:like) or lower(a.name) like lower(:like))");
             parameterMap.put("like", "%" + criteria.getLike() + "%");
         }
         if (criteria.getUserId() != null) {
@@ -81,13 +81,13 @@ public class TrackDao extends BaseDao<TrackDto, TrackCriteria> {
 
         SortCriteria sortCriteria;
         if (criteria.getPlaylistId() != null) {
-            sortCriteria = new SortCriteria(" order by pt.PLT_ORDER_N asc");
+            sortCriteria = new SortCriteria(" order by pt.number asc");
         } else if (criteria.getLike() != null || criteria.getArtistId() != null) {
-            sortCriteria = new SortCriteria(" order by alb.ALB_NAME_C, t.TRK_ORDER_N, t.TRK_TITLE_C asc");
+            sortCriteria = new SortCriteria(" order by alb.name, t.number, t.title asc");
         } else if (criteria.getRandom() != null && criteria.getRandom()) {
             sortCriteria = new SortCriteria(" order by rand()");
         } else {
-            sortCriteria = new SortCriteria(" order by t.TRK_ORDER_N, t.TRK_TITLE_C asc");
+            sortCriteria = new SortCriteria(" order by t.number, t.title asc");
         }
 
         return new QueryParam(sb.toString(), criteriaList, parameterMap, sortCriteria, filterCriteria, new TrackDtoMapper());
@@ -105,8 +105,8 @@ public class TrackDao extends BaseDao<TrackDto, TrackCriteria> {
 
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                "  T_TRACK(TRK_ID_C, TRK_IDALBUM_C, TRK_IDARTIST_C, TRK_FILENAME_C, TRK_TITLE_C, TRK_TITLECORRECTED_C, TRK_YEAR_N, TRK_GENRE_C, TRK_LENGTH_N, TRK_BITRATE_N, TRK_ORDER_N, TRK_VBR_B, TRK_FORMAT_C, TRK_CREATEDATE_D)" +
-                "  values(:id, :albumId, :artistId, :fileName, :title, :titleCorrected, :year, :genre, :length, :bitrate, :order, :vbr, :format, :createDate)")
+                "  t_track(id, album_id, artist_id, filename, title, titlecorrected, year, genre, length, bitrate, number, vbr, format, createdate)" +
+                "  values(:id, :albumId, :artistId, :fileName, :title, :titleCorrected, :year, :genre, :length, :bitrate, :number, :vbr, :format, :createDate)")
                 .bind("id", track.getId())
                 .bind("albumId", track.getAlbumId())
                 .bind("artistId", track.getArtistId())
@@ -117,7 +117,7 @@ public class TrackDao extends BaseDao<TrackDto, TrackCriteria> {
                 .bind("genre", track.getGenre())
                 .bind("length", track.getLength())
                 .bind("bitrate", track.getBitrate())
-                .bind("order", track.getOrder())
+                .bind("number", track.getOrder())
                 .bind("vbr", track.isVbr())
                 .bind("format", track.getFormat())
                 .bind("createDate", new Timestamp(track.getCreateDate().getTime()))
@@ -134,21 +134,21 @@ public class TrackDao extends BaseDao<TrackDto, TrackCriteria> {
      */
     public Track update(Track track) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_TRACK t set " +
-                " t.TRK_IDALBUM_C = :albumId, " +
-                " t.TRK_IDARTIST_C = :artistId, " +
-                " t.TRK_FILENAME_C = :fileName, " +
-                " t.TRK_TITLE_C = :title, " +
-                " t.TRK_TITLECORRECTED_C = :titleCorrected, " +
-                " t.TRK_YEAR_N = :year, " +
-                " t.TRK_GENRE_C = :genre, " +
-                " t.TRK_LENGTH_N = :length, " +
-                " t.TRK_BITRATE_N = :bitrate, " +
-                " t.TRK_ORDER_N = :order, " +
-                " t.TRK_VBR_B = :vbr, " +
-                " t.TRK_FORMAT_C = :format, " +
-                " t.TRK_CREATEDATE_D = :createDate " +
-                " where t.TRK_ID_C = :id and t.TRK_DELETEDATE_D is null")
+        handle.createStatement("update t_track t set " +
+                " t.album_id = :albumId, " +
+                " t.artist_id = :artistId, " +
+                " t.filename = :fileName, " +
+                " t.title = :title, " +
+                " t.titlecorrected = :titleCorrected, " +
+                " t.year = :year, " +
+                " t.genre = :genre, " +
+                " t.length = :length, " +
+                " t.bitrate = :bitrate, " +
+                " t.number = :number, " +
+                " t.vbr = :vbr, " +
+                " t.format = :format, " +
+                " t.createdate = :createDate " +
+                " where t.id = :id and t.deletedate is null")
                 .bind("id", track.getId())
                 .bind("albumId", track.getAlbumId())
                 .bind("artistId", track.getArtistId())
@@ -159,7 +159,7 @@ public class TrackDao extends BaseDao<TrackDto, TrackCriteria> {
                 .bind("genre", track.getGenre())
                 .bind("length", track.getLength())
                 .bind("bitrate", track.getBitrate())
-                .bind("order", track.getOrder())
+                .bind("number", track.getOrder())
                 .bind("vbr", track.isVbr())
                 .bind("format", track.getFormat())
                 .bind("createDate", new Timestamp(track.getCreateDate().getTime()))
@@ -178,9 +178,9 @@ public class TrackDao extends BaseDao<TrackDto, TrackCriteria> {
     public Track getActiveByDirectoryAndFilename(String directoryId, String fileName) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         return handle.createQuery("select " + new TrackMapper().getJoinedColumns("t") +
-                "  from T_TRACK t, T_ALBUM a" +
-                "  where t.TRK_FILENAME_C = :fileName and t.TRK_DELETEDATE_D is null " +
-                "  and a.ALB_ID_C = t.TRK_IDALBUM_C and a.ALB_IDDIRECTORY_C = :directoryId and a.ALB_DELETEDATE_D is null")
+                "  from t_track t, t_album a" +
+                "  where t.filename = :fileName and t.deletedate is null " +
+                "  and a.id = t.album_id and a.directory_id = :directoryId and a.deletedate is null")
                 .bind("directoryId", directoryId)
                 .bind("fileName", fileName)
                 .mapTo(Track.class)
@@ -197,9 +197,9 @@ public class TrackDao extends BaseDao<TrackDto, TrackCriteria> {
     public List<Track> getActiveByDirectoryInLocation(String directoryId, String location) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         return handle.createQuery("select " + new TrackMapper().getJoinedColumns("t") +
-                "  from T_TRACK t, T_ALBUM a" +
-                "  where locate(:location, t.TRK_FILENAME_C) = 1 and t.TRK_DELETEDATE_D is null " +
-                "  and a.ALB_ID_C = t.TRK_IDALBUM_C and a.ALB_IDDIRECTORY_C = :directoryId and a.ALB_DELETEDATE_D is null")
+                "  from t_track t, t_album a" +
+                "  where locate(:location, t.filename) = 1 and t.deletedate is null " +
+                "  and a.id = t.album_id and a.directory_id = :directoryId and a.deletedate is null")
                 .bind("directoryId", directoryId)
                 .bind("location", location)
                 .mapTo(Track.class)
@@ -215,8 +215,8 @@ public class TrackDao extends BaseDao<TrackDto, TrackCriteria> {
     public Track getActiveById(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         return handle.createQuery("select " + new TrackMapper().getJoinedColumns("t") +
-                "  from T_TRACK t " +
-                "  where t.TRK_ID_C = :id ")
+                "  from t_track t " +
+                "  where t.id = :id ")
                 .bind("id", id)
                 .mapTo(Track.class)
                 .first();
@@ -229,9 +229,9 @@ public class TrackDao extends BaseDao<TrackDto, TrackCriteria> {
      */
     public void delete(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_TRACK t" +
-                "  set t.TRK_DELETEDATE_D = :deleteDate" +
-                "  where t.TRK_DELETEDATE_D is null and t.TRK_ID_C = :id ")
+        handle.createStatement("update t_track t" +
+                "  set t.deletedate = :deleteDate" +
+                "  where t.deletedate is null and t.id = :id ")
                 .bind("id", id)
                 .bind("deleteDate", new Timestamp(new Date().getTime()))
                 .execute();

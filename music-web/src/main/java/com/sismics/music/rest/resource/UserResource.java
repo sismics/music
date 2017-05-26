@@ -2,7 +2,7 @@ package com.sismics.music.rest.resource;
 
 import com.sismics.music.core.constant.Constants;
 import com.sismics.music.core.dao.dbi.AuthenticationTokenDao;
-import com.sismics.music.core.dao.dbi.RoleBaseFunctionDao;
+import com.sismics.music.core.dao.dbi.RolePrivilegeDao;
 import com.sismics.music.core.dao.dbi.UserDao;
 import com.sismics.music.core.dao.dbi.criteria.UserCriteria;
 import com.sismics.music.core.dao.dbi.dto.UserDto;
@@ -18,7 +18,7 @@ import com.sismics.music.core.service.lastfm.LastFmService;
 import com.sismics.music.core.util.dbi.PaginatedList;
 import com.sismics.music.core.util.dbi.PaginatedLists;
 import com.sismics.music.core.util.dbi.SortCriteria;
-import com.sismics.music.rest.constant.BaseFunction;
+import com.sismics.music.rest.constant.Privilege;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
@@ -66,7 +66,7 @@ public class UserResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        checkBaseFunction(BaseFunction.ADMIN);
+        checkPrivilege(Privilege.ADMIN);
         
         // Validate the input data
         username = Validation.length(username, "username", 3, 50);
@@ -149,7 +149,7 @@ public class UserResource extends BaseResource {
         if (localeId != null) {
             user.setLocaleId(localeId);
         }
-        if (firstConnection != null && hasBaseFunction(BaseFunction.ADMIN)) {
+        if (firstConnection != null && hasPrivilege(Privilege.ADMIN)) {
             user.setFirstConnection(firstConnection);
         }
         
@@ -190,7 +190,7 @@ public class UserResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        checkBaseFunction(BaseFunction.ADMIN);
+        checkPrivilege(Privilege.ADMIN);
         
         // Validate the input data
         password = Validation.length(password, "password", 8, 50, true);
@@ -215,7 +215,7 @@ public class UserResource extends BaseResource {
         user = userDao.update(user);
         
         if (StringUtils.isNotBlank(password)) {
-            checkBaseFunction(BaseFunction.PASSWORD);
+            checkPrivilege(Privilege.PASSWORD);
             
             // Change the password
             user.setPassword(password);
@@ -364,7 +364,7 @@ public class UserResource extends BaseResource {
         }
         
         // Ensure that the admin user is not deleted
-        if (hasBaseFunction(BaseFunction.ADMIN)) {
+        if (hasPrivilege(Privilege.ADMIN)) {
             throw new ClientException("ForbiddenError", "The admin user cannot be deleted");
         }
         
@@ -387,7 +387,7 @@ public class UserResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        checkBaseFunction(BaseFunction.ADMIN);
+        checkPrivilege(Privilege.ADMIN);
         
         // Check if the user exists
         UserDao userDao = new UserDao();
@@ -397,9 +397,9 @@ public class UserResource extends BaseResource {
         }
         
         // Ensure that the admin user is not deleted
-        RoleBaseFunctionDao userBaseFuction = new RoleBaseFunctionDao();
-        Set<String> baseFunctionSet = userBaseFuction.findByRoleId(user.getRoleId());
-        if (baseFunctionSet.contains(BaseFunction.ADMIN.name())) {
+        RolePrivilegeDao userBaseFuction = new RolePrivilegeDao();
+        Set<String> privilegeSet = userBaseFuction.findByRoleId(user.getRoleId());
+        if (privilegeSet.contains(Privilege.ADMIN.name())) {
             throw new ClientException("ForbiddenError", "The admin user cannot be deleted");
         }
         
@@ -442,12 +442,12 @@ public class UserResource extends BaseResource {
                     .add("locale", user.getLocaleId())
                     .add("lastfm_connected", user.getLastFmSessionToken() != null)
                     .add("first_connection", user.isFirstConnection());
-            JsonArrayBuilder baseFunctions = Json.createArrayBuilder();
-            for (String baseFunction : ((UserPrincipal) principal).getBaseFunctionSet()) {
-                baseFunctions.add(baseFunction);
+            JsonArrayBuilder privileges = Json.createArrayBuilder();
+            for (String privilege : ((UserPrincipal) principal).getPrivilegeSet()) {
+                privileges.add(privilege);
             }
-            response.add("base_functions", baseFunctions)
-                    .add("is_default_password", hasBaseFunction(BaseFunction.ADMIN) && Constants.DEFAULT_ADMIN_PASSWORD.equals(user.getPassword()));
+            response.add("base_functions", privileges)
+                    .add("is_default_password", hasPrivilege(Privilege.ADMIN) && Constants.DEFAULT_ADMIN_PASSWORD.equals(user.getPassword()));
         }
         
         return renderJson(response);
@@ -465,7 +465,7 @@ public class UserResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        checkBaseFunction(BaseFunction.ADMIN);
+        checkPrivilege(Privilege.ADMIN);
         
         
         UserDao userDao = new UserDao();
@@ -501,7 +501,7 @@ public class UserResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        checkBaseFunction(BaseFunction.ADMIN);
+        checkPrivilege(Privilege.ADMIN);
         
         JsonObjectBuilder response = Json.createObjectBuilder();
         JsonArrayBuilder users = Json.createArrayBuilder();

@@ -2,7 +2,6 @@ package com.sismics.music.core.dao.dbi;
 
 import com.sismics.music.core.model.dbi.Directory;
 import com.sismics.util.context.ThreadLocalContext;
-
 import org.skife.jdbi.v2.Handle;
 
 import java.sql.Timestamp;
@@ -37,7 +36,7 @@ public class DirectoryDao {
 
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                " T_DIRECTORY(DIR_ID_C, DIR_LOCATION_C, DIR_CREATEDATE_D)" +
+                " t_directory(id, location, createdate)" +
                 " values(:id, :location, :createDate)")
                 .bind("id", directory.getId())
                 .bind("location", directory.getLocation())
@@ -57,10 +56,10 @@ public class DirectoryDao {
         directory.normalizeLocation();
 
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_DIRECTORY set " +
-                " DIR_LOCATION_C = :location, " +
-                " DIR_DISABLEDATE_D = :disableDate " +
-                " where DIR_ID_C = :id")
+        handle.createStatement("update t_directory set " +
+                " location = :location, " +
+                " disabledate = :disableDate " +
+                " where id = :id")
                 .bind("id", directory.getId())
                 .bind("location", directory.getLocation())
                 .bind("disableDate", directory.getDisableDate() == null ? null : new Timestamp(directory.getDisableDate().getTime()))
@@ -77,9 +76,9 @@ public class DirectoryDao {
      */
     public Directory getActiveById(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select d.DIR_ID_C, d.DIR_LOCATION_C, d.DIR_DISABLEDATE_D, d.DIR_CREATEDATE_D, d.DIR_DELETEDATE_D" +
-                "  from T_DIRECTORY d" +
-                "  where d.DIR_ID_C = :id and d.DIR_DELETEDATE_D is null")
+        return handle.createQuery("select d.id, d.location, d.disabledate, d.createdate, d.deletedate" +
+                "  from t_directory d" +
+                "  where d.id = :id and d.deletedate is null")
                 .bind("id", id)
                 .mapTo(Directory.class)
                 .first();
@@ -92,9 +91,9 @@ public class DirectoryDao {
      */
     public void delete(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_DIRECTORY d" +
-                "  set d.DIR_DELETEDATE_D = :deleteDate" +
-                "  where d.DIR_ID_C = :id and d.DIR_DELETEDATE_D is null")
+        handle.createStatement("update t_directory d" +
+                "  set d.deletedate = :deleteDate" +
+                "  where d.id = :id and d.deletedate is null")
                 .bind("id", id)
                 .bind("deleteDate", new Timestamp(new Date().getTime()))
                 .execute();
@@ -107,10 +106,10 @@ public class DirectoryDao {
      */
     public List<Directory> findAllEnabled() {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select d.DIR_ID_C, d.DIR_LOCATION_C, d.DIR_DISABLEDATE_D, d.DIR_CREATEDATE_D, d.DIR_DELETEDATE_D " +
-                "  from T_DIRECTORY d" +
-                "  where d.DIR_DELETEDATE_D is null and d.DIR_DISABLEDATE_D is null " +
-                "  order by d.DIR_LOCATION_C")
+        return handle.createQuery("select d.id, d.location, d.disabledate, d.createdate, d.deletedate " +
+                "  from t_directory d" +
+                "  where d.deletedate is null and d.disabledate is null " +
+                "  order by d.location")
                 .mapTo(Directory.class)
                 .list();
     }
@@ -122,10 +121,10 @@ public class DirectoryDao {
      */
     public List<Directory> findAll() {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select d.DIR_ID_C, d.DIR_LOCATION_C, d.DIR_DISABLEDATE_D, d.DIR_CREATEDATE_D, d.DIR_DELETEDATE_D " +
-                "  from T_DIRECTORY d" +
-                "  where d.DIR_DELETEDATE_D is null" +
-                "  order by d.DIR_LOCATION_C")
+        return handle.createQuery("select d.id, d.location, d.disabledate, d.createdate, d.deletedate " +
+                "  from t_directory d" +
+                "  where d.deletedate is null" +
+                "  order by d.location")
                 .mapTo(Directory.class)
                 .list();
     }

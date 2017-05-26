@@ -24,9 +24,9 @@ public class ConfigDao {
         if (handle == null) {
             return null;
         }
-        return handle.createQuery("select CFG_ID_C, CFG_VALUE_C" +
-                "  from T_CONFIG" +
-                "  where CFG_ID_C = :id")
+        return handle.createQuery("select id, value" +
+                "  from t_config" +
+                "  where id = :id")
                 .bind("id", id.name())
                 .mapTo(Config.class)
                 .first();

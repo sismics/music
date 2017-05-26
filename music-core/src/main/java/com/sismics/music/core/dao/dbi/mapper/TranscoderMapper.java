@@ -15,14 +15,14 @@ import java.sql.SQLException;
 public class TranscoderMapper extends BaseResultSetMapper<Transcoder> {
     public String[] getColumns() {
         return new String[] {
-            "TRN_ID_C",
-            "TRN_NAME_C",
-            "TRN_SOURCE_C",
-            "TRN_DESTINATION_C",
-            "TRN_STEP1_C",
-            "TRN_STEP2_C",
-            "TRN_CREATEDATE_D",
-            "TRN_DELETEDATE_D"
+            "id",
+            "name",
+            "source",
+            "destination",
+            "step1",
+            "step2",
+            "createdate",
+            "deletedate"
         };
     }
 

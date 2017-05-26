@@ -5,7 +5,7 @@ import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.util.ConfigUtil;
 import com.sismics.music.core.util.dbi.PaginatedList;
 import com.sismics.music.core.util.dbi.PaginatedLists;
-import com.sismics.music.rest.constant.BaseFunction;
+import com.sismics.music.rest.constant.Privilege;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
 import com.sismics.util.NetworkUtil;
@@ -75,7 +75,7 @@ public class AppResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        checkBaseFunction(BaseFunction.ADMIN);
+        checkPrivilege(Privilege.ADMIN);
 
         // Get the memory appender
         Logger logger = Logger.getRootLogger();
@@ -119,7 +119,7 @@ public class AppResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        checkBaseFunction(BaseFunction.ADMIN);
+        checkPrivilege(Privilege.ADMIN);
         
         if (!NetworkUtil.mapTcpPort(request.getServerPort())) {
             throw new ServerException("NetworkError", "Error mapping port using UPnP");
@@ -140,7 +140,7 @@ public class AppResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        checkBaseFunction(BaseFunction.ADMIN);
+        checkPrivilege(Privilege.ADMIN);
 
         // Raise a directory creation event
         CollectionReindexAsyncEvent collectionReindexAsyncEvent = new CollectionReindexAsyncEvent();

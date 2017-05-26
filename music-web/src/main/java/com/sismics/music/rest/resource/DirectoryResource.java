@@ -5,7 +5,7 @@ import com.sismics.music.core.event.async.DirectoryCreatedAsyncEvent;
 import com.sismics.music.core.event.async.DirectoryDeletedAsyncEvent;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Directory;
-import com.sismics.music.rest.constant.BaseFunction;
+import com.sismics.music.rest.constant.Privilege;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.util.Validation;
@@ -39,7 +39,7 @@ public class DirectoryResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        checkBaseFunction(BaseFunction.ADMIN);
+        checkPrivilege(Privilege.ADMIN);
 
         // Validate the input data
         location = Validation.length(location, "location", 1, 1000);
@@ -79,7 +79,7 @@ public class DirectoryResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        checkBaseFunction(BaseFunction.ADMIN);
+        checkPrivilege(Privilege.ADMIN);
 
         // Validate the input data
         location = Validation.length(location, "location", 1, 1000);
@@ -121,7 +121,7 @@ public class DirectoryResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        checkBaseFunction(BaseFunction.ADMIN);
+        checkPrivilege(Privilege.ADMIN);
 
         // Check if the directory exists
         DirectoryDao directoryDao = new DirectoryDao();
@@ -152,7 +152,7 @@ public class DirectoryResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        checkBaseFunction(BaseFunction.ADMIN);
+        checkPrivilege(Privilege.ADMIN);
 
         DirectoryDao directoryDao = new DirectoryDao();
         List<Directory> directoryList = directoryDao.findAll();

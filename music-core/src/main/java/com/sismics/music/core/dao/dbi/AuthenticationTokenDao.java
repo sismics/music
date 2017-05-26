@@ -23,9 +23,9 @@ public class AuthenticationTokenDao {
      */
     public AuthenticationToken get(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select AUT_ID_C, AUT_IDUSER_C, AUT_LONGLASTED_B, AUT_CREATEDATE_D, AUT_LASTCONNECTIONDATE_D" +
-                "  from T_AUTHENTICATION_TOKEN" +
-                "  where AUT_ID_C = :id")
+        return handle.createQuery("select id, user_id, longlasted, createdate, lastconnectiondate" +
+                "  from t_authentication_token" +
+                "  where id = :id")
                 .bind("id", id)
                 .mapTo(AuthenticationToken.class)
                 .first();
@@ -43,7 +43,7 @@ public class AuthenticationTokenDao {
 
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                "  T_AUTHENTICATION_TOKEN(AUT_ID_C, AUT_IDUSER_C, AUT_LONGLASTED_B, AUT_CREATEDATE_D)" +
+                "  t_authentication_token(id, user_id, longlasted, createdate)" +
                 "  values(:id, :userId, :longLasted, :createDate)")
                 .bind("id", authenticationToken.getId())
                 .bind("userId", authenticationToken.getUserId())
@@ -64,8 +64,8 @@ public class AuthenticationTokenDao {
         AuthenticationToken authenticationToken = get(authenticationTokenId);
         if (authenticationToken != null) {
             handle.createStatement("delete from " +
-                    "  T_AUTHENTICATION_TOKEN" +
-                    "  where AUT_ID_C = :id")
+                    "  t_authentication_token" +
+                    "  where id = :id")
                     .bind("id", authenticationToken.getId())
                     .execute();
         } else {
@@ -80,9 +80,9 @@ public class AuthenticationTokenDao {
      */
     public void deleteOldSessionToken(String userId) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("delete from T_AUTHENTICATION_TOKEN AS ato " +
-                "  where ato.AUT_IDUSER_C = :userId and ato.AUT_LONGLASTED_B = :longLasted" +
-                "  and ato.AUT_LASTCONNECTIONDATE_D < :minDate")
+        handle.createStatement("delete from t_authentication_token as ato " +
+                "  where ato.user_id = :userId and ato.longlasted = :longLasted" +
+                "  and ato.lastconnectiondate < :minDate")
                 .bind("userId", userId)
                 .bind("longLasted", false)
                 .bind("minDate", new Timestamp(DateTime.now().minusDays(1).getMillis()))
@@ -96,9 +96,9 @@ public class AuthenticationTokenDao {
      */
     public void updateLastConnectionDate(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_AUTHENTICATION_TOKEN ato " +
-                "  set ato.AUT_LASTCONNECTIONDATE_D = :currentDate" +
-                "  where ato.AUT_ID_C = :id ")
+        handle.createStatement("update t_authentication_token ato " +
+                "  set ato.lastconnectiondate = :currentDate" +
+                "  where ato.id = :id ")
                 .bind("currentDate", new Timestamp(new Date().getTime()))
                 .bind("id", id)
                 .execute();

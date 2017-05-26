@@ -1,11 +1,11 @@
 package com.sismics.music.rest.constant;
 
 /**
- * Base functions.
+ * Privileges.
  *
  * @author jtremeaux 
  */
-public enum BaseFunction {
+public enum Privilege {
 
     /**
      * Allows the user to use the admin fonctions.

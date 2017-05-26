@@ -27,40 +27,40 @@ public class AlbumDao extends BaseDao<AlbumDto, AlbumCriteria> {
         List<String> criteriaList = new ArrayList<String>();
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-        StringBuilder sb = new StringBuilder("select a.ALB_ID_C as id, a.ALB_NAME_C as c0, a.ALB_ALBUMART_C as albumArt, ar.ART_ID_C as artistId, ar.ART_NAME_C as artistName, a.ALB_UPDATEDATE_D as c1, ");
+        StringBuilder sb = new StringBuilder("select a.id as id, a.name as c0, a.albumart as albumArt, a.artist_id as artistId, ar.name as artistName, a.updatedate as c1, ");
         if (criteria.getUserId() == null) {
             sb.append("sum(0) as c2");
         } else {
-            sb.append("sum(utr.UST_PLAYCOUNT_N) as c2");
+            sb.append("sum(utr.playcount) as c2");
         }
-        sb.append(" from T_ALBUM a ");
-        sb.append(" join T_ARTIST ar on(ar.ART_ID_C = a.ALB_IDARTIST_C) ");
+        sb.append(" from t_album a ");
+        sb.append(" join t_artist ar on(ar.id = a.artist_id) ");
         if (criteria.getUserId() != null) {
-            sb.append(" left join T_TRACK tr on(tr.TRK_IDALBUM_C = a.ALB_ID_C) ");
-            sb.append(" left join T_USER_TRACK utr on(tr.TRK_ID_C = utr.UST_IDTRACK_C) ");
+            sb.append(" left join t_track tr on(tr.album_id = a.id) ");
+            sb.append(" left join t_user_track utr on(tr.id = utr.track_id) ");
         }
 
         // Adds search criteria
-        criteriaList.add("ar.ART_DELETEDATE_D is null");
-        criteriaList.add("a.ALB_DELETEDATE_D is null");
+        criteriaList.add("ar.deletedate is null");
+        criteriaList.add("a.deletedate is null");
         if (criteria.getId() != null) {
-            criteriaList.add("a.ALB_ID_C = :id");
+            criteriaList.add("a.id = :id");
             parameterMap.put("id", criteria.getId());
         }
         if (criteria.getDirectoryId() != null) {
-            criteriaList.add("a.ALB_IDDIRECTORY_C = :directoryId");
+            criteriaList.add("a.directory_id = :directoryId");
             parameterMap.put("directoryId", criteria.getDirectoryId());
         }
         if (criteria.getArtistId() != null) {
-            criteriaList.add("ar.ART_ID_C = :artistId");
+            criteriaList.add("ar.id = :artistId");
             parameterMap.put("artistId", criteria.getArtistId());
         }
         if (criteria.getNameLike() != null) {
-            criteriaList.add("(lower(a.ALB_NAME_C) like lower(:like) or lower(ar.ART_NAME_C) like lower(:like))");
+            criteriaList.add("(lower(a.name) like lower(:like) or lower(ar.name) like lower(:like))");
             parameterMap.put("like", "%" + criteria.getNameLike() + "%");
         }
 
-        return new QueryParam(sb.toString(), criteriaList, parameterMap, null, filterCriteria, Lists.newArrayList("a.ALB_ID_C"), new AlbumDtoMapper());
+        return new QueryParam(sb.toString(), criteriaList, parameterMap, null, filterCriteria, Lists.newArrayList("a.id"), new AlbumDtoMapper());
     }
 
     /**
@@ -81,7 +81,7 @@ public class AlbumDao extends BaseDao<AlbumDto, AlbumCriteria> {
 
         Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                " T_ALBUM(ALB_ID_C, ALB_IDDIRECTORY_C, ALB_IDARTIST_C, ALB_NAME_C, ALB_ALBUMART_C, ALB_CREATEDATE_D, ALB_UPDATEDATE_D, ALB_LOCATION_C)" +
+                " t_album(id, directory_id, artist_id, name, albumart, createdate, updatedate, location)" +
                 " values(:id, :directoryId, :artistId, :name, :albumArt, :createDate, :updateDate, :location)")
                 .bind("id", album.getId())
                 .bind("directoryId", album.getDirectoryId())
@@ -104,14 +104,14 @@ public class AlbumDao extends BaseDao<AlbumDto, AlbumCriteria> {
      */
     public static Album update(Album album) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_ALBUM a set " +
-                " a.ALB_IDDIRECTORY_C = :directoryId," +
-                " a.ALB_IDARTIST_C = :artistId, " +
-                " a.ALB_NAME_C = :name, " +
-                " a.ALB_ALBUMART_C = :albumArt, " +
-                " a.ALB_UPDATEDATE_D = :updateDate, " +
-                " a.ALB_LOCATION_C = :location " +
-                " where a.ALB_ID_C = :id and a.ALB_DELETEDATE_D is null")
+        handle.createStatement("update t_album a set " +
+                " a.directory_id = :directoryId," +
+                " a.artist_id = :artistId, " +
+                " a.name = :name, " +
+                " a.albumart = :albumArt, " +
+                " a.updatedate = :updateDate, " +
+                " a.location = :location " +
+                " where a.id = :id and a.deletedate is null")
                 .bind("id", album.getId())
                 .bind("name", album.getName())
                 .bind("directoryId", album.getDirectoryId())
@@ -132,9 +132,9 @@ public class AlbumDao extends BaseDao<AlbumDto, AlbumCriteria> {
      */
     public Album updateAlbumDate(Album album) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_ALBUM a set " +
-                " a.ALB_UPDATEDATE_D = :updateDate " +
-                " where a.ALB_ID_C = :id and a.ALB_DELETEDATE_D is null")
+        handle.createStatement("update t_album a set " +
+                " a.updatedate = :updateDate " +
+                " where a.id = :id and a.deletedate is null")
                 .bind("id", album.getId())
                 .bind("updateDate", new Timestamp(album.getUpdateDate().getTime()))
                 .execute();
@@ -151,8 +151,8 @@ public class AlbumDao extends BaseDao<AlbumDto, AlbumCriteria> {
     public Album getActiveByArtistIdAndName(String artistId, String name) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         return handle.createQuery("select " + new AlbumMapper().getJoinedColumns("a") +
-                "  from T_ALBUM a" +
-                "  where lower(a.ALB_IDARTIST_C) = lower(:artistId) and lower(a.ALB_NAME_C) = lower(:name) and a.ALB_DELETEDATE_D is null")
+                "  from t_album a" +
+                "  where lower(a.artist_id) = lower(:artistId) and lower(a.name) = lower(:name) and a.deletedate is null")
                 .bind("artistId", artistId)
                 .bind("name", name)
                 .mapTo(Album.class)
@@ -167,9 +167,9 @@ public class AlbumDao extends BaseDao<AlbumDto, AlbumCriteria> {
      */
     public List<Album> getActiveByArtistId(String artistId) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select a.ALB_ID_C, a.ALB_IDDIRECTORY_C, a.ALB_IDARTIST_C, a.ALB_NAME_C, a.ALB_ALBUMART_C, a.ALB_UPDATEDATE_D, a.ALB_CREATEDATE_D, a.ALB_DELETEDATE_D, a.ALB_LOCATION_C" +
-                "  from T_ALBUM a" +
-                "  where a.ALB_IDARTIST_C = :artistId and a.ALB_DELETEDATE_D is null")
+        return handle.createQuery("select a.id, a.directory_id, a.artist_id, a.name, a.albumart, a.updatedate, a.createdate, a.deletedate, a.location" +
+                "  from t_album a" +
+                "  where a.artist_id = :artistId and a.deletedate is null")
                 .bind("artistId", artistId)
                 .mapTo(Album.class)
                 .list();
@@ -183,9 +183,9 @@ public class AlbumDao extends BaseDao<AlbumDto, AlbumCriteria> {
      */
     public Integer getFavoriteCountByAlbum(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select count(t.TRK_ID_C)" +
-                "  from T_TRACK t" +
-                "  where t.TRK_IDALBUM_C = :id and t.TRK_FAVORITE_B = :favorite and a.TRK_DELETEDATE_D is null")
+        return handle.createQuery("select count(t.id)" +
+                "  from t_track t" +
+                "  where t.album_id = :id and t.favorite = :favorite and a.deletedate is null")
                 .bind("id", id)
                 .map(IntegerMapper.FIRST)
                 .first();
@@ -198,9 +198,9 @@ public class AlbumDao extends BaseDao<AlbumDto, AlbumCriteria> {
      */
     public void delete(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_ALBUM a" +
-                "  set a.ALB_DELETEDATE_D = :deleteDate" +
-                "  where a.ALB_ID_C = :id and a.ALB_DELETEDATE_D is null")
+        handle.createStatement("update t_album a" +
+                "  set a.deletedate = :deleteDate" +
+                "  where a.id = :id and a.deletedate is null")
                 .bind("id", id)
                 .bind("deleteDate", new Timestamp(new Date().getTime()))
                 .execute();
@@ -211,12 +211,12 @@ public class AlbumDao extends BaseDao<AlbumDto, AlbumCriteria> {
      */
     public void deleteEmptyAlbum() {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_ALBUM a set a.ALB_DELETEDATE_D = :deleteDate where a.ALB_ID_C IN (" +
-                "  select al.ALB_ID_C from T_ALBUM al " +
-                "    left join T_TRACK t on t.TRK_IDALBUM_C = al.ALB_ID_C and t.TRK_DELETEDATE_D is null " +
-                "    where al.ALB_DELETEDATE_D is null " +
-                "    group by al.ALB_ID_C " +
-                "    having count(t.TRK_ID_C) = 0)")
+        handle.createStatement("update t_album a set a.deletedate = :deleteDate where a.id in (" +
+                "  select al.id from t_album al " +
+                "    left join t_track t on t.album_id = al.id and t.deletedate is null " +
+                "    where al.deletedate is null " +
+                "    group by al.id " +
+                "    having count(t.id) = 0)")
                 .bind("deleteDate", new Timestamp(new Date().getTime()))
                 .execute();
     }

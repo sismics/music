@@ -2,7 +2,7 @@ package com.sismics.util.filter;
 
 import com.sismics.music.core.constant.Constants;
 import com.sismics.music.core.dao.dbi.AuthenticationTokenDao;
-import com.sismics.music.core.dao.dbi.RoleBaseFunctionDao;
+import com.sismics.music.core.dao.dbi.RolePrivilegeDao;
 import com.sismics.music.core.dao.dbi.UserDao;
 import com.sismics.music.core.model.dbi.AuthenticationToken;
 import com.sismics.music.core.model.dbi.User;
@@ -152,10 +152,10 @@ public class TokenBasedSecurityFilter implements Filter {
         Locale locale = LocaleUtil.getLocale(user.getLocaleId());
         userPrincipal.setLocale(locale);
         
-        // Add base functions
-        RoleBaseFunctionDao userBaseFuction = new RoleBaseFunctionDao();
-        Set<String> baseFunctionSet = userBaseFuction.findByRoleId(user.getRoleId());
-        userPrincipal.setBaseFunctionSet(baseFunctionSet);
+        // Add privileges
+        RolePrivilegeDao userBaseFuction = new RolePrivilegeDao();
+        Set<String> privilegeSet = userBaseFuction.findByRoleId(user.getRoleId());
+        userPrincipal.setPrivilegeSet(privilegeSet);
         
         request.setAttribute(PRINCIPAL_ATTRIBUTE, userPrincipal);
     }

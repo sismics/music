@@ -2,7 +2,7 @@ package com.sismics.music.rest.resource;
 
 import com.sismics.music.core.dao.dbi.TranscoderDao;
 import com.sismics.music.core.model.dbi.Transcoder;
-import com.sismics.music.rest.constant.BaseFunction;
+import com.sismics.music.rest.constant.Privilege;
 import com.sismics.music.rest.util.JsonUtil;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
@@ -43,7 +43,7 @@ public class TranscoderResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        checkBaseFunction(BaseFunction.ADMIN);
+        checkPrivilege(Privilege.ADMIN);
 
         // Validate the input data
         name = Validation.length(name, "name", 1, 100);
@@ -91,7 +91,7 @@ public class TranscoderResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        checkBaseFunction(BaseFunction.ADMIN);
+        checkPrivilege(Privilege.ADMIN);
 
         // Validate the input data
         name = Validation.length(name, "name", 1, 100);
@@ -126,7 +126,7 @@ public class TranscoderResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        checkBaseFunction(BaseFunction.ADMIN);
+        checkPrivilege(Privilege.ADMIN);
 
         // Check if the transcoder exists
         TranscoderDao transcoderDao = new TranscoderDao();
@@ -152,7 +152,7 @@ public class TranscoderResource extends BaseResource {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
-        checkBaseFunction(BaseFunction.ADMIN);
+        checkPrivilege(Privilege.ADMIN);
 
         TranscoderDao transcoderDao = new TranscoderDao();
         List<Transcoder> transcoderList = transcoderDao.findAll();

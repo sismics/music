@@ -29,7 +29,7 @@ public class UserAlbumDao {
         // Create user / album
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                " T_USER_ALBUM(USA_ID_C, USA_IDUSER_C, USA_IDALBUM_C, USA_CREATEDATE_D)" +
+                " t_user_album(id, user_id, album_id, createdate)" +
                 " values(:id, :userId, :albumId, :createDate)")
                 .bind("id", userAlbum.getId())
                 .bind("userId", userAlbum.getUserId())

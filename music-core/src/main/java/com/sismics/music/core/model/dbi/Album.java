@@ -86,8 +86,8 @@ public class Album {
     public static Album getActiveById(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         return handle.createQuery("select " + new AlbumMapper().getJoinedColumns("a") +
-                "  from T_ALBUM a" +
-                "  where a.ALB_ID_C = :id and a.ALB_DELETEDATE_D is null")
+                "  from t_album a" +
+                "  where a.id = :id and a.deletedate is null")
                 .bind("id", id)
                 .mapTo(Album.class)
                 .first();

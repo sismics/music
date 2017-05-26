@@ -1,9 +1,9 @@
 package com.sismics.security;
 
+import org.joda.time.DateTimeZone;
+
 import java.util.Locale;
 import java.util.Set;
-
-import org.joda.time.DateTimeZone;
 
 /**
  * Authenticated users principal.
@@ -37,9 +37,9 @@ public class UserPrincipal implements IPrincipal {
     private String email;
     
     /**
-     * User base functions.
+     * User privileges.
      */
-    private Set<String> baseFunctionSet;
+    private Set<String> privilegeSet;
     
     /**
      * Constructor of UserPrincipal.
@@ -128,21 +128,21 @@ public class UserPrincipal implements IPrincipal {
     }
 
     /**
-     * Getter of baseFunctionSet.
+     * Getter of privilegeSet.
      *
-     * @return baseFunctionSet
+     * @return privilegeSet
      */
-    public Set<String> getBaseFunctionSet() {
-        return baseFunctionSet;
+    public Set<String> getPrivilegeSet() {
+        return privilegeSet;
     }
 
     /**
-     * Setter of baseFunctionSet.
+     * Setter of privilegeSet.
      *
-     * @param baseFunctionSet baseFunctionSet
+     * @param privilegeSet privilegeSet
      */
-    public void setBaseFunctionSet(Set<String> baseFunctionSet) {
-        this.baseFunctionSet = baseFunctionSet;
+    public void setPrivilegeSet(Set<String> privilegeSet) {
+        this.privilegeSet = privilegeSet;
     }
 
 }

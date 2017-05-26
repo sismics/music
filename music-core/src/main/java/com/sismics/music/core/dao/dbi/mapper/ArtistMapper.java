@@ -15,11 +15,11 @@ import java.sql.SQLException;
 public class ArtistMapper extends BaseResultSetMapper<Artist> {
     public String[] getColumns() {
         return new String[] {
-                "ART_ID_C",
-                "ART_NAME_C",
-                "ART_NAMECORRECTED_C",
-                "ART_CREATEDATE_D",
-                "ART_DELETEDATE_D"};
+                "id",
+                "name",
+                "namecorrected",
+                "createdate",
+                "deletedate"};
     }
     @Override
     public Artist map(int index, ResultSet r, StatementContext ctx) throws SQLException {

@@ -25,15 +25,15 @@ public class UserDao extends BaseDao<UserDto, UserCriteria> {
     @Override
     protected QueryParam getQueryParam(UserCriteria criteria, FilterCriteria filterCriteria) {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
-        StringBuilder sb = new StringBuilder("select u.USE_ID_C as c0, u.USE_USERNAME_C as c1, u.USE_EMAIL_C as c2, u.USE_CREATEDATE_D as c3, u.USE_IDLOCALE_C as c4");
-        sb.append("  from T_USER u ");
+        StringBuilder sb = new StringBuilder("select u.id as c0, u.username as c1, u.email as c2, u.createdate as c3, u.locale_id as c4");
+        sb.append("  from t_user u ");
 
         // Add search criterias
         List<String> criteriaList = new ArrayList<String>();
         if (criteria.isLastFmSessionTokenNotNull()) {
-            criteriaList.add("USE_LASTFMSESSIONTOKEN_C is not null");
+            criteriaList.add("lastfmsessiontoken is not null");
         }
-        criteriaList.add("u.USE_DELETEDATE_D is null");
+        criteriaList.add("u.deletedate is null");
 
         return new QueryParam(sb.toString(), criteriaList, parameterMap, null, filterCriteria, new UserDtoMapper());
     }
@@ -48,8 +48,8 @@ public class UserDao extends BaseDao<UserDto, UserCriteria> {
     public String authenticate(String username, String password) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         Query<User> q = handle.createQuery("select " + new UserMapper().getJoinedColumns("u") +
-                "  from T_USER u" +
-                "  where u.USE_USERNAME_C = :username and u.USE_DELETEDATE_D is null")
+                "  from t_user u" +
+                "  where u.username = :username and u.deletedate is null")
                 .bind("username", username)
                 .mapTo(User.class);
         User user = q.first();
@@ -79,7 +79,7 @@ public class UserDao extends BaseDao<UserDto, UserCriteria> {
         // Create user
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                " T_USER(USE_ID_C, USE_IDLOCALE_C, USE_IDROLE_C, USE_USERNAME_C, USE_PASSWORD_C, USE_EMAIL_C, USE_FIRSTCONNECTION_B, USE_CREATEDATE_D)" +
+                " t_user(id, locale_id, role_id, username, password, email, firstconnection, createdate)" +
                 " values(:id, :localeId, :roleId, :username, :password, :email, :firstConnection, :createDate)")
                 .bind("id", user.getId())
                 .bind("localeId", user.getLocaleId())
@@ -102,11 +102,11 @@ public class UserDao extends BaseDao<UserDto, UserCriteria> {
      */
     public User update(User user) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_USER u set " +
-                " u.USE_IDLOCALE_C = :localeId," +
-                " u.USE_EMAIL_C = :email, " +
-                " u.USE_FIRSTCONNECTION_B = :firstConnection " +
-                " where u.USE_ID_C = :id and u.USE_DELETEDATE_D is null")
+        handle.createStatement("update t_user u set " +
+                " u.locale_id = :localeId," +
+                " u.email = :email, " +
+                " u.firstconnection = :firstConnection " +
+                " where u.id = :id and u.deletedate is null")
                 .bind("id", user.getId())
                 .bind("localeId", user.getLocaleId())
                 .bind("email", user.getEmail())
@@ -124,9 +124,9 @@ public class UserDao extends BaseDao<UserDto, UserCriteria> {
      */
     public User updatePassword(User user) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_USER u set " +
-                " u.USE_PASSWORD_C = :password " +
-                " where u.USE_ID_C = :id and u.USE_DELETEDATE_D is null")
+        handle.createStatement("update t_user u set " +
+                " u.password = :password " +
+                " where u.id = :id and u.deletedate is null")
                 .bind("id", user.getId())
                 .bind("password", hashPassword(user.getPassword()))
                 .execute();
@@ -142,9 +142,9 @@ public class UserDao extends BaseDao<UserDto, UserCriteria> {
      */
     public User updateLastFmSessionToken(User user) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_USER u set " +
-                " u.USE_LASTFMSESSIONTOKEN_C = :lastFmSessionToken " +
-                " where u.USE_ID_C = :id and u.USE_DELETEDATE_D is null")
+        handle.createStatement("update t_user u set " +
+                " u.lastfmsessiontoken = :lastFmSessionToken " +
+                " where u.id = :id and u.deletedate is null")
                 .bind("id", user.getId())
                 .bind("lastFmSessionToken", user.getLastFmSessionToken())
                 .execute();
@@ -161,8 +161,8 @@ public class UserDao extends BaseDao<UserDto, UserCriteria> {
     public User getActiveById(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         Query<User> q = handle.createQuery("select " + new UserMapper().getJoinedColumns("u") +
-                "  from T_USER u" +
-                "  where u.USE_ID_C = :id and u.USE_DELETEDATE_D is null")
+                "  from t_user u" +
+                "  where u.id = :id and u.deletedate is null")
                 .bind("id", id)
                 .mapTo(User.class);
         return q.first();
@@ -177,8 +177,8 @@ public class UserDao extends BaseDao<UserDto, UserCriteria> {
     public User getActiveByUsername(String username) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         Query<User> q = handle.createQuery("select " + new UserMapper().getJoinedColumns("u") +
-                "  from T_USER u" +
-                "  where u.USE_USERNAME_C = :username and u.USE_DELETEDATE_D is null")
+                "  from t_user u" +
+                "  where u.username = :username and u.deletedate is null")
                 .bind("username", username)
                 .mapTo(User.class);
         return q.first();
@@ -193,8 +193,8 @@ public class UserDao extends BaseDao<UserDto, UserCriteria> {
     public User getActiveByPasswordResetKey(String passwordResetKey) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         Query<User> q = handle.createQuery("select " + new UserMapper().getJoinedColumns("u") +
-                "  from T_USER u" +
-                "  where u.USE_PASSWORDRESETKEY_C = :passwordResetKey and u.USE_DELETEDATE_D is null")
+                "  from t_user u" +
+                "  where u.passwordresetkey = :passwordResetKey and u.deletedate is null")
                 .bind("passwordResetKey", passwordResetKey)
                 .mapTo(User.class);
         return q.first();
@@ -207,9 +207,9 @@ public class UserDao extends BaseDao<UserDto, UserCriteria> {
      */
     public void delete(String username) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_USER u" +
-                "  set u.USE_DELETEDATE_D = :deleteDate" +
-                "  where u.USE_USERNAME_C = :username and u.USE_DELETEDATE_D is null")
+        handle.createStatement("update t_user u" +
+                "  set u.deletedate = :deleteDate" +
+                "  where u.username = :username and u.deletedate is null")
                 .bind("username", username)
                 .bind("deleteDate", new Timestamp(new Date().getTime()))
                 .execute();

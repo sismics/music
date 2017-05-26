@@ -27,36 +27,36 @@ public class PlaylistDao extends BaseDao<PlaylistDto, PlaylistCriteria> {
         List<String> criteriaList = new ArrayList<String>();
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-        StringBuilder sb = new StringBuilder("select p.PLL_ID_C as id, p.PLL_NAME_C as c0,")
-                .append("  p.PLL_IDUSER_C as userId,")
-                .append("  count(pt.PLT_ID_C) as c1,")
-                .append("  sum(utr.UST_PLAYCOUNT_N) as c2")
-                .append("  from T_PLAYLIST p")
-                .append("  left join T_PLAYLIST_TRACK pt on(pt.PLT_IDPLAYLIST_C = p.PLL_ID_C)")
-                .append("  left join T_USER_TRACK utr on(utr.UST_IDTRACK_C = pt.PLT_IDTRACK_C)");
+        StringBuilder sb = new StringBuilder("select p.id as id, p.name as c0,")
+                .append("  p.user_id as userId,")
+                .append("  count(pt.id) as c1,")
+                .append("  sum(utr.playcount) as c2")
+                .append("  from t_playlist p")
+                .append("  left join t_playlist_track pt on(pt.playlist_id = p.id)")
+                .append("  left join t_user_track utr on(utr.track_id = pt.track_id)");
 
         // Adds search criteria
         if (criteria.getId() != null) {
-            criteriaList.add("p.PLL_ID_C = :id");
+            criteriaList.add("p.id = :id");
             parameterMap.put("id", criteria.getId());
         }
         if (criteria.getUserId() != null) {
-            criteriaList.add("p.PLL_IDUSER_C = :userId");
+            criteriaList.add("p.user_id = :userId");
             parameterMap.put("userId", criteria.getUserId());
         }
         if (criteria.getDefaultPlaylist() != null) {
             if (criteria.getDefaultPlaylist()) {
-                criteriaList.add("p.PLL_NAME_C is null");
+                criteriaList.add("p.name is null");
             } else {
-                criteriaList.add("p.PLL_NAME_C is not null");
+                criteriaList.add("p.name is not null");
             }
         }
         if (criteria.getNameLike() != null) {
-            criteriaList.add("lower(p.PLL_NAME_C) like lower(:nameLike)");
+            criteriaList.add("lower(p.name) like lower(:nameLike)");
             parameterMap.put("nameLike", "%" + criteria.getNameLike() + "%");
         }
 
-        return new QueryParam(sb.toString(), criteriaList, parameterMap, null, filterCriteria, Lists.newArrayList("p.PLL_ID_C"), new PlaylistMapper());
+        return new QueryParam(sb.toString(), criteriaList, parameterMap, null, filterCriteria, Lists.newArrayList("p.id"), new PlaylistMapper());
     }
 
     /**
@@ -68,7 +68,7 @@ public class PlaylistDao extends BaseDao<PlaylistDto, PlaylistCriteria> {
     public String create(Playlist playlist) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                "  T_PLAYLIST(PLL_ID_C, PLL_IDUSER_C, PLL_NAME_C)" +
+                "  t_playlist(id, user_id, name)" +
                 "  values(:id, :userId, :name)")
                 .bind("id", playlist.getId())
                 .bind("userId", playlist.getUserId())
@@ -85,9 +85,9 @@ public class PlaylistDao extends BaseDao<PlaylistDto, PlaylistCriteria> {
      */
     public void update(Playlist playlist) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_PLAYLIST" +
-                "  set PLL_NAME_C = :name" +
-                "  where PLL_ID_C = :id")
+        handle.createStatement("update t_playlist" +
+                "  set name = :name" +
+                "  where id = :id")
                 .bind("name", playlist.getName())
                 .bind("id", playlist.getId())
                 .execute();
@@ -101,13 +101,13 @@ public class PlaylistDao extends BaseDao<PlaylistDto, PlaylistCriteria> {
     public void delete(Playlist playlist) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("delete from " +
-                "  T_PLAYLIST_TRACK" +
-                "  where PLT_IDPLAYLIST_C = :playlistId")
+                "  t_playlist_track" +
+                "  where playlist_id = :playlistId")
                 .bind("playlistId", playlist.getId())
                 .execute();
         handle.createStatement("delete from " +
-                "  T_PLAYLIST" +
-                "  where PLL_ID_C = :id")
+                "  t_playlist" +
+                "  where id = :id")
                 .bind("id", playlist.getId())
                 .execute();
     }

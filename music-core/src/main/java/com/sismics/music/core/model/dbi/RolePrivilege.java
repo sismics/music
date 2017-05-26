@@ -5,13 +5,13 @@ import com.google.common.base.Objects;
 import java.util.Date;
 
 /**
- * Role base function.
+ * Role privilege.
  * 
  * @author jtremeaux
  */
-public class RoleBaseFunction {
+public class RolePrivilege {
     /**
-     * Role base function ID.
+     * Role privilege ID.
      */
     private String id;
     
@@ -21,9 +21,9 @@ public class RoleBaseFunction {
     private String roleId;
     
     /**
-     * Base function ID.
+     * Privilege ID.
      */
-    private String baseFunctionId;
+    private String privilegeId;
     
     /**
      * Creation date.
@@ -35,13 +35,13 @@ public class RoleBaseFunction {
      */
     private Date deleteDate;
 
-    public RoleBaseFunction() {
+    public RolePrivilege() {
     }
 
-    public RoleBaseFunction(String id, String roleId, String baseFunctionId, Date createDate, Date deleteDate) {
+    public RolePrivilege(String id, String roleId, String privilegeId, Date createDate, Date deleteDate) {
         this.id = id;
         this.roleId = roleId;
-        this.baseFunctionId = baseFunctionId;
+        this.privilegeId = privilegeId;
         this.createDate = createDate;
         this.deleteDate = deleteDate;
     }
@@ -83,21 +83,21 @@ public class RoleBaseFunction {
     }
 
     /**
-     * Getter of baseFunctionId.
+     * Getter of privilegeId.
      *
-     * @return baseFunctionId
+     * @return privilegeId
      */
-    public String getBaseFunctionId() {
-        return baseFunctionId;
+    public String getPrivilegeId() {
+        return privilegeId;
     }
 
     /**
-     * Setter of baseFunctionId.
+     * Setter of privilegeId.
      *
-     * @param baseFunctionId baseFunctionId
+     * @param privilegeId privilegeId
      */
-    public void setBaseFunctionId(String baseFunctionId) {
-        this.baseFunctionId = baseFunctionId;
+    public void setPrivilegeId(String privilegeId) {
+        this.privilegeId = privilegeId;
     }
 
     /**
@@ -141,7 +141,7 @@ public class RoleBaseFunction {
         return Objects.toStringHelper(this)
                 .add("id", id)
                 .add("userId", roleId)
-                .add("baseFunctionId", baseFunctionId)
+                .add("privilegeId", privilegeId)
                 .toString();
     }
 }

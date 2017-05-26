@@ -20,7 +20,7 @@ public class LocaleDao {
      */
     public Locale getById(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select LOC_ID_C from T_LOCALE where LOC_ID_C = :id")
+        return handle.createQuery("select id from t_locale where id = :id")
                 .bind("id", id)
                 .mapTo(Locale.class)
                 .first();
@@ -33,7 +33,7 @@ public class LocaleDao {
      */
     public List<Locale> findAll() {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select LOC_ID_C from T_LOCALE order by LOC_ID_C asc")
+        return handle.createQuery("select id from t_locale order by id asc")
             .mapTo(Locale.class)
             .list();
     }

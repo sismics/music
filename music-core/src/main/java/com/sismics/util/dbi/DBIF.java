@@ -32,13 +32,13 @@ public class DBIF {
             dbi.registerMapper(new AlbumMapper());
             dbi.registerMapper(new ArtistMapper());
             dbi.registerMapper(new AuthenticationTokenMapper());
-            dbi.registerMapper(new BaseFunctionMapper());
+            dbi.registerMapper(new PrivilegeMapper());
             dbi.registerMapper(new ConfigMapper());
             dbi.registerMapper(new DirectoryMapper());
             dbi.registerMapper(new LocaleMapper());
             dbi.registerMapper(new PlaylistMapper());
             dbi.registerMapper(new PlaylistTrackMapper());
-            dbi.registerMapper(new RoleBaseFunctionMapper());
+            dbi.registerMapper(new RolePrivilegeMapper());
             dbi.registerMapper(new RoleMapper());
             dbi.registerMapper(new TrackMapper());
             dbi.registerMapper(new TranscoderMapper());

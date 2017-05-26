@@ -3,7 +3,6 @@ package com.sismics.music.core.dao.dbi;
 import com.sismics.music.core.dao.dbi.mapper.TranscoderMapper;
 import com.sismics.music.core.model.dbi.Transcoder;
 import com.sismics.util.context.ThreadLocalContext;
-
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
 
@@ -32,7 +31,7 @@ public class TranscoderDao {
         // Create transcoder
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                " T_TRANSCODER(TRN_ID_C, TRN_NAME_C, TRN_SOURCE_C, TRN_DESTINATION_C, TRN_STEP1_C, TRN_STEP2_C, TRN_CREATEDATE_D)" +
+                " t_transcoder(id, name, source, destination, step1, step2, createdate)" +
                 " values(:id, :name, :source, :destination, :step1, :step2, :createDate)")
                 .bind("id", transcoder.getId())
                 .bind("name", transcoder.getName())
@@ -54,13 +53,13 @@ public class TranscoderDao {
      */
     public Transcoder update(Transcoder transcoder) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_TRANSCODER t set " +
-                " t.TRN_NAME_C = :name," +
-                " t.TRN_SOURCE_C = :source, " +
-                " t.TRN_DESTINATION_C = :destination, " +
-                " t.TRN_STEP1_C = :step1, " +
-                " t.TRN_STEP2_C = :step2" +
-                " where t.TRN_ID_C = :id and t.TRN_DELETEDATE_D is null")
+        handle.createStatement("update t_transcoder t set " +
+                " t.name = :name," +
+                " t.source = :source, " +
+                " t.destination = :destination, " +
+                " t.step1 = :step1, " +
+                " t.step2 = :step2" +
+                " where t.id = :id and t.deletedate is null")
                 .bind("id", transcoder.getId())
                 .bind("name", transcoder.getName())
                 .bind("source", transcoder.getSource())
@@ -81,8 +80,8 @@ public class TranscoderDao {
     public Transcoder getActiveById(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         Query<Transcoder> q = handle.createQuery("select " + new TranscoderMapper().getJoinedColumns("t") +
-                "  from T_TRANSCODER t" +
-                "  where t.TRN_ID_C = :id and t.TRN_DELETEDATE_D is null")
+                "  from t_transcoder t" +
+                "  where t.id = :id and t.deletedate is null")
                 .bind("id", id)
                 .mapTo(Transcoder.class);
         return q.first();
@@ -95,9 +94,9 @@ public class TranscoderDao {
      */
     public void delete(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_TRANSCODER t" +
-                "  set t.TRN_DELETEDATE_D = :deleteDate" +
-                "  where t.TRN_ID_C = :id and t.TRN_DELETEDATE_D is null")
+        handle.createStatement("update t_transcoder t" +
+                "  set t.deletedate = :deleteDate" +
+                "  where t.id = :id and t.deletedate is null")
                 .bind("id", id)
                 .bind("deleteDate", new Date())
                 .execute();
@@ -111,9 +110,9 @@ public class TranscoderDao {
     public List<Transcoder> findAll() {
         Handle handle = ThreadLocalContext.get().getHandle();
         Query<Transcoder> q = handle.createQuery("select " + new TranscoderMapper().getJoinedColumns("t")+
-                "  from T_TRANSCODER t " +
-                "  where t.TRN_DELETEDATE_D is null" +
-                "  order by t.TRN_NAME_C is null")
+                "  from t_transcoder t " +
+                "  where t.deletedate is null" +
+                "  order by t.name is null")
                 .mapTo(Transcoder.class);
         return q.list();
     }

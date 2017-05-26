@@ -3,17 +3,17 @@ package com.sismics.music.core.model.dbi;
 import com.google.common.base.Objects;
 
 /**
- * Base function entity.
+ * Privilege entity.
  * 
  * @author jtremeaux
  */
-public class BaseFunction {
+public class Privilege {
     /**
-     * Base function ID (ex: "ADMIN").
+     * Privilege ID (ex: "ADMIN").
      */
     private String id;
 
-    public BaseFunction(String id) {
+    public Privilege(String id) {
         this.id = id;
     }
 

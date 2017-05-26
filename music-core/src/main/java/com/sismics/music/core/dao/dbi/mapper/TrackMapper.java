@@ -15,21 +15,21 @@ import java.sql.SQLException;
 public class TrackMapper extends BaseResultSetMapper<Track> {
     public String[] getColumns() {
         return new String[] {
-                "TRK_ID_C",
-                "TRK_IDALBUM_C",
-                "TRK_IDARTIST_C",
-                "TRK_FILENAME_C",
-                "TRK_TITLE_C",
-                "TRK_TITLECORRECTED_C",
-                "TRK_YEAR_N",
-                "TRK_GENRE_C",
-                "TRK_LENGTH_N",
-                "TRK_BITRATE_N",
-                "TRK_ORDER_N",
-                "TRK_VBR_B",
-                "TRK_FORMAT_C",
-                "TRK_CREATEDATE_D",
-                "TRK_DELETEDATE_D"};
+                "id",
+                "album_id",
+                "artist_id",
+                "filename",
+                "title",
+                "titlecorrected",
+                "year",
+                "genre",
+                "length",
+                "bitrate",
+                "number",
+                "vbr",
+                "format",
+                "createdate",
+                "deletedate"};
     }
 
     @Override

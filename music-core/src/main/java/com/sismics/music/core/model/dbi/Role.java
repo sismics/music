@@ -5,7 +5,7 @@ import com.google.common.base.Objects;
 import java.util.Date;
 
 /**
- * Role (set of base functions).
+ * Role (set of privileges).
  * 
  * @author jtremeaux
  */

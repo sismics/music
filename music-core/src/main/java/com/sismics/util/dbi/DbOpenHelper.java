@@ -43,14 +43,14 @@ public abstract class DbOpenHelper {
             // Check if database is already created
             Integer oldVersion = null;
             try {
-                List<Map<String,Object>> resultMap = handle.select("select c.CFG_VALUE_C as ver from T_CONFIG c where c.CFG_ID_C='DB_VERSION'");
+                List<Map<String,Object>> resultMap = handle.select("select c.value as ver from t_config c where c.id='DB_VERSION'");
                 if (!resultMap.isEmpty()) {
                     String oldVersionStr = (String) resultMap.get(0).get("ver");
                     oldVersion = Integer.parseInt(oldVersionStr);
                 }
             } catch (Exception e) {
                 if (e.getMessage().contains("not found")) {
-                    log.info("Unable to get database version: Table T_CONFIG not found");
+                    log.info("Unable to get database version: Table t_config not found");
                 } else {
                     log.error("Unable to get database version", e);
                 }
@@ -97,21 +97,21 @@ public abstract class DbOpenHelper {
     }
     
     /**
-     * Execute a SQL script. All statements must be one line only.
+     * Execute a SQL script.
      * 
      * @param inputScript Script to execute
      */
-    protected void executeScript(InputStream inputScript) throws Exception {
-        List<String> lines = CharStreams.readLines(new InputStreamReader(inputScript));
-        
-        for (String sql : lines) {
+    private void executeScript(InputStream inputScript) throws Exception {
+        String lines = CharStreams.toString(new InputStreamReader(inputScript));
+
+        for (String sql : SQLSplitter.splitSQL(lines)) {
             if (Strings.isNullOrEmpty(sql) || sql.startsWith("--")) {
                 continue;
             }
             
 //            String formatted = formatter.format(sql);
             try {
-                log.debug(sql);
+                log.trace(sql);
                 handle.update(sql);
             } catch (Exception e) {
                 if (haltOnError) {

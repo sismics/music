@@ -1,11 +1,10 @@
 package com.sismics.music.core.dao.dbi;
 
-import java.util.UUID;
-
-import org.skife.jdbi.v2.Handle;
-
 import com.sismics.music.core.model.dbi.Player;
 import com.sismics.util.context.ThreadLocalContext;
+import org.skife.jdbi.v2.Handle;
+
+import java.util.UUID;
 
 /**
  * Player DAO.
@@ -24,7 +23,7 @@ public class PlayerDao {
 
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                " T_PLAYER(PLR_ID_C)" +
+                " t_player(id)" +
                 " values(:id)")
                 .bind("id", player.getId())
                 .execute();
@@ -39,8 +38,8 @@ public class PlayerDao {
      */
     public void delete(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("delete from T_PLAYER p" +
-                "  where p.PLR_ID_C = :id")
+        handle.createStatement("delete from t_player p" +
+                "  where p.id = :id")
                 .bind("id", id)
                 .execute();
     }
@@ -53,7 +52,7 @@ public class PlayerDao {
      */
     public Player getById(String id) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        return handle.createQuery("select PLR_ID_C from T_PLAYER where PLR_ID_C = :id")
+        return handle.createQuery("select id from t_player where id = :id")
                 .bind("id", id)
                 .mapTo(Player.class)
                 .first();

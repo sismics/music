@@ -30,7 +30,7 @@ public class UserTrackDao {
         // Create user / track
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
-                " T_USER_TRACK(UST_ID_C, UST_IDUSER_C, UST_IDTRACK_C, UST_CREATEDATE_D)" +
+                " t_user_track(id, user_id, track_id, createdate)" +
                 " values(:id, :userId, :trackId, :createDate)")
                 .bind("id", userTrack.getId())
                 .bind("userId", userTrack.getUserId())
@@ -51,8 +51,8 @@ public class UserTrackDao {
     public UserTrack getActiveUserTrack(String userId, String trackId) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         return handle.createQuery("select " + new UserTrackMapper().getJoinedColumns("ut") +
-                "  from T_USER_TRACK ut" +
-                "  where ut.UST_DELETEDATE_D is null and ut.UST_IDUSER_C = :userId and ut.UST_IDTRACK_C = :trackId ")
+                "  from t_user_track ut" +
+                "  where ut.deletedate is null and ut.user_id = :userId and ut.track_id = :trackId ")
                 .bind("userId", userId)
                 .bind("trackId", trackId)
                 .bind("deleteDate", new Timestamp(new Date().getTime()))
@@ -86,13 +86,13 @@ public class UserTrackDao {
      */
     public UserTrack update(UserTrack userTrack) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        handle.createStatement("update T_USER_TRACK set " +
-                " UST_PLAYCOUNT_N = :playCount," +
-                " UST_LIKE_B = :like " +
-                " where UST_ID_C = :id and UST_DELETEDATE_D is null")
+        handle.createStatement("update t_user_track set " +
+                " playcount = :playCount," +
+                " liked = :liked " +
+                " where id = :id and deletedate is null")
                 .bind("id", userTrack.getId())
                 .bind("playCount", userTrack.getPlayCount())
-                .bind("like", userTrack.isLike())
+                .bind("liked", userTrack.isLike())
                 .execute();
 
         return userTrack;

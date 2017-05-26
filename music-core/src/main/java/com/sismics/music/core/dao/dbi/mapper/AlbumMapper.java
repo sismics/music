@@ -15,15 +15,15 @@ import java.sql.SQLException;
 public class AlbumMapper extends BaseResultSetMapper<Album> {
     public String[] getColumns() {
         return new String[] {
-                "ALB_ID_C",
-                "ALB_IDDIRECTORY_C",
-                "ALB_IDARTIST_C",
-                "ALB_NAME_C",
-                "ALB_ALBUMART_C",
-                "ALB_UPDATEDATE_D",
-                "ALB_CREATEDATE_D",
-                "ALB_DELETEDATE_D",
-                "ALB_LOCATION_C"};
+                "id",
+                "directory_id",
+                "artist_id",
+                "name",
+                "albumart",
+                "updatedate",
+                "createdate",
+                "deletedate",
+                "location"};
     }
 
     @Override

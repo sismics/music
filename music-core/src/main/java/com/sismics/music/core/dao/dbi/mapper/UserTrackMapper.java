@@ -15,13 +15,13 @@ import java.sql.SQLException;
 public class UserTrackMapper extends BaseResultSetMapper<UserTrack> {
     public String[] getColumns() {
         return new String[] {
-            "UST_ID_C",
-            "UST_IDUSER_C",
-            "UST_IDTRACK_C",
-            "UST_PLAYCOUNT_N",
-            "UST_LIKE_B",
-            "UST_CREATEDATE_D",
-            "UST_DELETEDATE_D"};
+            "id",
+            "user_id",
+            "track_id",
+            "playcount",
+            "liked",
+            "createdate",
+            "deletedate"};
     }
 
     @Override

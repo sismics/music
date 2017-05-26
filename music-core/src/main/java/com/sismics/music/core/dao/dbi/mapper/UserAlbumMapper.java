@@ -15,11 +15,11 @@ import java.sql.SQLException;
 public class UserAlbumMapper extends BaseResultSetMapper<UserAlbum> {
     public String[] getColumns() {
         return new String[] {
-            "USA_ID_C",
-            "USA_IDUSER_C",
-            "USA_IDALBUM_C",
-            "USA_CREATEDATE_D",
-            "USA_DELETEDATE_D"};
+            "id",
+            "user_id",
+            "album_id",
+            "createdate",
+            "deletedate"};
     }
 
     @Override

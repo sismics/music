@@ -34,7 +34,7 @@ import java.util.List;
  */
 @Path("/playlist")
 public class PlaylistResource extends BaseResource {
-    public static final String DEFAULT_PLAYLIST = "default";
+    public static final String DEFAULt_playlist = "default";
 
     /**
      * Create a named playlist.
@@ -126,7 +126,7 @@ public class PlaylistResource extends BaseResource {
         // Get the playlist
         PlaylistCriteria criteria = new PlaylistCriteria()
                 .setUserId(principal.getId());
-        if (DEFAULT_PLAYLIST.equals(playlistId)) {
+        if (DEFAULt_playlist.equals(playlistId)) {
             criteria.setDefaultPlaylist(true);
         } else {
             criteria.setDefaultPlaylist(false);
@@ -176,7 +176,7 @@ public class PlaylistResource extends BaseResource {
         // Get the playlist
         PlaylistCriteria criteria = new PlaylistCriteria()
                 .setUserId(principal.getId());
-        if (DEFAULT_PLAYLIST.equals(playlistId)) {
+        if (DEFAULt_playlist.equals(playlistId)) {
             criteria.setDefaultPlaylist(true);
         } else {
             criteria.setDefaultPlaylist(false);
@@ -333,7 +333,7 @@ public class PlaylistResource extends BaseResource {
         // Get the playlist
         PlaylistCriteria criteria = new PlaylistCriteria()
                 .setUserId(principal.getId());
-        if (DEFAULT_PLAYLIST.equals(playlistId)) {
+        if (DEFAULt_playlist.equals(playlistId)) {
             criteria.setDefaultPlaylist(true);
         } else {
             criteria.setDefaultPlaylist(false);
@@ -377,7 +377,7 @@ public class PlaylistResource extends BaseResource {
         // Get the playlist
         PlaylistCriteria criteria = new PlaylistCriteria()
                 .setUserId(principal.getId());
-        if (DEFAULT_PLAYLIST.equals(playlistId)) {
+        if (DEFAULt_playlist.equals(playlistId)) {
             criteria.setDefaultPlaylist(true);
         } else {
             criteria.setDefaultPlaylist(false);
@@ -482,7 +482,7 @@ public class PlaylistResource extends BaseResource {
         // Get the playlist
         PlaylistCriteria criteria = new PlaylistCriteria()
                 .setUserId(principal.getId());
-        if (DEFAULT_PLAYLIST.equals(playlistId)) {
+        if (DEFAULt_playlist.equals(playlistId)) {
             criteria.setDefaultPlaylist(true);
         } else {
             criteria.setDefaultPlaylist(false);
@@ -512,7 +512,7 @@ public class PlaylistResource extends BaseResource {
         // Get the playlist
         PlaylistCriteria criteria = new PlaylistCriteria()
                 .setUserId(principal.getId());
-        if (DEFAULT_PLAYLIST.equals(playlistId)) {
+        if (DEFAULt_playlist.equals(playlistId)) {
             criteria.setDefaultPlaylist(true);
         } else {
             criteria.setDefaultPlaylist(false);

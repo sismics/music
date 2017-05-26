@@ -15,18 +15,18 @@ import java.sql.SQLException;
 public class UserMapper extends BaseResultSetMapper<User> {
     public String[] getColumns() {
         return new String[] {
-            "USE_ID_C",
-            "USE_IDLOCALE_C",
-            "USE_IDROLE_C",
-            "USE_USERNAME_C",
-            "USE_PASSWORD_C",
-            "USE_EMAIL_C",
-            "USE_MAXBITRATE_N",
-            "USE_LASTFMSESSIONTOKEN_C",
-            "USE_LASTFMACTIVE_B",
-            "USE_FIRSTCONNECTION_B",
-            "USE_CREATEDATE_D",
-            "USE_DELETEDATE_D"};
+            "id",
+            "locale_id",
+            "role_id",
+            "username",
+            "password",
+            "email",
+            "maxbitrate",
+            "lastfmsessiontoken",
+            "lastfmactive",
+            "firstconnection",
+            "createdate",
+            "deletedate"};
     }
 
     @Override

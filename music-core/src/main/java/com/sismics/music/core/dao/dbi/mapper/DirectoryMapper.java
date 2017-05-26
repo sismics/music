@@ -16,10 +16,10 @@ public class DirectoryMapper implements ResultSetMapper<Directory> {
     @Override
     public Directory map(int index, ResultSet r, StatementContext ctx) throws SQLException {
         return new Directory(
-                r.getString("DIR_ID_C"),
-                r.getString("DIR_LOCATION_C"),
-                r.getTimestamp("DIR_DISABLEDATE_D"),
-                r.getTimestamp("DIR_CREATEDATE_D"),
-                r.getTimestamp("DIR_DELETEDATE_D"));
+                r.getString("id"),
+                r.getString("location"),
+                r.getTimestamp("disabledate"),
+                r.getTimestamp("createdate"),
+                r.getTimestamp("deletedate"));
     }
 }

@@ -1,6 +1,6 @@
 package com.sismics.music.rest.resource;
 
-import com.sismics.music.rest.constant.BaseFunction;
+import com.sismics.music.rest.constant.Privilege;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.security.IPrincipal;
@@ -55,28 +55,28 @@ public abstract class BaseResource {
     }
     
     /**
-     * Checks if the user has a base function. Throw an exception if the check fails.
+     * Checks if the user has a privilege. Throw an exception if the check fails.
      * 
-     * @param baseFunction Base function to check
+     * @param privilege Privilege to check
      */
-    protected void checkBaseFunction(BaseFunction baseFunction) {
-        if (!hasBaseFunction(baseFunction)) {
+    protected void checkPrivilege(Privilege privilege) {
+        if (!hasPrivilege(privilege)) {
             throw new ForbiddenClientException();
         }
     }
     
     /**
-     * Checks if the user has a base function.
+     * Checks if the user has a privilege.
      * 
-     * @param baseFunction Base function to check
-     * @return True if the user has the base function
+     * @param privilege Privilege to check
+     * @return True if the user has the privilege
      */
-    protected boolean hasBaseFunction(BaseFunction baseFunction) {
+    protected boolean hasPrivilege(Privilege privilege) {
         if (principal == null || !(principal instanceof UserPrincipal)) {
             return false;
         }
-        Set<String> baseFunctionSet = ((UserPrincipal) principal).getBaseFunctionSet();
-        return baseFunctionSet != null && baseFunctionSet.contains(baseFunction.name());
+        Set<String> privilegeSet = ((UserPrincipal) principal).getPrivilegeSet();
+        return privilegeSet != null && privilegeSet.contains(privilege.name());
     }
 
     /**
