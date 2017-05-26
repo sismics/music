@@ -146,7 +146,7 @@ public class LastFmService extends AbstractScheduledService {
         Session session = restoreSession(user);
 
         final ArtistDao artistDao = new ArtistDao();
-        List<ScrobbleData> scrobbleDataList = new ArrayList<ScrobbleData>();
+        List<ScrobbleData> scrobbleDataList = new ArrayList<>();
         for (int i = 0; i < trackList.size(); i++) {
             final Track track = trackList.get(i);
             final Artist artist = artistDao.getActiveById(track.getArtistId());

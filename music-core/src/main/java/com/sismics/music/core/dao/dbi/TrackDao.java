@@ -23,8 +23,8 @@ import java.util.*;
 public class TrackDao extends BaseDao<TrackDto, TrackCriteria> {
     @Override
     protected QueryParam getQueryParam(TrackCriteria criteria, FilterCriteria filterCriteria) {
-        List<String> criteriaList = new ArrayList<String>();
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
+        List<String> criteriaList = new ArrayList<>();
+        Map<String, Object> parameterMap = new HashMap<>();
 
         StringBuilder sb = new StringBuilder("select t.id as id, t.filename as fileName, t.title as title, t.year as year, t.genre as genre, t.length as length, t.bitrate as bitrate, t.number as trackOrder, t.vbr as vbr, t.format as format,");
         if (criteria.getUserId() != null) {

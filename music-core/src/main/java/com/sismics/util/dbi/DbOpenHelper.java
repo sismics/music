@@ -26,7 +26,7 @@ public abstract class DbOpenHelper {
 
     private final Handle handle;
     
-    private final List<Exception> exceptions = new ArrayList<Exception>();
+    private final List<Exception> exceptions = new ArrayList<>();
 
     private boolean haltOnError;
     

@@ -24,8 +24,8 @@ import java.util.Map;
 public class PlaylistDao extends BaseDao<PlaylistDto, PlaylistCriteria> {
     @Override
     protected QueryParam getQueryParam(PlaylistCriteria criteria, FilterCriteria filterCriteria) {
-        List<String> criteriaList = new ArrayList<String>();
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
+        List<String> criteriaList = new ArrayList<>();
+        Map<String, Object> parameterMap = new HashMap<>();
 
         StringBuilder sb = new StringBuilder("select p.id as id, p.name as c0,")
                 .append("  p.user_id as userId,")
@@ -131,7 +131,7 @@ public class PlaylistDao extends BaseDao<PlaylistDto, PlaylistCriteria> {
      * @return Query results as a list of domain objects
      */
     private List<PlaylistDto> assembleResultList(List<Object[]> resultList) {
-        List<PlaylistDto> playlistDtoList = new ArrayList<PlaylistDto>();
+        List<PlaylistDto> playlistDtoList = new ArrayList<>();
         for (Object[] o : resultList) {
             int i = 0;
             PlaylistDto playlistDto = new PlaylistDto();

@@ -22,8 +22,8 @@ import java.util.*;
 public class ArtistDao extends BaseDao<ArtistDto, ArtistCriteria> {
     @Override
     protected QueryParam getQueryParam(ArtistCriteria criteria, FilterCriteria filterCriteria) {
-        List<String> criteriaList = new ArrayList<String>();
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
+        List<String> criteriaList = new ArrayList<>();
+        Map<String, Object> parameterMap = new HashMap<>();
 
         StringBuilder sb = new StringBuilder("select a.id as id, a.name as c0 ");
         sb.append(" from t_artist a ");
@@ -156,7 +156,7 @@ public class ArtistDao extends BaseDao<ArtistDto, ArtistCriteria> {
      * @return Query results as a list of domain objects
      */
     private List<ArtistDto> assembleResultList(List<Object[]> resultList) {
-        List<ArtistDto> artistDtoList = new ArrayList<ArtistDto>();
+        List<ArtistDto> artistDtoList = new ArrayList<>();
         for (Object[] o : resultList) {
             int i = 0;
             ArtistDto artistDto = new ArtistDto();

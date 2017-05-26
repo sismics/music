@@ -52,7 +52,7 @@ public class ResourceUtil {
             // Extract the JAR path
             String jarPath = dirUrl.getPath().substring(5, dirUrl.getPath().indexOf("!"));
             JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
-            Set<String> fileSet = new HashSet<String>();
+            Set<String> fileSet = new HashSet<>();
             
             try {
                 Enumeration<JarEntry> entries = jar.entries();

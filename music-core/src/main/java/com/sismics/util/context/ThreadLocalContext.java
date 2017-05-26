@@ -11,7 +11,7 @@ public class ThreadLocalContext {
     /**
      * ThreadLocal to store the context.
      */
-    public static final ThreadLocal<ThreadLocalContext> threadLocalContext = new ThreadLocal<ThreadLocalContext>();
+    public static final ThreadLocal<ThreadLocalContext> threadLocalContext = new ThreadLocal<>();
     
     /**
      * JDBI handle.

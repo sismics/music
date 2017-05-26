@@ -63,7 +63,7 @@ public abstract class BaseJerseyTest extends JerseyTest {
     /**
      * The set of current cookies.
      */
-    protected Map<String, String> cookies = new HashMap<String, String>();
+    protected Map<String, String> cookies = new HashMap<>();
 
     /**
      * Utility class for the REST client.
@@ -303,7 +303,7 @@ public abstract class BaseJerseyTest extends JerseyTest {
     }
 
     protected void GET(String resource) {
-        GET(resource, new HashMap<String, String>());
+        GET(resource, new HashMap<>());
         addCookiesFromResponse();
     }
 
@@ -356,7 +356,7 @@ public abstract class BaseJerseyTest extends JerseyTest {
     }
 
     protected void PUT(String url) {
-        PUT(url, new HashMap<String, String>());
+        PUT(url, new HashMap<>());
     }
 
     protected void POST(String url, Map<String, String> postParams) {
@@ -380,7 +380,7 @@ public abstract class BaseJerseyTest extends JerseyTest {
     }
 
     protected void POST(String url) {
-        POST(url, new HashMap<String, String>());
+        POST(url, new HashMap<>());
     }
 
     protected void DELETE(String url) {

@@ -47,7 +47,7 @@ public class PaginatedLists {
         if (pageSize == 0) {
             pageSize = 1; // Page size of zero counterintuitively returns all rows, we don't want to kill the database
         }
-        return new PaginatedList<E>(pageSize, offset);
+        return new PaginatedList<>(pageSize, offset);
     }
     
     /**

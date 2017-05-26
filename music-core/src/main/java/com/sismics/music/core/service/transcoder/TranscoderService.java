@@ -32,7 +32,7 @@ public class TranscoderService {
     }
 
     private ProcessBuilder getProcessBuilder(Track track, int seek, Transcoder transcoder) {
-        List<String> result = new LinkedList<String>(Arrays.asList(StringUtils.split(transcoder.getStep1())));
+        List<String> result = new LinkedList<>(Arrays.asList(StringUtils.split(transcoder.getStep1())));
 
         int maxBitRate = 128; // TODO Configure the bitrate somewhere
         for (int i = 1; i < result.size(); i++) {

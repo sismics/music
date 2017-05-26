@@ -27,7 +27,7 @@ public class MemoryAppender extends AppenderSkeleton {
     /**
      * Queue of log entries.
      */
-    private final Queue<LogEntry> logQueue = new ConcurrentLinkedQueue<LogEntry>();
+    private final Queue<LogEntry> logQueue = new ConcurrentLinkedQueue<>();
 
     @Override
     public boolean requiresLayout() {
@@ -98,7 +98,7 @@ public class MemoryAppender extends AppenderSkeleton {
      * @param list Paginated list (modified by side effect)
      */
     public void find(LogCriteria criteria, PaginatedList<LogEntry> list) {
-        List<LogEntry> logEntryList = new LinkedList<LogEntry>();
+        List<LogEntry> logEntryList = new LinkedList<>();
         final String level = criteria.getLevel();
         final String tag = criteria.getTag();
         final String message = criteria.getMessage();

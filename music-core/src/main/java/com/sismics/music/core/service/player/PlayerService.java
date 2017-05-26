@@ -1,13 +1,13 @@
 package com.sismics.music.core.service.player;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.sismics.music.core.event.async.PlayCompletedEvent;
 import com.sismics.music.core.event.async.PlayStartedEvent;
 import com.sismics.music.core.model.context.AppContext;
 import com.sismics.music.core.model.dbi.Track;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Player service.
@@ -21,7 +21,7 @@ public class PlayerService {
     private Map<String, PlayerStatus> currentlyPlayerStatus;
 
     public PlayerService() {
-        currentlyPlayerStatus = new HashMap<String, PlayerStatus>();
+        currentlyPlayerStatus = new HashMap<>();
     }
 
     /**

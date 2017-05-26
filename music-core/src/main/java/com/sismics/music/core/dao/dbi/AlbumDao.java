@@ -24,8 +24,8 @@ import java.util.*;
 public class AlbumDao extends BaseDao<AlbumDto, AlbumCriteria> {
     @Override
     public QueryParam getQueryParam(AlbumCriteria criteria, FilterCriteria filterCriteria) {
-        List<String> criteriaList = new ArrayList<String>();
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
+        List<String> criteriaList = new ArrayList<>();
+        Map<String, Object> parameterMap = new HashMap<>();
 
         StringBuilder sb = new StringBuilder("select a.id as id, a.name as c0, a.albumart as albumArt, a.artist_id as artistId, ar.name as artistName, a.updatedate as c1, ");
         if (criteria.getUserId() == null) {

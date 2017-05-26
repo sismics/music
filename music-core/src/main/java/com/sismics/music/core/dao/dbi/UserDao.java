@@ -24,12 +24,12 @@ import java.util.*;
 public class UserDao extends BaseDao<UserDto, UserCriteria> {
     @Override
     protected QueryParam getQueryParam(UserCriteria criteria, FilterCriteria filterCriteria) {
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
+        Map<String, Object> parameterMap = new HashMap<>();
         StringBuilder sb = new StringBuilder("select u.id as c0, u.username as c1, u.email as c2, u.createdate as c3, u.locale_id as c4");
         sb.append("  from t_user u ");
 
         // Add search criterias
-        List<String> criteriaList = new ArrayList<String>();
+        List<String> criteriaList = new ArrayList<>();
         if (criteria.isLastFmSessionTokenNotNull()) {
             criteriaList.add("lastfmsessiontoken is not null");
         }

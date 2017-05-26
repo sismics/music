@@ -90,7 +90,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
                 String output = DirectoryUtil.getImportAudioDirectory().getAbsolutePath() + File.separator + "%(title)s.%(ext)s";
                 String command = "youtube-dl -v --prefer-ffmpeg --encoding UTF-8 --newline -f bestaudio -x --audio-format " + importAudio.getFormat()
                         + " --audio-quality " + importAudio.getQuality() + " -o";
-                List<String> commandList = new LinkedList<String>(Arrays.asList(StringUtils.split(command)));
+                List<String> commandList = new LinkedList<>(Arrays.asList(StringUtils.split(command)));
                 commandList.add(output);
                 commandList.add(importAudio.getUrl());
                 Process process = new ProcessBuilder(commandList)

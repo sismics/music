@@ -119,7 +119,7 @@ public class AppContext {
         eventBus = new EventBus();
         eventBus.register(new DeadEventListener());
         
-        asyncExecutorList = new ArrayList<ExecutorService>();
+        asyncExecutorList = new ArrayList<>();
         
         asyncEventBus = newAsyncEventBus();
         
@@ -160,7 +160,7 @@ public class AppContext {
         } else {
             ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1,
                     0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<Runnable>());
+                    new LinkedBlockingQueue<>());
             asyncExecutorList.add(executor);
             return new AsyncEventBus(executor);
         }

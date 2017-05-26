@@ -21,7 +21,7 @@ public class AlbumArtImporter {
      * @return Album art file
      */
     public File scanDirectory(Path directory) {
-        Map<Integer, File> fileMap = new TreeMap<Integer, File>();
+        Map<Integer, File> fileMap = new TreeMap<>();
         for (File file : directory.toFile().listFiles(ALBUM_ART_FILENAME_FILTER)) { // XXX nio-ize
             String name = file.getName().toLowerCase();
             if (name.startsWith("albumart.")) {
