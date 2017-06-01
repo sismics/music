@@ -25,7 +25,7 @@ public class PaginatedLists {
     /**
      * Maximum size of a page.
      */
-    private static final int MAX_PAGE_SIZE = 100;
+    private static final int MAX_PAGE_SIZE = 99999; // FIXME paginate the Android app
 
     /**
      * Constructs a paginated list.
