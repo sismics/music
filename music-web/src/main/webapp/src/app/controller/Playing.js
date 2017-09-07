@@ -3,7 +3,7 @@
 /**
  * Now playing controller.
  */
-angular.module('music').controller('Playing', function($scope, Playlist) {
+angular.module('music').controller('Playing', function($scope, Playlist, NamedPlaylist) {
   var updateScope = function() {
     $scope.currentOrder = Playlist.currentOrder();
     $scope.currentStatus = Playlist.currentStatus();
@@ -64,5 +64,15 @@ angular.module('music').controller('Playing', function($scope, Playlist) {
         Playlist.moveTrack(ui.item.attr('data-order'), ui.item.index());
       });
     }
+  };
+
+  // Create a new named playlist
+  $scope.createPlaylist = function() {
+    NamedPlaylist.createPlaylist();
+  };
+
+  // Add to playlist
+  $scope.addToPlaylist = function(playlist) {
+    NamedPlaylist.addToPlaylist(playlist, $scope.tracks);
   };
 });

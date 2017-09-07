@@ -3,10 +3,26 @@
     <h3 class="panel-title">
       <span class="glyphicon glyphicon-play"></span> Now playing
       <span class="text-muted" ng-show="duration > 0">(Total: {{ duration | duration }})</span>
-      <span class="glyphicon glyphicon-trash pull-right btn-pointer" ng-click="clear()"></span>
     </h3>
   </div>
   <div class="panel-body">
+    <div class="btn-toolbar" role="toolbar">
+      <div style="position: relative; display: inline-block;" dropdown>
+        <button class="btn btn-link dropdown-toggle" dropdown-toggle>
+          <span class="glyphicon glyphicon-plus"></span> Add to playlist
+        </button>
+
+        <ul class="dropdown-menu">
+          <li><a href ng-click="createPlaylist()">New playlist</a></li>
+          <li ng-repeat="playlist in playlists"><a href ng-click="addToPlaylist(playlist)">{{ playlist.name }}</a></li>
+        </ul>
+      </div>
+
+      <button class="btn btn-link" ng-click="clear()">
+        <span class="glyphicon glyphicon-trash"></span> Clear
+      </button>
+    </div>
+
     <table class="table table-striped table-playing-tracks" ng-show="tracks.length > 0">
       <thead>
       <tr>
