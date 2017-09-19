@@ -42,6 +42,9 @@
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#/music/albums/:latest">Latest albums</a></li>
       <li><a href="#/music/albums/:playcount">Most listened albums</a></li>
+      <li ng-repeat="playlist in playlists">
+        <a ng-href="#/playlist/{{ playlist.id }}">{{ playlist.name }}</a>
+      </li>
     </ul>
   </div>
 

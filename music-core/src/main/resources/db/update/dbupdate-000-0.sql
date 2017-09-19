@@ -365,6 +365,36 @@ alter table T_USER_TRACK
 references T_USER (ID)
 on delete restrict on update restrict;
 
+create table T_USER_PLAY (
+   ID                   VARCHAR(36)          not null,
+   USER_ID              VARCHAR(36)          null,
+   TRACK_ID             VARCHAR(36)          null,
+   CREATEDATE           datetime             null,
+   constraint PK_T_USER_PLAY primary key (ID)
+);
+
+create unique index IDX_PK_USER_PLAY on T_USER_PLAY (
+   ID
+);
+
+create  index IDX_FK_USP_USER_ID on T_USER_PLAY (
+   USER_ID
+);
+
+create  index IDX_FK_USP_TRACK_ID on T_USER_PLAY (
+   TRACK_ID
+);
+
+alter table T_USER_PLAY
+   add constraint fk_usp_track_id foreign key (TRACK_ID)
+references T_TRACK (ID)
+on delete restrict on update restrict;
+
+alter table T_USER_PLAY
+   add constraint fk_usp_user_id foreign key (USER_ID)
+references T_USER (ID)
+on delete restrict on update restrict;
+
 insert into t_config(id,value) values('LAST_FM_API_KEY','7119a7b5c4455bbe8196934e22358a27');
 insert into t_config(id,value) values('LAST_FM_API_SECRET','30dce5dfdb01b87af6038dd36f696f8a');
 insert into t_config(id,value) values('DB_VERSION', '0');

@@ -61,6 +61,9 @@ public class PlaylistResource extends BaseResource {
         return renderJson(Json.createObjectBuilder()
                 .add("item", Json.createObjectBuilder()
                         .add("id", playlist.getId())
+                        .add("name", playlist.getName())
+                        .add("trackCount", 0)
+                        .add("userTrackPlayCount", 0)
                         .build()));
     }
 
@@ -566,6 +569,10 @@ public class PlaylistResource extends BaseResource {
                             .add("albumart", trackDto.getAlbumArt() != null)));
         }
         response.add("tracks", tracks);
+        response.add("id", playlist.getId());
+        if (playlist.getName() != null) {
+            response.add("name", playlist.getName());
+        }
         return response;
     }
 }
