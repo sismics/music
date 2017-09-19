@@ -36,6 +36,7 @@ angular.module('music').factory('NamedPlaylist', function($rootScope, $modal, Re
       $modal.open({
         templateUrl: 'partial/modal.createplaylist.html',
         controller: function($scope, $modalInstance) {
+          'ngInject';
           $scope.ok = function (name) {
             $modalInstance.close(name);
           };

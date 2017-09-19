@@ -8,7 +8,10 @@ module.exports = function(grunt) {
         src: ['dist']
       }
     },
-    ngmin: {
+    ngAnnotate: {
+      options: {
+        singleQuotes: true
+      },
       dist: {
         expand: true,
         cwd: 'src',
@@ -99,11 +102,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-css');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-remove');
-  grunt.loadNpmTasks('grunt-ngmin');
+  grunt.loadNpmTasks('grunt-ng-annotate');
   grunt.loadNpmTasks('grunt-text-replace');
 
   // Default tasks.
-  grunt.registerTask('default', ['clean', 'ngmin', 'concat:js', 'less', 'concat:css', 'cssmin',
+  grunt.registerTask('default', ['clean', 'ngAnnotate', 'concat:js', 'less', 'concat:css', 'cssmin',
     'uglify', 'copy', 'remove', 'cleanempty', 'htmlrefs', 'replace']);
 
 };
