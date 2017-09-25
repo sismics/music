@@ -38,6 +38,12 @@ angular.module('music').factory('NamedPlaylist', function($rootScope, $modal, Re
       });
     },
 
+    moveTrack: function(playlist, order, neworder) {
+      return Restangular.one('playlist/' + playlist.id, order).post('move', {
+        neworder: neworder
+      });
+    },
+
     createPlaylist: function(tracks) {
       $modal.open({
         templateUrl: 'partial/modal.createplaylist.html',

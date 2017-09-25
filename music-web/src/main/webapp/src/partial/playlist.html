@@ -11,10 +11,10 @@
       <button class="btn btn-link" ng-click="remove()"><span class="glyphicon glyphicon-trash"></span> Delete</button>
     </div>
 
-    <table class="table table-striped table-tracks">
+    <table class="table table-striped table-playing-tracks">
       <thead>
       <tr>
-        <th style="width: 6%;" class="col-md-1"></th>
+        <th style="width: 8%;" class="col-md-1"></th>
         <th>Title</th>
         <th>Artist</th>
         <th>Album</th>
@@ -23,8 +23,8 @@
         <th style="width: 4%"></th>
       </tr>
       </thead>
-      <tbody>
-      <tr bindonce ng-repeat="track in playlist.tracks">
+      <tbody ui-sortable="trackSortableOptions">
+      <tr bindonce ng-repeat="track in playlist.tracks" bo-attr bo-attr-data-order="track.order">
         <td>
           <span class="handle btn-handle"></span>
           <span class="play glyphicon glyphicon-play btn-pointer" ng-click="playTrack(track)"></span>
