@@ -3,12 +3,15 @@
 /**
  * Named playlist service.
  */
-angular.module('music').factory('NamedPlaylist', function($rootScope, $modal, Restangular) {
+angular.module('music').factory('NamedPlaylist', function($rootScope, $modal, Restangular, toaster) {
   $rootScope.playlists = [];
+  var service = {};
 
-  var service = {
+  service = {
     update: function() {
-      Restangular.one('playlist').get().then(function(data) {
+      Restangular.one('playlist').get({
+        limit: 1000
+      }).then(function(data) {
         $rootScope.playlists = data.items;
       });
     },
@@ -17,6 +20,9 @@ angular.module('music').factory('NamedPlaylist', function($rootScope, $modal, Re
       Restangular.one('playlist/' + playlist.id + '/multiple').put({
         ids: _.pluck(tracks, 'id'),
         clear: false
+      }).then(function() {
+        toaster.pop('success', 'Track' + (tracks.length > 1 ? 's' : '') + ' added to ' + playlist.name,
+          _.pluck(tracks, 'title').join('\n'));
       });
     },
 
@@ -32,7 +38,7 @@ angular.module('music').factory('NamedPlaylist', function($rootScope, $modal, Re
       });
     },
 
-    createPlaylist: function() {
+    createPlaylist: function(tracks) {
       $modal.open({
         templateUrl: 'partial/modal.createplaylist.html',
         controller: function($scope, $modalInstance) {
@@ -50,6 +56,8 @@ angular.module('music').factory('NamedPlaylist', function($rootScope, $modal, Re
           name: name
         }).then(function(data) {
           $rootScope.playlists.push(data.item);
+          service.addToPlaylist(data.item, tracks);
+          toaster.pop('success', 'Playlist created', name);
         });
       });
     }

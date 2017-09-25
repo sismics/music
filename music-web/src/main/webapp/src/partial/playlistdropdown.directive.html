@@ -1,0 +1,10 @@
+<ul class="dropdown-menu">
+  <li><a href ng-click="createPlaylist(tracks)">Add to a new playlist</a></li>
+  <li class="divider" ng-show="$root.playlists.length > 0"></li>
+  <li ng-click="$event.stopPropagation()" ng-show="$root.playlists.length > 0">
+    <input placeholder="Search in playlists" title="Search in playlists" type="text" class="form-control" ng-init="playlistSearch = ''" ng-model="playlistSearch" />
+  </li>
+  <li bindonce ng-repeat="playlist in $root.playlists | filter: { name: playlistSearch }">
+    <a href ng-click="addToPlaylist(playlist, tracks)" bo-html="'Add to <b>' + playlist.name + '</b>'"></a>
+  </li>
+</ul>

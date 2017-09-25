@@ -9,6 +9,12 @@
       <button class="btn btn-link" ng-click="shuffleAllTracks()"><span class="glyphicon glyphicon-random"></span> Shuffle</button>
       <button class="btn btn-link" ng-click="addAllTracks()"><span class="glyphicon glyphicon-plus"></span> Add all</button>
       <button class="btn btn-link" ng-click="editTags()"><span class="glyphicon glyphicon-pencil"></span> Edit tags</button>
+      <div class="dropdown" dropdown>
+        <button class="btn btn-link dropdown-toggle" dropdown-toggle>
+          <span class="glyphicon glyphicon-plus"></span> Add to playlist
+        </button>
+        <playlist-dropdown tracks="album.tracks"></playlist-dropdown>
+      </div>
     </div>
 
     <div class="row">
@@ -22,6 +28,7 @@
             <th>Title</th>
             <th style="width: 13%;"><span class="glyphicon glyphicon-time"></span></th>
             <th style="width: 6%;"></th>
+            <th style="width: 6%;"></th>
           </tr>
           </thead>
           <tbody>
@@ -31,6 +38,14 @@
             <td>{{ track.order }}</td>
             <td title="{{ track.title }}">{{ track.title }} <span ng-if="track.artist.id != album.artist.id">({{ track.artist.name }})</span></td>
             <td title="Played {{ track.play_count }} times">{{ track.length | duration }}</td>
+            <td class="overflow-allowed">
+              <div class="dropdown" dropdown>
+                <a href dropdown-toggle>
+                  <span class="glyphicon glyphicon-option-vertical"></span>
+                </a>
+                <playlist-dropdown tracks="[ track ]"></playlist-dropdown>
+              </div>
+            </td>
             <td>
               <span class="glyphicon btn-pointer btn-like" title="{{ track.liked ? 'Loved' : '' }}" ng-click="toggleLikeTrack(track)"
                     ng-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>

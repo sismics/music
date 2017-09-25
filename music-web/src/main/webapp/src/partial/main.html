@@ -42,8 +42,15 @@
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#/music/albums/:latest">Latest albums</a></li>
       <li><a href="#/music/albums/:playcount">Most listened albums</a></li>
-      <li ng-repeat="playlist in playlists">
-        <a ng-href="#/playlist/{{ playlist.id }}">{{ playlist.name }}</a>
+      <li class="playlist-list-menu">
+        <div class="form-group has-feedback" ng-class="{ 'has-warning': playlistSearch }">
+          <input title="Search in playlists" ng-init="playlistSearch = ''" placeholder="Search in playlist" ng-model="playlistSearch" type="text" class="form-control" />
+          <span class="glyphicon glyphicon-search form-control-feedback"></span>
+        </div>
+      </li>
+      <li ng-if="playlists.length == 0" class="text-center text-muted">No playlist</li>
+      <li bindonce ng-repeat="playlist in playlists | filter: { name: playlistSearch }">
+        <a ng-href="#/playlist/{{ playlist.id }}" bo-text="playlist.name"></a>
       </li>
     </ul>
   </div>
