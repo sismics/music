@@ -60,4 +60,25 @@ angular.module('music').controller('Playlist', function($scope, $state, $statePa
       track.liked = liked;
     }
   });
+
+  // Configuration for track sorting
+  $scope.trackSortableOptions = {
+    forceHelperSize: true,
+    forcePlaceholderSize: true,
+    tolerance: 'pointer',
+    handle: '.handle',
+    containment: 'parent',
+    helper: function(e, ui) {
+      ui.children().each(function() {
+        $(this).width($(this).width());
+      });
+      return ui;
+    },
+    stop: function (e, ui) {
+      // Send new positions to server
+      $scope.$apply(function () {
+        NamedPlaylist.moveTrack($scope.playlist, ui.item.attr('data-order'), ui.item.index());
+      });
+    }
+  };
 });
