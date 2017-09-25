@@ -7,15 +7,11 @@
   </div>
   <div class="panel-body">
     <div class="btn-toolbar" role="toolbar">
-      <div style="position: relative; display: inline-block;" dropdown>
+      <div class="dropdown" dropdown>
         <button class="btn btn-link dropdown-toggle" dropdown-toggle>
           <span class="glyphicon glyphicon-plus"></span> Add to playlist
         </button>
-
-        <ul class="dropdown-menu">
-          <li><a href ng-click="createPlaylist()">New playlist</a></li>
-          <li ng-repeat="playlist in playlists"><a href ng-click="addToPlaylist(playlist)">{{ playlist.name }}</a></li>
-        </ul>
+        <playlist-dropdown tracks="tracks"></playlist-dropdown>
       </div>
 
       <button class="btn btn-link" ng-click="clear()">
@@ -31,6 +27,7 @@
         <th>Artist</th>
         <th>Album</th>
         <th style="width: 8%"><span class="glyphicon glyphicon-time"></span></th>
+        <th style="width: 4%"></th>
         <th style="width: 4%"></th>
         <th style="width: 4%"></th>
       </tr>
@@ -51,11 +48,19 @@
         <td bo-title="track.artist.name"><a bo-href="'#/artist/' + track.artist.id" bo-text="track.artist.name"></a></td>
         <td bo-title="track.album.name"><a bo-href="'#/album/' + track.album.id" bo-text="track.album.name"></a></td>
         <td bo-text="track.length | duration"></td>
+        <td class="overflow-allowed">
+          <div class="dropdown" dropdown>
+            <a href dropdown-toggle>
+              <span class="glyphicon glyphicon-option-vertical"></span>
+            </a>
+            <playlist-dropdown tracks="[ track ]"></playlist-dropdown>
+          </div>
+        </td>
         <td>
           <span class="glyphicon btn-pointer btn-like" bo-attr bo-attr-title="track.liked ? 'Loved' : ''" ng-click="toggleLikeTrack(track)"
                 bo-class="{ 'glyphicon-heart': track.liked, 'glyphicon-heart-empty': !track.liked }"></span>
         </td>
-        <td><span class="remove glyphicon glyphicon-minus btn-pointer" ng-click="removeTrack($index)"></span></td>
+        <td><span title="Remove" class="remove glyphicon glyphicon-minus btn-pointer" ng-click="removeTrack($index)"></span></td>
       </tr>
       </tbody>
     </table>
