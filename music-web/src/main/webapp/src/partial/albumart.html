@@ -5,9 +5,9 @@
       <h2>Change album art</h2>
     </div>
 
-    <form class="form-inline well-lg row" name="uploadForm" novalidate>
-      <div class="form-group col-sm-5">
-        <input name="file" type="file" id="inputFile" required class="form-control" ng-model="file" />
+    <form class="well-lg row" name="uploadForm" novalidate>
+      <div class="form-group col-sm-6">
+        <file required id="inputFile" ng-model="file" accept="image/*"></file>
       </div>
 
       <button type="submit" class="btn btn-primary col-sm-2" ng-click="uploadFile()" ng-disabled="!uploadForm.$valid">
@@ -17,8 +17,8 @@
 
     <h4 class="text-center">or</h4>
 
-    <form class="form-inline well-lg row" name="urlForm" novalidate>
-      <div class="form-group col-sm-5">
+    <form class="well-lg row" name="urlForm" novalidate>
+      <div class="form-group col-sm-6">
         <input name="url" type="text" id="inputUrl" placeholder="Direct URL" required class="form-control" ng-model="url" />
       </div>
 
@@ -29,8 +29,8 @@
 
     <h4 class="text-center">or</h4>
 
-    <form class="form-inline well-lg row" name="apiForm" novalidate>
-      <div class="form-group col-sm-5">
+    <form class="well-lg row" name="apiForm" novalidate>
+      <div class="form-group col-sm-6">
         <input name="query" type="text" id="inputQuery" placeholder="Google Images Search" required class="form-control" ng-model="query" />
       </div>
 

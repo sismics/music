@@ -12,7 +12,9 @@ angular.module('music').directive('file', function() {
     link: function(scope, element, attrs, ctrl) {
       element.bind('change', function() {
         scope.$apply(function() {
-          attrs.multiple ? ctrl.$setViewValue(element[0].files) : ctrl.$setViewValue(element[0].files[0]);
+          attrs.multiple ?
+            ctrl.$setViewValue(element[0].files)
+            : ctrl.$setViewValue(element[0].files[0]);
         });
       });
 
