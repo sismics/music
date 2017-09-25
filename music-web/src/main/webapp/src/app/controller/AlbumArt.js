@@ -15,6 +15,9 @@ angular.module('music').controller('AlbumArt', function($scope, $stateParams, $s
     Restangular.one('albumart').one('search').get({query: $scope.query})
       .then(function (data) {
         $scope.results = data.albumArts;
+        if ($scope.results.length === 0) {
+          toaster.pop('warning', 'Search', 'No image found');
+        }
       });
   };
 
@@ -37,5 +40,26 @@ angular.module('music').controller('AlbumArt', function($scope, $stateParams, $s
           var btns = [{ result:'ok', label: 'OK', cssClass: 'btn-primary' }];
           $dialog.messageBox('Album art', data.data.message, btns);
         });
+  };
+
+  // Upload a local file
+  $scope.uploadFile = function() {
+    var formData = new FormData();
+    formData.append('file', $scope.file);
+
+    $.ajax({
+      type: 'PUT',
+      url: '../api/album/' + $stateParams.id + '/albumart',
+      data: formData,
+      cache: false,
+      contentType: false,
+      processData: false,
+      success: function() {
+        $state.transitionTo('main.album', { id: $stateParams.id });
+      },
+      error: function() {
+        toaster.pop('error', 'Album art upload failed', 'Please try again');
+      }
+    });
   };
 });

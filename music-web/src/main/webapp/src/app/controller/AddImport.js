@@ -13,6 +13,13 @@ angular.module('music').controller('AddImport', function($scope, Restangular, $d
     });
   };
 
+  // Move all files to the collection
+  $scope.moveAllFiles = function() {
+    _.each($scope.files, function(file) {
+      $scope.moveFile(file);
+    });
+  };
+
   // Move an imported file to the collection
   $scope.moveFile = function(file) {
     $scope.isLoading = true;
