@@ -2,9 +2,14 @@
   <div class="col-md-12">
     <h3>
       Add imported music <small>to my collection</small>
-      <button class="btn btn-default pull-right" ng-click="refresh()" title="Refresh">
-        <span class="glyphicon glyphicon-refresh"></span>
-      </button>
+      <div class="btn-group pull-right">
+        <button class="btn btn-default" ng-click="refresh()" title="Refresh">
+          <span class="glyphicon glyphicon-refresh"></span>
+        </button>
+        <button class="btn btn-primary" ng-click="moveAllFiles()">
+          <span class="glyphicon glyphicon-ok"></span> Add all
+        </button>
+      </div>
     </h3>
 
     <form name="tagForm">
