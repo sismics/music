@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -21,12 +20,11 @@ import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.util.CacheUtil;
 import com.sismics.music.util.PreferenceUtil;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.Set;
-
-import de.greenrobot.event.EventBus;
 
 /**
  * Adapter for albums list.
@@ -81,7 +79,7 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
         
         if (view == null) {
             LayoutInflater vi = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = vi.inflate(R.layout.list_item_album, null);
+            view = vi.inflate(R.layout.list_item_album, parent, false);
             aq.recycle(view);
             holder = new ViewHolder();
             holder.albumName = aq.id(R.id.albumName).getTextView();
@@ -118,24 +116,18 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
         cached.setVisibility(cachedAlbumSet.contains(albumId) ? View.VISIBLE : View.GONE);
 
         // Configuring popup menu
-        aq.id(holder.overflow).clicked(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PopupMenu popup = new PopupMenu(activity, v);
-                popup.inflate(R.menu.list_item_album);
+        aq.id(holder.overflow).clicked(v -> {
+            PopupMenu popup = new PopupMenu(activity, v);
+            popup.inflate(R.menu.list_item_album);
 
-                // Menu actions
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        CacheUtil.removeAlbum(albumId);
-                        EventBus.getDefault().post(new TrackCacheStatusChangedEvent(null));
-                        return true;
-                    }
-                });
+            // Menu actions
+            popup.setOnMenuItemClickListener(item -> {
+                CacheUtil.removeAlbum(activity, albumId);
+                EventBus.getDefault().post(new TrackCacheStatusChangedEvent(null));
+                return true;
+            });
 
-                popup.show();
-            }
+            popup.show();
         });
 
         return view;

@@ -45,7 +45,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 /**
  * Music service to download and play the playlist.
@@ -163,7 +164,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         Log.i(TAG, "debug: Creating service");
 
         // Create the Wifi lock (this does not acquire the lock, this just creates it)
-        mWifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
+        mWifiLock = ((WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE))
                         .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
 
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -428,7 +429,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             downloadingPlaylistTrack = null;
         }
 
-        final File incompleteCacheFile = CacheUtil.getIncompleteCacheFile(playlistTrack);
+        final File incompleteCacheFile = CacheUtil.getIncompleteCacheFile(this, playlistTrack);
 
         FileAsyncHttpResponseHandler responseHandler = new FileAsyncHttpResponseHandler(incompleteCacheFile) {
             @Override
@@ -461,7 +462,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             }
         };
 
-        if (CacheUtil.isComplete(playlistTrack)) {
+        if (CacheUtil.isComplete(this, playlistTrack)) {
             Log.d("SismicsMusic", "This playlistTrack is already complete, output: " + play);
 
             // Nothing to buffer, the playlistTrack is already complete in the cache
@@ -487,7 +488,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             songStartedAt = new Date().getTime();
             songCompleted = false;
             mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            File file = CacheUtil.getCompleteCacheFile(playlistTrack);
+            File file = CacheUtil.getCompleteCacheFile(this, playlistTrack);
             mPlayer.setDataSource(this, Uri.fromFile(file));
 
             currentPlaylistTrack = playlistTrack;
@@ -655,6 +656,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
      * Media player state has changed.
      * @param event Event
      */
+    @Subscribe
     public void onEvent(MediaPlayerStateChangedEvent event) {
         if (event.getPlaylistTrack() == null) {
             return;
@@ -676,6 +678,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
      * Media player seeking.
      * @param event Event
      */
+    @Subscribe
     public void onEvent(MediaPlayerSeekEvent event) {
         if (mState == State.Playing || mState == State.Paused) {
             mPlayer.seekTo(event.getPosition());

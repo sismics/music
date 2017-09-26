@@ -1,5 +1,7 @@
 package com.sismics.music.model;
 
+import android.content.Context;
+
 import com.sismics.music.util.CacheUtil;
 
 /**
@@ -33,10 +35,10 @@ public class PlaylistTrack {
      * @param album Album data
      * @param track Track data
      */
-    public PlaylistTrack(Album album, Track track) {
+    public PlaylistTrack(Context context, Album album, Track track) {
         this.track = track;
         this.album = album;
-        cacheStatus = CacheUtil.isComplete(this) ? CacheStatus.COMPLETE : CacheStatus.NONE;
+        cacheStatus = CacheUtil.isComplete(context, this) ? CacheStatus.COMPLETE : CacheStatus.NONE;
     }
 
     /**

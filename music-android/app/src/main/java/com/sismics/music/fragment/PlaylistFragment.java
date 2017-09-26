@@ -1,6 +1,6 @@
 package com.sismics.music.fragment;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -23,7 +23,8 @@ import com.sismics.music.service.PlaylistService;
 import com.sismics.music.service.MusicService;
 import com.sismics.music.adapter.PlaylistAdapter;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 /**
  * Playlist fragment.
@@ -85,64 +86,44 @@ public class PlaylistFragment extends Fragment {
         // Configure the tracks list
         aq.id(R.id.listTracks)
                 .adapter(playlistAdapter)
-                .itemClicked(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        PlaylistService.change(position - 1);
-                        Intent intent = new Intent(MusicService.ACTION_PLAY, null, getActivity(), MusicService.class);
-                        intent.putExtra(MusicService.EXTRA_FORCE, true);
-                        getActivity().startService(intent);
-                    }
+                .itemClicked((parent, view1, position, id) -> {
+                    PlaylistService.change(position - 1);
+                    Intent intent = new Intent(MusicService.ACTION_PLAY, null, getActivity(), MusicService.class);
+                    intent.putExtra(MusicService.EXTRA_FORCE, true);
+                    getActivity().startService(intent);
                 })
                 .getListView()
                 .setEmptyView(view.findViewById(R.id.emptyPlaylist));
 
         // Play button
-        aq.id(R.id.playlistPlay).clicked(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MusicService.ACTION_PLAY, null, getActivity(), MusicService.class);
-                getActivity().startService(intent);
-            }
+        aq.id(R.id.playlistPlay).clicked(v -> {
+            Intent intent = new Intent(MusicService.ACTION_PLAY, null, getActivity(), MusicService.class);
+            getActivity().startService(intent);
         });
 
         // Pause button
-        aq.id(R.id.playlistPause).clicked(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MusicService.ACTION_PAUSE, null, getActivity(), MusicService.class);
-                getActivity().startService(intent);
-            }
+        aq.id(R.id.playlistPause).clicked(v -> {
+            Intent intent = new Intent(MusicService.ACTION_PAUSE, null, getActivity(), MusicService.class);
+            getActivity().startService(intent);
         });
 
         // Stop button
-        aq.id(R.id.playlistStop).clicked(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MusicService.ACTION_STOP, null, getActivity(), MusicService.class);
-                getActivity().startService(intent);
-            }
+        aq.id(R.id.playlistStop).clicked(v -> {
+            Intent intent = new Intent(MusicService.ACTION_STOP, null, getActivity(), MusicService.class);
+            getActivity().startService(intent);
         });
 
         // Track removed
-        listTracks.setRemoveListener(new DragSortListView.RemoveListener() {
-            @Override
-            public void remove(int position) {
-                if (PlaylistService.getCurrentTrackIndex() == position) {
-                    Intent intent = new Intent(MusicService.ACTION_STOP, null, getActivity(), MusicService.class);
-                    getActivity().startService(intent);
-                }
-                PlaylistService.remove(position);
+        listTracks.setRemoveListener(position -> {
+            if (PlaylistService.getCurrentTrackIndex() == position) {
+                Intent intent = new Intent(MusicService.ACTION_STOP, null, getActivity(), MusicService.class);
+                getActivity().startService(intent);
             }
+            PlaylistService.remove(position);
         });
 
         // Track moved
-        listTracks.setDropListener(new DragSortListView.DropListener() {
-            @Override
-            public void drop(int from, int to) {
-                PlaylistService.move(from, to);
-            }
-        });
+        listTracks.setDropListener(PlaylistService::move);
 
         // Seekbar moved
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -169,6 +150,7 @@ public class PlaylistFragment extends Fragment {
      * The playlist has changed.
      * @param event Event
      */
+    @Subscribe
     public void onEvent(PlaylistChangedEvent event) {
         playlistAdapter.notifyDataSetChanged();
     }
@@ -177,6 +159,7 @@ public class PlaylistFragment extends Fragment {
      * The cache status of a track has changed.
      * @param event Event
      */
+    @Subscribe
     public void onEvent(TrackCacheStatusChangedEvent event) {
         playlistAdapter.notifyDataSetChanged();
     }
@@ -185,6 +168,7 @@ public class PlaylistFragment extends Fragment {
      * Media player state has changed.
      * @param event Event
      */
+    @Subscribe
     public void onEvent(MediaPlayerStateChangedEvent event) {
         if (event.getState() == MusicService.State.Playing) {
             aq.id(R.id.playlistPause).visible();

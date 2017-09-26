@@ -1,5 +1,7 @@
 package com.sismics.music.service;
 
+import android.content.Context;
+
 import com.sismics.music.event.PlaylistChangedEvent;
 import com.sismics.music.model.Album;
 import com.sismics.music.model.PlaylistTrack;
@@ -8,7 +10,7 @@ import com.sismics.music.model.Track;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Playlist service.
@@ -124,8 +126,8 @@ public class PlaylistService {
      * @param album Album
      * @param track Track data
      */
-    public static void add(Album album, Track track) {
-        PlaylistTrack playlistTrack = new PlaylistTrack(album, track);
+    public static void add(Context context, Album album, Track track) {
+        PlaylistTrack playlistTrack = new PlaylistTrack(context, album, track);
         playlistTrackList.add(playlistTrack);
         EventBus.getDefault().post(new PlaylistChangedEvent());
     }
@@ -150,9 +152,9 @@ public class PlaylistService {
      * @param album Album linked to all tracks
      * @param trackList Tracks
      */
-    public static void addAll(Album album, List<Track> trackList) {
+    public static void addAll(Context context, Album album, List<Track> trackList) {
         for (Track track : trackList) {
-            PlaylistTrack playlistTrack = new PlaylistTrack(album, track);
+            PlaylistTrack playlistTrack = new PlaylistTrack(context, album, track);
             playlistTrackList.add(playlistTrack);
         }
         EventBus.getDefault().post(new PlaylistChangedEvent());

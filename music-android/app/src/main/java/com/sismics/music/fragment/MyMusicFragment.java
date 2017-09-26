@@ -1,7 +1,7 @@
 package com.sismics.music.fragment;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +11,8 @@ import com.sismics.music.R;
 import com.sismics.music.event.AlbumOpenedEvent;
 import com.sismics.music.event.MyMusicMenuVisibilityChangedEvent;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 /**
  * Fragment displaying the music collection.
@@ -69,6 +70,7 @@ public class MyMusicFragment extends Fragment {
      * Open an album details.
      * @param event Event
      */
+    @Subscribe
     public void onEvent(AlbumOpenedEvent event) {
         // Instantiate a new fragment
         Fragment newFragment = AlbumFragment.newInstance(event.getAlbum());

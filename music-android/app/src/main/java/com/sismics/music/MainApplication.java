@@ -1,6 +1,7 @@
 package com.sismics.music;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.androidquery.callback.BitmapAjaxCallback;
 import com.sismics.music.model.ApplicationContext;
@@ -18,19 +19,23 @@ import org.json.JSONObject;
  * 
  * @author bgamard
  */
-/*@ReportsCrashes(formKey = "",
-        httpMethod = Method.PUT,
-        reportType = Type.JSON,
-        formUri = "http://acralyzer.sismics.com/music-report",
-        formUriBasicAuthLogin = "reporter",
-        formUriBasicAuthPassword = "jOS9ezJR",
-        mode = ReportingInteractionMode.TOAST,
-        forceCloseDialogAfterToast = true,
-        resToastText = R.string.crash_toast_text)*/
+@ReportsCrashes(
+        formUri = "http://acraviz.sismics.com/api",
+        formUriBasicAuthLogin = BuildConfig.APPLICATION_ID,
+        formUriBasicAuthPassword = "TsEThfGJ6OvhfAN3xilxLbGU"
+)
 public class MainApplication extends Application {
     @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        ACRA.init(this);
+    }
+
+    @Override
     public void onCreate() {
-        // ACRA.init(this);
+        if (ACRA.isACRASenderServiceProcess()) {
+            return;
+        }
 
         // Fetching /user from cache
         JSONObject json = PreferenceUtil.getCachedJson(getApplicationContext(), PreferenceUtil.Pref.CACHED_USER_INFO_JSON);

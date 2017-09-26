@@ -1,6 +1,7 @@
 package com.sismics.music.util;
 
-import android.os.Environment;
+import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.sismics.music.model.Album;
@@ -14,7 +15,6 @@ import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,6 +24,12 @@ import java.util.Set;
 /**
  * Cache utilities.
  *
+ * TODO Store albums/artists/tracks in SnappyDB: key = 'album:' + uuid, value = json
+ * TODO Add a level to the filesystem cache: artist>album>track
+ * TODO Remove CACHED_ALBUMS_LIST_JSON from the shared preferences
+ * TODO Index album/artist/track names in SnappyDB: key = 'albumname:' + uuid, value = name
+ * TODO Clear SnappyDB entries when unpinning tracks (and delete empty albums/artists)
+ *
  * @author bgamard.
  */
 public class CacheUtil {
@@ -31,9 +37,9 @@ public class CacheUtil {
      * Returns the music cache directory.
      * @return Music cache directory
      */
-    public static File getMusicCacheDir() {
-        File music = Environment.getExternalStoragePublicDirectory("SismicsMusic");
-        File cache = new File(music, "cache");
+    public static File getMusicCacheDir(Context context) {
+        File cacheDir = ContextCompat.getExternalCacheDirs(context)[0];
+        File cache = new File(cacheDir, "music");
         if (!cache.exists()) {
             cache.mkdirs();
         }
@@ -45,8 +51,8 @@ public class CacheUtil {
      * @param playlistTrack PlaylistTrack
      * @return True if complete
      */
-    public static boolean isComplete(PlaylistTrack playlistTrack) {
-        return getCompleteCacheFile(playlistTrack).exists();
+    public static boolean isComplete(Context context, PlaylistTrack playlistTrack) {
+        return getCompleteCacheFile(context, playlistTrack).exists();
     }
 
     /**
@@ -55,9 +61,9 @@ public class CacheUtil {
      * @param track Track
      * @return True if complete
      */
-    public static boolean isComplete(Album album, Track track) {
-        PlaylistTrack playlistTrack = new PlaylistTrack(album, track);
-        return getCompleteCacheFile(playlistTrack).exists();
+    public static boolean isComplete(Context context, Album album, Track track) {
+        PlaylistTrack playlistTrack = new PlaylistTrack(context, album, track);
+        return getCompleteCacheFile(context, playlistTrack).exists();
     }
 
     /**
@@ -65,8 +71,8 @@ public class CacheUtil {
      * @param playlistTrack PlaylistTrack
      * @return Complete playlistTrack file
      */
-    public static File getCompleteCacheFile(PlaylistTrack playlistTrack) {
-        File albumDir = new File(getMusicCacheDir(), playlistTrack.getAlbumId());
+    public static File getCompleteCacheFile(Context context, PlaylistTrack playlistTrack) {
+        File albumDir = new File(getMusicCacheDir(context), playlistTrack.getAlbumId());
         if (!albumDir.exists()) {
             albumDir.mkdirs();
         }
@@ -78,8 +84,8 @@ public class CacheUtil {
      * @param playlistTrack PlaylistTrack
      * @return Incomplete playlistTrack file
      */
-    public static File getIncompleteCacheFile(PlaylistTrack playlistTrack) {
-        File albumDir = new File(getMusicCacheDir(), playlistTrack.getAlbumId());
+    public static File getIncompleteCacheFile(Context context, PlaylistTrack playlistTrack) {
+        File albumDir = new File(getMusicCacheDir(context), playlistTrack.getAlbumId());
         if (!albumDir.exists()) {
             albumDir.mkdirs();
         }
@@ -100,20 +106,15 @@ public class CacheUtil {
      * @param album Album
      * @return Cached tracks
      */
-    public static List<Track> getCachedTrack(Album album) {
+    public static List<Track> getCachedTrack(Context context, Album album) {
         List<Track> trackList = new ArrayList<>();
-        File albumDir = new File(getMusicCacheDir(), album.getId());
+        File albumDir = new File(getMusicCacheDir(context), album.getId());
         if (!albumDir.exists()) {
             return trackList;
         }
 
         // List complete files from this album
-        File[] files = albumDir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String filename) {
-                return filename.endsWith(".complete");
-            }
-        });
+        File[] files = albumDir.listFiles((dir, filename) -> filename.endsWith(".complete"));
 
         // Extract tags from cached files
         for (File file : files) {
@@ -143,17 +144,12 @@ public class CacheUtil {
      * Returns album IDs containing at least one cached track.
      * @return Albums IDs
      */
-    public static Set<String> getCachedAlbumSet() {
-        File cacheDir = getMusicCacheDir();
+    public static Set<String> getCachedAlbumSet(Context context) {
+        File cacheDir = getMusicCacheDir(context);
         File[] albumList = cacheDir.listFiles();
         Set<String> output = new HashSet<>();
         for (File album : albumList) {
-            if (album.list(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String filename) {
-                    return filename.endsWith(".complete");
-                }
-            }).length > 0) {
+            if (album.list((dir, filename) -> filename.endsWith(".complete")).length > 0) {
                 output.add(album.getName());
             }
         }
@@ -165,9 +161,9 @@ public class CacheUtil {
      * @param album Album
      * @param track Track
      */
-    public static void removeTrack(Album album, Track track) {
-        PlaylistTrack playlistTrack = new PlaylistTrack(album, track);
-        File file = getCompleteCacheFile(playlistTrack);
+    public static void removeTrack(Context context, Album album, Track track) {
+        PlaylistTrack playlistTrack = new PlaylistTrack(context, album, track);
+        File file = getCompleteCacheFile(context, playlistTrack);
         if (file.exists()) {
             file.delete();
         }
@@ -177,8 +173,8 @@ public class CacheUtil {
      * Remove an album from the cache.
      * @param albumId Album ID
      */
-    public static void removeAlbum(String albumId) {
-        File albumDir = new File(getMusicCacheDir(), albumId);
+    public static void removeAlbum(Context context, String albumId) {
+        File albumDir = new File(getMusicCacheDir(context), albumId);
         if (albumDir.exists()) {
             for (File file : albumDir.listFiles()) {
                 file.delete();

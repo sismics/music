@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +16,8 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.androidquery.callback.BitmapAjaxCallback;
 import com.sismics.music.R;
-import com.sismics.music.service.PlaylistService;
 import com.sismics.music.model.PlaylistTrack;
+import com.sismics.music.service.PlaylistService;
 import com.sismics.music.util.PreferenceUtil;
 
 /**
@@ -52,7 +51,7 @@ public class PlaylistAdapter extends BaseAdapter {
         
         if (view == null) {
             LayoutInflater vi = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = vi.inflate(R.layout.list_item_playlist, null);
+            view = vi.inflate(R.layout.list_item_playlist, parent, false);
             aq.recycle(view);
             holder = new ViewHolder();
             holder.artistName = aq.id(R.id.artistName).getTextView();

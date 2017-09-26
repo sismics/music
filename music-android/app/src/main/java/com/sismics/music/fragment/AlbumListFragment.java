@@ -1,6 +1,6 @@
 package com.sismics.music.fragment;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -26,12 +26,13 @@ import com.sismics.music.resource.AlbumResource;
 import com.sismics.music.util.CacheUtil;
 import com.sismics.music.util.PreferenceUtil;
 
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.Set;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Albums list fragments.
@@ -86,12 +87,7 @@ public class AlbumListFragment extends Fragment {
         refreshAlbumList(false);
 
         // Clear the search input
-        aq.id(R.id.clearSearch).clicked(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                aq.id(R.id.search).text("");
-            }
-        });
+        aq.id(R.id.clearSearch).clicked(v -> aq.id(R.id.search).text(""));
 
         // Filter the albums when the search input changes
         aq.id(R.id.search).getEditText()
@@ -112,12 +108,9 @@ public class AlbumListFragment extends Fragment {
                 });
 
         // Open the album details on click
-        aq.id(R.id.listAlbum).itemClicked(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                AlbumAdapter adapter = (AlbumAdapter) aq.id(R.id.listAlbum).getListView().getAdapter();
-                EventBus.getDefault().post(new AlbumOpenedEvent(new Album(adapter.getItem(position))));
-            }
+        aq.id(R.id.listAlbum).itemClicked((parent, view1, position, id) -> {
+            AlbumAdapter adapter = (AlbumAdapter) aq.id(R.id.listAlbum).getListView().getAdapter();
+            EventBus.getDefault().post(new AlbumOpenedEvent(new Album(adapter.getItem(position))));
         });
 
         EventBus.getDefault().register(this);
@@ -130,7 +123,7 @@ public class AlbumListFragment extends Fragment {
      */
     private void refreshAlbumList(boolean forceRefresh) {
         // Get cached albums
-        final Set<String> cachedAlbumSet = CacheUtil.getCachedAlbumSet();
+        final Set<String> cachedAlbumSet = CacheUtil.getCachedAlbumSet(getContext());
 
         // Grab the data from the cache first
         JSONObject cache = PreferenceUtil.getCachedJson(getActivity(), PreferenceUtil.Pref.CACHED_ALBUMS_LIST_JSON);
@@ -180,6 +173,7 @@ public class AlbumListFragment extends Fragment {
      * My music menu visibility fragment has changed.
      * @param event Event
      */
+    @Subscribe
     public void onEvent(MyMusicMenuVisibilityChangedEvent event) {
         setMenuVisibility(event.isMenuVisible());
     }
@@ -188,6 +182,7 @@ public class AlbumListFragment extends Fragment {
      * Offline mode has changed.
      * @param event Event
      */
+    @Subscribe
     public void onEvent(OfflineModeChangedEvent event) {
         offlineMode = event.isOfflineMode();
         AlbumAdapter adapter = (AlbumAdapter) aq.id(R.id.listAlbum).getListView().getAdapter();
@@ -201,6 +196,7 @@ public class AlbumListFragment extends Fragment {
      * A track cache status has changed.
      * @param event Event
      */
+    @Subscribe
     public void onEvent(TrackCacheStatusChangedEvent event) {
         refreshAlbumList(false);
     }

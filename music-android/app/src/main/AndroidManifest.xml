@@ -3,14 +3,15 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
         android:name=".MainApplication"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.Sismicsmusic" >
+        android:theme="@style/AppTheme" >
         <activity
             android:name=".activity.LoginActivity"
             android:label="@string/app_name" >
@@ -24,7 +25,7 @@
         <activity
             android:name=".activity.MainActivity"
             android:label="@string/app_name"
-            android:logo="@drawable/ic_launcher"
+            android:logo="@mipmap/ic_launcher"
             android:launchMode="singleTop">
         </activity>
 

@@ -3,6 +3,7 @@ package com.sismics.music.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
@@ -29,7 +30,7 @@ import org.json.JSONObject;
  * 
  * @author bgamard
  */
-public class LoginActivity extends FragmentActivity {
+public class LoginActivity extends AppCompatActivity {
 
     /**
      * User interface.
@@ -65,12 +66,7 @@ public class LoginActivity extends FragmentActivity {
         validator.addValidable(this, txtServer, new Required());
         validator.addValidable(this, txtUsername, new Required());
         validator.addValidable(this, txtPassword, new Required());
-        validator.setOnValidationChanged(new CallbackListener() {
-            @Override
-            public void onComplete() {
-                btnConnect.setEnabled(validator.isValidated());
-            }
-        });
+        validator.setOnValidationChanged(() -> btnConnect.setEnabled(validator.isValidated()));
 
         // Preset saved server URL
         String serverUrl = PreferenceUtil.getStringPreference(this, PreferenceUtil.Pref.SERVER_URL);
@@ -81,51 +77,45 @@ public class LoginActivity extends FragmentActivity {
         tryConnect();
         
         // Login button
-        btnConnect.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loginForm.setVisibility(View.GONE);
-                progressBar.setVisibility(View.VISIBLE);
-                
-                PreferenceUtil.setServerUrl(LoginActivity.this, txtServer.getText().toString());
-                
-                try {
-                    UserResource.login(getApplicationContext(), txtUsername.getText().toString(), txtPassword.getText().toString(), new JsonHttpResponseHandler() {
-                        @Override
-                        public void onSuccess(JSONObject json) {
-                            // Empty previous user caches
-                            PreferenceUtil.resetUserCache(getApplicationContext());
+        btnConnect.setOnClickListener(v -> {
+            loginForm.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
 
-                            // Getting user info and redirecting to main activity
-                            ApplicationContext.getInstance().fetchUserInfo(LoginActivity.this, new CallbackListener() {
-                                @Override
-                                public void onComplete() {
-                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                }
-                            });
+            PreferenceUtil.setServerUrl(LoginActivity.this, txtServer.getText().toString());
+
+            try {
+                UserResource.login(getApplicationContext(), txtUsername.getText().toString(), txtPassword.getText().toString(), new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(JSONObject json) {
+                        // Empty previous user caches
+                        PreferenceUtil.resetUserCache(getApplicationContext());
+
+                        // Getting user info and redirecting to main activity
+                        ApplicationContext.getInstance().fetchUserInfo(LoginActivity.this, () -> {
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(final int statusCode, final Header[] headers, final byte[] responseBytes, final Throwable throwable) {
+                        loginForm.setVisibility(View.VISIBLE);
+                        progressBar.setVisibility(View.GONE);
+
+                        if (responseBytes != null && new String(responseBytes).contains("\"ForbiddenError\"")) {
+                            DialogUtil.showOkDialog(LoginActivity.this, R.string.login_fail_title, R.string.login_fail);
+                        } else {
+                            DialogUtil.showOkDialog(LoginActivity.this, R.string.network_error_title, R.string.network_error);
                         }
-
-                        @Override
-                        public void onFailure(final int statusCode, final Header[] headers, final byte[] responseBytes, final Throwable throwable) {
-                            loginForm.setVisibility(View.VISIBLE);
-                            progressBar.setVisibility(View.GONE);
-
-                            if (responseBytes != null && new String(responseBytes).contains("\"ForbiddenError\"")) {
-                                DialogUtil.showOkDialog(LoginActivity.this, R.string.login_fail_title, R.string.login_fail);
-                            } else {
-                                DialogUtil.showOkDialog(LoginActivity.this, R.string.network_error_title, R.string.network_error);
-                            }
-                        }
-                    });
-                } catch (IllegalArgumentException e) {
-                    // Given URL is not valid
-                    loginForm.setVisibility(View.VISIBLE);
-                    progressBar.setVisibility(View.GONE);
-                    PreferenceUtil.setServerUrl(LoginActivity.this, null);
-                    DialogUtil.showOkDialog(LoginActivity.this, R.string.invalid_url_title, R.string.invalid_url);
-                }
+                    }
+                });
+            } catch (IllegalArgumentException e) {
+                // Given URL is not valid
+                loginForm.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.GONE);
+                PreferenceUtil.setServerUrl(LoginActivity.this, null);
+                DialogUtil.showOkDialog(LoginActivity.this, R.string.invalid_url_title, R.string.invalid_url);
             }
         });
     }

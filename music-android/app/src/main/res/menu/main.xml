@@ -1,22 +1,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.sismics.music.activity.MainActivity" >
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.sismics.music.activity.MainActivity">
 
     <item android:id="@+id/offline_mode"
         android:title="@string/offline_mode"
-        android:icon="@drawable/ic_action_make_available_offline_dark"
-        android:showAsAction="ifRoom" />
+        android:icon="@drawable/ic_cloud_outline_white_48dp"
+        app:showAsAction="ifRoom" />
 
     <item android:id="@+id/remote_control"
         android:title="@string/remote_control"
-        android:showAsAction="collapseActionView" />
+        app:showAsAction="collapseActionView" />
 
     <item android:id="@+id/settings"
         android:title="@string/settings"
-        android:showAsAction="collapseActionView" />
+        app:showAsAction="collapseActionView" />
 
     <item
         android:id="@+id/logout"
-        android:showAsAction="collapseActionView"
+        app:showAsAction="collapseActionView"
         android:title="@string/logout" />
 </menu>
