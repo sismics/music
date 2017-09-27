@@ -73,7 +73,7 @@ public class MyMusicFragment extends Fragment {
     @Subscribe
     public void onEvent(AlbumOpenedEvent event) {
         // Instantiate a new fragment
-        Fragment newFragment = AlbumFragment.newInstance(event.getAlbum());
+        Fragment newFragment = AlbumFragment.newInstance(event.getArtist(), event.getAlbum());
 
         // Add the fragment to the activity, pushing this transaction on to the back stack
         FragmentTransaction ft = getFragmentManager().beginTransaction();

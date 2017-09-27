@@ -14,6 +14,7 @@ import com.androidquery.AQuery;
 import com.sismics.music.R;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.model.Album;
+import com.sismics.music.model.Artist;
 import com.sismics.music.model.Track;
 import com.sismics.music.util.CacheUtil;
 import com.sismics.music.util.RemoteControlUtil;
@@ -38,22 +39,17 @@ public class TracksAdapter extends BaseAdapter {
      */
     private AQuery aq;
 
-    /**
-     * Album.
-     */
+    private Artist artist;
     private Album album;
-
-    /**
-     * Tracks.
-     */
     private List<Track> tracks;
 
     /**
      * Constructor.
      * @param activity Context activity
      */
-    public TracksAdapter(Activity activity, Album album, List<Track> tracks) {
+    public TracksAdapter(Activity activity, Artist artist, Album album, List<Track> tracks) {
         this.activity = activity;
+        this.artist = artist;
         this.album = album;
         this.tracks = tracks;
         this.aq = new AQuery(activity);
@@ -80,7 +76,7 @@ public class TracksAdapter extends BaseAdapter {
         // Filling track data
         final Track track = getItem(position);
         holder.trackName.setText(track.getTitle());
-        holder.cached.setVisibility(CacheUtil.isComplete(activity, album, track) ? View.VISIBLE : View.INVISIBLE);
+        holder.cached.setVisibility(CacheUtil.isComplete(activity, artist, album, track) ? View.VISIBLE : View.INVISIBLE);
 
         // Configuring popup menu
         aq.id(holder.overflow).clicked(v -> {
@@ -91,7 +87,7 @@ public class TracksAdapter extends BaseAdapter {
             popup.setOnMenuItemClickListener(item -> {
                 switch (item.getItemId()) {
                     case R.id.unpin:
-                        CacheUtil.removeTrack(activity, album, track);
+                        CacheUtil.removeTrack(activity, artist, album, track);
                         EventBus.getDefault().post(new TrackCacheStatusChangedEvent(null));
                         return true;
 

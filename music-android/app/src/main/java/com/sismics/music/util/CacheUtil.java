@@ -5,27 +5,22 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.sismics.music.model.Album;
+import com.sismics.music.model.Artist;
+import com.sismics.music.model.FullAlbum;
 import com.sismics.music.model.PlaylistTrack;
 import com.sismics.music.model.Track;
-
-import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioHeader;
-import org.jaudiotagger.audio.mp3.MP3FileReader;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
+import com.snappydb.DB;
+import com.snappydb.SnappyDB;
+import com.snappydb.SnappydbException;
 
 import java.io.File;
-import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Cache utilities.
  *
  * TODO Store albums/artists/tracks in SnappyDB: key = 'album:' + uuid, value = json
- * TODO Add a level to the filesystem cache: artist>album>track
  * TODO Remove CACHED_ALBUMS_LIST_JSON from the shared preferences
  * TODO Index album/artist/track names in SnappyDB: key = 'albumname:' + uuid, value = name
  * TODO Clear SnappyDB entries when unpinning tracks (and delete empty albums/artists)
@@ -57,12 +52,13 @@ public class CacheUtil {
 
     /**
      * Returns true if the given track with album is complete.
-     * @param album Album associated with the track
+     * @param artist Artist
+     * @param album Album
      * @param track Track
      * @return True if complete
      */
-    public static boolean isComplete(Context context, Album album, Track track) {
-        PlaylistTrack playlistTrack = new PlaylistTrack(context, album, track);
+    public static boolean isComplete(Context context, Artist artist, Album album, Track track) {
+        PlaylistTrack playlistTrack = new PlaylistTrack(context, artist, album, track);
         return getCompleteCacheFile(context, playlistTrack).exists();
     }
 
@@ -72,11 +68,11 @@ public class CacheUtil {
      * @return Complete playlistTrack file
      */
     public static File getCompleteCacheFile(Context context, PlaylistTrack playlistTrack) {
-        File albumDir = new File(getMusicCacheDir(context), playlistTrack.getAlbumId());
+        File albumDir = new File(getMusicCacheDir(context), playlistTrack.getArtist().getId() + File.separator + playlistTrack.getAlbum().getId());
         if (!albumDir.exists()) {
             albumDir.mkdirs();
         }
-        return new File(albumDir, playlistTrack.getId() + ".complete");
+        return new File(albumDir, playlistTrack.getTrack().getId() + ".complete");
     }
 
     /**
@@ -85,19 +81,29 @@ public class CacheUtil {
      * @return Incomplete playlistTrack file
      */
     public static File getIncompleteCacheFile(Context context, PlaylistTrack playlistTrack) {
-        File albumDir = new File(getMusicCacheDir(context), playlistTrack.getAlbumId());
+        File albumDir = new File(getMusicCacheDir(context), playlistTrack.getArtist().getId() + File.separator + playlistTrack.getAlbum().getId());
         if (!albumDir.exists()) {
             albumDir.mkdirs();
         }
-        return new File(albumDir, playlistTrack.getId());
+        return new File(albumDir, playlistTrack.getTrack().getId());
     }
 
     /**
      * Set a track as complete.
+     * @param context Context
+     * @param playlistTrack PlaylistTrack
      * @param file File
      * @return True if the operation was successful
      */
-    public static boolean setComplete(File file) {
+    public static boolean setComplete(Context context, PlaylistTrack playlistTrack, File file) {
+        try {
+            DB snappyDb = SnappyDB.with(context);
+            snappyDb.put("album:" + playlistTrack.getAlbum().getId(), playlistTrack.getAlbum());
+            snappyDb.put("artist:" + playlistTrack.getArtist().getId(), playlistTrack.getArtist());
+            snappyDb.put("track:" + playlistTrack.getTrack().getId(), playlistTrack.getTrack());
+        } catch (SnappydbException e) {
+            throw new RuntimeException(e);
+        }
         return file.renameTo(new File(file.getAbsolutePath() + ".complete"));
     }
 
@@ -106,9 +112,9 @@ public class CacheUtil {
      * @param album Album
      * @return Cached tracks
      */
-    public static List<Track> getCachedTrack(Context context, Album album) {
+    public static List<Track> getCachedTrack(Context context, Artist artist, Album album) {
         List<Track> trackList = new ArrayList<>();
-        File albumDir = new File(getMusicCacheDir(context), album.getId());
+        File albumDir = new File(getMusicCacheDir(context), artist.getId() + File.separator + album.getId());
         if (!albumDir.exists()) {
             return trackList;
         }
@@ -116,53 +122,47 @@ public class CacheUtil {
         // List complete files from this album
         File[] files = albumDir.listFiles((dir, filename) -> filename.endsWith(".complete"));
 
-        // Extract tags from cached files
-        for (File file : files) {
-            try {
-                Track track = new Track();
-                AudioFile audioFile = new MP3FileReader().read(file);
-                Tag tag = audioFile.getTag();
-                AudioHeader header = audioFile.getAudioHeader();
-
-                track.setLength(header.getTrackLength());
-                if (tag != null) {
-                    track.setTitle(tag.getFirst(FieldKey.TITLE));
-                }
-                track.setId(file.getName().substring(0, file.getName().indexOf(".")));
-                trackList.add(track);
-            } catch (ClosedChannelException e) {
-                // We have been interrupted, don't care
-            } catch (Exception e) {
-                Log.e("CacheUtil", "Error extracting metadata from file: " + file.getAbsolutePath(), e);
+        // Get tracks from cache
+        try {
+            DB snappyDb = SnappyDB.with(context);
+            for (File file : files) {
+                String trackId = file.getName().substring(0, file.getName().indexOf("."));
+                trackList.add(snappyDb.get("track:" + trackId, Track.class));
             }
+        } catch (SnappydbException e) {
+            Log.e("CacheUtil", "Error getting tracks from cache", e);
         }
 
         return trackList;
     }
 
     /**
-     * Returns album IDs containing at least one cached track.
-     * @return Albums IDs
+     * Returns cached albums.
+     * @return Albums
      */
-    public static Set<String> getCachedAlbumSet(Context context) {
-        File cacheDir = getMusicCacheDir(context);
-        File[] albumList = cacheDir.listFiles();
-        Set<String> output = new HashSet<>();
-        for (File album : albumList) {
-            if (album.list((dir, filename) -> filename.endsWith(".complete")).length > 0) {
-                output.add(album.getName());
+    public static List<FullAlbum> getCachedAlbumList(Context context) {
+        List<FullAlbum> albumList = new ArrayList<>();
+        try {
+            DB snappyDb = SnappyDB.with(context);
+            for (String albumKey : SnappyDB.with(context).findKeys("album:")) {
+                Album album = snappyDb.get(albumKey, Album.class);
+                Artist artist = snappyDb.get("artist:" + album.getArtistId(), Artist.class);
+                albumList.add(new FullAlbum(artist, album));
             }
+        } catch (SnappydbException e) {
+            throw new RuntimeException(e);
         }
-        return output;
+        return albumList;
     }
 
     /**
      * Remove a track from the cache.
+     * @param artist Artist
      * @param album Album
      * @param track Track
      */
-    public static void removeTrack(Context context, Album album, Track track) {
-        PlaylistTrack playlistTrack = new PlaylistTrack(context, album, track);
+    public static void removeTrack(Context context, Artist artist, Album album, Track track) {
+        PlaylistTrack playlistTrack = new PlaylistTrack(context, artist, album, track);
         File file = getCompleteCacheFile(context, playlistTrack);
         if (file.exists()) {
             file.delete();
@@ -171,10 +171,11 @@ public class CacheUtil {
 
     /**
      * Remove an album from the cache.
+     * @param artistId Artist ID
      * @param albumId Album ID
      */
-    public static void removeAlbum(Context context, String albumId) {
-        File albumDir = new File(getMusicCacheDir(context), albumId);
+    public static void removeAlbum(Context context, String artistId, String albumId) {
+        File albumDir = new File(getMusicCacheDir(context), artistId + File.separator + albumId);
         if (albumDir.exists()) {
             for (File file : albumDir.listFiles()) {
                 file.delete();

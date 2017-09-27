@@ -40,13 +40,12 @@ import com.sismics.music.util.PreferenceUtil;
 import com.sismics.music.util.ScrobbleUtil;
 
 import org.apache.http.Header;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 /**
  * Music service to download and play the playlist.
@@ -418,7 +417,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
      * @param play If true, play it
      */
     void downloadTrack(final PlaylistTrack playlistTrack, final boolean play) {
-        Log.d("SismicsMusic", "Start downloading " + playlistTrack.getTitle());
+        Log.d("SismicsMusic", "Start downloading " + playlistTrack.getTrack().getTitle());
         if (bufferRequestHandle != null) {
             // We are buffering something else, cancel it
             Log.d("SismicsMusic", "Cancelling a previous download");
@@ -440,7 +439,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, File file) {
-                if (CacheUtil.setComplete(file)) {
+                if (CacheUtil.setComplete(MusicService.this, playlistTrack, file)) {
                     playlistTrack.setCacheStatus(PlaylistTrack.CacheStatus.COMPLETE);
                     EventBus.getDefault().post(new TrackCacheStatusChangedEvent(playlistTrack));
                     if (play) {
@@ -456,7 +455,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                 downloadingPlaylistTrack = null;
                 PlaylistTrack nextPlaylistTrack = PlaylistService.after(playlistTrack);
                 if (nextPlaylistTrack != null) {
-                    Log.d("SismicsMusic", "Downloading the next playlistTrack " + nextPlaylistTrack.getTitle());
+                    Log.d("SismicsMusic", "Downloading the next playlistTrack " + nextPlaylistTrack.getTrack().getTitle());
                     downloadTrack(nextPlaylistTrack, false);
                 }
             }
@@ -474,7 +473,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             return;
         }
 
-        bufferRequestHandle = TrackResource.download(this, playlistTrack.getId(), responseHandler);
+        bufferRequestHandle = TrackResource.download(this, playlistTrack.getTrack().getId(), responseHandler);
         downloadingPlaylistTrack = playlistTrack;
     }
 
@@ -521,10 +520,10 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
             // Update the remote controls
             mRemoteControlClient.editMetadata(true)
-                    .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, playlistTrack.getArtistName())
-                    .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, playlistTrack.getAlbumName())
-                    .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, playlistTrack.getTitle())
-                    .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, playlistTrack.getLength())
+                    .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, playlistTrack.getArtist().getName())
+                    .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, playlistTrack.getAlbum().getName())
+                    .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, playlistTrack.getTrack().getTitle())
+                    .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, playlistTrack.getTrack().getLength())
                     .apply();
 
             // starts preparing the media player in the background. When it's done, it will call
@@ -567,16 +566,16 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
      */
     public Notification getNotification() {
         // Get the cached cover image
-        String coverUrl = PreferenceUtil.getServerUrl(this) + "/api/album/" + currentPlaylistTrack.getAlbumId() + "/albumart/small";
+        String coverUrl = PreferenceUtil.getServerUrl(this) + "/api/album/" + currentPlaylistTrack.getAlbum().getId() + "/albumart/small";
         Bitmap coverBitmap = new AQuery(this).getCachedImage(coverUrl, 96);
 
         // Build the notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle(currentPlaylistTrack.getTitle())
-                .setContentText(currentPlaylistTrack.getArtistName())
-                .setSubText(currentPlaylistTrack.getAlbumName())
-                .setTicker(currentPlaylistTrack.getTitle() + " - " + currentPlaylistTrack.getArtistName())
+                .setContentTitle(currentPlaylistTrack.getTrack().getId())
+                .setContentText(currentPlaylistTrack.getArtist().getName())
+                .setSubText(currentPlaylistTrack.getAlbum().getName())
+                .setTicker(currentPlaylistTrack.getTrack().getTitle() + " - " + currentPlaylistTrack.getArtist().getName())
                 .setLargeIcon(coverBitmap)
                 .setOngoing(true)
                 .setContentIntent(PendingIntent.getActivity(this, 0,
@@ -670,7 +669,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         if (event.getCurrentPosition() > event.getDuration() / 2 && !songCompleted) {
             // The song is considered completed
             songCompleted = true;
-            ScrobbleUtil.trackCompleted(this, event.getPlaylistTrack().getId(), event.getSongStartedAt());
+            ScrobbleUtil.trackCompleted(this, event.getPlaylistTrack().getTrack().getId(), event.getSongStartedAt());
         }
     }
 

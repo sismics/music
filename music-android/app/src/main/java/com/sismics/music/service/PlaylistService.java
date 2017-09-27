@@ -4,13 +4,14 @@ import android.content.Context;
 
 import com.sismics.music.event.PlaylistChangedEvent;
 import com.sismics.music.model.Album;
+import com.sismics.music.model.Artist;
 import com.sismics.music.model.PlaylistTrack;
 import com.sismics.music.model.Track;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.greenrobot.eventbus.EventBus;
 
 /**
  * Playlist service.
@@ -123,11 +124,12 @@ public class PlaylistService {
 
     /**
      * Add a track at the end of the playlist.
+     * @param artist Artist
      * @param album Album
      * @param track Track data
      */
-    public static void add(Context context, Album album, Track track) {
-        PlaylistTrack playlistTrack = new PlaylistTrack(context, album, track);
+    public static void add(Context context, Artist artist, Album album, Track track) {
+        PlaylistTrack playlistTrack = new PlaylistTrack(context, artist, album, track);
         playlistTrackList.add(playlistTrack);
         EventBus.getDefault().post(new PlaylistChangedEvent());
     }
@@ -149,12 +151,13 @@ public class PlaylistService {
 
     /**
      * Add a list of tracks.
+     * @param artist Artist linked to all tracks
      * @param album Album linked to all tracks
      * @param trackList Tracks
      */
-    public static void addAll(Context context, Album album, List<Track> trackList) {
+    public static void addAll(Context context, Artist artist, Album album, List<Track> trackList) {
         for (Track track : trackList) {
-            PlaylistTrack playlistTrack = new PlaylistTrack(context, album, track);
+            PlaylistTrack playlistTrack = new PlaylistTrack(context, artist, album, track);
             playlistTrackList.add(playlistTrack);
         }
         EventBus.getDefault().post(new PlaylistChangedEvent());

@@ -43,9 +43,10 @@ public class MainApplication extends Application {
 
         super.onCreate();
     }
-    
+
     @Override
     public void onLowMemory() {
+        super.onLowMemory();
         BitmapAjaxCallback.clearCache();
     }
 }

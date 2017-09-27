@@ -22,7 +22,6 @@ public class PreferenceUtil {
     public enum Pref {
         CACHED_USER_INFO_JSON,
         SERVER_URL,
-        CACHED_ALBUMS_LIST_JSON,
         SCROBBLE_JSON,
         OFFLINE_MODE,
         PLAYER_TOKEN
@@ -132,7 +131,6 @@ public class PreferenceUtil {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         Editor editor = sharedPreferences.edit();
         editor.putString(Pref.CACHED_USER_INFO_JSON.name(), null);
-        editor.putString(Pref.CACHED_ALBUMS_LIST_JSON.name(), null);
         editor.putString(Pref.PLAYER_TOKEN.name(), null);
         editor.commit();
     }

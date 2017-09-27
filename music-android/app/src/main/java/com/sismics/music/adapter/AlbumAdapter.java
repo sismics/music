@@ -7,8 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -16,61 +14,39 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.androidquery.callback.BitmapAjaxCallback;
 import com.sismics.music.R;
-import com.sismics.music.event.TrackCacheStatusChangedEvent;
-import com.sismics.music.util.CacheUtil;
+import com.sismics.music.model.Album;
+import com.sismics.music.model.FullAlbum;
 import com.sismics.music.util.PreferenceUtil;
 
-import org.greenrobot.eventbus.EventBus;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.util.Set;
+import java.util.List;
 
 /**
  * Adapter for albums list.
  * 
  * @author bgamard
  */
-public class AlbumAdapter extends BaseAdapter implements Filterable {
+public class AlbumAdapter extends BaseAdapter {
 
     private AQuery aq;
     private Activity activity;
-    private JSONArray allAlbums;
-    private JSONArray originalAlbums;
-    private JSONArray albums;
+    private List<FullAlbum> onlineAlbums;
+    private List<FullAlbum> cachedAlbums;
     private String authToken;
     private String serverUrl;
-    private Set<String> cachedAlbumSet;
     private boolean offlineMode;
 
     /**
      * Constructor.
      * @param activity Context activity
      */
-    public AlbumAdapter(Activity activity, JSONArray albums, Set<String> cachedAlbumSet, boolean offlineMode) {
+    public AlbumAdapter(Activity activity, List<FullAlbum> onlineAlbums, List<FullAlbum> cachedAlbums, boolean offlineMode) {
         this.activity = activity;
-        this.originalAlbums = albums;
-        this.cachedAlbumSet = cachedAlbumSet;
         this.offlineMode = offlineMode;
         this.aq = new AQuery(activity);
         this.authToken = PreferenceUtil.getAuthToken(activity);
         this.serverUrl = PreferenceUtil.getServerUrl(activity);
-        computeAlbumList();
-        this.albums = this.allAlbums;
-    }
-
-    private void computeAlbumList() {
-        if (offlineMode) {
-            allAlbums = new JSONArray();
-            for (int i = 0; i < originalAlbums.length(); i++) {
-                JSONObject album = originalAlbums.optJSONObject(i);
-                if (cachedAlbumSet.contains(album.optString("id"))) {
-                    allAlbums.put(album);
-                }
-            }
-        } else {
-            allAlbums = originalAlbums;
-        }
+        this.onlineAlbums = onlineAlbums;
+        this.cachedAlbums = cachedAlbums;
     }
 
     @Override
@@ -93,11 +69,10 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
             holder = (ViewHolder) view.getTag();
         }
 
-        JSONObject album = getItem(position);
+        FullAlbum album = getItem(position);
 
         // Album cover
-        final String albumId = album.optString("id");
-        String coverUrl = serverUrl + "/api/album/" + albumId + "/albumart/small";
+        String coverUrl = serverUrl + "/api/album/" + album.getAlbum().getId() + "/albumart/small";
         if (aq.shouldDelay(position, view, parent, coverUrl)) {
             aq.id(holder.imgCover).image((Bitmap) null);
         } else {
@@ -109,11 +84,10 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
         }
 
         // Filling album data
-        holder.albumName.setText(album.optString("name"));
-        JSONObject artist = album.optJSONObject("artist");
-        holder.artistName.setText(artist.optString("name"));
+        holder.albumName.setText(album.getAlbum().getName());
+        holder.artistName.setText(album.getArtist().getName());
         final View cached = holder.cached;
-        cached.setVisibility(cachedAlbumSet.contains(albumId) ? View.VISIBLE : View.GONE);
+        cached.setVisibility(cachedAlbums.contains(album) ? View.VISIBLE : View.GONE);
 
         // Configuring popup menu
         aq.id(holder.overflow).clicked(v -> {
@@ -121,11 +95,14 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
             popup.inflate(R.menu.list_item_album);
 
             // Menu actions
+            // TODO Remove album from cache
+            /*
             popup.setOnMenuItemClickListener(item -> {
-                CacheUtil.removeAlbum(activity, albumId);
+                CacheUtil.removeAlbum(activity, artist.getId(), album.getId());
                 EventBus.getDefault().post(new TrackCacheStatusChangedEvent(null));
                 return true;
             });
+            */
 
             popup.show();
         });
@@ -135,12 +112,20 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public int getCount() {
-        return albums.length();
+        if (offlineMode) {
+            return cachedAlbums.size();
+        } else {
+            return onlineAlbums.size();
+        }
     }
 
     @Override
-    public JSONObject getItem(int position) {
-        return albums.optJSONObject(position);
+    public FullAlbum getItem(int position) {
+        if (offlineMode) {
+            return cachedAlbums.get(position);
+        } else {
+            return onlineAlbums.get(position);
+        }
     }
 
     @Override
@@ -148,13 +133,12 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
         return position;
     }
 
-    public void setAlbums(JSONArray albums) {
-        this.originalAlbums = albums;
-        computeAlbumList();
-        this.albums = allAlbums;
+    public void setOnlineAlbums(List<FullAlbum> albums) {
+        this.onlineAlbums = albums;
         notifyDataSetChanged();
     }
 
+    /*
     @Override
     public Filter getFilter() {
         return new Filter() {
@@ -189,10 +173,10 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
             }
         };
     }
+    */
 
     public void setOfflineMode(boolean offlineMode) {
         this.offlineMode = offlineMode;
-        computeAlbumList();
         notifyDataSetChanged();
     }
 

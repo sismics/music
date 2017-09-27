@@ -68,8 +68,8 @@ public class PlaylistAdapter extends BaseAdapter {
 
         // Filling playlistTrack data
         PlaylistTrack playlistTrack = getItem(position);
-        holder.artistName.setText(playlistTrack.getArtistName());
-        holder.trackName.setText(playlistTrack.getTitle());
+        holder.artistName.setText(playlistTrack.getArtist().getName());
+        holder.trackName.setText(playlistTrack.getTrack().getTitle());
         switch (playlistTrack.getCacheStatus()) {
             case NONE:
                 holder.cached.setVisibility(View.GONE);
@@ -95,7 +95,7 @@ public class PlaylistAdapter extends BaseAdapter {
         }
 
         // Album cover
-        String albumId = playlistTrack.getAlbumId();
+        String albumId = playlistTrack.getAlbum().getId();
         String coverUrl = serverUrl + "/api/album/" + albumId + "/albumart/small";
         if (aq.shouldDelay(position, view, absListView, coverUrl)) {
             aq.id(holder.imgCover).image((Bitmap) null);
@@ -122,7 +122,7 @@ public class PlaylistAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return PlaylistService.getAt(position).getId().hashCode();
+        return PlaylistService.getAt(position).getTrack().getId().hashCode();
     }
 
     @Override

@@ -54,6 +54,8 @@ dependencies {
     compile 'com.android.support:design:25.4.0'
     compile 'com.android.support:support-v13:25.4.0'
     compile 'com.loopj.android:android-async-http:1.4.4'
+    compile 'com.snappydb:snappydb-lib:0.5.2'
+    compile 'com.esotericsoftware.kryo:kryo:2.24.0'
     compile 'ch.acra:acra:4.9.0'
     compile 'org:jaudiotagger:2.0.3'
     compile 'org.greenrobot:eventbus:3.0.0'

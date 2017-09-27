@@ -7,6 +7,7 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.listener.CallbackListener;
 import com.sismics.music.resource.UserResource;
 import com.sismics.music.util.PreferenceUtil;
+import com.snappydb.DB;
 
 import org.json.JSONObject;
 
@@ -25,6 +26,8 @@ public class ApplicationContext {
      * Response of GET /user
      */
     private JSONObject userInfo;
+
+    private DB snappyDb;
     
     /**
      * Private constructor.

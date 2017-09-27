@@ -22,6 +22,7 @@ import com.sismics.music.adapter.TracksAdapter;
 import com.sismics.music.event.OfflineModeChangedEvent;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.model.Album;
+import com.sismics.music.model.Artist;
 import com.sismics.music.model.Track;
 import com.sismics.music.resource.AlbumResource;
 import com.sismics.music.service.MusicService;
@@ -44,6 +45,7 @@ import java.util.List;
  */
 public class AlbumFragment extends Fragment {
 
+    private static final String ARG_ARTIST = "artist";
     private static final String ARG_ALBUM = "album";
     private AsyncTask cacheTask;
     private EventBus eventBus;
@@ -53,9 +55,10 @@ public class AlbumFragment extends Fragment {
     /**
      * Returns a new instance of this fragment.
      */
-    public static AlbumFragment newInstance(Album album) {
+    public static AlbumFragment newInstance(Artist artist, Album album) {
         AlbumFragment fragment = new AlbumFragment();
         Bundle args = new Bundle();
+        args.putSerializable(ARG_ARTIST, artist);
         args.putSerializable(ARG_ALBUM, album);
         fragment.setArguments(args);
         return fragment;
@@ -96,6 +99,7 @@ public class AlbumFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final Artist artist = (Artist) getArguments().getSerializable(ARG_ARTIST);
         final Album album = (Album) getArguments().getSerializable(ARG_ALBUM);
 
         // Inflate the view
@@ -104,7 +108,7 @@ public class AlbumFragment extends Fragment {
 
         // Populate the view with the given data
         aq.id(R.id.albumName).text(album.getName());
-        aq.id(R.id.artistName).text(album.getArtistName());
+        aq.id(R.id.artistName).text(artist.getName());
         String coverUrl = PreferenceUtil.getServerUrl(getActivity()) + "/api/album/" + album.getId() + "/albumart/small";
         aq.id(R.id.imgCover).image(new BitmapAjaxCallback()
                 .url(coverUrl)
@@ -118,12 +122,12 @@ public class AlbumFragment extends Fragment {
         ((ViewGroup) header.getParent()).removeView(header);
         header.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         listTracks.addHeaderView(header, null, false);
-        tracksAdapter = new TracksAdapter(getActivity(), album, new ArrayList<>());
+        tracksAdapter = new TracksAdapter(getActivity(), artist, album, new ArrayList<>());
         listTracks.setAdapter(tracksAdapter);
 
         // Add to queue on click
         listTracks.setOnItemClickListener((parent, view1, position, id) -> {
-            PlaylistService.add(getContext(), album, tracksAdapter.getItem(position - 1));
+            PlaylistService.add(getContext(), artist, album, tracksAdapter.getItem(position - 1));
             Toast.makeText(getActivity(), R.string.add_toast, Toast.LENGTH_SHORT).show();
         });
 
@@ -131,7 +135,7 @@ public class AlbumFragment extends Fragment {
         aq.id(R.id.btnPlayAll).clicked(v -> {
             List<Track> trackList = tracksAdapter.getTracks();
             PlaylistService.clear(false);
-            PlaylistService.addAll(getContext(), album, trackList);
+            PlaylistService.addAll(getContext(), artist, album, trackList);
             Intent intent = new Intent(MusicService.ACTION_PLAY, null, getActivity(), MusicService.class);
             intent.putExtra(MusicService.EXTRA_FORCE, true);
             getActivity().startService(intent);
@@ -141,7 +145,7 @@ public class AlbumFragment extends Fragment {
         // Add all
         aq.id(R.id.btnAddAll).clicked(v -> {
             List<Track> trackList = tracksAdapter.getTracks();
-            PlaylistService.addAll(getContext(), album, trackList);
+            PlaylistService.addAll(getContext(), artist, album, trackList);
             Toast.makeText(getActivity(), R.string.add_all_toast, Toast.LENGTH_SHORT).show();
         });
 
@@ -157,13 +161,14 @@ public class AlbumFragment extends Fragment {
         ListView listTracks =  aq.id(R.id.listTracks).getListView();
         listTracks.setEmptyView(view.findViewById(R.id.progress));
         boolean offlineMode = PreferenceUtil.getBooleanPreference(getActivity(), PreferenceUtil.Pref.OFFLINE_MODE, false);
+        final Artist artist = (Artist) getArguments().getSerializable(ARG_ARTIST);
         final Album album = (Album) getArguments().getSerializable(ARG_ALBUM);
 
         // Grab cached tracks for this album
-        cacheTask = new AsyncTask<Album, Void, List<Track>>() {
+        cacheTask = new AsyncTask<Object, Void, List<Track>>() {
             @Override
-            protected List<Track> doInBackground(Album... params) {
-                return CacheUtil.getCachedTrack(getContext(), params[0]);
+            protected List<Track> doInBackground(Object... params) {
+                return CacheUtil.getCachedTrack(getContext(), (Artist) params[0], (Album) params[1]);
             }
 
             @Override
@@ -171,7 +176,7 @@ public class AlbumFragment extends Fragment {
                 listTracks.setEmptyView(view.findViewById(R.id.notCachedView));
                 tracksAdapter.setTracks(tracks);
             }
-        }.execute(album);
+        }.execute(artist, album);
 
         if (!offlineMode) {
             // We are in online mode, download the album details from the server
