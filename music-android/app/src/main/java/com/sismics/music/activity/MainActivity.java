@@ -25,6 +25,7 @@ import com.sismics.music.util.PreferenceUtil;
 import com.sismics.music.util.ScrobbleUtil;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Locale;
 
@@ -34,10 +35,8 @@ import java.util.Locale;
  * @author bgamard
  */
 public class MainActivity extends AppCompatActivity implements ActionBar.TabListener {
-    /**
-     * The {@link ViewPager} that will host the tab contents.
-     */
     private ViewPager viewPager;
+    private MenuItem offlineModeMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,14 +79,22 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
                             .setText(sectionsPagerAdapter.getPageTitle(i))
                             .setTabListener(this));
         }
+
+        EventBus.getDefault().register(this);
     }
 
+    @Override
+    protected void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present
         getMenuInflater().inflate(R.menu.main, menu);
-        menu.findItem(R.id.offline_mode).setIcon(
+        offlineModeMenuItem = menu.findItem(R.id.offline_mode);
+        offlineModeMenuItem.setIcon(
                 PreferenceUtil.getBooleanPreference(this, PreferenceUtil.Pref.OFFLINE_MODE, false) ?
                         R.drawable.ic_cloud_off_outline_white_48dp :
                         R.drawable.ic_cloud_outline_white_48dp
@@ -105,7 +112,6 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
                 boolean offlineMode = PreferenceUtil.getBooleanPreference(this, PreferenceUtil.Pref.OFFLINE_MODE, false);
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
                 sharedPreferences.edit().putBoolean(PreferenceUtil.Pref.OFFLINE_MODE.toString(), !offlineMode).commit();
-                item.setIcon(offlineMode ? R.drawable.ic_cloud_outline_white_48dp : R.drawable.ic_cloud_off_outline_white_48dp);
                 EventBus.getDefault().post(new OfflineModeChangedEvent(!offlineMode));
                 return true;
 
@@ -127,6 +133,17 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Subscribe
+    public void onEvent(OfflineModeChangedEvent event) {
+        if (offlineModeMenuItem != null) {
+            offlineModeMenuItem.setIcon(
+                    PreferenceUtil.getBooleanPreference(this, PreferenceUtil.Pref.OFFLINE_MODE, false) ?
+                            R.drawable.ic_cloud_off_outline_white_48dp :
+                            R.drawable.ic_cloud_outline_white_48dp
+            );
+        }
     }
 
     @Override

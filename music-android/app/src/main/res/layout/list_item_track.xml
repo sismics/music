@@ -25,7 +25,7 @@
         android:layout_toLeftOf="@+id/overflow"
         android:contentDescription="@string/cached"
         android:id="@+id/cached"
-        android:src="@drawable/ic_action_make_available_offline"/>
+        android:src="@drawable/ic_cloud_check_grey600_24dp"/>
 
     <ImageView
         android:id="@+id/overflow"

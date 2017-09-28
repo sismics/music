@@ -76,7 +76,7 @@ public class TracksAdapter extends BaseAdapter {
         // Filling track data
         final Track track = getItem(position);
         holder.trackName.setText(track.getTitle());
-        holder.cached.setVisibility(CacheUtil.isComplete(activity, artist, album, track) ? View.VISIBLE : View.INVISIBLE);
+        holder.cached.setVisibility(CacheUtil.isTrackCached(activity, track.getId()) ? View.VISIBLE : View.INVISIBLE);
 
         // Configuring popup menu
         aq.id(holder.overflow).clicked(v -> {
@@ -87,7 +87,7 @@ public class TracksAdapter extends BaseAdapter {
             popup.setOnMenuItemClickListener(item -> {
                 switch (item.getItemId()) {
                     case R.id.unpin:
-                        CacheUtil.removeTrack(activity, artist, album, track);
+                        CacheUtil.removeTrack(activity, artist.getId(), album.getId(), track.getId());
                         EventBus.getDefault().post(new TrackCacheStatusChangedEvent(null));
                         return true;
 

@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -58,7 +59,9 @@ public class PlaylistAdapter extends BaseAdapter {
             holder.trackName = aq.id(R.id.trackName).getTextView();
             holder.cached  = aq.id(R.id.cached).getImageView();
             holder.playing = aq.id(R.id.playing).getImageView();
+            holder.failed = aq.id(R.id.failed).getImageView();
             holder.progress = aq.id(R.id.progress).getProgressBar();
+            holder.downloadProgress = aq.id(R.id.downloadProgress).getView();
             holder.imgCover = aq.id(R.id.imgCover).getImageView();
             view.setTag(holder);
         } else {
@@ -71,17 +74,29 @@ public class PlaylistAdapter extends BaseAdapter {
         holder.artistName.setText(playlistTrack.getArtist().getName());
         holder.trackName.setText(playlistTrack.getTrack().getTitle());
         switch (playlistTrack.getCacheStatus()) {
+            case FAILURE:
+                holder.cached.setVisibility(View.GONE);
+                holder.progress.setVisibility(View.GONE);
+                holder.failed.setVisibility(View.VISIBLE);
+                break;
             case NONE:
                 holder.cached.setVisibility(View.GONE);
                 holder.progress.setVisibility(View.GONE);
+                holder.failed.setVisibility(View.GONE);
+                holder.downloadProgress.setVisibility(View.GONE);
                 break;
             case COMPLETE:
                 holder.cached.setVisibility(View.VISIBLE);
                 holder.progress.setVisibility(View.GONE);
+                holder.failed.setVisibility(View.GONE);
+                holder.downloadProgress.setVisibility(View.GONE);
                 break;
             case DOWNLOADING:
                 holder.cached.setVisibility(View.GONE);
                 holder.progress.setVisibility(View.VISIBLE);
+                holder.failed.setVisibility(View.GONE);
+                holder.downloadProgress.setVisibility(View.VISIBLE);
+                ((LinearLayout.LayoutParams) holder.downloadProgress.getLayoutParams()).weight = playlistTrack.getProgress();
                 break;
         }
 
@@ -140,7 +155,9 @@ public class PlaylistAdapter extends BaseAdapter {
         TextView trackName;
         ImageView cached;
         ImageView playing;
+        ImageView failed;
         ImageView imgCover;
         ProgressBar progress;
+        View downloadProgress;
     }
 }

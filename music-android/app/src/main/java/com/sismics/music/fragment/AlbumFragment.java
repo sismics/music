@@ -160,6 +160,7 @@ public class AlbumFragment extends Fragment {
     private void loadTracks(View view) {
         ListView listTracks =  aq.id(R.id.listTracks).getListView();
         listTracks.setEmptyView(view.findViewById(R.id.progress));
+        view.findViewById(R.id.notCachedView).setVisibility(View.GONE);
         boolean offlineMode = PreferenceUtil.getBooleanPreference(getActivity(), PreferenceUtil.Pref.OFFLINE_MODE, false);
         final Artist artist = (Artist) getArguments().getSerializable(ARG_ARTIST);
         final Album album = (Album) getArguments().getSerializable(ARG_ALBUM);
@@ -168,42 +169,40 @@ public class AlbumFragment extends Fragment {
         cacheTask = new AsyncTask<Object, Void, List<Track>>() {
             @Override
             protected List<Track> doInBackground(Object... params) {
-                return CacheUtil.getCachedTrack(getContext(), (Artist) params[0], (Album) params[1]);
+                return CacheUtil.getCachedTrackList(getContext(), (Artist) params[0], (Album) params[1]);
             }
 
             @Override
-            protected void onPostExecute(List<Track> tracks) {
-                listTracks.setEmptyView(view.findViewById(R.id.notCachedView));
-                tracksAdapter.setTracks(tracks);
+            protected void onPostExecute(List<Track> cachedTracks) {
+                if (offlineMode) {
+                    listTracks.setEmptyView(view.findViewById(R.id.notCachedView));
+                    view.findViewById(R.id.progress).setVisibility(View.GONE);
+                    tracksAdapter.setTracks(cachedTracks);
+                } else {
+                    // We are in online mode, download the album details from the server
+                    AlbumResource.info(getActivity(), album.getId(), new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(final JSONObject json) {
+                            if (getActivity() == null) {
+                                // The activity is dead, and this fragment has been detached
+                                return;
+                            }
+
+                            // Assemble tracks
+                            List<Track> tracks = new ArrayList<>();
+                            JSONArray tracksJson =  json.optJSONArray("tracks");
+                            for (int i = 0; i < tracksJson.length(); i++) {
+                                tracks.add(new Track(tracksJson.optJSONObject(i)));
+                            }
+
+                            // Populate the adapter
+                            tracksAdapter.setTracks(tracks);
+                        }
+                    });
+                }
             }
         }.execute(artist, album);
-
-        if (!offlineMode) {
-            // We are in online mode, download the album details from the server
-            AlbumResource.info(getActivity(), album.getId(), new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(final JSONObject json) {
-                    if (getActivity() == null) {
-                        // The activity is dead, and this fragment has been detached
-                        return;
-                    }
-
-                    // Cancel the cache request, should not happen
-                    cacheTask.cancel(true);
-
-                    // Assemble tracks
-                    List<Track> tracks = new ArrayList<>();
-                    JSONArray tracksJson =  json.optJSONArray("tracks");
-                    for (int i = 0; i < tracksJson.length(); i++) {
-                        tracks.add(new Track(tracksJson.optJSONObject(i)));
-                    }
-
-                    // Populate the adapter
-                    tracksAdapter.setTracks(tracks);
-                }
-            });
-        }
-    };
+    }
 
     /**
      * A track cache status has changed.

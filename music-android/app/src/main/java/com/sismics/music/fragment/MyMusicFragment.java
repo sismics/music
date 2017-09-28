@@ -72,14 +72,16 @@ public class MyMusicFragment extends Fragment {
      */
     @Subscribe
     public void onEvent(AlbumOpenedEvent event) {
-        // Instantiate a new fragment
-        Fragment newFragment = AlbumFragment.newInstance(event.getArtist(), event.getAlbum());
+        if (getFragmentManager().findFragmentByTag("AlbumFragment") == null) {
+            // Instantiate a new fragment
+            Fragment newFragment = AlbumFragment.newInstance(event.getArtist(), event.getAlbum());
 
-        // Add the fragment to the activity, pushing this transaction on to the back stack
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(R.id.content, newFragment);
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        ft.addToBackStack(null);
-        ft.commit();
+            // Add the fragment to the activity, pushing this transaction on to the back stack
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.add(R.id.content, newFragment, "AlbumFragment");
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            ft.addToBackStack(null);
+            ft.commit();
+        }
     }
 }

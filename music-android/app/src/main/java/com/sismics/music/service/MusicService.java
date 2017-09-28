@@ -431,9 +431,17 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         final File incompleteCacheFile = CacheUtil.getIncompleteCacheFile(this, playlistTrack);
 
         FileAsyncHttpResponseHandler responseHandler = new FileAsyncHttpResponseHandler(incompleteCacheFile) {
+            private float lastProgress = 0;
+
             @Override
             public void onStart() {
                 playlistTrack.setCacheStatus(PlaylistTrack.CacheStatus.DOWNLOADING);
+                EventBus.getDefault().post(new TrackCacheStatusChangedEvent(playlistTrack));
+            }
+
+            @Override
+            public void onFailure(Throwable e, File response) {
+                playlistTrack.setCacheStatus(PlaylistTrack.CacheStatus.FAILURE);
                 EventBus.getDefault().post(new TrackCacheStatusChangedEvent(playlistTrack));
             }
 
@@ -445,6 +453,16 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                     if (play) {
                         doPlay(playlistTrack);
                     }
+                }
+            }
+
+            @Override
+            public void onProgress(int bytesWritten, int totalSize) {
+                float progress = (float) bytesWritten / (float) totalSize;
+                playlistTrack.setProgress(progress);
+                if (progress - lastProgress > 0.05f) {
+                    EventBus.getDefault().post(new TrackCacheStatusChangedEvent(playlistTrack));
+                    lastProgress = progress;
                 }
             }
 
@@ -461,7 +479,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             }
         };
 
-        if (CacheUtil.isComplete(this, playlistTrack)) {
+        if (CacheUtil.isTrackCached(this, playlistTrack.getTrack().getId())) {
             Log.d("SismicsMusic", "This playlistTrack is already complete, output: " + play);
 
             // Nothing to buffer, the playlistTrack is already complete in the cache
@@ -572,7 +590,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         // Build the notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle(currentPlaylistTrack.getTrack().getId())
+                .setContentTitle(currentPlaylistTrack.getTrack().getTitle())
                 .setContentText(currentPlaylistTrack.getArtist().getName())
                 .setSubText(currentPlaylistTrack.getAlbum().getName())
                 .setTicker(currentPlaylistTrack.getTrack().getTitle() + " - " + currentPlaylistTrack.getArtist().getName())

@@ -15,10 +15,10 @@ public class AlbumResource extends BaseResource {
      * @param context Context
      * @param responseHandler Response handler
      */
-    public static void list(Context context, JsonHttpResponseHandler responseHandler) {
+    public static void list(Context context, int offset, String search, JsonHttpResponseHandler responseHandler) {
         init(context);
 
-        client.get(getApiUrl(context) + "/album?limit=100000", responseHandler);
+        client.get(getApiUrl(context) + "/album?limit=20&offset=" + offset + "&search=" + search, responseHandler);
     }
 
     /**

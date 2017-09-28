@@ -12,17 +12,15 @@ public class PlaylistTrack {
      * Cache status.
      */
     public enum CacheStatus {
-        NONE, DOWNLOADING, COMPLETE
+        NONE, FAILURE, DOWNLOADING, COMPLETE
     }
 
     private Artist artist;
     private Album album;
     private Track track;
 
-    /**
-     * Cache status.
-     */
     private CacheStatus cacheStatus;
+    private float progress;
 
     /**
      * Build a new track from server data.
@@ -36,7 +34,8 @@ public class PlaylistTrack {
         this.artist = artist;
         this.track = track;
         this.album = album;
-        cacheStatus = CacheUtil.isComplete(context, this) ? CacheStatus.COMPLETE : CacheStatus.NONE;
+        this.progress = 0;
+        cacheStatus = CacheUtil.isTrackCached(context, track.getId()) ? CacheStatus.COMPLETE : CacheStatus.NONE;
     }
 
     public Artist getArtist() {
@@ -57,5 +56,13 @@ public class PlaylistTrack {
 
     public void setCacheStatus(CacheStatus cacheStatus) {
         this.cacheStatus = cacheStatus;
+    }
+
+    public float getProgress() {
+        return progress;
+    }
+
+    public void setProgress(float progress) {
+        this.progress = progress;
     }
 }

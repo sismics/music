@@ -55,6 +55,12 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:enabled="true" android:name=".service.AirplaneModeIntentReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.AIRPLANE_MODE"/>
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
