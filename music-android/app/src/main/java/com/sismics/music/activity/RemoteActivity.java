@@ -1,12 +1,10 @@
 package com.sismics.music.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -20,7 +18,7 @@ import com.sismics.music.util.RemoteControlUtil;
  *
  * @author bgamard
  */
-public class RemoteActivity extends Activity {
+public class RemoteActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,36 +44,24 @@ public class RemoteActivity extends Activity {
         ImageButton btnPause = (ImageButton) findViewById(R.id.btnPause);
         ImageButton btnNext = (ImageButton) findViewById(R.id.btnNext);
 
-        btnPrevious.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String command = RemoteControlUtil.buildCommand(RemoteControlUtil.Command.PREVIOUS);
-                RemoteControlUtil.sendCommand(RemoteActivity.this, command, 0);
-            }
+        btnPrevious.setOnClickListener(v -> {
+            String command = RemoteControlUtil.buildCommand(RemoteControlUtil.Command.PREVIOUS);
+            RemoteControlUtil.sendCommand(RemoteActivity.this, command, 0);
         });
 
-        btnPlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String command = RemoteControlUtil.buildCommand(RemoteControlUtil.Command.PLAY);
-                RemoteControlUtil.sendCommand(RemoteActivity.this, command, 0);
-            }
+        btnPlay.setOnClickListener(v -> {
+            String command = RemoteControlUtil.buildCommand(RemoteControlUtil.Command.PLAY);
+            RemoteControlUtil.sendCommand(RemoteActivity.this, command, 0);
         });
 
-        btnPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String command = RemoteControlUtil.buildCommand(RemoteControlUtil.Command.PAUSE);
-                RemoteControlUtil.sendCommand(RemoteActivity.this, command, 0);
-            }
+        btnPause.setOnClickListener(v -> {
+            String command = RemoteControlUtil.buildCommand(RemoteControlUtil.Command.PAUSE);
+            RemoteControlUtil.sendCommand(RemoteActivity.this, command, 0);
         });
 
-        btnNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String command = RemoteControlUtil.buildCommand(RemoteControlUtil.Command.NEXT);
-                RemoteControlUtil.sendCommand(RemoteActivity.this, command, 0);
-            }
+        btnNext.setOnClickListener(v -> {
+            String command = RemoteControlUtil.buildCommand(RemoteControlUtil.Command.NEXT);
+            RemoteControlUtil.sendCommand(RemoteActivity.this, command, 0);
         });
     }
 

@@ -2,6 +2,7 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="#fff"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <RelativeLayout
@@ -94,8 +95,16 @@
         <ProgressBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@android:style/Widget.Holo.ProgressBar.Large"/>
+            style="@style/Base.Widget.AppCompat.ProgressBar"/>
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/notCachedView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone"
+        android:text="@string/album_not_cached" />
 
 </LinearLayout>

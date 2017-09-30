@@ -4,7 +4,8 @@ import com.sismics.music.model.PlaylistTrack;
 
 /**
  * Track cache status changed.
- * This event can specify an track or not.
+ * This event can specify a track or not.
+ * TODO Split this event in {Artist,Album,Track}Cache{Removed,Added}Event events
  *
  * @author bgamard.
  */

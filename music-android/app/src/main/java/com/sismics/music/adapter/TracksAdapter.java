@@ -3,7 +3,6 @@ package com.sismics.music.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -15,13 +14,14 @@ import com.androidquery.AQuery;
 import com.sismics.music.R;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.model.Album;
+import com.sismics.music.model.Artist;
 import com.sismics.music.model.Track;
 import com.sismics.music.util.CacheUtil;
 import com.sismics.music.util.RemoteControlUtil;
 
-import java.util.List;
+import org.greenrobot.eventbus.EventBus;
 
-import de.greenrobot.event.EventBus;
+import java.util.List;
 
 /**
  * Adapter for tracks list.
@@ -39,22 +39,17 @@ public class TracksAdapter extends BaseAdapter {
      */
     private AQuery aq;
 
-    /**
-     * Album.
-     */
+    private Artist artist;
     private Album album;
-
-    /**
-     * Tracks.
-     */
     private List<Track> tracks;
 
     /**
      * Constructor.
      * @param activity Context activity
      */
-    public TracksAdapter(Activity activity, Album album, List<Track> tracks) {
+    public TracksAdapter(Activity activity, Artist artist, Album album, List<Track> tracks) {
         this.activity = activity;
+        this.artist = artist;
         this.album = album;
         this.tracks = tracks;
         this.aq = new AQuery(activity);
@@ -66,7 +61,7 @@ public class TracksAdapter extends BaseAdapter {
         
         if (view == null) {
             LayoutInflater vi = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = vi.inflate(R.layout.list_item_track, null);
+            view = vi.inflate(R.layout.list_item_track, parent, false);
             aq.recycle(view);
             holder = new ViewHolder();
             holder.trackName = aq.id(R.id.trackName).getTextView();
@@ -81,37 +76,31 @@ public class TracksAdapter extends BaseAdapter {
         // Filling track data
         final Track track = getItem(position);
         holder.trackName.setText(track.getTitle());
-        holder.cached.setVisibility(CacheUtil.isComplete(album, track) ? View.VISIBLE : View.INVISIBLE);
+        holder.cached.setVisibility(CacheUtil.isTrackCached(activity, track.getId()) ? View.VISIBLE : View.INVISIBLE);
 
         // Configuring popup menu
-        aq.id(holder.overflow).clicked(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PopupMenu popup = new PopupMenu(activity, v);
-                popup.inflate(R.menu.list_item_track);
+        aq.id(holder.overflow).clicked(v -> {
+            PopupMenu popup = new PopupMenu(activity, v);
+            popup.inflate(R.menu.list_item_track);
 
-                // Menu actions
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        switch (item.getItemId()) {
-                            case R.id.unpin:
-                                CacheUtil.removeTrack(album, track);
-                                EventBus.getDefault().post(new TrackCacheStatusChangedEvent(null));
-                                return true;
+            // Menu actions
+            popup.setOnMenuItemClickListener(item -> {
+                switch (item.getItemId()) {
+                    case R.id.unpin:
+                        CacheUtil.removeTrack(activity, artist.getId(), album.getId(), track.getId());
+                        EventBus.getDefault().post(new TrackCacheStatusChangedEvent(null));
+                        return true;
 
-                            case R.id.remote_play:
-                                String command = RemoteControlUtil.buildCommand(RemoteControlUtil.Command.PLAY_TRACK, track.getId());
-                                RemoteControlUtil.sendCommand(activity, command, R.string.remote_play_track);
-                                return true;
-                        }
+                    case R.id.remote_play:
+                        String command = RemoteControlUtil.buildCommand(RemoteControlUtil.Command.PLAY_TRACK, track.getId());
+                        RemoteControlUtil.sendCommand(activity, command, R.string.remote_play_track);
+                        return true;
+                }
 
-                        return false;
-                    }
-                });
+                return false;
+            });
 
-                popup.show();
-            }
+            popup.show();
         });
 
         return view;

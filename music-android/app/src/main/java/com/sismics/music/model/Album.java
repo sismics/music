@@ -12,20 +12,12 @@ import java.io.Serializable;
 public class Album implements Serializable {
     private static final long serialVersionUID = 0L;
 
-    /**
-     * Album ID.
-     */
     private String id;
-
-    /**
-     * Album name.
-     */
     private String name;
+    private String artistId;
 
-    /**
-     * Artist name.
-     */
-    private String artistName;
+    public Album() {
+    }
 
     /**
      * Build a new album from JSON data.
@@ -34,31 +26,29 @@ public class Album implements Serializable {
     public Album(JSONObject album) {
         this.id = album.optString("id");
         this.name = album.optString("name");
-        JSONObject artist = album.optJSONObject("artist");
-        this.artistName = artist.optString("name");
+        this.artistId = album.optJSONObject("artist").optString("id");
     }
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getArtistId() {
+        return artistId;
     }
 
-    public String getArtistName() {
-        return artistName;
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 
-    public void setArtistName(String artistName) {
-        this.artistName = artistName;
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Album
+                && ((Album) obj).id.equals(id);
     }
 }

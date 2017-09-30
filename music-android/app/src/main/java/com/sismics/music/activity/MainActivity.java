@@ -1,16 +1,16 @@
 package com.sismics.music.activity;
 
-import android.app.ActionBar;
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v13.app.FragmentPagerAdapter;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -24,20 +24,19 @@ import com.sismics.music.resource.UserResource;
 import com.sismics.music.util.PreferenceUtil;
 import com.sismics.music.util.ScrobbleUtil;
 
-import java.util.Locale;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
-import de.greenrobot.event.EventBus;
+import java.util.Locale;
 
 /**
  * Main activity.
  *
  * @author bgamard
  */
-public class MainActivity extends Activity implements ActionBar.TabListener {
-    /**
-     * The {@link ViewPager} that will host the tab contents.
-     */
+public class MainActivity extends AppCompatActivity implements ActionBar.TabListener {
     private ViewPager viewPager;
+    private MenuItem offlineModeMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,18 +53,18 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
         setContentView(R.layout.activity_main);
 
         // Set up the action bar
-        final ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         // Create the adapter that will return a fragment for each tab
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
+        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter
         viewPager = (ViewPager) findViewById(R.id.pager);
         viewPager.setAdapter(sectionsPagerAdapter);
 
         // Keeps the tabs and the ViewPager in sync
-        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+        viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 actionBar.setSelectedNavigationItem(position);
@@ -80,17 +79,25 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
                             .setText(sectionsPagerAdapter.getPageTitle(i))
                             .setTabListener(this));
         }
+
+        EventBus.getDefault().register(this);
     }
 
+    @Override
+    protected void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present
         getMenuInflater().inflate(R.menu.main, menu);
-        menu.findItem(R.id.offline_mode).setIcon(
+        offlineModeMenuItem = menu.findItem(R.id.offline_mode);
+        offlineModeMenuItem.setIcon(
                 PreferenceUtil.getBooleanPreference(this, PreferenceUtil.Pref.OFFLINE_MODE, false) ?
-                        R.drawable.ic_action_make_available_offline_dark :
-                        R.drawable.ic_action_network_wifi
+                        R.drawable.ic_cloud_off_outline_white_48dp :
+                        R.drawable.ic_cloud_outline_white_48dp
         );
         return true;
     }
@@ -105,7 +112,6 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
                 boolean offlineMode = PreferenceUtil.getBooleanPreference(this, PreferenceUtil.Pref.OFFLINE_MODE, false);
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
                 sharedPreferences.edit().putBoolean(PreferenceUtil.Pref.OFFLINE_MODE.toString(), !offlineMode).commit();
-                item.setIcon(offlineMode ? R.drawable.ic_action_network_wifi : R.drawable.ic_action_make_available_offline_dark);
                 EventBus.getDefault().post(new OfflineModeChangedEvent(!offlineMode));
                 return true;
 
@@ -127,6 +133,17 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Subscribe
+    public void onEvent(OfflineModeChangedEvent event) {
+        if (offlineModeMenuItem != null) {
+            offlineModeMenuItem.setIcon(
+                    PreferenceUtil.getBooleanPreference(this, PreferenceUtil.Pref.OFFLINE_MODE, false) ?
+                            R.drawable.ic_cloud_off_outline_white_48dp :
+                            R.drawable.ic_cloud_outline_white_48dp
+            );
+        }
     }
 
     @Override

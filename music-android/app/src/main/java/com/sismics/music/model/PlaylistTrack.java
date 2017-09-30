@@ -1,5 +1,7 @@
 package com.sismics.music.model;
 
+import android.content.Context;
+
 import com.sismics.music.util.CacheUtil;
 
 /**
@@ -9,97 +11,58 @@ public class PlaylistTrack {
     /**
      * Cache status.
      */
-    public static enum CacheStatus {
-        NONE, DOWNLOADING, COMPLETE
+    public enum CacheStatus {
+        NONE, FAILURE, DOWNLOADING, COMPLETE
     }
 
-    /**
-     * Track data.
-     */
+    private Artist artist;
+    private Album album;
     private Track track;
 
-    /**
-     * Album data.
-     */
-    private Album album;
-
-    /**
-     * Cache status.
-     */
     private CacheStatus cacheStatus;
+    private float progress;
 
     /**
      * Build a new track from server data.
      * @param album Album data
      * @param track Track data
      */
-    public PlaylistTrack(Album album, Track track) {
+    public PlaylistTrack(Context context, Artist artist, Album album, Track track) {
+        if (artist == null || album == null || track == null) {
+            throw new IllegalArgumentException("artist, album or track is null");
+        }
+        this.artist = artist;
         this.track = track;
         this.album = album;
-        cacheStatus = CacheUtil.isComplete(this) ? CacheStatus.COMPLETE : CacheStatus.NONE;
+        this.progress = 0;
+        cacheStatus = CacheUtil.isTrackCached(context, track.getId()) ? CacheStatus.COMPLETE : CacheStatus.NONE;
     }
 
-    /**
-     * Returns the track title.
-     * @return Track title
-     */
-    public String getTitle() {
-        return track.getTitle();
+    public Artist getArtist() {
+        return artist;
     }
 
-    /**
-     * Returns the track ID.
-     * @return Track ID
-     */
-    public String getId() {
-        return track.getId();
+    public Album getAlbum() {
+        return album;
     }
 
-    /**
-     * Returns the track artist name.
-     * @return Track artist name
-     */
-    public String getArtistName() {
-        return album.getArtistName();
+    public Track getTrack() {
+        return track;
     }
 
-    /**
-     * Returns the track album ID.
-     * @return Track album ID
-     */
-    public String getAlbumId() {
-        return album.getId();
-    }
-
-    /**
-     * Returns the track album name.
-     * @return Track album name
-     */
-    public String getAlbumName() {
-        return album.getName();
-    }
-
-    /**
-     * Returns the track length.
-     * @return Track length
-     */
-    public long getLength() {
-        return track.getLength();
-    }
-
-    /**
-     * Returns the track cache status.
-     * @return Track cache status
-     */
     public CacheStatus getCacheStatus() {
         return cacheStatus;
     }
 
-    /**
-     * Set the track cache status.
-     * @param cacheStatus New cache status
-     */
     public void setCacheStatus(CacheStatus cacheStatus) {
         this.cacheStatus = cacheStatus;
+    }
+
+    public float getProgress() {
+        return progress;
+    }
+
+    public void setProgress(float progress) {
+        this.progress = progress;
     }
 }

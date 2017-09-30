@@ -2,9 +2,7 @@ package com.sismics.music.adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -18,15 +16,14 @@ import com.androidquery.AQuery;
 import com.androidquery.callback.BitmapAjaxCallback;
 import com.sismics.music.R;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
+import com.sismics.music.model.FullAlbum;
 import com.sismics.music.util.CacheUtil;
 import com.sismics.music.util.PreferenceUtil;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.greenrobot.eventbus.EventBus;
 
-import java.util.Set;
-
-import de.greenrobot.event.EventBus;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Adapter for albums list.
@@ -37,42 +34,26 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
 
     private AQuery aq;
     private Activity activity;
-    private JSONArray allAlbums;
-    private JSONArray originalAlbums;
-    private JSONArray albums;
+    private List<FullAlbum> onlineAlbums; // TODO Merge those 2 lists in one
+    private List<FullAlbum> cachedAlbums;
+    private List<FullAlbum> displayedAlbums;
     private String authToken;
     private String serverUrl;
-    private Set<String> cachedAlbumSet;
     private boolean offlineMode;
 
     /**
      * Constructor.
      * @param activity Context activity
      */
-    public AlbumAdapter(Activity activity, JSONArray albums, Set<String> cachedAlbumSet, boolean offlineMode) {
+    public AlbumAdapter(Activity activity, List<FullAlbum> onlineAlbums, List<FullAlbum> cachedAlbums, boolean offlineMode) {
         this.activity = activity;
-        this.originalAlbums = albums;
-        this.cachedAlbumSet = cachedAlbumSet;
         this.offlineMode = offlineMode;
         this.aq = new AQuery(activity);
         this.authToken = PreferenceUtil.getAuthToken(activity);
         this.serverUrl = PreferenceUtil.getServerUrl(activity);
-        computeAlbumList();
-        this.albums = this.allAlbums;
-    }
-
-    private void computeAlbumList() {
-        if (offlineMode) {
-            allAlbums = new JSONArray();
-            for (int i = 0; i < originalAlbums.length(); i++) {
-                JSONObject album = originalAlbums.optJSONObject(i);
-                if (cachedAlbumSet.contains(album.optString("id"))) {
-                    allAlbums.put(album);
-                }
-            }
-        } else {
-            allAlbums = originalAlbums;
-        }
+        this.onlineAlbums = onlineAlbums;
+        this.cachedAlbums = cachedAlbums;
+        resetDisplayedAlbums();
     }
 
     @Override
@@ -81,7 +62,7 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
         
         if (view == null) {
             LayoutInflater vi = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = vi.inflate(R.layout.list_item_album, null);
+            view = vi.inflate(R.layout.list_item_album, parent, false);
             aq.recycle(view);
             holder = new ViewHolder();
             holder.albumName = aq.id(R.id.albumName).getTextView();
@@ -95,47 +76,35 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
             holder = (ViewHolder) view.getTag();
         }
 
-        JSONObject album = getItem(position);
+        FullAlbum album = getItem(position);
 
         // Album cover
-        final String albumId = album.optString("id");
-        String coverUrl = serverUrl + "/api/album/" + albumId + "/albumart/small";
-        if (aq.shouldDelay(position, view, parent, coverUrl)) {
-            aq.id(holder.imgCover).image((Bitmap) null);
-        } else {
-            aq.id(holder.imgCover).image(new BitmapAjaxCallback()
-                    .url(coverUrl)
-                    .animation(AQuery.FADE_IN_NETWORK)
-                    .cookie("auth_token", authToken)
-            );
-        }
+        String coverUrl = serverUrl + "/api/album/" + album.getAlbum().getId() + "/albumart/small";
+        aq.id(holder.imgCover).image(new BitmapAjaxCallback()
+                .url(coverUrl)
+                .animation(AQuery.FADE_IN_NETWORK)
+                .cookie("auth_token", authToken)
+        );
 
         // Filling album data
-        holder.albumName.setText(album.optString("name"));
-        JSONObject artist = album.optJSONObject("artist");
-        holder.artistName.setText(artist.optString("name"));
+        holder.albumName.setText(album.getAlbum().getName());
+        holder.artistName.setText(album.getArtist().getName());
         final View cached = holder.cached;
-        cached.setVisibility(cachedAlbumSet.contains(albumId) ? View.VISIBLE : View.GONE);
+        cached.setVisibility(CacheUtil.isAlbumCached(activity, album.getAlbum().getId()) ? View.VISIBLE : View.GONE);
 
         // Configuring popup menu
-        aq.id(holder.overflow).clicked(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PopupMenu popup = new PopupMenu(activity, v);
-                popup.inflate(R.menu.list_item_album);
+        aq.id(holder.overflow).clicked(v -> {
+            PopupMenu popup = new PopupMenu(activity, v);
+            popup.inflate(R.menu.list_item_album);
 
-                // Menu actions
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        CacheUtil.removeAlbum(albumId);
-                        EventBus.getDefault().post(new TrackCacheStatusChangedEvent(null));
-                        return true;
-                    }
-                });
+            // Menu actions
+            popup.setOnMenuItemClickListener(item -> {
+                CacheUtil.removeAlbum(activity, album.getArtist().getId(), album.getAlbum().getId());
+                EventBus.getDefault().post(new TrackCacheStatusChangedEvent(null));
+                return true;
+            });
 
-                popup.show();
-            }
+            popup.show();
         });
 
         return view;
@@ -143,12 +112,12 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public int getCount() {
-        return albums.length();
+        return displayedAlbums.size();
     }
 
     @Override
-    public JSONObject getItem(int position) {
-        return albums.optJSONObject(position);
+    public FullAlbum getItem(int position) {
+        return displayedAlbums.get(position);
     }
 
     @Override
@@ -156,11 +125,24 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
         return position;
     }
 
-    public void setAlbums(JSONArray albums) {
-        this.originalAlbums = albums;
-        computeAlbumList();
-        this.albums = allAlbums;
+    public void resetOnlineAlbums() {
+        onlineAlbums = new ArrayList<>();
+    }
+
+    public void addOnlineAlbums(List<FullAlbum> albums) {
+        onlineAlbums.addAll(albums);
+        resetDisplayedAlbums();
         notifyDataSetChanged();
+    }
+
+    public void setCachedAlbums(List<FullAlbum> albums) {
+        cachedAlbums = albums;
+        resetDisplayedAlbums();
+        notifyDataSetChanged();
+    }
+
+    private void resetDisplayedAlbums() {
+        displayedAlbums = offlineMode ? cachedAlbums : onlineAlbums;
     }
 
     @Override
@@ -168,39 +150,43 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
         return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
+                if (!offlineMode) {
+                    return null;
+                }
                 FilterResults results = new FilterResults();
                 if (constraint == null || constraint.length() == 0) {
-                    results.values = allAlbums;
-                    results.count = allAlbums.length();
+                    results.values = cachedAlbums;
+                    results.count = cachedAlbums.size();
                     return results;
                 }
 
                 // Search in album name and artist name
-                JSONArray values = new JSONArray();
+                List<FullAlbum> values = new ArrayList<>();
                 String filter = constraint.toString().toLowerCase();
-                for (int i = 0; i < allAlbums.length(); i++) {
-                    JSONObject album = allAlbums.optJSONObject(i);
-                    if (album.optString("name").toLowerCase().contains(filter)
-                            || album.optJSONObject("artist").optString("name").toLowerCase().contains(filter)) {
-                        values.put(album);
+                for (FullAlbum album : cachedAlbums) {
+                    if (album.getAlbum().getName().toLowerCase().contains(filter)
+                            || album.getArtist().getName().toLowerCase().contains(filter)) {
+                        values.add(album);
                     }
                 }
                 results.values = values;
-                results.count = values.length();
+                results.count = values.size();
                 return results;
             }
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                albums = (JSONArray) results.values;
-                notifyDataSetChanged();
+                if (results != null) {
+                    displayedAlbums = (List<FullAlbum>) results.values;
+                    notifyDataSetChanged();
+                }
             }
         };
     }
 
     public void setOfflineMode(boolean offlineMode) {
         this.offlineMode = offlineMode;
-        computeAlbumList();
+        resetDisplayedAlbums();
         notifyDataSetChanged();
     }
 

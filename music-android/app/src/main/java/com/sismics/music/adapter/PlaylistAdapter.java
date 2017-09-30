@@ -4,21 +4,21 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
 import com.androidquery.callback.BitmapAjaxCallback;
 import com.sismics.music.R;
-import com.sismics.music.service.PlaylistService;
 import com.sismics.music.model.PlaylistTrack;
+import com.sismics.music.service.PlaylistService;
 import com.sismics.music.util.PreferenceUtil;
 
 /**
@@ -52,14 +52,16 @@ public class PlaylistAdapter extends BaseAdapter {
         
         if (view == null) {
             LayoutInflater vi = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = vi.inflate(R.layout.list_item_playlist, null);
+            view = vi.inflate(R.layout.list_item_playlist, parent, false);
             aq.recycle(view);
             holder = new ViewHolder();
             holder.artistName = aq.id(R.id.artistName).getTextView();
             holder.trackName = aq.id(R.id.trackName).getTextView();
             holder.cached  = aq.id(R.id.cached).getImageView();
             holder.playing = aq.id(R.id.playing).getImageView();
+            holder.failed = aq.id(R.id.failed).getImageView();
             holder.progress = aq.id(R.id.progress).getProgressBar();
+            holder.downloadProgress = aq.id(R.id.downloadProgress).getView();
             holder.imgCover = aq.id(R.id.imgCover).getImageView();
             view.setTag(holder);
         } else {
@@ -69,20 +71,32 @@ public class PlaylistAdapter extends BaseAdapter {
 
         // Filling playlistTrack data
         PlaylistTrack playlistTrack = getItem(position);
-        holder.artistName.setText(playlistTrack.getArtistName());
-        holder.trackName.setText(playlistTrack.getTitle());
+        holder.artistName.setText(playlistTrack.getArtist().getName());
+        holder.trackName.setText(playlistTrack.getTrack().getTitle());
         switch (playlistTrack.getCacheStatus()) {
+            case FAILURE:
+                holder.cached.setVisibility(View.GONE);
+                holder.progress.setVisibility(View.GONE);
+                holder.failed.setVisibility(View.VISIBLE);
+                break;
             case NONE:
                 holder.cached.setVisibility(View.GONE);
                 holder.progress.setVisibility(View.GONE);
+                holder.failed.setVisibility(View.GONE);
+                holder.downloadProgress.setVisibility(View.GONE);
                 break;
             case COMPLETE:
                 holder.cached.setVisibility(View.VISIBLE);
                 holder.progress.setVisibility(View.GONE);
+                holder.failed.setVisibility(View.GONE);
+                holder.downloadProgress.setVisibility(View.GONE);
                 break;
             case DOWNLOADING:
                 holder.cached.setVisibility(View.GONE);
                 holder.progress.setVisibility(View.VISIBLE);
+                holder.failed.setVisibility(View.GONE);
+                holder.downloadProgress.setVisibility(View.VISIBLE);
+                ((LinearLayout.LayoutParams) holder.downloadProgress.getLayoutParams()).weight = playlistTrack.getProgress();
                 break;
         }
 
@@ -96,7 +110,7 @@ public class PlaylistAdapter extends BaseAdapter {
         }
 
         // Album cover
-        String albumId = playlistTrack.getAlbumId();
+        String albumId = playlistTrack.getAlbum().getId();
         String coverUrl = serverUrl + "/api/album/" + albumId + "/albumart/small";
         if (aq.shouldDelay(position, view, absListView, coverUrl)) {
             aq.id(holder.imgCover).image((Bitmap) null);
@@ -123,7 +137,7 @@ public class PlaylistAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return PlaylistService.getAt(position).getId().hashCode();
+        return PlaylistService.getAt(position).getTrack().getId().hashCode();
     }
 
     @Override
@@ -141,7 +155,9 @@ public class PlaylistAdapter extends BaseAdapter {
         TextView trackName;
         ImageView cached;
         ImageView playing;
+        ImageView failed;
         ImageView imgCover;
         ProgressBar progress;
+        View downloadProgress;
     }
 }

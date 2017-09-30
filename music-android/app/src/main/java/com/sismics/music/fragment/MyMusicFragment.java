@@ -1,7 +1,7 @@
 package com.sismics.music.fragment;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +11,8 @@ import com.sismics.music.R;
 import com.sismics.music.event.AlbumOpenedEvent;
 import com.sismics.music.event.MyMusicMenuVisibilityChangedEvent;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 /**
  * Fragment displaying the music collection.
@@ -69,15 +70,18 @@ public class MyMusicFragment extends Fragment {
      * Open an album details.
      * @param event Event
      */
+    @Subscribe
     public void onEvent(AlbumOpenedEvent event) {
-        // Instantiate a new fragment
-        Fragment newFragment = AlbumFragment.newInstance(event.getAlbum());
+        if (getFragmentManager().findFragmentByTag("AlbumFragment") == null) {
+            // Instantiate a new fragment
+            Fragment newFragment = AlbumFragment.newInstance(event.getArtist(), event.getAlbum());
 
-        // Add the fragment to the activity, pushing this transaction on to the back stack
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(R.id.content, newFragment);
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        ft.addToBackStack(null);
-        ft.commit();
+            // Add the fragment to the activity, pushing this transaction on to the back stack
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.add(R.id.content, newFragment, "AlbumFragment");
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            ft.addToBackStack(null);
+            ft.commit();
+        }
     }
 }

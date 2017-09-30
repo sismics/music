@@ -38,6 +38,7 @@
     <string name="offline_mode">Offline mode toggle</string>
     <string name="unpin_track">Unpin this track</string>
     <string name="unpin_album">Unpin this album</string>
+    <string name="album_not_cached">This album is not downloaded on your device, please disable offline mode</string>
 
     <!-- Validation -->
     <string name="validate_error_email">Invalid email</string>

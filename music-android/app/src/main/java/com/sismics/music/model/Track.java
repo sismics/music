@@ -27,6 +27,9 @@ public class Track implements Serializable {
      */
     private int length;
 
+    public Track() {
+    }
+
     /**
      * Build a new track from JSON data.
      * @param track JSON data
@@ -35,12 +38,6 @@ public class Track implements Serializable {
         this.id = track.optString("id");
         this.title = track.optString("title");
         this.length = track.optInt("length");
-    }
-
-    /**
-     * Build an empty track.
-     */
-    public Track() {
     }
 
     public String getId() {
