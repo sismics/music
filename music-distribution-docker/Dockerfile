@@ -1,4 +1,3 @@
-
 FROM sismics/jetty:9.3.11
 MAINTAINER benjamin.gam@gmail.com
 
@@ -11,4 +10,5 @@ RUN curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/yout
   && chmod a+x /usr/local/bin/youtube-dl
 
 ADD music-web/target/music-web-*.war /opt/jetty/webapps/music.war
-ADD music.xml /opt/jetty/webapps/music.xml
+ADD music-distribution-docker/music.xml /opt/jetty/webapps/music.xml
+ADD music-distribution-docker/start.ini /opt/jetty/start.ini
