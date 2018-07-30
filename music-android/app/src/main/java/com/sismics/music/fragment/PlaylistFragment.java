@@ -19,6 +19,8 @@ import com.sismics.music.event.MediaPlayerSeekEvent;
 import com.sismics.music.event.MediaPlayerStateChangedEvent;
 import com.sismics.music.event.PlaylistChangedEvent;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
+import com.sismics.music.event.TrackLikedChangedEvent;
+import com.sismics.music.model.ApplicationContext;
 import com.sismics.music.service.PlaylistService;
 import com.sismics.music.service.MusicService;
 import com.sismics.music.adapter.PlaylistAdapter;
@@ -65,7 +67,7 @@ public class PlaylistFragment extends Fragment {
                 // Stop the music and clear the playlist
                 Intent intent = new Intent(MusicService.ACTION_STOP, null, getActivity(), MusicService.class);
                 getActivity().startService(intent);
-                PlaylistService.clear(true);
+                ApplicationContext.getInstance().getPlaylistService().clear(true);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -76,7 +78,7 @@ public class PlaylistFragment extends Fragment {
         // Inflate the view
         View view = inflater.inflate(R.layout.fragment_playlist, container, false);
         aq = new AQuery(view);
-        DragSortListView listTracks = (DragSortListView)aq.id(R.id.listTracks).getView();
+        DragSortListView listTracks = (DragSortListView) aq.id(R.id.listTracks).getView();
         seekBar = aq.id(R.id.seekBar).getSeekBar();
         aq.id(R.id.playlistPause).gone();
 
@@ -87,7 +89,7 @@ public class PlaylistFragment extends Fragment {
         aq.id(R.id.listTracks)
                 .adapter(playlistAdapter)
                 .itemClicked((parent, view1, position, id) -> {
-                    PlaylistService.change(position - 1);
+                    ApplicationContext.getInstance().getPlaylistService().change(position - 1);
                     Intent intent = new Intent(MusicService.ACTION_PLAY, null, getActivity(), MusicService.class);
                     intent.putExtra(MusicService.EXTRA_FORCE, true);
                     getActivity().startService(intent);
@@ -115,15 +117,15 @@ public class PlaylistFragment extends Fragment {
 
         // Track removed
         listTracks.setRemoveListener(position -> {
-            if (PlaylistService.getCurrentTrackIndex() == position) {
+            if (ApplicationContext.getInstance().getPlaylistService().getCurrentTrackIndex() == position) {
                 Intent intent = new Intent(MusicService.ACTION_STOP, null, getActivity(), MusicService.class);
                 getActivity().startService(intent);
             }
-            PlaylistService.remove(position);
+            ApplicationContext.getInstance().getPlaylistService().remove(position);
         });
 
         // Track moved
-        listTracks.setDropListener(PlaylistService::move);
+        listTracks.setDropListener(ApplicationContext.getInstance().getPlaylistService()::move);
 
         // Seekbar moved
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -161,6 +163,15 @@ public class PlaylistFragment extends Fragment {
      */
     @Subscribe
     public void onEvent(TrackCacheStatusChangedEvent event) {
+        playlistAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * A track liked status has changed.
+     * @param event Event
+     */
+    @Subscribe
+    public void onEvent(TrackLikedChangedEvent event) {
         playlistAdapter.notifyDataSetChanged();
     }
 

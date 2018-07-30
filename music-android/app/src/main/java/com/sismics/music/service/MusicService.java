@@ -33,6 +33,7 @@ import com.sismics.music.activity.MainActivity;
 import com.sismics.music.event.MediaPlayerSeekEvent;
 import com.sismics.music.event.MediaPlayerStateChangedEvent;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
+import com.sismics.music.model.ApplicationContext;
 import com.sismics.music.model.PlaylistTrack;
 import com.sismics.music.resource.TrackResource;
 import com.sismics.music.util.CacheUtil;
@@ -314,7 +315,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         mState = State.Stopped;
 
         // Stop the playlist
-        PlaylistService.stop();
+        ApplicationContext.getInstance().getPlaylistService().stop();
 
         // let go of all resources...
         relaxResources(true);
@@ -402,7 +403,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         mState = State.Stopped;
         relaxResources(false); // release everything except MediaPlayer
 
-        PlaylistTrack nextPlaylistTrack = PlaylistService.next(true);
+        PlaylistTrack nextPlaylistTrack = ApplicationContext.getInstance().getPlaylistService().next(true);
         if (nextPlaylistTrack == null) {
             return;
         }
@@ -471,7 +472,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                 // Request is finished (and not cancelled), let's buffer the next song without playing it
                 bufferRequestHandle = null;
                 downloadingPlaylistTrack = null;
-                PlaylistTrack nextPlaylistTrack = PlaylistService.after(playlistTrack);
+                PlaylistTrack nextPlaylistTrack = ApplicationContext.getInstance().getPlaylistService().after(playlistTrack);
                 if (nextPlaylistTrack != null) {
                     Log.d("SismicsMusic", "Downloading the next playlistTrack " + nextPlaylistTrack.getTrack().getTitle());
                     downloadTrack(nextPlaylistTrack, false);

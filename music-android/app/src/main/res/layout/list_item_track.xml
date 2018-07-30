@@ -6,24 +6,35 @@
 
     <TextView
         android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/cached"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/liked"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:singleLine="true"
+        android:maxLines="1"
         android:ellipsize="end"
         android:text="Just the Way You Are"
         android:fontFamily="sans-serif-light"
         android:textSize="18sp"
-        android:layout_marginLeft="18dp"
+        android:layout_marginStart="18dp"
         android:id="@+id/trackName" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/overflow"
+        android:layout_toStartOf="@+id/cached"
         android:contentDescription="@string/cached"
+        android:id="@+id/liked"
+        android:src="@drawable/ic_heart_24dp"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@+id/overflow"
+        android:layout_marginStart="12dp"
+        android:contentDescription="@string/cached"
+        android:visibility="visible"
         android:id="@+id/cached"
         android:src="@drawable/ic_cloud_check_grey600_24dp"/>
 
@@ -31,11 +42,12 @@
         android:id="@+id/overflow"
         android:layout_width="wrap_content"
         android:layout_height="60dp"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:paddingRight="6dp"
+        android:paddingStart="6dp"
+        android:paddingEnd="6dp"
         android:src="@drawable/overflow_menu"
         android:scaleType="center"
-        android:contentDescription="@string/more_options"/>
+        android:contentDescription="@string/more_options"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>

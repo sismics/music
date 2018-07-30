@@ -6,6 +6,7 @@ import android.content.Context;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.listener.CallbackListener;
 import com.sismics.music.resource.UserResource;
+import com.sismics.music.service.PlaylistService;
 import com.sismics.music.util.PreferenceUtil;
 import com.snappydb.DB;
 
@@ -27,12 +28,13 @@ public class ApplicationContext {
      */
     private JSONObject userInfo;
 
-    private DB snappyDb;
+    private PlaylistService playlistService;
     
     /**
      * Private constructor.
      */
     private ApplicationContext() {
+        playlistService = new PlaylistService();
     }
     
     /**
@@ -86,5 +88,9 @@ public class ApplicationContext {
                 }
             }
         });
+    }
+
+    public PlaylistService getPlaylistService() {
+        return playlistService;
     }
 }

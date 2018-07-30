@@ -11,22 +11,22 @@
         android:id="@+id/header">
 
         <ImageView
-            android:layout_centerVertical="true"
-            android:contentDescription="@string/album_art"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_margin="8dp"
             android:id="@+id/imgCover"
-            android:scaleType="centerCrop"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_centerVertical="true"
+            android:layout_margin="8dp"
             android:background="@drawable/card_bg"
-            android:padding="4dp"/>
+            android:contentDescription="@string/album_art"
+            android:padding="4dp"
+            android:scaleType="centerCrop" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@id/imgCover"
-            android:layout_toLeftOf="@+id/buttons"
+            android:layout_toEndOf="@id/imgCover"
+            android:layout_toStartOf="@+id/buttons"
             android:orientation="vertical"
             android:gravity="center_vertical">
 
@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
                 android:text="Bruno Mars"
-                android:singleLine="true"
+                android:maxLines="1"
                 android:ellipsize="end"
                 android:textColor="#999"
                 android:fontFamily="sans-serif-light"
@@ -46,7 +46,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
-                android:singleLine="true"
+                android:maxLines="2"
                 android:ellipsize="end"
                 android:text="Earth To Mars"
                 android:fontFamily="sans-serif-light"
@@ -60,19 +60,19 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:orientation="vertical"
-            android:layout_alignParentRight="true">
-            
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="?android:attr/borderlessButtonStyle"
-                android:id="@+id/btnPlayAll"
-                android:src="@drawable/ic_action_play"/>
+            android:layout_alignParentEnd="true">
 
             <ImageButton
-                android:layout_width="wrap_content"
+                android:layout_width="60dp"
+                android:id="@+id/btnPlayAll"
+                style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_height="wrap_content"
-                style="?android:attr/borderlessButtonStyle"
+                android:src="@drawable/ic_action_play" />
+
+            <ImageButton
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                style="@style/Widget.AppCompat.Button.Borderless"
                 android:id="@+id/btnAddAll"
                 android:src="@drawable/ic_action_add_to_queue"/>
             

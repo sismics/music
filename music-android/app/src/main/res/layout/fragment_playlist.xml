@@ -14,6 +14,7 @@
         dslv:remove_enabled="true"
         dslv:remove_mode="flingLeft"
         dslv:float_alpha="0.6"
+        dslv:max_drag_scroll_speed="2"
         dslv:use_default_controller="true"
         dslv:float_background_color="#ddd"
         dslv:drag_handle_id="@+id/handle" />

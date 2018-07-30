@@ -8,7 +8,7 @@
         android:id="@+id/imgCover"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:scaleType="centerCrop"/>
+        android:scaleType="centerCrop" />
 
     <ImageView
         android:id="@+id/playing"
@@ -18,16 +18,16 @@
         android:scaleType="center"
         android:src="@drawable/equalizer"
         android:visibility="visible"
-        android:layout_alignParentLeft="true"/>
+        android:layout_alignParentStart="true" />
 
     <LinearLayout
-        android:layout_toRightOf="@id/imgCover"
-        android:layout_toLeftOf="@+id/cached"
+        android:layout_toEndOf="@id/imgCover"
+        android:layout_toStartOf="@+id/liked"
         android:layout_centerVertical="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="12dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="8dp"
         android:orientation="vertical">
 
         <TextView
@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:text="Bruno Mars"
-            android:singleLine="true"
+            android:maxLines="1"
             android:ellipsize="end"
             android:textColor="#999"
             android:fontFamily="sans-serif-light"
@@ -46,7 +46,7 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:text="Just the Way You Are"
-            android:singleLine="true"
+            android:maxLines="1"
             android:ellipsize="end"
             android:fontFamily="sans-serif-light"
             android:id="@+id/trackName" />
@@ -54,30 +54,42 @@
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/cached"
+        android:id="@+id/liked"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/handle"
-        android:contentDescription="@string/cached"
-        android:src="@drawable/ic_cloud_check_grey600_24dp"/>
+        android:layout_centerInParent="true"
+        android:layout_toStartOf="@+id/downloadStatus"
+        android:src="@drawable/ic_heart_24dp" />
 
-    <ImageView
-        android:id="@+id/failed"
+    <RelativeLayout
+        android:id="@id/downloadStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/handle"
-        android:src="@drawable/ic_alert_grey600_24dp"/>
+        android:layout_marginStart="8dp"
+        android:layout_toStartOf="@+id/handle">
 
-    <ProgressBar
-        android:id="@+id/progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/handle"
-        android:layout_marginRight="6dp"
-        style="?android:attr/progressBarStyleSmall"/>
+        <ImageView
+            android:id="@+id/cached"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/cached"
+            android:src="@drawable/ic_cloud_check_grey600_24dp" />
+
+        <ImageView
+            android:id="@+id/failed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_alert_grey600_24dp" />
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            style="?android:attr/progressBarStyleSmall" />
+
+    </RelativeLayout>
 
     <ImageView
         android:id="@+id/handle"
@@ -85,17 +97,15 @@
         android:layout_height="60dp"
         android:src="@drawable/ic_drag"
         android:contentDescription="@string/handle"
-        android:paddingRight="8dp"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"/>
+        android:paddingEnd="8dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:gravity="start"
         android:weightSum="1">

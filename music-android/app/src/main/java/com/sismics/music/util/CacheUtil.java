@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializer;
 import com.sismics.music.model.Album;
 import com.sismics.music.model.Artist;
 import com.sismics.music.model.FullAlbum;
@@ -23,6 +24,20 @@ import java.util.List;
  * @author bgamard.
  */
 public class CacheUtil {
+    private static volatile DB singleton = null;
+
+    public static DB db(Context context) throws SnappydbException {
+        if (singleton == null || !singleton.isOpen()) {
+            synchronized (SnappyDB.class) {
+                if (singleton == null || !singleton.isOpen()) {
+                    singleton = new SnappyDB.Builder(context).build();
+                    singleton.getKryoInstance().setDefaultSerializer(CompatibleFieldSerializer.class);
+                }
+            }
+        }
+        return singleton;
+    }
+
     /**
      * Returns the music cache directory.
      * @return Music cache directory
@@ -43,7 +58,7 @@ public class CacheUtil {
      */
     public static boolean isTrackCached(Context context, String trackId) {
         try {
-            return SnappyDB.with(context).exists("track:" + trackId);
+            return db(context).exists("track:" + trackId);
         } catch (SnappydbException e) {
             throw new RuntimeException(e);
         }
@@ -56,7 +71,7 @@ public class CacheUtil {
      */
     public static boolean isAlbumCached(Context context, String albumId) {
         try {
-            return SnappyDB.with(context).exists("album:" + albumId);
+            return db(context).exists("album:" + albumId);
         } catch (SnappydbException e) {
             throw new RuntimeException(e);
         }
@@ -101,7 +116,7 @@ public class CacheUtil {
      */
     public static boolean setComplete(Context context, PlaylistTrack playlistTrack, File file) {
         try {
-            DB snappyDb = SnappyDB.with(context);
+            DB snappyDb = db(context);
             snappyDb.put("album:" + playlistTrack.getAlbum().getId(), playlistTrack.getAlbum());
             snappyDb.put("artist:" + playlistTrack.getArtist().getId(), playlistTrack.getArtist());
             snappyDb.put("track:" + playlistTrack.getTrack().getId(), playlistTrack.getTrack());
@@ -128,7 +143,7 @@ public class CacheUtil {
 
         // Get tracks from cache
         try {
-            DB snappyDb = SnappyDB.with(context);
+            DB snappyDb = db(context);
             for (File file : files) {
                 String trackKey = "track:" + file.getName().substring(0, file.getName().indexOf("."));
                 if (snappyDb.exists(trackKey)) {
@@ -149,8 +164,8 @@ public class CacheUtil {
     public static List<FullAlbum> getCachedAlbumList(Context context) {
         List<FullAlbum> albumList = new ArrayList<>();
         try {
-            DB snappyDb = SnappyDB.with(context);
-            for (String albumKey : SnappyDB.with(context).findKeys("album:")) {
+            DB snappyDb = db(context);
+            for (String albumKey : db(context).findKeys("album:")) {
                 Album album = snappyDb.get(albumKey, Album.class);
                 Artist artist = snappyDb.get("artist:" + album.getArtistId(), Artist.class);
                 albumList.add(new FullAlbum(artist, album));
@@ -174,7 +189,7 @@ public class CacheUtil {
         }
 
         try {
-            DB snappyDb = SnappyDB.with(context);
+            DB snappyDb = db(context);
             String trackKey = "track:" + trackId;
             String albumKey = "album:" + albumId;
             String artistKey = "artist:" + artistId;
@@ -227,6 +242,22 @@ public class CacheUtil {
                 String trackId = file.getName().substring(0, file.getName().indexOf("."));
                 removeTrack(context, artistId, albumId, trackId);
             }
+        }
+    }
+
+    /**
+     * Update the cache representation of a track.
+     * @param context Context
+     * @param track Track
+     */
+    public static void updateTrack(Context context, Track track) {
+        try {
+            DB snappyDb = db(context);
+            if (snappyDb.exists("track:" + track.getId())) {
+                snappyDb.put("track:" + track.getId(), track);
+            }
+        } catch (SnappydbException e) {
+            throw new RuntimeException(e);
         }
     }
 }

@@ -3,6 +3,7 @@ package com.sismics.music.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -11,15 +12,19 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
+import com.sismics.music.event.TrackLikedChangedEvent;
 import com.sismics.music.model.Album;
 import com.sismics.music.model.Artist;
 import com.sismics.music.model.Track;
+import com.sismics.music.resource.TrackResource;
 import com.sismics.music.util.CacheUtil;
 import com.sismics.music.util.RemoteControlUtil;
 
 import org.greenrobot.eventbus.EventBus;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -66,6 +71,7 @@ public class TracksAdapter extends BaseAdapter {
             holder = new ViewHolder();
             holder.trackName = aq.id(R.id.trackName).getTextView();
             holder.cached = aq.id(R.id.cached).getImageView();
+            holder.liked = aq.id(R.id.liked).getImageView();
             holder.overflow = aq.id(R.id.overflow).getView();
             view.setTag(holder);
         } else {
@@ -76,16 +82,39 @@ public class TracksAdapter extends BaseAdapter {
         // Filling track data
         final Track track = getItem(position);
         holder.trackName.setText(track.getTitle());
-        holder.cached.setVisibility(CacheUtil.isTrackCached(activity, track.getId()) ? View.VISIBLE : View.INVISIBLE);
+        boolean isCached = CacheUtil.isTrackCached(activity, track.getId());
+        holder.cached.setVisibility(isCached ? View.VISIBLE : View.GONE);
+        holder.liked.setVisibility(track.isLiked() ? View.VISIBLE : View.GONE);
 
         // Configuring popup menu
         aq.id(holder.overflow).clicked(v -> {
             PopupMenu popup = new PopupMenu(activity, v);
             popup.inflate(R.menu.list_item_track);
+            MenuItem unpinMenuItem = popup.getMenu().findItem(R.id.unpin);
+            unpinMenuItem.setVisible(isCached);
+            MenuItem likeToggleMenuItem = popup.getMenu().findItem(R.id.likeToggle);
+            likeToggleMenuItem.setTitle(track.isLiked() ? R.string.unlike_track : R.string.like_track);
 
             // Menu actions
             popup.setOnMenuItemClickListener(item -> {
                 switch (item.getItemId()) {
+                    case R.id.likeToggle:
+                        JsonHttpResponseHandler callback = new JsonHttpResponseHandler() {
+                            @Override
+                            public void onSuccess(final JSONObject json) {
+                                track.setLiked(!track.isLiked());
+                                CacheUtil.updateTrack(activity, track);
+                                EventBus.getDefault().post(new TrackLikedChangedEvent(track));
+                            }
+                        };
+
+                        if (track.isLiked()) {
+                            TrackResource.unlike(activity, track.getId(), callback);
+                        } else {
+                            TrackResource.like(activity, track.getId(), callback);
+                        }
+                        return true;
+
                     case R.id.unpin:
                         CacheUtil.removeTrack(activity, artist.getId(), album.getId(), track.getId());
                         EventBus.getDefault().post(new TrackCacheStatusChangedEvent(null));
@@ -138,6 +167,7 @@ public class TracksAdapter extends BaseAdapter {
     private static class ViewHolder {
         TextView trackName;
         ImageView cached;
+        ImageView liked;
         View overflow;
     }
 }
