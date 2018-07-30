@@ -1,6 +1,7 @@
 package com.sismics.music.service;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -18,6 +19,7 @@ import android.media.RemoteControlClient;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -589,8 +591,11 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         String coverUrl = PreferenceUtil.getServerUrl(this) + "/api/album/" + currentPlaylistTrack.getAlbum().getId() + "/albumart/small";
         Bitmap coverBitmap = new AQuery(this).getCachedImage(coverUrl, 96);
 
+        // Create the channel if necessary
+        initChannels(this);
+
         // Build the notification
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "MusicService")
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(currentPlaylistTrack.getTrack().getTitle())
                 .setContentText(currentPlaylistTrack.getArtist().getName())
@@ -622,6 +627,19 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                                 PendingIntent.FLAG_UPDATE_CURRENT));
 
         return builder.build();
+    }
+
+    private void initChannels(Context context) {
+        if (Build.VERSION.SDK_INT < 26) {
+            return;
+        }
+
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel channel = new NotificationChannel("MusicService",
+                "Music Player", NotificationManager.IMPORTANCE_DEFAULT);
+        channel.setDescription("Used when playing music");
+        notificationManager.createNotificationChannel(channel);
     }
 
     /**
