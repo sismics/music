@@ -21,7 +21,9 @@ import com.sismics.music.R;
 import com.sismics.music.adapter.TracksAdapter;
 import com.sismics.music.event.OfflineModeChangedEvent;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
+import com.sismics.music.event.TrackLikedChangedEvent;
 import com.sismics.music.model.Album;
+import com.sismics.music.model.ApplicationContext;
 import com.sismics.music.model.Artist;
 import com.sismics.music.model.Track;
 import com.sismics.music.resource.AlbumResource;
@@ -127,15 +129,15 @@ public class AlbumFragment extends Fragment {
 
         // Add to queue on click
         listTracks.setOnItemClickListener((parent, view1, position, id) -> {
-            PlaylistService.add(getContext(), artist, album, tracksAdapter.getItem(position - 1));
+            ApplicationContext.getInstance().getPlaylistService().add(getContext(), artist, album, tracksAdapter.getItem(position - 1));
             Toast.makeText(getActivity(), R.string.add_toast, Toast.LENGTH_SHORT).show();
         });
 
         // Play all
         aq.id(R.id.btnPlayAll).clicked(v -> {
             List<Track> trackList = tracksAdapter.getTracks();
-            PlaylistService.clear(false);
-            PlaylistService.addAll(getContext(), artist, album, trackList);
+            ApplicationContext.getInstance().getPlaylistService().clear(false);
+            ApplicationContext.getInstance().getPlaylistService().addAll(getContext(), artist, album, trackList);
             Intent intent = new Intent(MusicService.ACTION_PLAY, null, getActivity(), MusicService.class);
             intent.putExtra(MusicService.EXTRA_FORCE, true);
             getActivity().startService(intent);
@@ -145,7 +147,7 @@ public class AlbumFragment extends Fragment {
         // Add all
         aq.id(R.id.btnAddAll).clicked(v -> {
             List<Track> trackList = tracksAdapter.getTracks();
-            PlaylistService.addAll(getContext(), artist, album, trackList);
+            ApplicationContext.getInstance().getPlaylistService().addAll(getContext(), artist, album, trackList);
             Toast.makeText(getActivity(), R.string.add_all_toast, Toast.LENGTH_SHORT).show();
         });
 
@@ -210,6 +212,15 @@ public class AlbumFragment extends Fragment {
      */
     @Subscribe
     public void onEvent(TrackCacheStatusChangedEvent event) {
+        tracksAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * A track liked status has changed.
+     * @param event Event
+     */
+    @Subscribe
+    public void onEvent(TrackLikedChangedEvent event) {
         tracksAdapter.notifyDataSetChanged();
     }
 

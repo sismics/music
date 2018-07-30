@@ -3,12 +3,14 @@ package com.sismics.music.service;
 import android.content.Context;
 
 import com.sismics.music.event.PlaylistChangedEvent;
+import com.sismics.music.event.TrackLikedChangedEvent;
 import com.sismics.music.model.Album;
 import com.sismics.music.model.Artist;
 import com.sismics.music.model.PlaylistTrack;
 import com.sismics.music.model.Track;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,17 +24,21 @@ public class PlaylistService {
     /**
      * Tracks in the playlist.
      */
-    private static List<PlaylistTrack> playlistTrackList = new ArrayList<>();
+    private List<PlaylistTrack> playlistTrackList = new ArrayList<>();
 
     /**
      * Current track index.
      */
-    private static int currentTrackIndex = -1;
+    private int currentTrackIndex = -1;
+
+    public PlaylistService() {
+        EventBus.getDefault().register(this);
+    }
 
     /**
      * Stop the playlist.
      */
-    public static void stop() {
+    public void stop() {
         currentTrackIndex = -1;
         EventBus.getDefault().post(new PlaylistChangedEvent());
     }
@@ -42,7 +48,7 @@ public class PlaylistService {
      * @param advance If true, advance the current track accordingly
      * @return Next track
      */
-    public static PlaylistTrack next(boolean advance) {
+    public PlaylistTrack next(boolean advance) {
         int index = currentTrackIndex;
 
         if (playlistTrackList.size() == 0) {
@@ -68,7 +74,7 @@ public class PlaylistService {
      * @param before Previous track
      * @return Next track
      */
-    public static PlaylistTrack after(PlaylistTrack before) {
+    public PlaylistTrack after(PlaylistTrack before) {
         if (!playlistTrackList.contains(before)) {
             // The track has been delete since
             return null;
@@ -82,7 +88,7 @@ public class PlaylistService {
      * Change the current played track.
      * @param position Position of the track
      */
-    public static void change(int position) {
+    public void change(int position) {
         if (getAt(position) != null) {
             currentTrackIndex = position;
         } else {
@@ -95,7 +101,7 @@ public class PlaylistService {
      * Returns the current track.
      * @return Current track
      */
-    public static PlaylistTrack currentTrack() {
+    public PlaylistTrack currentTrack() {
         if (playlistTrackList.size() > currentTrackIndex && currentTrackIndex >= 0) {
             return playlistTrackList.get(currentTrackIndex);
         }
@@ -107,7 +113,7 @@ public class PlaylistService {
      * @param position PlaylistTrack position
      * @return PlaylistTrack or null if there is no track at this position
      */
-    public static PlaylistTrack getAt(int position) {
+    public PlaylistTrack getAt(int position) {
         if (position > -1 && position < playlistTrackList.size()) {
             return playlistTrackList.get(position);
         }
@@ -118,7 +124,7 @@ public class PlaylistService {
      * Returns the playlist length.
      * @return Playlist length
      */
-    public static int length() {
+    public int length() {
         return playlistTrackList.size();
     }
 
@@ -128,20 +134,20 @@ public class PlaylistService {
      * @param album Album
      * @param track Track data
      */
-    public static void add(Context context, Artist artist, Album album, Track track) {
+    public void add(Context context, Artist artist, Album album, Track track) {
         PlaylistTrack playlistTrack = new PlaylistTrack(context, artist, album, track);
         playlistTrackList.add(playlistTrack);
         EventBus.getDefault().post(new PlaylistChangedEvent());
     }
 
-    public static int getCurrentTrackIndex() {
+    public int getCurrentTrackIndex() {
         return currentTrackIndex;
     }
 
     /**
      * Clear the playlist.
      */
-    public static void clear(boolean notify) {
+    public void clear(boolean notify) {
         playlistTrackList.clear();
         currentTrackIndex = -1;
         if (notify) {
@@ -155,7 +161,7 @@ public class PlaylistService {
      * @param album Album linked to all tracks
      * @param trackList Tracks
      */
-    public static void addAll(Context context, Artist artist, Album album, List<Track> trackList) {
+    public void addAll(Context context, Artist artist, Album album, List<Track> trackList) {
         for (Track track : trackList) {
             PlaylistTrack playlistTrack = new PlaylistTrack(context, artist, album, track);
             playlistTrackList.add(playlistTrack);
@@ -167,7 +173,7 @@ public class PlaylistService {
      * Remove a track.
      * @param position Track position
      */
-    public static void remove(int position) {
+    public void remove(int position) {
         if (position < currentTrackIndex) {
             currentTrackIndex--;
         }
@@ -180,7 +186,7 @@ public class PlaylistService {
      * @param oldposition Old position
      * @param position New position
      */
-    public static void move(int oldposition, int position) {
+    public void move(int oldposition, int position) {
         if (oldposition < currentTrackIndex && position >= currentTrackIndex) {
             currentTrackIndex--;
         } else if (oldposition > currentTrackIndex && position <= currentTrackIndex) {
@@ -190,5 +196,12 @@ public class PlaylistService {
         }
         playlistTrackList.add(position, playlistTrackList.remove(oldposition));
         EventBus.getDefault().post(new PlaylistChangedEvent());
+    }
+
+    @Subscribe(priority = -1)
+    public void onEvent(TrackLikedChangedEvent event) {
+        playlistTrackList.stream()
+                .filter(playlistTrack -> playlistTrack.getTrack().getId().equals(event.getTrack().getId()))
+                .forEach(playlistTrack -> playlistTrack.setTrack(event.getTrack()));
     }
 }

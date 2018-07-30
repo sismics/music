@@ -13,13 +13,13 @@
         android:scaleType="centerCrop"/>
 
     <LinearLayout
-        android:layout_toRightOf="@id/imgCover"
-        android:layout_toLeftOf="@+id/cached"
+        android:layout_toEndOf="@id/imgCover"
+        android:layout_toStartOf="@+id/cached"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="12dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="8dp"
         android:orientation="vertical">
 
         <TextView
@@ -48,20 +48,20 @@
     <ImageView
         android:id="@+id/cached"
         android:contentDescription="@string/cached"
-        android:layout_toLeftOf="@+id/overflow"
+        android:layout_toStartOf="@+id/overflow"
         android:layout_centerVertical="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="8dp"
+        android:layout_marginEnd="8dp"
         android:src="@drawable/ic_cloud_check_grey600_24dp"/>
 
     <ImageView
         android:id="@+id/overflow"
         android:layout_width="wrap_content"
         android:layout_height="60dp"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:paddingRight="6dp"
+        android:paddingEnd="6dp"
         android:src="@drawable/overflow_menu"
         android:scaleType="center"
         android:contentDescription="@string/more_options"/>

@@ -27,6 +27,11 @@ public class Track implements Serializable {
      */
     private int length;
 
+    /**
+     * Track like status.
+     */
+    private boolean liked;
+
     public Track() {
     }
 
@@ -38,6 +43,7 @@ public class Track implements Serializable {
         this.id = track.optString("id");
         this.title = track.optString("title");
         this.length = track.optInt("length");
+        this.liked = track.optBoolean("liked");
     }
 
     public String getId() {
@@ -62,5 +68,13 @@ public class Track implements Serializable {
 
     public void setLength(int length) {
         this.length = length;
+    }
+
+    public boolean isLiked() {
+        return liked;
+    }
+
+    public void setLiked(boolean liked) {
+        this.liked = liked;
     }
 }

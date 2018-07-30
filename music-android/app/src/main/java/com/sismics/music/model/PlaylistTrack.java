@@ -65,4 +65,8 @@ public class PlaylistTrack {
     public void setProgress(float progress) {
         this.progress = progress;
     }
+
+    public void setTrack(Track track) {
+        this.track = track;
+    }
 }

@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.androidquery.callback.BitmapAjaxCallback;
 import com.sismics.music.R;
+import com.sismics.music.model.ApplicationContext;
 import com.sismics.music.model.PlaylistTrack;
 import com.sismics.music.service.PlaylistService;
 import com.sismics.music.util.PreferenceUtil;
@@ -57,6 +58,7 @@ public class PlaylistAdapter extends BaseAdapter {
             holder = new ViewHolder();
             holder.artistName = aq.id(R.id.artistName).getTextView();
             holder.trackName = aq.id(R.id.trackName).getTextView();
+            holder.liked = aq.id(R.id.liked).getImageView();
             holder.cached  = aq.id(R.id.cached).getImageView();
             holder.playing = aq.id(R.id.playing).getImageView();
             holder.failed = aq.id(R.id.failed).getImageView();
@@ -73,6 +75,9 @@ public class PlaylistAdapter extends BaseAdapter {
         PlaylistTrack playlistTrack = getItem(position);
         holder.artistName.setText(playlistTrack.getArtist().getName());
         holder.trackName.setText(playlistTrack.getTrack().getTitle());
+        holder.liked.setVisibility(playlistTrack.getTrack().isLiked() ? View.VISIBLE : View.GONE);
+
+        // Download status
         switch (playlistTrack.getCacheStatus()) {
             case FAILURE:
                 holder.cached.setVisibility(View.GONE);
@@ -101,7 +106,7 @@ public class PlaylistAdapter extends BaseAdapter {
         }
 
         // Playing status
-        if (PlaylistService.currentTrack() == playlistTrack) {
+        if (ApplicationContext.getInstance().getPlaylistService().currentTrack() == playlistTrack) {
             holder.playing.setVisibility(View.VISIBLE);
             view.setBackgroundColor(Color.argb(32, 255, 136, 0));
         } else {
@@ -127,17 +132,17 @@ public class PlaylistAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return PlaylistService.length();
+        return ApplicationContext.getInstance().getPlaylistService().length();
     }
 
     @Override
     public PlaylistTrack getItem(int position) {
-        return PlaylistService.getAt(position);
+        return ApplicationContext.getInstance().getPlaylistService().getAt(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return PlaylistService.getAt(position).getTrack().getId().hashCode();
+        return ApplicationContext.getInstance().getPlaylistService().getAt(position).getTrack().getId().hashCode();
     }
 
     @Override
@@ -153,6 +158,7 @@ public class PlaylistAdapter extends BaseAdapter {
     private static class ViewHolder {
         TextView artistName;
         TextView trackName;
+        ImageView liked;
         ImageView cached;
         ImageView playing;
         ImageView failed;
