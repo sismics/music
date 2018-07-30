@@ -4,14 +4,14 @@ import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializer;
+import com.sismics.music.db.Db;
+import com.sismics.music.db.dao.ArtistDao;
 import com.sismics.music.model.Album;
 import com.sismics.music.model.Artist;
 import com.sismics.music.model.FullAlbum;
 import com.sismics.music.model.PlaylistTrack;
 import com.sismics.music.model.Track;
 import com.snappydb.DB;
-import com.snappydb.SnappyDB;
 import com.snappydb.SnappydbException;
 
 import java.io.File;
@@ -24,19 +24,6 @@ import java.util.List;
  * @author bgamard.
  */
 public class CacheUtil {
-    private static volatile DB singleton = null;
-
-    public static DB db(Context context) throws SnappydbException {
-        if (singleton == null || !singleton.isOpen()) {
-            synchronized (SnappyDB.class) {
-                if (singleton == null || !singleton.isOpen()) {
-                    singleton = new SnappyDB.Builder(context).build();
-                    singleton.getKryoInstance().setDefaultSerializer(CompatibleFieldSerializer.class);
-                }
-            }
-        }
-        return singleton;
-    }
 
     /**
      * Returns the music cache directory.
@@ -49,32 +36,6 @@ public class CacheUtil {
             cache.mkdirs();
         }
         return cache;
-    }
-
-    /**
-     * Returns true if the given track is complete.
-     * @param trackId Track ID
-     * @return True if complete
-     */
-    public static boolean isTrackCached(Context context, String trackId) {
-        try {
-            return db(context).exists("track:" + trackId);
-        } catch (SnappydbException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Returns true if the given track is complete.
-     * @param albumId Album ID
-     * @return True if complete
-     */
-    public static boolean isAlbumCached(Context context, String albumId) {
-        try {
-            return db(context).exists("album:" + albumId);
-        } catch (SnappydbException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /**
@@ -116,7 +77,7 @@ public class CacheUtil {
      */
     public static boolean setComplete(Context context, PlaylistTrack playlistTrack, File file) {
         try {
-            DB snappyDb = db(context);
+            DB snappyDb = Db.db(context);
             snappyDb.put("album:" + playlistTrack.getAlbum().getId(), playlistTrack.getAlbum());
             snappyDb.put("artist:" + playlistTrack.getArtist().getId(), playlistTrack.getArtist());
             snappyDb.put("track:" + playlistTrack.getTrack().getId(), playlistTrack.getTrack());
@@ -143,7 +104,7 @@ public class CacheUtil {
 
         // Get tracks from cache
         try {
-            DB snappyDb = db(context);
+            DB snappyDb = Db.db(context);
             for (File file : files) {
                 String trackKey = "track:" + file.getName().substring(0, file.getName().indexOf("."));
                 if (snappyDb.exists(trackKey)) {
@@ -164,10 +125,10 @@ public class CacheUtil {
     public static List<FullAlbum> getCachedAlbumList(Context context) {
         List<FullAlbum> albumList = new ArrayList<>();
         try {
-            DB snappyDb = db(context);
-            for (String albumKey : db(context).findKeys("album:")) {
+            DB snappyDb = Db.db(context);
+            for (String albumKey : Db.db(context).findKeys("album:")) {
                 Album album = snappyDb.get(albumKey, Album.class);
-                Artist artist = snappyDb.get("artist:" + album.getArtistId(), Artist.class);
+                Artist artist = ArtistDao.getArtistById(context, album.getArtistId());
                 albumList.add(new FullAlbum(artist, album));
             }
         } catch (SnappydbException e) {
@@ -189,7 +150,7 @@ public class CacheUtil {
         }
 
         try {
-            DB snappyDb = db(context);
+            DB snappyDb = Db.db(context);
             String trackKey = "track:" + trackId;
             String albumKey = "album:" + albumId;
             String artistKey = "artist:" + artistId;
@@ -245,19 +206,4 @@ public class CacheUtil {
         }
     }
 
-    /**
-     * Update the cache representation of a track.
-     * @param context Context
-     * @param track Track
-     */
-    public static void updateTrack(Context context, Track track) {
-        try {
-            DB snappyDb = db(context);
-            if (snappyDb.exists("track:" + track.getId())) {
-                snappyDb.put("track:" + track.getId(), track);
-            }
-        } catch (SnappydbException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
+import com.sismics.music.db.dao.TrackDao;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.event.TrackLikedChangedEvent;
 import com.sismics.music.model.Album;
@@ -82,7 +83,7 @@ public class TracksAdapter extends BaseAdapter {
         // Filling track data
         final Track track = getItem(position);
         holder.trackName.setText(track.getTitle());
-        boolean isCached = CacheUtil.isTrackCached(activity, track.getId());
+        boolean isCached = TrackDao.hasTrack(activity, track.getId());
         holder.cached.setVisibility(isCached ? View.VISIBLE : View.GONE);
         holder.liked.setVisibility(track.isLiked() ? View.VISIBLE : View.GONE);
 
@@ -103,7 +104,7 @@ public class TracksAdapter extends BaseAdapter {
                             @Override
                             public void onSuccess(final JSONObject json) {
                                 track.setLiked(!track.isLiked());
-                                CacheUtil.updateTrack(activity, track);
+                                TrackDao.updateTrack(activity, track);
                                 EventBus.getDefault().post(new TrackLikedChangedEvent(track));
                             }
                         };

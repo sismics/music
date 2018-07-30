@@ -8,7 +8,6 @@ import com.sismics.music.listener.CallbackListener;
 import com.sismics.music.resource.UserResource;
 import com.sismics.music.service.PlaylistService;
 import com.sismics.music.util.PreferenceUtil;
-import com.snappydb.DB;
 
 import org.json.JSONObject;
 

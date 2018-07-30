@@ -1,32 +1,35 @@
 package com.sismics.music.fragment;
 
-import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.SeekBar;
 
 import com.androidquery.AQuery;
 import com.mobeta.android.dslv.DragSortListView;
 import com.sismics.music.R;
+import com.sismics.music.adapter.PlaylistAdapter;
+import com.sismics.music.db.dao.PlaylistDao;
 import com.sismics.music.event.MediaPlayerSeekEvent;
 import com.sismics.music.event.MediaPlayerStateChangedEvent;
 import com.sismics.music.event.PlaylistChangedEvent;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.event.TrackLikedChangedEvent;
 import com.sismics.music.model.ApplicationContext;
-import com.sismics.music.service.PlaylistService;
+import com.sismics.music.model.PlaylistTrack;
 import com.sismics.music.service.MusicService;
-import com.sismics.music.adapter.PlaylistAdapter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Playlist fragment.
@@ -155,6 +158,13 @@ public class PlaylistFragment extends Fragment {
     @Subscribe
     public void onEvent(PlaylistChangedEvent event) {
         playlistAdapter.notifyDataSetChanged();
+
+        // Save the current playlist
+        List<PlaylistDao.PlaylistItem> playlistItemList = new ArrayList<>();
+        for (PlaylistTrack playlistTrack : ApplicationContext.getInstance().getPlaylistService().getPlaylistTrackList()) {
+            playlistItemList.add(new PlaylistDao.PlaylistItem(playlistTrack.getTrack().getId(), playlistTrack.getAlbum().getId(), playlistTrack.getArtist().getId()));
+        }
+        PlaylistDao.savePlaylist(getContext(), playlistItemList);
     }
 
     /**

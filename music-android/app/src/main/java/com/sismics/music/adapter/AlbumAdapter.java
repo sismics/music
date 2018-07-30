@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.androidquery.callback.BitmapAjaxCallback;
 import com.sismics.music.R;
+import com.sismics.music.db.dao.AlbumDao;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.model.FullAlbum;
 import com.sismics.music.util.CacheUtil;
@@ -90,7 +91,7 @@ public class AlbumAdapter extends BaseAdapter implements Filterable {
         holder.albumName.setText(album.getAlbum().getName());
         holder.artistName.setText(album.getArtist().getName());
         final View cached = holder.cached;
-        cached.setVisibility(CacheUtil.isAlbumCached(activity, album.getAlbum().getId()) ? View.VISIBLE : View.GONE);
+        cached.setVisibility(AlbumDao.hasAlbum(activity, album.getAlbum().getId()) ? View.VISIBLE : View.GONE);
 
         // Configuring popup menu
         aq.id(holder.overflow).clicked(v -> {

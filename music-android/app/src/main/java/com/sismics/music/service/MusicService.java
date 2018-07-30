@@ -30,6 +30,7 @@ import com.loopj.android.http.FileAsyncHttpResponseHandler;
 import com.loopj.android.http.RequestHandle;
 import com.sismics.music.R;
 import com.sismics.music.activity.MainActivity;
+import com.sismics.music.db.dao.TrackDao;
 import com.sismics.music.event.MediaPlayerSeekEvent;
 import com.sismics.music.event.MediaPlayerStateChangedEvent;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
@@ -480,7 +481,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             }
         };
 
-        if (CacheUtil.isTrackCached(this, playlistTrack.getTrack().getId())) {
+        if (TrackDao.hasTrack(this, playlistTrack.getTrack().getId())) {
             Log.d("SismicsMusic", "This playlistTrack is already complete, output: " + play);
 
             // Nothing to buffer, the playlistTrack is already complete in the cache
