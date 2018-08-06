@@ -19,7 +19,6 @@ import com.androidquery.callback.BitmapAjaxCallback;
 import com.sismics.music.R;
 import com.sismics.music.model.ApplicationContext;
 import com.sismics.music.model.PlaylistTrack;
-import com.sismics.music.service.PlaylistService;
 import com.sismics.music.util.PreferenceUtil;
 
 /**
@@ -27,7 +26,7 @@ import com.sismics.music.util.PreferenceUtil;
  * 
  * @author bgamard
  */
-public class PlaylistAdapter extends BaseAdapter {
+public class PlayingAdapter extends BaseAdapter {
 
     private Activity activity;
     private String authToken;
@@ -39,7 +38,7 @@ public class PlaylistAdapter extends BaseAdapter {
      * Constructor.
      * @param activity Context activity
      */
-    public PlaylistAdapter(Activity activity, AbsListView absListView) {
+    public PlayingAdapter(Activity activity, AbsListView absListView) {
         this.activity = activity;
         this.aq = new AQuery(activity);
         this.authToken = PreferenceUtil.getAuthToken(activity);
@@ -53,7 +52,7 @@ public class PlaylistAdapter extends BaseAdapter {
         
         if (view == null) {
             LayoutInflater vi = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = vi.inflate(R.layout.list_item_playlist, parent, false);
+            view = vi.inflate(R.layout.list_item_playing, parent, false);
             aq.recycle(view);
             holder = new ViewHolder();
             holder.artistName = aq.id(R.id.artistName).getTextView();

@@ -1,0 +1,77 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:dslv="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical">
+
+    <com.mobeta.android.dslv.DragSortListView
+        android:id="@+id/listTracks"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:dividerHeight="1dp"
+        dslv:drag_enabled="true"
+        dslv:remove_enabled="true"
+        dslv:remove_mode="flingRemove"
+        dslv:float_alpha="0.6"
+        dslv:use_default_controller="true"
+        dslv:float_background_color="#ddd"
+        dslv:drag_handle_id="@id/handle" />
+
+    <LinearLayout
+        android:id="@+id/emptyPlaylist"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/playlist_empty"/>
+
+    </LinearLayout>
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:layout_marginTop="-16dp"
+        android:id="@+id/seekBar"
+        android:layout_weight="0" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:background="@drawable/card_bg"
+        android:gravity="center">
+
+        <ImageButton
+            android:contentDescription="@string/play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_action_play"
+            style="?android:attr/borderlessButtonStyle"
+            android:id="@+id/playlistPlay" />
+
+        <ImageButton
+            android:contentDescription="@string/pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_action_pause"
+            style="?android:attr/borderlessButtonStyle"
+            android:id="@+id/playlistPause" />
+
+        <ImageButton
+            android:contentDescription="@string/stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_action_stop"
+            style="?android:attr/borderlessButtonStyle"
+            android:id="@+id/playlistStop" />
+
+    </LinearLayout>
+
+</LinearLayout>

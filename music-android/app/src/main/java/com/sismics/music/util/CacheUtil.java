@@ -9,6 +9,7 @@ import com.sismics.music.db.dao.ArtistDao;
 import com.sismics.music.model.Album;
 import com.sismics.music.model.Artist;
 import com.sismics.music.model.FullAlbum;
+import com.sismics.music.model.Playlist;
 import com.sismics.music.model.PlaylistTrack;
 import com.sismics.music.model.Track;
 import com.snappydb.DB;
@@ -206,4 +207,7 @@ public class CacheUtil {
         }
     }
 
+    public static List<Playlist> getCachedPlaylistList(Context context) {
+        return  new ArrayList<>();
+    }
 }
