@@ -163,10 +163,11 @@ public class CollectionService extends AbstractScheduledService {
                 trackDao.create(track);
 
                 // Update the album date
-                Album album = new Album(track.getAlbumId());
+                // TODO This makes no sense
+                /*Album album = new Album(track.getAlbumId());
                 album.setUpdateDate(track.getCreateDate());
                 AlbumDao albumDao = new AlbumDao();
-                albumDao.updateAlbumDate(album);
+                albumDao.updateAlbumDate(album);*/
             }
         } catch (Exception e) {
             log.error("Error extracting metadata from file: " + file, e);
