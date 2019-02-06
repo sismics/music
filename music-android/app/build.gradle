@@ -4,7 +4,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.3'
+        classpath 'com.android.tools.build:gradle:3.3.0'
         classpath 'me.tatarka:gradle-retrolambda:3.6.0'
     }
 }
@@ -18,14 +18,13 @@ repositories {
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 28
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         applicationId "com.sismics.music"
         minSdkVersion 18
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         vectorDrawables.useSupportLibrary true
@@ -44,15 +43,15 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: '*.jar')
-    api 'com.android.support:animated-vector-drawable:27.1.1'
-    api 'com.android.support:cardview-v7:27.1.1'
-    api 'com.android.support:customtabs:27.1.1'
-    api 'com.android.support:palette-v7:27.1.1'
-    api 'com.android.support:appcompat-v7:27.1.1'
-    api 'com.android.support:gridlayout-v7:27.1.1'
-    api 'com.android.support:preference-v7:27.1.1'
-    api 'com.android.support:design:27.1.1'
-    api 'com.android.support:support-v13:27.1.1'
+    api 'com.android.support:animated-vector-drawable:28.0.0'
+    api 'com.android.support:cardview-v7:28.0.0'
+    api 'com.android.support:customtabs:28.0.0'
+    api 'com.android.support:palette-v7:28.0.0'
+    api 'com.android.support:appcompat-v7:28.0.0'
+    api 'com.android.support:gridlayout-v7:28.0.0'
+    api 'com.android.support:preference-v7:28.0.0'
+    api 'com.android.support:design:28.0.0'
+    api 'com.android.support:support-v13:28.0.0'
     api 'com.loopj.android:android-async-http:1.4.4'
     api 'com.snappydb:snappydb-lib:0.5.2'
     api 'com.esotericsoftware.kryo:kryo:2.24.0'
