@@ -170,6 +170,14 @@ public class PlaylistService {
     }
 
     /**
+     * Add a list of tracks.
+     * @param playlistTrack The list of tracks
+     */
+    public void addAll(List<PlaylistTrack> playlistTrack) {
+        playlistTrackList.addAll(playlistTrack);
+    }
+
+    /**
      * Remove a track.
      * @param position Track position
      */
@@ -203,5 +211,9 @@ public class PlaylistService {
         playlistTrackList.stream()
                 .filter(playlistTrack -> playlistTrack.getTrack().getId().equals(event.getTrack().getId()))
                 .forEach(playlistTrack -> playlistTrack.setTrack(event.getTrack()));
+    }
+
+    public List<PlaylistTrack> getPlaylistTrackList() {
+        return playlistTrackList;
     }
 }

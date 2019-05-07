@@ -18,6 +18,7 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
 import com.sismics.music.event.OfflineModeChangedEvent;
 import com.sismics.music.fragment.MyMusicFragment;
+import com.sismics.music.fragment.PlayingFragment;
 import com.sismics.music.fragment.PlaylistFragment;
 import com.sismics.music.model.ApplicationContext;
 import com.sismics.music.resource.UserResource;
@@ -183,6 +184,8 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
                 case 0:
                     return MyMusicFragment.newInstance();
                 case 1:
+                    return PlayingFragment.newInstance();
+                case 2:
                     return PlaylistFragment.newInstance();
             }
             return null;
@@ -190,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
 
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
 
         @Override
@@ -201,6 +204,8 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
                     return getString(R.string.my_music).toUpperCase(l);
                 case 1:
                     return getString(R.string.now_playing).toUpperCase(l);
+                case 2:
+                    return getString(R.string.playlists).toUpperCase(l);
             }
             return null;
         }

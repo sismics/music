@@ -19,6 +19,12 @@ public class Album implements Serializable {
     public Album() {
     }
 
+    public Album(String id, String name, String artistId) {
+        this.id = id;
+        this.name = name;
+        this.artistId = artistId;
+    }
+
     /**
      * Build a new album from JSON data.
      * @param album JSON data

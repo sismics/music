@@ -100,8 +100,8 @@ public abstract class ResourceDragSortCursorAdapter extends DragSortCursorAdapte
     /**
      * Inflates view(s) from the specified XML file.
      * 
-     * @see android.widget.CursorAdapter#newView(android.content.Context,
-     *      android.database.Cursor, ViewGroup)
+     * @see android.widget.CursorAdapter#newView(Context,
+     *      Cursor, ViewGroup)
      */
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {

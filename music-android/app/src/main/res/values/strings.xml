@@ -4,6 +4,7 @@
     <string name="app_name">Sismics Music</string>
     <string name="my_music">My music</string>
     <string name="now_playing">Now playing</string>
+    <string name="playlists">Playlists</string>
     <string name="login_explain"><![CDATA[To start, you must download and install Sismics Music Server on <a href="http://www.sismics.com/music">www.sismics.com/music</a> and enter your server URL below]]></string>
     <string name="server_url_hint">music-demo.sismics.com</string>
     <string name="server">Server</string>

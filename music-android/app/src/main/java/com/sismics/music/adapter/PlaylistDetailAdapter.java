@@ -15,13 +15,11 @@ import com.androidquery.AQuery;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.sismics.music.R;
 import com.sismics.music.db.dao.TrackDao;
-import com.sismics.music.event.TrackCacheStatusChangedEvent;
 import com.sismics.music.event.TrackLikedChangedEvent;
-import com.sismics.music.model.Album;
-import com.sismics.music.model.Artist;
+import com.sismics.music.model.Playlist;
+import com.sismics.music.model.PlaylistTrack;
 import com.sismics.music.model.Track;
 import com.sismics.music.resource.TrackResource;
-import com.sismics.music.util.CacheUtil;
 import com.sismics.music.util.RemoteControlUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -30,11 +28,11 @@ import org.json.JSONObject;
 import java.util.List;
 
 /**
- * Adapter for tracks list.
+ * Adapter for playlist details.
  * 
- * @author bgamard
+ * @author jtremeaux
  */
-public class TracksAdapter extends BaseAdapter {
+public class PlaylistDetailAdapter extends BaseAdapter {
     /**
      * Context.
      */
@@ -45,19 +43,18 @@ public class TracksAdapter extends BaseAdapter {
      */
     private AQuery aq;
 
-    private Artist artist;
-    private Album album;
-    private List<Track> tracks;
+    private Playlist playlist;
+
+    private List<PlaylistTrack> playlistTracks;
 
     /**
      * Constructor.
      * @param activity Context activity
      */
-    public TracksAdapter(Activity activity, Artist artist, Album album, List<Track> tracks) {
+    public PlaylistDetailAdapter(Activity activity, Playlist playlist, List<PlaylistTrack> playlistTracks) {
         this.activity = activity;
-        this.artist = artist;
-        this.album = album;
-        this.tracks = tracks;
+        this.playlist = playlist;
+        this.playlistTracks = playlistTracks;
         this.aq = new AQuery(activity);
     }
 
@@ -81,7 +78,8 @@ public class TracksAdapter extends BaseAdapter {
         }
         
         // Filling track data
-        final Track track = getItem(position);
+        final PlaylistTrack playlistTrack = getItem(position);
+        final Track track = playlistTrack.getTrack();
         holder.trackName.setText(track.getTitle());
         boolean isCached = TrackDao.hasTrack(activity, track.getId());
         holder.cached.setVisibility(isCached ? View.VISIBLE : View.GONE);
@@ -116,10 +114,10 @@ public class TracksAdapter extends BaseAdapter {
                         }
                         return true;
 
-                    case R.id.unpin:
-                        CacheUtil.removeTrack(activity, artist.getId(), album.getId(), track.getId());
-                        EventBus.getDefault().post(new TrackCacheStatusChangedEvent(null));
-                        return true;
+//                    case R.id.unpin:
+//                        CacheUtil.removeTrack(activity, artist.getId(), album.getId(), track.getId());
+//                        EventBus.getDefault().post(new TrackCacheStatusChangedEvent(null));
+//                        return true;
 
                     case R.id.remote_play:
                         String command = RemoteControlUtil.buildCommand(RemoteControlUtil.Command.PLAY_TRACK, track.getId());
@@ -138,12 +136,12 @@ public class TracksAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return tracks.size();
+        return playlistTracks.size();
     }
 
     @Override
-    public Track getItem(int position) {
-        return tracks.get(position);
+    public PlaylistTrack getItem(int position) {
+        return playlistTracks.get(position);
     }
 
     @Override
@@ -151,13 +149,13 @@ public class TracksAdapter extends BaseAdapter {
         return position;
     }
 
-    public void setTracks(List<Track> tracks) {
-        this.tracks = tracks;
+    public void setPlaylistTracks(List<PlaylistTrack> playlistTracks) {
+        this.playlistTracks = playlistTracks;
         notifyDataSetChanged();
     }
 
-    public List<Track> getTracks() {
-        return tracks;
+    public List<PlaylistTrack> getPlaylistTracks() {
+        return playlistTracks;
     }
 
     /**

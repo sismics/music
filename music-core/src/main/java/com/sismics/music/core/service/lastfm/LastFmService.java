@@ -150,7 +150,7 @@ public class LastFmService extends AbstractScheduledService {
         for (int i = 0; i < trackList.size(); i++) {
             final Track track = trackList.get(i);
             final Artist artist = artistDao.getActiveById(track.getArtistId());
-            ScrobbleData scrobbleData = new ScrobbleData(artist.getName(), track.getTitle(), (int) dateList.get(i).getTime());
+            ScrobbleData scrobbleData = new ScrobbleData(artist.getName(), track.getTitle(), (int) (dateList.get(i).getTime() / 1000));
             scrobbleDataList.add(scrobbleData);
         }
         de.umass.lastfm.Track.scrobble(scrobbleDataList, session);

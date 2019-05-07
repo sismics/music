@@ -38,7 +38,6 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.Checkable;
 import android.widget.ListAdapter;
@@ -601,7 +600,7 @@ public class DragSortListView extends ListView {
      * @param adapter The ListAdapter providing data to back
      * DragSortListView.
      *
-     * @see android.widget.ListView#setAdapter(android.widget.ListAdapter)
+     * @see ListView#setAdapter(ListAdapter)
      */
     @Override
     public void setAdapter(ListAdapter adapter) {
@@ -735,7 +734,7 @@ public class DragSortListView extends ListView {
                 } else {
                     v = new DragSortItemView(getContext());
                 }
-                v.setLayoutParams(new AbsListView.LayoutParams(
+                v.setLayoutParams(new LayoutParams(
                         ViewGroup.LayoutParams.FILL_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT));
                 v.addView(child);
@@ -2098,7 +2097,7 @@ public class DragSortListView extends ListView {
     private void measureItem(View item) {
         ViewGroup.LayoutParams lp = item.getLayoutParams();
         if (lp == null) {
-            lp = new AbsListView.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp = new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             item.setLayoutParams(lp);
         }
         int wspec = ViewGroup.getChildMeasureSpec(mWidthMeasureSpec, getListPaddingLeft()
@@ -2567,7 +2566,7 @@ public class DragSortListView extends ListView {
     /**
      * Completely custom scroll speed profile. Default increases linearly
      * with position and is constant in time. Create your own by implementing
-     * {@link DragSortListView.DragScrollProfile}.
+     * {@link DragScrollProfile}.
      * 
      * @param ssp
      */

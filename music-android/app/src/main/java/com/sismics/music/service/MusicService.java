@@ -32,6 +32,7 @@ import com.loopj.android.http.FileAsyncHttpResponseHandler;
 import com.loopj.android.http.RequestHandle;
 import com.sismics.music.R;
 import com.sismics.music.activity.MainActivity;
+import com.sismics.music.db.dao.TrackDao;
 import com.sismics.music.event.MediaPlayerSeekEvent;
 import com.sismics.music.event.MediaPlayerStateChangedEvent;
 import com.sismics.music.event.TrackCacheStatusChangedEvent;
@@ -58,7 +59,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
     // The tag we put on debug messages
     final static String TAG = "SismicsMusic";
-    private static final String CHANNEL_ID = "MusicService";
 
     // Action intents handled by this service
     public static final String ACTION_TOGGLE_PLAYBACK = "com.sismics.music.action.TOGGLE_PLAYBACK";
@@ -483,7 +483,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             }
         };
 
-        if (CacheUtil.isTrackCached(this, playlistTrack.getTrack().getId())) {
+        if (TrackDao.hasTrack(this, playlistTrack.getTrack().getId())) {
             Log.d("SismicsMusic", "This playlistTrack is already complete, output: " + play);
 
             // Nothing to buffer, the playlistTrack is already complete in the cache
@@ -591,9 +591,11 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         String coverUrl = PreferenceUtil.getServerUrl(this) + "/api/album/" + currentPlaylistTrack.getAlbum().getId() + "/albumart/small";
         Bitmap coverBitmap = new AQuery(this).getCachedImage(coverUrl, 96);
 
+        // Create the channel if necessary
+        initChannels(this);
+
         // Build the notification
-        initChannels();
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(currentPlaylistTrack.getTrack().getTitle())
                 .setContentText(currentPlaylistTrack.getArtist().getName())
@@ -627,19 +629,16 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         return builder.build();
     }
 
-    /**
-     * Init notification channels.
-     */
-    private void initChannels() {
+    private void initChannels(Context context) {
         if (Build.VERSION.SDK_INT < 26) {
             return;
         }
 
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
-                "Music Play", NotificationManager.IMPORTANCE_HIGH);
-        channel.setDescription("Display track currently playing");
-        channel.setSound(null, null);
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel channel = new NotificationChannel("MusicService",
+                "Music Player", NotificationManager.IMPORTANCE_DEFAULT);
+        channel.setDescription("Used when playing music");
         notificationManager.createNotificationChannel(channel);
     }
 

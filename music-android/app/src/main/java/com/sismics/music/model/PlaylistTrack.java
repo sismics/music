@@ -2,7 +2,7 @@ package com.sismics.music.model;
 
 import android.content.Context;
 
-import com.sismics.music.util.CacheUtil;
+import com.sismics.music.db.dao.TrackDao;
 
 /**
  * A track from the playlist.
@@ -35,7 +35,7 @@ public class PlaylistTrack {
         this.track = track;
         this.album = album;
         this.progress = 0;
-        cacheStatus = CacheUtil.isTrackCached(context, track.getId()) ? CacheStatus.COMPLETE : CacheStatus.NONE;
+        cacheStatus = TrackDao.hasTrack(context, track.getId()) ? CacheStatus.COMPLETE : CacheStatus.NONE;
     }
 
     public Artist getArtist() {

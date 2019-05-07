@@ -1,8 +1,8 @@
 package com.sismics.music.fragment;
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +52,7 @@ public class MyMusicFragment extends Fragment {
             // Do first time initialization, add initial fragment
             Fragment newFragment = AlbumListFragment.newInstance();
             FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.add(R.id.content, newFragment);
+            ft.add(R.id.myMusicContent, newFragment);
             ft.commit();
         }
 
@@ -78,7 +78,7 @@ public class MyMusicFragment extends Fragment {
 
             // Add the fragment to the activity, pushing this transaction on to the back stack
             FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.add(R.id.content, newFragment, "AlbumFragment");
+            ft.add(R.id.myMusicContent, newFragment, "AlbumFragment");
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             ft.addToBackStack(null);
             ft.commit();
