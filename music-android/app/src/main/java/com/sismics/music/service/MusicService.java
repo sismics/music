@@ -1,6 +1,7 @@
 package com.sismics.music.service;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -18,6 +19,7 @@ import android.media.RemoteControlClient;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -56,6 +58,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
     // The tag we put on debug messages
     final static String TAG = "SismicsMusic";
+    private static final String CHANNEL_ID = "MusicService";
 
     // Action intents handled by this service
     public static final String ACTION_TOGGLE_PLAYBACK = "com.sismics.music.action.TOGGLE_PLAYBACK";
@@ -589,7 +592,8 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         Bitmap coverBitmap = new AQuery(this).getCachedImage(coverUrl, 96);
 
         // Build the notification
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+        initChannels();
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(currentPlaylistTrack.getTrack().getTitle())
                 .setContentText(currentPlaylistTrack.getArtist().getName())
@@ -621,6 +625,22 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                                 PendingIntent.FLAG_UPDATE_CURRENT));
 
         return builder.build();
+    }
+
+    /**
+     * Init notification channels.
+     */
+    private void initChannels() {
+        if (Build.VERSION.SDK_INT < 26) {
+            return;
+        }
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
+                "Music Play", NotificationManager.IMPORTANCE_HIGH);
+        channel.setDescription("Display track currently playing");
+        channel.setSound(null, null);
+        notificationManager.createNotificationChannel(channel);
     }
 
     /**

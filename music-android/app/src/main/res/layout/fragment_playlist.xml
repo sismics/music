@@ -12,7 +12,7 @@
         android:dividerHeight="1dp"
         dslv:drag_enabled="true"
         dslv:remove_enabled="true"
-        dslv:remove_mode="flingLeft"
+        dslv:remove_mode="flingRemove"
         dslv:float_alpha="0.6"
         dslv:max_drag_scroll_speed="2"
         dslv:use_default_controller="true"
