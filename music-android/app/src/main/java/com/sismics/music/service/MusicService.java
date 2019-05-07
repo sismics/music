@@ -595,7 +595,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         initChannels(this);
 
         // Build the notification
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "MusicService")
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(currentPlaylistTrack.getTrack().getTitle())
                 .setContentText(currentPlaylistTrack.getArtist().getName())
@@ -639,6 +639,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         NotificationChannel channel = new NotificationChannel("MusicService",
                 "Music Player", NotificationManager.IMPORTANCE_DEFAULT);
         channel.setDescription("Used when playing music");
+        channel.setSound(null, null);
         notificationManager.createNotificationChannel(channel);
     }
 
