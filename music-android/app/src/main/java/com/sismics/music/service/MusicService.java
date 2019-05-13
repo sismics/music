@@ -637,7 +637,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationChannel channel = new NotificationChannel("MusicService",
-                "Music Player", NotificationManager.IMPORTANCE_DEFAULT);
+                "Music Player", NotificationManager.IMPORTANCE_LOW);
         channel.setDescription("Used when playing music");
         channel.setSound(null, null);
         notificationManager.createNotificationChannel(channel);
