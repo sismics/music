@@ -19,7 +19,7 @@ public class LyricUtil {
     /**
      * Lyrics Wiki URL.
      */
-    private static final String LYRICS_WIKIA_URL = "http://lyrics.wikia.com/%s:%s?action=edit";
+    private static final String LYRICS_WIKIA_URL = "https://lyrics.wikia.com/%s:%s?action=edit";
     
     /**
      * Regexp to extract lyrics.
