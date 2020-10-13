@@ -22,7 +22,7 @@
     <log4j.log4j.version>1.2.16</log4j.log4j.version>
     <org.slf4j.version>1.6.4</org.slf4j.version>
     <org.slf4j.jcl-over-slf4j.version>1.6.6</org.slf4j.jcl-over-slf4j.version>
-    <junit.junit.version>4.11</junit.junit.version>
+    <junit.junit.version>4.13.1</junit.junit.version>
     <com.h2database.h2.version>1.4.184</com.h2database.h2.version>
     <com.mchange.c3p0.version>0.9.5-pre6</com.mchange.c3p0.version>
     <org.jdbi.jdbi.version>2.51</org.jdbi.jdbi.version>
