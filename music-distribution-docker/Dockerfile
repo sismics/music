@@ -6,7 +6,7 @@ RUN echo "deb http://www.deb-multimedia.org jessie main non-free" >> /etc/apt/so
   && apt-get update \
   && apt-get -y --force-yes -q install ffmpeg curl python
 
-RUN curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl \
+RUN curl -kL https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl \
   && chmod a+x /usr/local/bin/youtube-dl
 
 ADD music-web/target/music-web-*.war /opt/jetty/webapps/music.war
