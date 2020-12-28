@@ -9,6 +9,6 @@ RUN echo "deb http://www.deb-multimedia.org jessie main non-free" >> /etc/apt/so
 RUN curl -kL https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl \
   && chmod a+x /usr/local/bin/youtube-dl
 
-ADD music-web/target/music-web-*.war /opt/jetty/webapps/music.war
-ADD music-distribution-docker/music.xml /opt/jetty/webapps/music.xml
-ADD music-distribution-docker/start.ini /opt/jetty/start.ini
+COPY music-web/target/music-web-*.war /opt/jetty/webapps/music.war
+COPY music-distribution-docker/music.xml /opt/jetty/webapps/music.xml
+COPY music-distribution-docker/start.ini /opt/jetty/start.ini
