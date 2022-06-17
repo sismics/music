@@ -6,7 +6,7 @@ RUN wget http://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-mu
 
 RUN echo "deb https://www.deb-multimedia.org bullseye main non-free" >> /etc/apt/sources.list \
   && apt-get update \
-  && apt-get -y --force-yes -q install curl python3
+  && apt-get -y --force-yes -q install curl python3 ffmpeg
 
 RUN curl -kL https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/youtube-dl \
   && chmod a+x /usr/local/bin/youtube-dl
