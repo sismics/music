@@ -8,7 +8,7 @@ RUN echo "deb https://www.deb-multimedia.org bullseye main non-free" >> /etc/apt
   && apt-get update \
   && apt-get -y --force-yes -q install curl python3
 
-RUN curl -kL curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/youtube-dl \
+RUN curl -kL https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/youtube-dl \
   && chmod a+x /usr/local/bin/youtube-dl
 
 COPY music-web/target/music-web-*.war /opt/jetty/webapps/music.war
