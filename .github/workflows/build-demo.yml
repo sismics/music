@@ -32,4 +32,4 @@ jobs:
           context: .
           file: music-distribution-docker/Dockerfile
           push: true
-          tags: sismics/music:latest
+          tags: sismics/music:demo-latest
