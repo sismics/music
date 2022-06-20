@@ -1,4 +1,4 @@
-FROM sismics/jetty:9.4.46
+FROM sismics/jetty:9.4.12.2
 MAINTAINER benjamin.gam@gmail.com
 
 RUN wget http://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2016.8.1_all.deb \
