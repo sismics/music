@@ -10,8 +10,10 @@ import com.sismics.util.filter.TokenBasedSecurityFilter;
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.security.Principal;
 import java.util.Set;
@@ -21,6 +23,7 @@ import java.util.Set;
  * 
  * @author jtremeaux
  */
+@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 public abstract class BaseResource {
     /**
      * Injects the HTTP request.
