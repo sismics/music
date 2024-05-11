@@ -25,8 +25,7 @@ public class ArtistDao extends BaseDao<ArtistDto, ArtistCriteria> {
         List<String> criteriaList = new ArrayList<>();
         Map<String, Object> parameterMap = new HashMap<>();
 
-        StringBuilder sb = new StringBuilder("select a.id as id, a.name as c0 ");
-        sb.append(" from t_artist a ");
+        String sb = "select a.id as id, a.name as c0 " + " from t_artist a ";
 
         // Adds search criteria
         criteriaList.add("a.deletedate is null");
@@ -39,7 +38,7 @@ public class ArtistDao extends BaseDao<ArtistDto, ArtistCriteria> {
             parameterMap.put("nameLike", "%" + criteria.getNameLike() + "%");
         }
 
-        return new QueryParam(sb.toString(), criteriaList, parameterMap, null, filterCriteria, new ArtistDtoMapper());
+        return new QueryParam(sb, criteriaList, parameterMap, null, filterCriteria, new ArtistDtoMapper());
     }
 
     /**
@@ -67,11 +66,10 @@ public class ArtistDao extends BaseDao<ArtistDto, ArtistCriteria> {
     
     /**
      * Updates a artist.
-     * 
+     *
      * @param artist Artist to update
-     * @return Updated artist
      */
-    public Artist update(Artist artist) {
+    public void update(Artist artist) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("update t_artist a set " +
                 " a.name = :name," +
@@ -82,7 +80,6 @@ public class ArtistDao extends BaseDao<ArtistDto, ArtistCriteria> {
                 .bind("nameCorrected", artist.getNameCorrected())
                 .execute();
 
-        return artist;
     }
     
     /**
@@ -119,7 +116,7 @@ public class ArtistDao extends BaseDao<ArtistDto, ArtistCriteria> {
 
     /**
      * Deletes a artist.
-     * 
+     *
      * @param id Artist ID
      */
     public void delete(String id) {

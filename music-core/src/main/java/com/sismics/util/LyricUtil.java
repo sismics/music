@@ -60,7 +60,7 @@ public class LyricUtil {
             lyrics.add(matcher.group(1).trim());
         }
         
-        if (lyrics.size() == 0) {
+        if (lyrics.isEmpty()) {
             throw new IOException("No lyrics found");
         }
         
@@ -73,8 +73,8 @@ public class LyricUtil {
     
     /**
      * Encode a string in wiki style.
-     * See http://lyrics.wikia.com/LyricWiki:Page_Names.
-     * 
+     * See <a href="http://lyrics.wikia.com/LyricWiki:Page_Names">...</a>.
+     *
      * @param s Input
      * @return Encoded string
      */

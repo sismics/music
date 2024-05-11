@@ -60,8 +60,8 @@ public class CollectionService extends AbstractScheduledService {
     }
 
     @Override
-    protected void runOneIteration() throws Exception {
-        TransactionUtil.handle(() -> reindex());
+    protected void runOneIteration() {
+        TransactionUtil.handle(this::reindex);
     }
 
     @Override
@@ -162,12 +162,6 @@ public class CollectionService extends AbstractScheduledService {
                 readTrackMetadata(directory, file, track);
                 trackDao.create(track);
 
-                // Update the album date
-                // TODO This makes no sense
-                /*Album album = new Album(track.getAlbumId());
-                album.setUpdateDate(track.getCreateDate());
-                AlbumDao albumDao = new AlbumDao();
-                albumDao.updateAlbumDate(album);*/
             }
         } catch (Exception e) {
             log.error("Error extracting metadata from file: " + file, e);
@@ -300,16 +294,5 @@ public class CollectionService extends AbstractScheduledService {
      * TODO implement a more elaborated scoring function
      */
     public void updateScore() {
-//        AlbumDao albumDao = new AlbumDao();
-//        List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria());
-//        for (AlbumDto albumDto : albumList) {
-//            Integer score = albumDao.getFavoriteCountByAlbum(albumDto.getId());
-//
-//            Album album = new Album();
-//            album.setId(albumDto.getId());
-//            album.setScore(score);
-//
-//            albumDao.updateScore(album);
-//        }
     }
 }

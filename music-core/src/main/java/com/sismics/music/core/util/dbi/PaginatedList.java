@@ -11,12 +11,12 @@ public class PaginatedList<T> {
     /**
      * Size of a page.
      */
-    private int limit;
+    private final int limit;
 
     /**
      * Offset of the page (in number of records).
      */
-    private int offset;
+    private final int offset;
 
     /**
      * Total number of records.

@@ -12,7 +12,7 @@ public enum AlbumArtSize {
     
     LARGE(768);
 
-    private int size;
+    private final int size;
 
     AlbumArtSize(int size) {
         this.size = size;

@@ -14,12 +14,12 @@ public class PlayerStatus {
     /**
      * Current track.
      */
-    private Track track;
+    private final Track track;
 
     /**
      * Date the track started playing.
      */
-    private Date startDate;
+    private final Date startDate;
 
     /**
      * Current duration into the track.

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 /**
@@ -22,7 +23,7 @@ public class AlbumArtImporter {
      */
     public File scanDirectory(Path directory) {
         Map<Integer, File> fileMap = new TreeMap<>();
-        for (File file : directory.toFile().listFiles(ALBUM_ART_FILENAME_FILTER)) { // XXX nio-ize
+        for (File file : Objects.requireNonNull(directory.toFile().listFiles(ALBUM_ART_FILENAME_FILTER))) { // XXX nio-ize
             String name = file.getName().toLowerCase();
             if (name.startsWith("albumart.")) {
                 fileMap.put(0, file);

@@ -16,9 +16,8 @@ public class PlaylistTrackDao {
      * Creates a new playlist track.
      *
      * @param playlistTrack Playlist track to create
-     * @return Playlist track ID
      */
-    public String create(PlaylistTrack playlistTrack) {
+    public void create(PlaylistTrack playlistTrack) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
                 "  t_playlist_track (id, playlist_id, track_id, number)" +
@@ -29,7 +28,6 @@ public class PlaylistTrackDao {
                 .bind("number", playlistTrack.getOrder())
                 .execute();
 
-        return playlistTrack.getId();
     }
 
     /**

@@ -91,11 +91,11 @@ public class PaginatedLists {
      */
     public static <E> void executeCountQuery(PaginatedList<E> paginatedList, QueryParam queryParam) {
         final Handle handle = ThreadLocalContext.get().getHandle();
-        Query query = handle.createQuery(getNativeCountQuery(queryParam));
+        Query<Map<String, Object>> query = handle.createQuery(getNativeCountQuery(queryParam));
 
         mapQueryParam(query, queryParam);
         mapFilterColumn(query, queryParam);
-        Integer resultCount = (Integer) query.map(IntegerMapper.FIRST).first();
+        Integer resultCount = query.map(IntegerMapper.FIRST).first();
         paginatedList.setResultCount(resultCount);
     }
 

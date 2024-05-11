@@ -26,23 +26,7 @@ public class TrackDao extends BaseDao<TrackDto, TrackCriteria> {
         List<String> criteriaList = new ArrayList<>();
         Map<String, Object> parameterMap = new HashMap<>();
 
-        StringBuilder sb = new StringBuilder("select t.id as id, t.filename as fileName, t.title as title, t.year as year, t.genre as genre, t.length as length, t.bitrate as bitrate, t.number as trackOrder, t.vbr as vbr, t.format as format,");
-        if (criteria.getUserId() != null) {
-            sb.append(" ut.playcount as userTrackPlayCount, ut.liked userTrackLike, ");
-        } else {
-            sb.append(" 0 as userTrackPlayCount, false as userTrackLike, ");
-        }
-        sb.append(" a.id as artistId, a.name as artistName, t.album_id as albumId, alb.name as albumName, alb.albumart as albumArt");
-        if (criteria.getPlaylistId() != null) {
-            sb.append("  from t_playlist_track pt, t_track t ");
-        } else {
-            sb.append("  from t_track t ");
-        }
-        sb.append("  join t_artist a on(a.id = t.artist_id and a.deletedate is null)");
-        sb.append("  join t_album alb on(t.album_id = alb.id and alb.deletedate is null)");
-        if (criteria.getUserId() != null) {
-            sb.append("  left join t_user_track ut on(ut.track_id = t.id and ut.user_id = :userId and ut.deletedate is null)");
-        }
+        StringBuilder sb = getStringBuilder(criteria);
 
         // Adds search criteria
         criteriaList.add("t.deletedate is null");
@@ -79,6 +63,12 @@ public class TrackDao extends BaseDao<TrackDto, TrackCriteria> {
             parameterMap.put("userId", criteria.getUserId());
         }
 
+        SortCriteria sortCriteria = getSortCriteria(criteria);
+
+        return new QueryParam(sb.toString(), criteriaList, parameterMap, sortCriteria, filterCriteria, new TrackDtoMapper());
+    }
+
+    private static SortCriteria getSortCriteria(TrackCriteria criteria) {
         SortCriteria sortCriteria;
         if (criteria.getPlaylistId() != null) {
             sortCriteria = new SortCriteria(" order by pt.number asc");
@@ -89,17 +79,36 @@ public class TrackDao extends BaseDao<TrackDto, TrackCriteria> {
         } else {
             sortCriteria = new SortCriteria(" order by t.number, t.title asc");
         }
+        return sortCriteria;
+    }
 
-        return new QueryParam(sb.toString(), criteriaList, parameterMap, sortCriteria, filterCriteria, new TrackDtoMapper());
+    private static StringBuilder getStringBuilder(TrackCriteria criteria) {
+        StringBuilder sb = new StringBuilder("select t.id as id, t.filename as fileName, t.title as title, t.year as year, t.genre as genre, t.length as length, t.bitrate as bitrate, t.number as trackOrder, t.vbr as vbr, t.format as format,");
+        if (criteria.getUserId() != null) {
+            sb.append(" ut.playcount as userTrackPlayCount, ut.liked userTrackLike, ");
+        } else {
+            sb.append(" 0 as userTrackPlayCount, false as userTrackLike, ");
+        }
+        sb.append(" a.id as artistId, a.name as artistName, t.album_id as albumId, alb.name as albumName, alb.albumart as albumArt");
+        if (criteria.getPlaylistId() != null) {
+            sb.append("  from t_playlist_track pt, t_track t ");
+        } else {
+            sb.append("  from t_track t ");
+        }
+        sb.append("  join t_artist a on(a.id = t.artist_id and a.deletedate is null)");
+        sb.append("  join t_album alb on(t.album_id = alb.id and alb.deletedate is null)");
+        if (criteria.getUserId() != null) {
+            sb.append("  left join t_user_track ut on(ut.track_id = t.id and ut.user_id = :userId and ut.deletedate is null)");
+        }
+        return sb;
     }
 
     /**
      * Creates a new track.
-     * 
+     *
      * @param track Track to create
-     * @return Track ID
      */
-    public String create(Track track) {
+    public void create(Track track) {
         track.setId(UUID.randomUUID().toString());
         track.setCreateDate(new Date());
 
@@ -123,7 +132,6 @@ public class TrackDao extends BaseDao<TrackDto, TrackCriteria> {
                 .bind("createDate", new Timestamp(track.getCreateDate().getTime()))
                 .execute();
 
-        return track.getId();
     }
     
     /**

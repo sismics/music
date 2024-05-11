@@ -12,7 +12,7 @@ public class LastFmUpdateLovedTrackAsyncEvent {
     /**
      * User.
      */
-    private User user;
+    private final User user;
 
     public LastFmUpdateLovedTrackAsyncEvent(User user) {
         this.user = user;

@@ -43,7 +43,7 @@ public class ThreadLocalContext {
      * Cleans up the instance of this thread context.
      */
     public static void cleanup() {
-        threadLocalContext.set(null);
+        threadLocalContext.remove();
     }
     
     /**

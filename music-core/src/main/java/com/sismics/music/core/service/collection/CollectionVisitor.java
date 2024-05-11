@@ -28,17 +28,17 @@ public class CollectionVisitor extends SimpleFileVisitor<Path> {
     /**
      * Root directory to visit.
      */
-    private Directory rootDirectory;
+    private final Directory rootDirectory;
     
     /**
      * Root path.
      */
-    private Path rootPath;
+    private final Path rootPath;
     
     /**
      * Files indexed during the lifetime of this visitor.
      */
-    private Set<String> fileNameSet = new HashSet<>();
+    private final Set<String> fileNameSet = new HashSet<>();
 
     /**
      * Logger.
@@ -51,7 +51,7 @@ public class CollectionVisitor extends SimpleFileVisitor<Path> {
     }
 
     @Override
-    public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+    public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) {
         String ext = com.google.common.io.Files.getFileExtension(path.toString()).toLowerCase();
         // Check that the extension is supported, and the file is not directly in the directory
         // TODO Albumarts must be scanned too
@@ -64,12 +64,12 @@ public class CollectionVisitor extends SimpleFileVisitor<Path> {
     }
 
     @Override
-    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
         return FileVisitResult.CONTINUE;
     }
     
     @Override
-    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+    public FileVisitResult visitFileFailed(Path file, IOException exc) {
         log.error("Error visiting: " + file, exc);
         return FileVisitResult.SKIP_SUBTREE;
     }
@@ -83,7 +83,6 @@ public class CollectionVisitor extends SimpleFileVisitor<Path> {
             Files.walkFileTree(rootPath, EnumSet.noneOf(FileVisitOption.class), 2, this);
         } catch (IOException e) {
             log.error("Cannot read from directory: " + rootDirectory.getLocation(), e);
-            return;
         }
     }
 

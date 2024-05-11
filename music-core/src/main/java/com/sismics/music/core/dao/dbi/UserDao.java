@@ -25,8 +25,7 @@ public class UserDao extends BaseDao<UserDto, UserCriteria> {
     @Override
     protected QueryParam getQueryParam(UserCriteria criteria, FilterCriteria filterCriteria) {
         Map<String, Object> parameterMap = new HashMap<>();
-        StringBuilder sb = new StringBuilder("select u.id as c0, u.username as c1, u.email as c2, u.createdate as c3, u.locale_id as c4");
-        sb.append("  from t_user u ");
+        String sb = "select u.id as c0, u.username as c1, u.email as c2, u.createdate as c3, u.locale_id as c4" + "  from t_user u ";
 
         // Add search criterias
         List<String> criteriaList = new ArrayList<>();
@@ -35,7 +34,7 @@ public class UserDao extends BaseDao<UserDto, UserCriteria> {
         }
         criteriaList.add("u.deletedate is null");
 
-        return new QueryParam(sb.toString(), criteriaList, parameterMap, null, filterCriteria, new UserDtoMapper());
+        return new QueryParam(sb, criteriaList, parameterMap, null, filterCriteria, new UserDtoMapper());
     }
 
     /**
@@ -186,7 +185,7 @@ public class UserDao extends BaseDao<UserDto, UserCriteria> {
     
     /**
      * Gets an active user by its password recovery token.
-     * 
+     *
      * @param passwordResetKey Password recovery token
      * @return User
      */
@@ -199,7 +198,7 @@ public class UserDao extends BaseDao<UserDto, UserCriteria> {
                 .mapTo(User.class);
         return q.first();
     }
-    
+
     /**
      * Deletes a user.
      * 

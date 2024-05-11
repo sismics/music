@@ -103,8 +103,7 @@ public class MemoryAppender extends AppenderSkeleton {
         final String tag = criteria.getTag();
         final String message = criteria.getMessage();
         int resultCount = 0;
-        for (Iterator<LogEntry> it = logQueue.iterator(); it.hasNext();) {
-            LogEntry logEntry = it.next();
+        for (LogEntry logEntry : logQueue) {
             if ((level == null || logEntry.getLevel().toLowerCase().equals(level)) &&
                     (tag == null || logEntry.getTag().toLowerCase().equals(tag)) &&
                     (message == null || logEntry.getMessage().toLowerCase().contains(message))) {

@@ -27,13 +27,13 @@ public class PlaylistDao extends BaseDao<PlaylistDto, PlaylistCriteria> {
         List<String> criteriaList = new ArrayList<>();
         Map<String, Object> parameterMap = new HashMap<>();
 
-        StringBuilder sb = new StringBuilder("select p.id as id, p.name as c0,")
-                .append("  p.user_id as userId,")
-                .append("  count(pt.id) as c1,")
-                .append("  sum(utr.playcount) as c2")
-                .append("  from t_playlist p")
-                .append("  left join t_playlist_track pt on(pt.playlist_id = p.id)")
-                .append("  left join t_user_track utr on(utr.track_id = pt.track_id)");
+        String sb = "select p.id as id, p.name as c0," +
+                "  p.user_id as userId," +
+                "  count(pt.id) as c1," +
+                "  sum(utr.playcount) as c2" +
+                "  from t_playlist p" +
+                "  left join t_playlist_track pt on(pt.playlist_id = p.id)" +
+                "  left join t_user_track utr on(utr.track_id = pt.track_id)";
 
         // Adds search criteria
         if (criteria.getId() != null) {
@@ -56,16 +56,15 @@ public class PlaylistDao extends BaseDao<PlaylistDto, PlaylistCriteria> {
             parameterMap.put("nameLike", "%" + criteria.getNameLike() + "%");
         }
 
-        return new QueryParam(sb.toString(), criteriaList, parameterMap, null, filterCriteria, Lists.newArrayList("p.id"), new PlaylistMapper());
+        return new QueryParam(sb, criteriaList, parameterMap, null, filterCriteria, Lists.newArrayList("p.id"), new PlaylistMapper());
     }
 
     /**
      * Creates a new playlist.
-     * 
+     *
      * @param playlist Playlist to create
-     * @return Playlist ID
      */
-    public String create(Playlist playlist) {
+    public void create(Playlist playlist) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
                 "  t_playlist(id, user_id, name)" +
@@ -75,7 +74,6 @@ public class PlaylistDao extends BaseDao<PlaylistDto, PlaylistCriteria> {
                 .bind("name", playlist.getName())
                 .execute();
 
-        return playlist.getId();
     }
 
     /**

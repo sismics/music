@@ -42,12 +42,12 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
     /**
      * Storage for watch keys.
      */
-    private Map<WatchKey, Path> watchKeyMap = Maps.newConcurrentMap();
+    private final Map<WatchKey, Path> watchKeyMap = Maps.newConcurrentMap();
 
     /**
      * Watched directories.
      */
-    private List<Directory> watchedDirectoryList = Collections.synchronizedList(new ArrayList<Directory>());
+    private final List<Directory> watchedDirectoryList = Collections.synchronizedList(new ArrayList<>());
     
     public CollectionWatchService() {
     }
@@ -88,7 +88,7 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
                 }
                 
                 @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                public FileVisitResult visitFileFailed(Path file, IOException exc) {
                     log.error("Error visiting: " + file, exc);
                     return FileVisitResult.SKIP_SUBTREE;
                 }
@@ -135,6 +135,7 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
                 WatchEvent.Kind<Path> kind = eventPath.kind();
                 Path path = dir.resolve(eventPath.context());
                 final Directory directory = getParentDirectory(path);
+                assert directory != null;
                 Path directoryPath = Paths.get(directory.getLocation());
                 
                 if (kind == ENTRY_CREATE) {
@@ -199,7 +200,7 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
         log.info("New audio file created, indexing it: " + file);
         
         // Wait until the file does not grow
-        boolean isGrowing = true;
+        boolean isGrowing;
         do {
             long initialWeight = file.toFile().length();
             try {
@@ -224,13 +225,13 @@ public class CollectionWatchService extends AbstractExecutionThreadService {
     private void indexFolder(final Directory directory, final Path path) throws IOException {
         Files.walkFileTree(path, EnumSet.noneOf(FileVisitOption.class), 1, new SimpleFileVisitor<Path>() {
             @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 indexNewFile(directory, file);
                 return FileVisitResult.CONTINUE;
             }
             
             @Override
-            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+            public FileVisitResult visitFileFailed(Path file, IOException exc) {
                 log.error("Error visiting: " + file, exc);
                 return FileVisitResult.SKIP_SUBTREE;
             }

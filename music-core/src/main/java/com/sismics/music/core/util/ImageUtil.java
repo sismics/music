@@ -10,9 +10,10 @@ import javax.imageio.stream.FileImageOutputStream;
 import java.awt.*;
 import java.awt.image.*;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,8 +34,8 @@ public class ImageUtil {
         PNG,
 
         BMP
-    };
-    
+    }
+
     // Related to alpha channel removal
     private static final int[] RGB_MASKS = {0xFF0000, 0xFF00, 0xFF};
     private static final ColorModel RGB_OPAQUE = new DirectColorModel(32, RGB_MASKS[0], RGB_MASKS[1], RGB_MASKS[2]);
@@ -47,16 +48,14 @@ public class ImageUtil {
      */
     public static FileType getFileFormat(File file) throws Exception {
         // Load the file header
-        InputStream is = null;
-        try {
-            is = new FileInputStream(file);
+        try (InputStream is = Files.newInputStream(file.toPath())) {
             byte[] headerBytes = new byte[64];
             int readCount = is.read(headerBytes, 0, headerBytes.length);
             if (readCount <= 0) {
                 throw new Exception("Cannot read input file");
             }
-            String header = new String(headerBytes, "US-ASCII");
-            
+            String header = new String(headerBytes, StandardCharsets.US_ASCII);
+
             if (header.startsWith("GIF87a") || header.startsWith("GIF89a")) {
                 return FileType.GIF;
             }
@@ -69,10 +68,6 @@ public class ImageUtil {
             }
             if (headerBytes[0] == ((byte) 0x42) && headerBytes[1] == ((byte) 0x4d)) {
                 return FileType.BMP;
-            }
-        } finally {
-            if (is != null) {
-                is.close();
             }
         }
         return null;
@@ -91,7 +86,7 @@ public class ImageUtil {
 
     /**
      * Crop and resize an image to imageSize x imageSize.
-     * 
+     *
      * @param originalImage Image to resize
      * @param resizedImageMaxSize Target size
      * @param x X coordinate to crop from
@@ -118,7 +113,7 @@ public class ImageUtil {
      * @return Resized image
      */
     public static BufferedImage resizeImage(BufferedImage originalImage, Integer resizedImageMaxSize,
-            Integer x, Integer y, Integer w, Integer h, int orientation) throws Exception {
+            Integer x, Integer y, Integer w, Integer h, int orientation) {
         // Crop
         BufferedImage croppedImage = originalImage;
         if (x != null && y != null && w != null && h != null) {
@@ -158,7 +153,7 @@ public class ImageUtil {
         ImageWriter writer = null;
         FileImageOutputStream output = null;
         try {
-            writer = (ImageWriter) iter.next();
+            writer = iter.next();
             ImageWriteParam iwp = writer.getDefaultWriteParam();
             iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
             iwp.setCompressionQuality(1.f);
@@ -201,8 +196,8 @@ public class ImageUtil {
      * @param size Final size
      * @return Mosaic
      */
-    public static BufferedImage makeMosaic(List<BufferedImage> imageList, int size) throws Exception {
-        if (imageList.size() == 0) {
+    public static BufferedImage makeMosaic(List<BufferedImage> imageList, int size) {
+        if (imageList.isEmpty()) {
             // Return a 1x1 pixel transparent image
             BufferedImage mosaicImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
             Graphics2D mosaicGraphic = mosaicImage.createGraphics();

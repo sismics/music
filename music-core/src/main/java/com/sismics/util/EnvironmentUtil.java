@@ -7,15 +7,15 @@ package com.sismics.util;
  */
 public class EnvironmentUtil {
 
-    private static String OS = System.getProperty("os.name").toLowerCase();
+    private static final String OS = System.getProperty("os.name").toLowerCase();
     
-    private static String APPLICATION_MODE = System.getProperty("application.mode");
+    private static final String APPLICATION_MODE = System.getProperty("application.mode");
 
-    private static String WINDOWS_APPDATA = System.getenv("APPDATA");
+    private static final String WINDOWS_APPDATA = System.getenv("APPDATA");
 
-    private static String MAC_OS_USER_HOME = System.getProperty("user.home");
+    private static final String MAC_OS_USER_HOME = System.getProperty("user.home");
     
-    private static String MUSIC_HOME = System.getProperty("music.home");
+    private static final String MUSIC_HOME = System.getProperty("music.home");
 
     /**
      * In a web application context.

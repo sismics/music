@@ -12,12 +12,12 @@ public class PlayCompletedEvent {
     /**
      * User ID.
      */
-    private String userId;
+    private final String userId;
 
     /**
      * Track.
      */
-    private Track track;
+    private final Track track;
 
     public PlayCompletedEvent(String userId, Track track) {
         this.userId = userId;

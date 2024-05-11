@@ -12,7 +12,7 @@ public class LastFmUpdateTrackPlayCountAsyncEvent {
     /**
      * User.
      */
-    private User user;
+    private final User user;
 
     public LastFmUpdateTrackPlayCountAsyncEvent(User user) {
         this.user = user;

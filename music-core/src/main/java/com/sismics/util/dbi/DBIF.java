@@ -76,33 +76,6 @@ public class DBIF {
 
     }
 
-//    private static Map<Object, Object> getDbProperties() {
-//        // Use properties file if exists
-//        try {
-//            URL dbPropertiesUrl = DBIF.class.getResource("/c3p0.properties");
-//            if (dbPropertiesUrl != null) {
-//                log.info("Configuring connection pool from c3p0.properties");
-//
-//                InputStream is = dbPropertiesUrl.openStream();
-//                Properties properties = new Properties();
-//                properties.load(is);
-//                return properties;
-//            }
-//        } catch (IOException e) {
-//            log.error("Error reading c3p0.properties", e);
-//        }
-//
-//        // Use environment parameters
-//        log.info("Configuring EntityManager from environment parameters");
-//        Map<Object, Object> props = new HashMap<Object, Object>();
-//        props.put("c3p0.driverClass", "org.h2.Driver");
-//        File dbDirectory = DirectoryUtil.getDbDirectory();
-//        String dbFile = dbDirectory.getAbsoluteFile() + File.separator + "music";
-//        props.put("c3p0.jdbcUrl", "jdbc:h2:file:" + dbFile + ";WRITE_DELAY=false;shutdown=true");
-//        props.put("c3p0.user", "sa");
-//        return props;
-//    }
-
     /**
      * Private constructor.
      */

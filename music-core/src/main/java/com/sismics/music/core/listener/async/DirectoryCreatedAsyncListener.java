@@ -29,7 +29,7 @@ public class DirectoryCreatedAsyncListener {
      * @param directoryCreatedAsyncEvent New directory created event
      */
     @Subscribe
-    public void onDirectoryCreated(final DirectoryCreatedAsyncEvent directoryCreatedAsyncEvent) throws Exception {
+    public void onDirectoryCreated(final DirectoryCreatedAsyncEvent directoryCreatedAsyncEvent) {
         if (log.isInfoEnabled()) {
             log.info("Directory created event: " + directoryCreatedAsyncEvent.toString());
         }

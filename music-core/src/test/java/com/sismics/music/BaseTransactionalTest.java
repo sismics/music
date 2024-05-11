@@ -14,7 +14,7 @@ import org.skife.jdbi.v2.Handle;
  */
 public abstract class BaseTransactionalTest {
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         // Initialize the persistence layer
         DBI dbi = DBIF.get();
         Handle handle = dbi.open();

@@ -28,7 +28,7 @@ public class CollectionReindexAsyncListener {
      * @param collectionReindexAsyncEvent Collection reindex event
      */
     @Subscribe
-    public void onCollectionReindex(final CollectionReindexAsyncEvent collectionReindexAsyncEvent) throws Exception {
+    public void onCollectionReindex(final CollectionReindexAsyncEvent collectionReindexAsyncEvent) {
         if (log.isInfoEnabled()) {
             log.info("Collection reindex event: " + collectionReindexAsyncEvent.toString());
         }

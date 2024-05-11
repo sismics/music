@@ -29,7 +29,7 @@ public class LastFmUpdateTrackPlayCountAsyncListener {
      * @param lastFmUpdateTrackPlayCountAsyncEvent Update track play count event
      */
     @Subscribe
-    public void onLastFmUpdateTrackPlayCount(final LastFmUpdateTrackPlayCountAsyncEvent lastFmUpdateTrackPlayCountAsyncEvent) throws Exception {
+    public void onLastFmUpdateTrackPlayCount(final LastFmUpdateTrackPlayCountAsyncEvent lastFmUpdateTrackPlayCountAsyncEvent) {
         if (log.isInfoEnabled()) {
             log.info("Last.fm update track play count event: " + lastFmUpdateTrackPlayCountAsyncEvent.toString());
         }

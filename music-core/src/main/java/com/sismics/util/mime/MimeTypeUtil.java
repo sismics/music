@@ -3,6 +3,7 @@ package com.sismics.util.mime;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Utility to check MIME types.
@@ -17,16 +18,14 @@ public class MimeTypeUtil {
      * @return MIME type
      */
     public static String guessMimeType(File file) throws Exception {
-        InputStream is = null;
-        try {
-            is = new FileInputStream(file);
+        try (InputStream is = new FileInputStream(file)) {
             byte[] headerBytes = new byte[64];
             int readCount = is.read(headerBytes, 0, headerBytes.length);
             if (readCount <= 0) {
                 throw new Exception("Cannot read input file");
             }
-            String header = new String(headerBytes, "US-ASCII");
-            
+            String header = new String(headerBytes, StandardCharsets.US_ASCII);
+
             if (header.startsWith("PK")) {
                 return MimeType.APPLICATION_ZIP;
             } else if (header.startsWith("GIF87a") || header.startsWith("GIF89a")) {
@@ -38,10 +37,6 @@ public class MimeTypeUtil {
                 return MimeType.IMAGE_PNG;
             } else if (headerBytes[0] == ((byte) 0x00) && headerBytes[1] == ((byte) 0x00) && headerBytes[2] == ((byte) 0x01) && headerBytes[3] == ((byte) 0x00)) {
                 return MimeType.IMAGE_X_ICON;
-            }
-        } finally {
-            if (is != null) {
-                is.close();
             }
         }
         return null;

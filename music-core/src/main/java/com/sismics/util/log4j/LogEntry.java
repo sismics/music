@@ -9,22 +9,22 @@ public class LogEntry {
     /**
      * Time stamp.
      */
-    private long timestamp;
+    private final long timestamp;
     
     /**
      * Logging level (DEBUG, WARN)...
      */
-    private String level;
+    private final String level;
     
     /**
      * Logger name / tag.
      */
-    private String tag;
+    private final String tag;
     
     /**
      * Message logged.
      */
-    private String message;
+    private final String message;
     
     /**
      * Constructor of LogEntry.

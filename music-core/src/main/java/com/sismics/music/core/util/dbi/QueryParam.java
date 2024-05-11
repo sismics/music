@@ -21,7 +21,7 @@ public class QueryParam {
     /**
      * Query criteria.
      */
-    private List<String> criteriaList;
+    private final List<String> criteriaList;
 
     /**
      * Sort criteria.
@@ -31,22 +31,22 @@ public class QueryParam {
     /**
      * Query parameters.
      */
-    private Map<String, Object> parameterMap;
+    private final Map<String, Object> parameterMap;
 
     /**
      * Filter criteria.
      */
-    private FilterCriteria filterCriteria;
+    private final FilterCriteria filterCriteria;
 
     /**
      * Group by criteria.
      */
-    private List<String> groupByList;
+    private final List<String> groupByList;
 
     /**
      * Result mapper for native queries.
      */
-    private ResultSetMapper resultMapper;
+    private final ResultSetMapper resultMapper;
 
     /**
      * Constructor of QueryParam.

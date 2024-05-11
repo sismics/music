@@ -52,22 +52,22 @@ public class ImportAudioService extends AbstractExecutionThreadService {
     /**
      * Imported audio status.
      */
-    private final List<ImportAudio> importAudioList = Collections.synchronizedList(new ArrayList<ImportAudio>());
+    private final List<ImportAudio> importAudioList = Collections.synchronizedList(new ArrayList<>());
     
     /**
      * YouTube-DL progress pattern.
      */
-    private Pattern PROGRESS_PATTERN = Pattern.compile("\\[download\\]\\s*([0-9\\.]*)%\\s*of\\s*([0-9\\.a-zA-Z]*)\\s*at\\s*([0-9\\.a-zA-Z/]*).*");
+    private final Pattern PROGRESS_PATTERN = Pattern.compile("\\[download\\]\\s*([0-9\\.]*)%\\s*of\\s*([0-9\\.a-zA-Z]*)\\s*at\\s*([0-9\\.a-zA-Z/]*).*");
     
     /**
      * YouTube-DL working file pattern.
      */
-    private Pattern WORKING_FILE_PATTERN = Pattern.compile("\\[[a-zA-Z]*\\] Destination: (.*)");
+    private final Pattern WORKING_FILE_PATTERN = Pattern.compile("\\[[a-zA-Z]*\\] Destination: (.*)");
     
     /**
      * Single thread executor used to tag files.
      */
-    private ExecutorService syncExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService syncExecutor = Executors.newSingleThreadExecutor();
     
     public ImportAudioService() {
     }
@@ -108,7 +108,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
                         // Update progression
                         Matcher matcher = PROGRESS_PATTERN.matcher(line);
                         if (matcher.find()) {
-                            importAudio.setProgress(Float.valueOf(matcher.group(1)));
+                            importAudio.setProgress(Float.parseFloat(matcher.group(1)));
                             importAudio.setTotalSize(matcher.group(2));
                             importAudio.setDownloadSpeed(matcher.group(3));
                         }
@@ -258,12 +258,7 @@ public class ImportAudioService extends AbstractExecutionThreadService {
      */
     public void cleanup() {
         synchronized (importAudioList) {
-            for (Iterator<ImportAudio> it = importAudioList.iterator(); it.hasNext();) {
-                ImportAudio importAudio = it.next();
-                if (importAudio.getStatus() == ImportAudio.Status.DONE || importAudio.getStatus() == ImportAudio.Status.ERROR) {
-                    it.remove();
-                }
-            }
+            importAudioList.removeIf(importAudio -> importAudio.getStatus() == Status.DONE || importAudio.getStatus() == Status.ERROR);
         }
     }
 
@@ -328,14 +323,14 @@ public class ImportAudioService extends AbstractExecutionThreadService {
         if (MimeType.APPLICATION_ZIP.equals(mimeType)) {
             log.info("Importing a ZIP file");
             // It's a ZIP file, unzip accepted files in the import folder
-            try (ZipArchiveInputStream archiveInputStream = new ZipArchiveInputStream(new FileInputStream(file), Charsets.UTF_8.name())) {
+            try (ZipArchiveInputStream archiveInputStream = new ZipArchiveInputStream(java.nio.file.Files.newInputStream(file.toPath()), Charsets.UTF_8.name())) {
                 ArchiveEntry archiveEntry = archiveInputStream.getNextEntry();
                 while (archiveEntry != null) {
                     String archiveExt = Files.getFileExtension(archiveEntry.getName()).toLowerCase();
                     if (Constants.SUPPORTED_AUDIO_EXTENSIONS.contains(archiveExt)) {
                         log.info("Importing: " + archiveEntry.getName());
                         File outputFile = new File(importDir + File.separator + new File(archiveEntry.getName()).getName());
-                        try (OutputStream fileOutputStream = new FileOutputStream(outputFile)) {
+                        try (OutputStream fileOutputStream = java.nio.file.Files.newOutputStream(outputFile.toPath())) {
                             ByteStreams.copy(archiveInputStream, fileOutputStream);
                         }
                     }
@@ -359,10 +354,10 @@ public class ImportAudioService extends AbstractExecutionThreadService {
      */
     public List<ImportAudioFile> getImportedFileList() {
         // Grab all audio files
-        List<File> fileList = Lists.newArrayList(DirectoryUtil.getImportAudioDirectory().listFiles((dir, fileName) -> {
+        List<File> fileList = Lists.newArrayList(Objects.requireNonNull(DirectoryUtil.getImportAudioDirectory().listFiles((dir, fileName) -> {
             String extension = Files.getFileExtension(fileName);
             return Constants.SUPPORTED_AUDIO_EXTENSIONS.contains(extension);
-        }));
+        })));
         
         // Exclude working files
         synchronized (importAudioList) {

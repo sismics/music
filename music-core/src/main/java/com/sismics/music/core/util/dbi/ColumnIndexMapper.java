@@ -27,7 +27,7 @@ public class ColumnIndexMapper implements ResultSetMapper<Object[]> {
             throw new ResultSetException("Unable to obtain metadata from result set", e, ctx);
         }
 
-        Object[] row = null;
+        Object[] row;
         try {
             row = new Object[m.getColumnCount()];
             for (int i = 1; i <= m.getColumnCount(); i++) {

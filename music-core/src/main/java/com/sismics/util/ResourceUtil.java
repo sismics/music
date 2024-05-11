@@ -32,7 +32,7 @@ public class ResourceUtil {
         // Path is a directory on the filesystem
         URL dirUrl = clazz.getResource(path);
         if (dirUrl != null && dirUrl.getProtocol().equals("file")) {
-            return Arrays.asList(new File(dirUrl.toURI()).list(filter));
+            return Arrays.asList(Objects.requireNonNull(new File(dirUrl.toURI()).list(filter)));
         }
 
         // Path is a directory inside the same JAR as clazz
@@ -41,6 +41,7 @@ public class ResourceUtil {
             dirUrl = clazz.getClassLoader().getResource(className);
         }
 
+        assert dirUrl != null;
         if (dirUrl.getProtocol().equals("jar")) {
             if (path.startsWith("/")) {
                 path = path.substring(1);
@@ -63,7 +64,7 @@ public class ResourceUtil {
                         continue;
                     }
                     String name = entryName.substring(path.length());
-                    if (!"".equals(name)) {
+                    if (!name.isEmpty()) {
                         // If it is a subdirectory, just return the directory name
                         int checkSubdir = name.indexOf("/");
                         if (checkSubdir >= 0) {

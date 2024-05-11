@@ -13,12 +13,12 @@ public class TrackUnlikedAsyncEvent {
     /**
      * Originating user.
      */
-    private User user;
+    private final User user;
 
     /**
      * Liked track.
      */
-    private Track track;
+    private final Track track;
 
     public TrackUnlikedAsyncEvent(User user, Track track) {
         this.user = user;

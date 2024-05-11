@@ -30,7 +30,7 @@ public class TrackLikedAsyncListener {
      * @param trackLikedAsyncEvent New directory created event
      */
     @Subscribe
-    public void onTrackLiked(final TrackLikedAsyncEvent trackLikedAsyncEvent) throws Exception {
+    public void onTrackLiked(final TrackLikedAsyncEvent trackLikedAsyncEvent) {
         if (log.isInfoEnabled()) {
             log.info("Track liked event: " + trackLikedAsyncEvent.toString());
         }

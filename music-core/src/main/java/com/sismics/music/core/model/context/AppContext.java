@@ -54,37 +54,37 @@ public class AppContext {
     /**
      * Collection service.
      */
-    private CollectionService collectionService;
+    private final CollectionService collectionService;
     
     /**
      * Collection watch service.
      */
-    private CollectionWatchService collectionWatchService;
+    private final CollectionWatchService collectionWatchService;
 
     /**
      * Import audio service.
      */
-    private ImportAudioService importAudioService;
+    private final ImportAudioService importAudioService;
     
     /**
      * Album art service.
      */
-    private AlbumArtService albumArtService;
+    private final AlbumArtService albumArtService;
 
     /**
      * Last.fm service.
      */
-    private LastFmService lastFmService;
+    private final LastFmService lastFmService;
 
     /**
      * Player service.
      */
-    private PlayerService playerService;
+    private final PlayerService playerService;
 
     /**
      * Transcoder service.
      */
-    private TranscoderService transcoderService;
+    private final TranscoderService transcoderService;
 
     /**
      * Asynchronous executors.

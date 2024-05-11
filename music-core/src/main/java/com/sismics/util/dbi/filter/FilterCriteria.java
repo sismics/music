@@ -12,7 +12,7 @@ public class FilterCriteria {
     /**
      * Columns to sort.
      */
-    private List<FilterColumn> filterColumnList = new ArrayList<>();
+    private final List<FilterColumn> filterColumnList;
 
     /**
      * Constructor of SortCriteria.

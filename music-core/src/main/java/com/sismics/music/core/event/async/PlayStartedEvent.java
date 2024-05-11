@@ -12,12 +12,12 @@ public class PlayStartedEvent {
     /**
      * User ID.
      */
-    private String userId;
+    private final String userId;
 
     /**
      * Track.
      */
-    private Track track;
+    private final Track track;
 
     public PlayStartedEvent(String userId, Track track) {
         this.userId = userId;

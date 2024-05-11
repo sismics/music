@@ -9,12 +9,12 @@ public abstract class FilterColumn {
     /**
      * Column to filter.
      */
-    protected String column;
+    protected final String column;
 
     /**
      * Filter expression to apply.
      */
-    protected String filter;
+    protected final String filter;
 
     public FilterColumn(String column, String filter) {
         this.column = column;

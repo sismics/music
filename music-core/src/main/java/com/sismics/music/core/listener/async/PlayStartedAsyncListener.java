@@ -28,7 +28,7 @@ public class PlayStartedAsyncListener {
      * @param playStartedEvent Play started event
      */
     @Subscribe
-    public void onPlayStarted(final PlayStartedEvent playStartedEvent) throws Exception {
+    public void onPlayStarted(final PlayStartedEvent playStartedEvent) {
         if (log.isInfoEnabled()) {
             log.info("Play started event: " + playStartedEvent.toString());
         }

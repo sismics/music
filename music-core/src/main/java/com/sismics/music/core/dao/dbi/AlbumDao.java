@@ -27,18 +27,7 @@ public class AlbumDao extends BaseDao<AlbumDto, AlbumCriteria> {
         List<String> criteriaList = new ArrayList<>();
         Map<String, Object> parameterMap = new HashMap<>();
 
-        StringBuilder sb = new StringBuilder("select a.id as id, a.name as c0, a.albumart as albumArt, a.artist_id as artistId, ar.name as artistName, a.updatedate as c1, ");
-        if (criteria.getUserId() == null) {
-            sb.append("sum(0) as c2");
-        } else {
-            sb.append("sum(utr.playcount) as c2");
-        }
-        sb.append(" from t_album a ");
-        sb.append(" join t_artist ar on(ar.id = a.artist_id) ");
-        if (criteria.getUserId() != null) {
-            sb.append(" left join t_track tr on(tr.album_id = a.id) ");
-            sb.append(" left join t_user_track utr on(tr.id = utr.track_id) ");
-        }
+        StringBuilder sb = getStringBuilder(criteria);
 
         // Adds search criteria
         criteriaList.add("ar.deletedate is null");
@@ -63,13 +52,28 @@ public class AlbumDao extends BaseDao<AlbumDto, AlbumCriteria> {
         return new QueryParam(sb.toString(), criteriaList, parameterMap, null, filterCriteria, Lists.newArrayList("a.id"), new AlbumDtoMapper());
     }
 
+    private static StringBuilder getStringBuilder(AlbumCriteria criteria) {
+        StringBuilder sb = new StringBuilder("select a.id as id, a.name as c0, a.albumart as albumArt, a.artist_id as artistId, ar.name as artistName, a.updatedate as c1, ");
+        if (criteria.getUserId() == null) {
+            sb.append("sum(0) as c2");
+        } else {
+            sb.append("sum(utr.playcount) as c2");
+        }
+        sb.append(" from t_album a ");
+        sb.append(" join t_artist ar on(ar.id = a.artist_id) ");
+        if (criteria.getUserId() != null) {
+            sb.append(" left join t_track tr on(tr.album_id = a.id) ");
+            sb.append(" left join t_user_track utr on(tr.id = utr.track_id) ");
+        }
+        return sb;
+    }
+
     /**
      * Creates a new album.
-     * 
+     *
      * @param album Album to create
-     * @return Album ID
      */
-    public String create(Album album) {
+    public void create(Album album) {
         album.setId(UUID.randomUUID().toString());
         final Date now = new Date();
         if (album.getCreateDate() == null) {
@@ -93,7 +97,6 @@ public class AlbumDao extends BaseDao<AlbumDto, AlbumCriteria> {
                 .bind("location", album.getLocation())
                 .execute();
 
-        return album.getId();
     }
     
     /**

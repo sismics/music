@@ -17,11 +17,11 @@ public class InputStreamReaderThread extends Thread {
 
     private static final Logger logger = Logger.getLogger(InputStreamReaderThread.class);
 
-    private InputStream is;
+    private final InputStream is;
 
-    private String name;
+    private final String name;
 
-    private Closer closer = Closer.create();
+    private final Closer closer = Closer.create();
 
     public InputStreamReaderThread(InputStream input, String name) {
         super(name + " InputStreamReader thread");
@@ -31,7 +31,7 @@ public class InputStreamReaderThread extends Thread {
 
     @Override
     public void run() {
-        BufferedReader reader = null;
+        BufferedReader reader;
         try {
             reader = closer.register(new BufferedReader(new InputStreamReader(is)));
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {

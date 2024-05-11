@@ -13,7 +13,7 @@ import java.util.UUID;
  */
 public class ImportAudio {
     
-    public static enum Status {
+    public enum Status {
         PENDING,
         INPROGRESS,
         DONE,
@@ -23,27 +23,27 @@ public class ImportAudio {
     /**
      * ID.
      */
-    private String id;
+    private final String id;
     
     /**
      * URL.
      */
-    private String url;
+    private final String url;
     
     /**
      * Working files.
      */
-    private List<String> workingFiles = Lists.newArrayList();
+    private final List<String> workingFiles = Lists.newArrayList();
     
     /**
      * Quality.
      */
-    private String quality;
+    private final String quality;
     
     /**
      * Format.
      */
-    private String format;
+    private final String format;
     
     /**
      * Percentage progress.

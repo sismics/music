@@ -6,7 +6,7 @@ import java.io.File;
  * @author jtremeaux
  */
 public class ImportAudioFile {
-    private File file;
+    private final File file;
 
     private String title;
 

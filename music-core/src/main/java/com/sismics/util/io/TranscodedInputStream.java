@@ -17,11 +17,11 @@ public class TranscodedInputStream extends InputStream {
      */
     private static final Logger log = LoggerFactory.getLogger(TranscodedInputStream.class);
 
-    private InputStream processInputStream;
+    private final InputStream processInputStream;
 
-    private Process process;
+    private final Process process;
     
-    private int fileSize;
+    private final int fileSize;
 
     private int readBytes;
     
@@ -100,7 +100,7 @@ public class TranscodedInputStream extends InputStream {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         if (process != null) {
             // Destroying the process closes the streams
             process.destroy();

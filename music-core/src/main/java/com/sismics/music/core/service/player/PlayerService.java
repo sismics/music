@@ -18,7 +18,7 @@ public class PlayerService {
     /**
      * Map of <user id, playing status>.
      */
-    private Map<String, PlayerStatus> currentlyPlayerStatus;
+    private final Map<String, PlayerStatus> currentlyPlayerStatus;
 
     public PlayerService() {
         currentlyPlayerStatus = new HashMap<>();

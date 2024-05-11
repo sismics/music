@@ -41,7 +41,7 @@ public class LastFmService extends AbstractScheduledService {
     private static final Logger log = LoggerFactory.getLogger(LastFmService.class);
 
     @Override
-    protected void runOneIteration() throws Exception {
+    protected void runOneIteration() {
         TransactionUtil.handle(() -> {
             UserDao userDao = new UserDao();
             List<UserDto> userList = userDao.findByCriteria(new UserCriteria().setLastFmSessionTokenNotNull(true));
@@ -232,21 +232,21 @@ public class LastFmService extends AbstractScheduledService {
             log.info(MessageFormat.format("Getting page {0} of Last.fm user library", page - 1));
             result = LastFmUtil.getAllTracks(lastFmUser.getName(), page, 1000, session.getApiKey());
             TrackDao trackDao = new TrackDao();
-            for (Iterator<de.umass.lastfm.Track> it = result.iterator(); it.hasNext();) {
+            for (de.umass.lastfm.Track value : result) {
                 lastFmCount++;
-                de.umass.lastfm.Track lastFmTrack = it.next();
+                de.umass.lastfm.Track lastFmTrack = value;
                 log.debug(MessageFormat.format("  Last.fm track name={0} artist={1}", lastFmTrack.getName(), lastFmTrack.getArtist()));
                 for (TrackDto track : trackDao.findByCriteria(new TrackCriteria()
                         .setTitle(lastFmTrack.getName())
                         .setArtistName(lastFmTrack.getArtist())
-                       )) {
+                )) {
                     log.debug(MessageFormat.format("    Found match in local collection title={0} artistName={1}", track.getTitle(), track.getArtistName()));
                     userTrackDao.initPlayCount(user.getId(), track.getId(), lastFmTrack.getPlaycount()); // Playcount is actually the user play count
                     localCount++;
                 }
             }
             page++;
-        } while (result != null && page <= result.getTotalPages());
+        } while (page <= result.getTotalPages());
 
         log.info(MessageFormat.format("Retrieved {0} tracks from Last.fm, updated {1} play counts in the local collection", lastFmCount, localCount));
     }
@@ -264,28 +264,28 @@ public class LastFmService extends AbstractScheduledService {
         int page = 1;
         int lastFmCount = 0;
         int localCount = 0;
-        PaginatedResult<de.umass.lastfm.Track> result = null;
+        PaginatedResult<de.umass.lastfm.Track> result;
         do {
             // XXX implement rate limitation, should be good around 1000*10 = 10k faves for now
             // TODO implement a more permissive track search on local database, if Last.fm corrected the title/artist
             log.info(MessageFormat.format("Getting page {0} of Last.fm loved tracked", page - 1));
             result = LastFmUtil.getLovedTracks(lastFmUser.getName(), page, 1000, session.getApiKey());
             TrackDao trackDao = new TrackDao();
-            for (Iterator<de.umass.lastfm.Track> it = result.iterator(); it.hasNext();) {
+            for (de.umass.lastfm.Track value : result) {
                 lastFmCount++;
-                de.umass.lastfm.Track lastFmTrack = it.next();
+                de.umass.lastfm.Track lastFmTrack = value;
                 log.debug(MessageFormat.format("  Last.fm loved track name={0} artist={1}", lastFmTrack.getName(), lastFmTrack.getArtist()));
                 for (TrackDto track : trackDao.findByCriteria(new TrackCriteria()
                         .setTitle(lastFmTrack.getName())
                         .setArtistName(lastFmTrack.getArtist())
-                       )) {
+                )) {
                     log.debug(MessageFormat.format("    Found match in local collection title={0} artistName={1}", track.getTitle(), track.getArtistName()));
                     userTrackDao.like(user.getId(), track.getId());
                     localCount++;
                 }
             }
             page++;
-        } while (result != null && page <= result.getTotalPages());
+        } while (page <= result.getTotalPages());
 
         log.info(MessageFormat.format("Retrieved {0} loved tracks from Last.fm, imported {1} into the local collection", lastFmCount, localCount));
     }

@@ -38,6 +38,7 @@ public class TransactionUtil {
         }
         ThreadLocalContext context = ThreadLocalContext.get();
         context.setHandle(handle);
+        assert handle != null;
         handle.begin();
         
         try {

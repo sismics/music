@@ -19,9 +19,8 @@ public class UserTrackDao {
      * Creates a new user / track.
      *
      * @param userTrack User / track to create
-     * @return User / track ID
      */
-    public String create(UserTrack userTrack) {
+    public void create(UserTrack userTrack) {
         // Init user / track data
         userTrack.setId(UUID.randomUUID().toString());
         userTrack.setCreateDate(new Date());
@@ -38,7 +37,6 @@ public class UserTrackDao {
                 .bind("createDate", new Timestamp(userTrack.getCreateDate().getTime()))
                 .execute();
 
-        return userTrack.getId();
     }
 
     /**
@@ -82,9 +80,8 @@ public class UserTrackDao {
      * Updates a userTrack.
      *
      * @param userTrack UserTrack to update
-     * @return Updated userTrack
      */
-    public UserTrack update(UserTrack userTrack) {
+    public void update(UserTrack userTrack) {
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("update t_user_track set " +
                 " playcount = :playCount," +
@@ -95,7 +92,6 @@ public class UserTrackDao {
                 .bind("liked", userTrack.isLike())
                 .execute();
 
-        return userTrack;
     }
 
     /**

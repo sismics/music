@@ -26,14 +26,6 @@ public class DirectoryDao {
         directory.setCreateDate(new Date());
         directory.normalizeLocation();
 
-//        // Checks for directory unicity
-//        Query q = em.createQuery("select u from Directory u where d.directoryname = :directoryname and d.deleteDate is null");
-//        q.setParameter("directoryname", directory.getDirectoryname());
-//        List<?> l = q.getResultList();
-//        if (l.size() > 0) {
-//            throw new Exception("AlreadyExistingDirectoryname");
-//        }
-
         final Handle handle = ThreadLocalContext.get().getHandle();
         handle.createStatement("insert into " +
                 " t_directory(id, location, createdate)" +

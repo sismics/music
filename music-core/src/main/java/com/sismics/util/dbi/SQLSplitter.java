@@ -139,17 +139,13 @@ public class SQLSplitter implements Iterable<CharSequence> {
 
     private static int consumeParentheses(final CharSequence s, int start) {
         if (start >= s.length()) return start;
-        switch (s.charAt(start)) {
-            case '(':
-                ++start;
-                while (start < s.length()) {
-                    if (s.charAt(start) == ')')
-                        return start + 1;
-                    start = nextChar(s, start);
-                }
-                break;
-            default:
-                break;
+        if (s.charAt(start) == '(') {
+            ++start;
+            while (start < s.length()) {
+                if (s.charAt(start) == ')')
+                    return start + 1;
+                start = nextChar(s, start);
+            }
         }
         return start;
     }
